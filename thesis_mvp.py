@@ -3,8 +3,13 @@ from networkx.drawing.nx_pylab import draw
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 
+import uuid
 
-def create_nav_graph(data):
+# TODO: create frontier nodes
+# TODO: unifiy draw_dynamic_graph and draw_static_graph
+
+
+def create_complete_nav_graph(data):
     # create a graph based on array of waypoints
     G = nx.Graph()
     
@@ -14,6 +19,10 @@ def create_nav_graph(data):
             G.add_edge(i-1, i, type="waypoint_edge")
     return G
 
+def instantiate_graph(pos):
+    G = nx.Graph()
+    G.add_node(uuid.uuid4(), pos=pos, type="waypoint")
+    return G
 
 def create_nav_graph_online(data):
     # create a graph based on array of waypoints
@@ -58,8 +67,6 @@ def draw_static_graph(G):
     waypoint_edges = dict((e, d['type'])
                             for e, d in G.edges().items() if d['type'] == 'waypoint_edge')
 
-    # fig, ax = plt.subplots()
-
     # draw the nodes, edges and labels separately
     nx.draw_networkx_nodes(G, pos, nodelist=world_object_nodes.keys(),
             ax=ax, node_color='orange')
@@ -89,8 +96,6 @@ def draw_dynamic_graph(G, ax):
     waypoint_edges = dict((e, d['type'])
                           for e, d in G.edges().items() if d['type'] == 'waypoint_edge')
 
-    # fig, ax = plt.subplots()
-
     # draw the nodes, edges and labels separately
     nx.draw_networkx_nodes(G, pos, nodelist=world_object_nodes.keys(),
                            ax=ax, node_color='orange')
@@ -101,7 +106,7 @@ def draw_dynamic_graph(G, ax):
         G, pos, ax=ax, edgelist=waypoint_edges.keys(), edge_color='red')
     nx.draw_networkx_edges(
         G, pos, ax=ax, edgelist=world_object_edges.keys(), edge_color='orange')
-    nx.draw_networkx_labels(G, pos, ax=ax, font_size=10)
+    # nx.draw_networkx_labels(G, pos, ax=ax, font_size=10)
 
     limits = plt.axis('on')  # turns on axis
     ax.set_aspect('equal', 'box')  # set the aspect ratio of the plot
@@ -110,21 +115,59 @@ def draw_dynamic_graph(G, ax):
     plt.draw()
     plt.pause(0.5)
 
+def get_node_by_pos(pos, G):
+    for node in G.nodes():
+        print(node)
+        if G.nodes[node]['pos'] == pos:
+            return node
+
+def update_graph(G, wp, current_pos):
+
+    new_node = str(uuid.uuid4())
+
+    G.add_node(new_node, pos=wp, type="waypoint")
+
+
+    current_node = get_node_by_pos(current_pos, G)
+    G.add_edge(current_node, new_node , type="waypoint_edge")
+
+    return G
+
+def dynamic_test():
+    current_pos = (0,0)
+    knowledge_roadmap = instantiate_graph(current_pos)
+
+    wp_data = [(2,2), (4,2), (4,4), (4,6), (2,6), (2, 8), (2,10), (4,10), (6,12), (8,12), (10,14), (12,14)]
+    
+    fig, ax = plt.subplots()
+    plt.ion()
+    plt.show()
+
+    for wp in wp_data:
+        knowledge_roadmap = update_graph(knowledge_roadmap, wp, current_pos)
+        current_pos = wp
+        draw_dynamic_graph(knowledge_roadmap, ax)
+        
+
+
+
 if __name__ == '__main__':
-    # villa_nodes = [
+    # villa_nodes = (
     #     (1, {"pos": (0, 0), "type": "waypoint"}),
     # ]
 
-    data = [[0,0], [2,2], [4,2], [4,4], [4,6], [2,6], [2, 8], [2,10], [4,10], [6,12], [8,12], [10,14], [12,14]]
 
-    graph = create_nav_graph(data)
+    dynamic_test()
+        
+        
+
     # create_nav_graph_online(data)
-    plt.show()
+    # plt.show()
+    # # draw_static_graph(graph)
+
+    # graph = add_world_object_to_graph(graph)
+
     # draw_static_graph(graph)
-
-    graph = add_world_object_to_graph(graph)
-
-    draw_static_graph(graph)
 
 
 # how do I want to create this graph?
