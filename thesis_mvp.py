@@ -74,7 +74,6 @@ def draw_static_graph(G):
     ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
     plt.show()
 
-
 def draw_dynamic_graph(G, ax):
 
     pos = nx.get_node_attributes(G, 'pos')
@@ -111,8 +110,6 @@ def draw_dynamic_graph(G, ax):
     plt.draw()
     plt.pause(0.5)
 
-# TODO: write as a function and main 
-
 if __name__ == '__main__':
     # villa_nodes = [
     #     (1, {"pos": (0, 0), "type": "waypoint"}),
@@ -123,7 +120,6 @@ if __name__ == '__main__':
     graph = create_nav_graph(data)
     # create_nav_graph_online(data)
     plt.show()
-    # print(graph.nodes().items()[])
     # draw_static_graph(graph)
 
     graph = add_world_object_to_graph(graph)
