@@ -9,7 +9,6 @@ import uuid
 
 # TODO: create frontier nodes
 # TODO: unifiy draw_dynamic_graph and draw_static_graph
-# TODO: maintain a global count of the number of waypoint I have created... 
 
 
 def create_complete_nav_graph(data):
@@ -27,22 +26,7 @@ def instantiate_graph(pos):
     G.add_node(uuid.uuid4(), pos=pos, type="waypoint")
     return G
 
-def create_nav_graph_online(data):
-    # create a graph based on array of waypoints
-    G = nx.Graph()
-    fig, ax = plt.subplots()
-    plt.ion()
-    # plt.show()
-    
-    for i in range(len(data)):
-        G.add_node(i, pos=(data[i][0], data[i][1]), type="waypoint")
-        if i > 0:
-            G.add_edge(i-1, i, type="waypoint_edge")
-        
-        draw_dynamic_graph(G, ax)
-    
-    plt.show()
-    # return G
+
 
 # TODO: move this to class method
 def add_world_object_to_graph(graph):
@@ -119,13 +103,6 @@ def draw_dynamic_graph(G, ax):
     plt.draw()
     plt.pause(0.5)
 
-# TODO: move to class method
-def get_node_by_pos(pos, G):
-    for node in G.nodes():
-        print(node)
-        if G.nodes[node]['pos'] == pos:
-            return node
-
 def update_graph(G, wp, current_pos):
 
     new_node = str(uuid.uuid4())
@@ -142,7 +119,6 @@ def dynamic_test():
     current_pos = (0,0)
     knowledge_roadmap = instantiate_graph(current_pos)
 
-    wp_data = [(2,2), (4,2), (4,4), (4,6), (2,6), (2, 8), (2,10), (4,10), (6,12), (8,12), (10,14), (12,14)]
     
     fig, ax = plt.subplots()
     plt.ion()
@@ -151,38 +127,37 @@ def dynamic_test():
         knowledge_roadmap = update_graph(knowledge_roadmap, wp, current_pos)
         current_pos = wp
         draw_dynamic_graph(knowledge_roadmap, ax)
-        
 
-def test_class():
+def test_instant_graph(wp_data):
+    KRM = GraphManager((0,0))
+
+    KRM.init_plot()
+
+    KRM.add_waypoints(wp_data)
+    KRM.draw_current_graph()
+    plt.ioff()
+    plt.show()
+
+def test_graph_online(wp_data):
 
     KRM = GraphManager((0, 0))
-
-    wp_data = [(2,2), (4,2), (4,4), (4,6), (2,6), (2, 8), (2,10), (4,10), (6,12), (8,12), (10,14), (12,14)]
-    
     KRM.init_plot()
 
     for wp in wp_data:
         KRM.add_waypoint(wp)
-        KRM.draw_dynamic_graph()
+        KRM.draw_current_graph()
+
+    plt.ioff()
+    plt.show()
 
 if __name__ == '__main__':
-    # villa_nodes = (
-    #     (1, {"pos": (0, 0), "type": "waypoint"}),
-    # ]
+    wp_data = [(4, 0), (8, 0), (12, 0), (16, 0), (16, -4), (16, -8), (16, -12), (12, -12), (12, -8), (12, -4), (12, 0), (8, 0),
+               (5, 6), (0, 6), (-4, 6), (-8, 6), (-12, 6), (-16, 6), (-16, 11), (-16, 14)]
 
-    test_class()
-    # dynamic_test()
-        
-        
 
-    # create_nav_graph_online(data)
-    # plt.show()
-    # # draw_static_graph(graph)
-
-    # graph = add_world_object_to_graph(graph)
-
-    # draw_static_graph(graph)
-
+    # test_graph_online(wp_data)
+    test_instant_graph(wp_data)        
+    
 
 # how do I want to create this graph?
 # probably I want to create a system which can dynamically add nodes and edges
