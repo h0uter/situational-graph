@@ -3,10 +3,13 @@ from networkx.drawing.nx_pylab import draw
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 
+from graph_manager import GraphManager
+
 import uuid
 
 # TODO: create frontier nodes
 # TODO: unifiy draw_dynamic_graph and draw_static_graph
+# TODO: maintain a global count of the number of waypoint I have created... 
 
 
 def create_complete_nav_graph(data):
@@ -29,7 +32,7 @@ def create_nav_graph_online(data):
     G = nx.Graph()
     fig, ax = plt.subplots()
     plt.ion()
-    plt.show()
+    # plt.show()
     
     for i in range(len(data)):
         G.add_node(i, pos=(data[i][0], data[i][1]), type="waypoint")
@@ -41,6 +44,7 @@ def create_nav_graph_online(data):
     plt.show()
     # return G
 
+# TODO: move this to class method
 def add_world_object_to_graph(graph):
 
     graph.add_node("victim1", pos=(6, 6), type="world_object")
@@ -115,6 +119,7 @@ def draw_dynamic_graph(G, ax):
     plt.draw()
     plt.pause(0.5)
 
+# TODO: move to class method
 def get_node_by_pos(pos, G):
     for node in G.nodes():
         print(node)
@@ -141,7 +146,7 @@ def dynamic_test():
     
     fig, ax = plt.subplots()
     plt.ion()
-    plt.show()
+    # plt.show()
 
     for wp in wp_data:
         knowledge_roadmap = update_graph(knowledge_roadmap, wp, current_pos)
@@ -149,15 +154,25 @@ def dynamic_test():
         draw_dynamic_graph(knowledge_roadmap, ax)
         
 
+def test_class():
 
+    KRM = GraphManager((0, 0))
+
+    wp_data = [(2,2), (4,2), (4,4), (4,6), (2,6), (2, 8), (2,10), (4,10), (6,12), (8,12), (10,14), (12,14)]
+    
+    KRM.init_plot()
+
+    for wp in wp_data:
+        KRM.add_waypoint(wp)
+        KRM.draw_dynamic_graph()
 
 if __name__ == '__main__':
     # villa_nodes = (
     #     (1, {"pos": (0, 0), "type": "waypoint"}),
     # ]
 
-
-    dynamic_test()
+    test_class()
+    # dynamic_test()
         
         
 
