@@ -1,12 +1,20 @@
 import uuid
-from PIL.Image import EXTENT
 import networkx as nx
 import matplotlib.pyplot as plt
 
+# TODO: implement frontier nodes
 
-class GraphManager():
+class KnowledgeRoadmap():
+    '''
+    An agent implements a Knowledge Roadmap to keep track of the 
+    world beliefs which are relevant for navigating during his mission.
+    A KRM is a graph with 3 distinct node and corresponding edge types.
+    - Waypoint Nodes:: correspond to places the robot has been and can go to.
+    - World Object Nodes:: correspond to actionable items the robot has seen.
+    - Frontier Nodes:: correspond to places the robot has not been but expects it can go to.
+    '''
+
     def __init__(self, start_pos):
-        self.test = None
         self.KRM = nx.Graph() # Knowledge Road Map
         self.KRM.add_node(0, pos=start_pos, type="waypoint")
         self.next_wp_idx = 1
@@ -80,3 +88,11 @@ class GraphManager():
             print(node)
             if self.KRM.nodes[node]['pos'] == pos:
                 return node
+
+    # def add_worldobject(self):
+
+    #     self.KRM.add_node("victim1", pos=(6, 6), type="world_object")
+    #     self.KRM.add_edge(4, "victim1", type="world_object_edge")
+
+    #     self.KRM.add_node("victim2", pos=(10, 10), type="world_object")
+    #     self.KRM.add_edge(10, "victim2", type="world_object_edge")
