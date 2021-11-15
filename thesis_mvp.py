@@ -146,7 +146,6 @@ def dynamic_test():
     
     fig, ax = plt.subplots()
     plt.ion()
-    # plt.show()
 
     for wp in wp_data:
         knowledge_roadmap = update_graph(knowledge_roadmap, wp, current_pos)

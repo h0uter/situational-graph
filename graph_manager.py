@@ -18,11 +18,26 @@ class GraphManager():
 
     def init_plot(self):
         ''' initializes the plot'''
-        fig, self.ax = plt.subplots()
-        self.draw_dynamic_graph()
+
+        fig, self.ax = plt.subplots(figsize=(10, 10))
+        
+
+        self.img = plt.imread("resource/floor-plan-villa.png")
+        # fig, self.ax2 = plt.subplots(figsize=(10, 10))
+
+        plt.pause(1.5)
+
+
+        self.ax.set_title('Constructing Knowledge Roadmap')
+        self.ax.set_xlim([-20, 20])
+        self.ax.set_xlabel('x', size=10)
+        self.ax.set_ylim([-20, 20])
+        self.ax.set_ylabel('y', size=10)
+
+
         plt.ion()
-        plt.show()
-        plt.pause(2)
+        self.draw_dynamic_graph()
+        plt.pause(1.5)
 
 
     def draw_dynamic_graph(self):
@@ -54,14 +69,9 @@ class GraphManager():
 
         limits = plt.axis('on')  # turns on axis
         self.ax.set_aspect('equal', 'box')  # set the aspect ratio of the plot
-        self.ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
+        self.ax.tick_params(left=True, bottom=True,
+                            labelleft=True, labelbottom=True)
         # plt.show()
         plt.draw()
+        # self.ax.imshow(self.img)
         plt.pause(0.5)
-
-    # def plotKRM(self):
-    #     # self.init_plot()
-    #     self.draw_dynamic_graph()
-    #     # plt.show()
-    #     plt.draw()
-    #     plt.pause(0.5)
