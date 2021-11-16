@@ -8,24 +8,22 @@ class GraphWorld():
                           (5, 6), (0, 6), (-4, 6), (-8, 6), (-12, 6), (-16, 6), (-16, 11)]
         
         self.world = nx.Graph()
-        # self.world.add_nodes_from(self.structure)
 
-
+        # TODO:: find a cleaner way to init graph world
         self.world.add_node(0, pos=(0,0))
         self.idx = 1
         for wp in self.structure:
             self.world.add_node(self.idx, pos=wp)
             self.world.add_edge(self.idx, self.idx-1)
             self.idx += 1
+
         # nx.draw(self.world, pos=nx.get_node_attributes(self.world, 'pos'))
         # plt.show()
 
-
-    def get_local_grid(self, agent_at_wp):
+    def observe(self, agent_at_wp):
         ''' 
-        returns the local-grid aka 
+        returns measurement of the world
         '''
         # HACK:: the GraphWorld nodes which can be observed from the current agent state
         observable_nodes = self.world.neighbors(agent_at_wp)
-        local_grid = observable_nodes
-        return local_grid
+        return observable_nodes
