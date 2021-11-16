@@ -1,6 +1,6 @@
 import unittest
 from thesis_mvp import create_complete_nav_graph
-from graph_manager import GraphManager  
+from knowledge_road_map import KnowledgeRoadmap  
 
 def hello_world():
     return "Hello World!"
@@ -18,7 +18,7 @@ class TestMVP(unittest.TestCase):
         self.assertEqual(len(graph), len(data))
 
     def test_get_node_by_pos(self):
-        KRM = GraphManager((55, 55))
+        KRM = KnowledgeRoadmap((55, 55))
         
         self.assertEqual(0, KRM.get_node_by_pos((55, 55)))
 

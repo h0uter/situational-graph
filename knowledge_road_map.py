@@ -19,9 +19,9 @@ class KnowledgeRoadmap():
         self.KRM.add_node(0, pos=start_pos, type="waypoint")
         self.next_wp_idx = 1
 
-    def add_waypoint(self, agent_pos):
+    def add_waypoint(self, pos):
         ''' adds new waypoints and increments wp the idx'''
-        self.KRM.add_node(self.next_wp_idx, pos=agent_pos, type="waypoint", id=uuid.uuid4())
+        self.KRM.add_node(self.next_wp_idx, pos=pos, type="waypoint", id=uuid.uuid4())
         self.KRM.add_edge(self.next_wp_idx, self.next_wp_idx-1, type="waypoint_edge", id=uuid.uuid4())
         self.next_wp_idx += 1
 
