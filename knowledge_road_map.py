@@ -1,6 +1,7 @@
 import uuid
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
 
 # TODO: implement frontier nodes
 
@@ -18,17 +19,27 @@ class KnowledgeRoadmap():
         self.KRM = nx.Graph() # Knowledge Road Map
         self.KRM.add_node(0, pos=start_pos, type="waypoint")
         self.next_wp_idx = 1
+        self.next_frontier_idx = 100
+        self.init_plot()
+
 
     def add_waypoint(self, pos):
         ''' adds new waypoints and increments wp the idx'''
         self.KRM.add_node(self.next_wp_idx, pos=pos, type="waypoint", id=uuid.uuid4())
         self.KRM.add_edge(self.next_wp_idx, self.next_wp_idx-1, type="waypoint_edge", id=uuid.uuid4())
         self.next_wp_idx += 1
+        return self.next_wp_idx-1
 
     def add_waypoints(self, wp_array):
         ''' adds waypoints to the graph'''
         for wp in wp_array:
             self.add_waypoint(wp)
+
+    def add_frontier(self, pos):
+        self.KRM.add_node(self.next_frontier_idx, pos=pos,
+                                  type="frontier", id=uuid.uuid4())
+        # TODO: fix the edge from the current robot position to the frontier
+        # self.KRM.add_edge(self.next_wp_idx, self.next_wp_idx-1, type="waypoint_edge", id=uuid.uuid4())
 
     def init_plot(self):
         ''' initializes the plot'''
@@ -45,28 +56,31 @@ class KnowledgeRoadmap():
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
         plt.ion()
-        self.draw_current_graph()
+        self.draw_current_krm()
         plt.pause(1.5)
 
-    def draw_current_graph(self):
+    def draw_current_krm(self):
         ''' draws the current Knowledge Roadmap Graph'''
 
         pos = nx.get_node_attributes(self.KRM, 'pos')
         # filter the nodes and edges based on their type
         waypoint_nodes = dict((n, d['type'])
                             for n, d in self.KRM.nodes().items() if d['type'] == 'waypoint')
+        frontier_nodes = dict((n, d['type'])
+                              for n, d in self.KRM.nodes().items() if d['type'] == 'frontier')
         world_object_nodes = dict((n, d['type'])
                                 for n, d in self.KRM.nodes().items() if d['type'] == 'world_object')
 
         world_object_edges = dict((e, d['type'])
                                 for e, d in self.KRM.edges().items() if d['type'] == 'world_object_edge')
-
         waypoint_edges = dict((e, d['type'])
                             for e, d in self.KRM.edges().items() if d['type'] == 'waypoint_edge')
 
         # draw the nodes, edges and labels separately
         nx.draw_networkx_nodes(self.KRM, pos, nodelist=world_object_nodes.keys(),
                             ax=self.ax, node_color='orange')
+        nx.draw_networkx_nodes(self.KRM, pos, nodelist=frontier_nodes.keys(),
+                            ax=self.ax, node_color='yellow')
         nx.draw_networkx_nodes(
             self.KRM, pos, nodelist=waypoint_nodes.keys(), ax=self.ax, node_color='red')
         nx.draw_networkx_edges(
@@ -89,6 +103,20 @@ class KnowledgeRoadmap():
             if self.KRM.nodes[node]['pos'] == pos:
                 return node
 
+    def get_all_waypoints(self):
+        ''' returns all waypoints in the graph'''
+        return [self.KRM.nodes[node] for node in self.KRM.nodes() if self.KRM.nodes[node]['type'] == 'waypoint']
+
+    def get_all_waypoints2(self):
+        ''' returns all waypoints in the graph'''
+        # return [self.KRM.nodes[node] for node in self.KRM.nodes() if self.KRM.nodes[node]['type'] == 'waypoint']
+        return nx.get_node_attributes(self.KRM, 'type')
+
+    def get_all_frontiers(self):
+        ''' returns all frontiers in the graph'''
+        return [self.KRM.nodes[node] for node in self.KRM.nodes() if self.KRM.nodes[node]['type'] == 'frontier']
+
+
     # def add_worldobject(self):
 
     #     self.KRM.add_node("victim1", pos=(6, 6), type="world_object")
@@ -96,3 +124,4 @@ class KnowledgeRoadmap():
 
     #     self.KRM.add_node("victim2", pos=(10, 10), type="world_object")
     #     self.KRM.add_edge(10, "victim2", type="world_object_edge")
+

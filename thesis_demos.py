@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 from knowledge_road_map import KnowledgeRoadmap
 from agent import Agent
-from world import GraphWorld
+from world import GraphWorld, GraphWorldLoops
 
 
 # TODO: event stream model ipv statische graaf. check reactive programming.
@@ -21,7 +21,7 @@ def demo_instant_graph_from_waypoints(wp_data):
     KRM.init_plot()
 
     KRM.add_waypoints(wp_data)
-    KRM.draw_current_graph()
+    KRM.draw_current_krm()
     plt.ioff()
     plt.show()
 
@@ -34,7 +34,7 @@ def demo_online_graph(wp_data):
     KRM.init_plot()
     for wp in wp_data:
         KRM.add_waypoint(wp)
-        KRM.draw_current_graph()
+        KRM.draw_current_krm()
 
     plt.ioff()
     plt.show()
@@ -53,7 +53,7 @@ def demo_with_agent_drawn(wp_data):
     for wp in wp_data:
         KRM.add_waypoint(wp)
         agent.draw_agent(wp)
-        KRM.draw_current_graph()
+        KRM.draw_current_krm()
 
     plt.ioff()
     plt.show()
@@ -61,6 +61,7 @@ def demo_with_agent_drawn(wp_data):
 def demo_agent_driven():
 
     world = GraphWorld()
+    # world.draw_world()
     agent = Agent()
 
     agent.explore(world)
@@ -75,7 +76,6 @@ if __name__ == '__main__':
 
     # demo_with_agent_drawn(world.structure)
     # demo_instant_graph_from_waypoints(wp_data)
-
     demo_agent_driven()
     
 
