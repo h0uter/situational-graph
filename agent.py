@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 
 from knowledge_road_map import KnowledgeRoadmap
 
-
 class Agent():
     ''' Agent only here to test the KRM framework im developping'''
     def __init__(self):
@@ -39,7 +38,7 @@ class Agent():
                 print(node)
                 print(world.world._node[node]['pos'])
                 frontier_pos = world.world._node[node]['pos']
-                self.krm.add_frontier(frontier_pos)
+                self.krm.add_frontier(frontier_pos, self.at_wp)
                 frontier_counter += 1
 
         if frontier_counter == 0:
@@ -58,18 +57,24 @@ class Agent():
         
         pass
 
-    def sample_waypoint(self):
+    def sample_waypoint(self, target_frontier):
         '''
-        sample a new waypoint from the pose graph of the agent.
+        sample a new waypoint from the pose graph of the agent and remove the current frontier.
         '''
         # HACK:: turn a visited frontier node into a waypoint
+        # HACK:: need to decided between passing idx and the complete node dictionary
+        # BUG:: the waypoint nodes are also being removed
+        target = self.krm.get_node_by_pos(target_frontier['pos'])
+        print("target: ", target)
+        self.krm.KRM.remove_node(target)
+
         self.at_wp = self.krm.add_waypoint(self.pos)
         # pass
 
     def explore(self, world):
         # TODO:: complete the exploration behaviour
 
-        self.krm.draw_current_krm()
+        # self.krm.draw_current_krm()
 
         # I want to get the position of all the candidate frontiers so that I can
         # add them to my KRM as frontier nodes.
@@ -81,6 +86,6 @@ class Agent():
             self.krm.draw_current_krm()
             selected_frontier = self.select_target_frontier()
             self.teleport_to_pos(selected_frontier['pos'])
-            self.sample_waypoint()
+            self.sample_waypoint(selected_frontier)
 
 

@@ -18,10 +18,10 @@ class KnowledgeRoadmap():
     def __init__(self, start_pos):
         self.KRM = nx.Graph() # Knowledge Road Map
         self.KRM.add_node(0, pos=start_pos, type="waypoint")
-        self.next_wp_idx = 1
+        self.next__idx = 1
         self.next_frontier_idx = 100
+        self.next_node_idx = 1
         self.init_plot()
-
 
     def add_waypoint(self, pos):
         ''' adds new waypoints and increments wp the idx'''
@@ -35,11 +35,12 @@ class KnowledgeRoadmap():
         for wp in wp_array:
             self.add_waypoint(wp)
 
-    def add_frontier(self, pos):
+    def add_frontier(self, pos, agent_pos):
         self.KRM.add_node(self.next_frontier_idx, pos=pos,
                                   type="frontier", id=uuid.uuid4())
         # TODO: fix the edge from the current robot position to the frontier
-        # self.KRM.add_edge(self.next_wp_idx, self.next_wp_idx-1, type="waypoint_edge", id=uuid.uuid4())
+        self.KRM.add_edge(agent_pos, self.next_frontier_idx,
+                          type="frontier_edge", id=uuid.uuid4())
 
     def init_plot(self):
         ''' initializes the plot'''
@@ -75,6 +76,8 @@ class KnowledgeRoadmap():
                                 for e, d in self.KRM.edges().items() if d['type'] == 'world_object_edge')
         waypoint_edges = dict((e, d['type'])
                             for e, d in self.KRM.edges().items() if d['type'] == 'waypoint_edge')
+        frontier_edges = dict((e, d['type'])
+                              for e, d in self.KRM.edges().items() if d['type'] == 'frontier_edge')
 
         # draw the nodes, edges and labels separately
         nx.draw_networkx_nodes(self.KRM, pos, nodelist=world_object_nodes.keys(),
@@ -82,11 +85,13 @@ class KnowledgeRoadmap():
         nx.draw_networkx_nodes(self.KRM, pos, nodelist=frontier_nodes.keys(),
                             ax=self.ax, node_color='yellow')
         nx.draw_networkx_nodes(
-            self.KRM, pos, nodelist=waypoint_nodes.keys(), ax=self.ax, node_color='red')
+            self.KRM, pos, nodelist=waypoint_nodes.keys(), ax=self.ax, node_color='red', node_size=100)
         nx.draw_networkx_edges(
             self.KRM, pos, ax=self.ax, edgelist=waypoint_edges.keys(), edge_color='red')
         nx.draw_networkx_edges(
             self.KRM, pos, ax=self.ax, edgelist=world_object_edges.keys(), edge_color='orange')
+        nx.draw_networkx_edges(
+            self.KRM, pos, ax=self.ax, edgelist=frontier_edges.keys(), edge_color='yellow')
         nx.draw_networkx_labels(self.KRM, pos, ax=self.ax, font_size=10)
 
         plt.axis('on')  # turns on axis
@@ -94,7 +99,7 @@ class KnowledgeRoadmap():
         self.ax.tick_params(left=True, bottom=True,
                             labelleft=True, labelbottom=True)
         plt.draw()
-        plt.pause(0.5)
+        plt.pause(0.1)
 
 
     def get_node_by_pos(self, pos):
