@@ -48,8 +48,12 @@ class Agent():
         ''' using the KRM, obtain the optimal frontier to visit next'''
         frontiers = self.krm.get_all_frontiers()
         # HACK: just pick first frontier
-        selected_frontier = frontiers[0]
-        return selected_frontier
+        if len(frontiers) > 0:
+            target_frontier = frontiers[0]
+            return target_frontier
+        else:
+            self.no_more_frontiers = True
+            return 
         # pass
 
     def goto_target_frontier(self, target):
@@ -64,7 +68,12 @@ class Agent():
         # HACK:: turn a visited frontier node into a waypoint
         # HACK:: need to decided between passing idx and the complete node dictionary
         # BUG:: the waypoint nodes are also being removed
-        target = self.krm.get_node_by_pos(target_frontier['pos'])
+        print("target_frontier: ",target_frontier) 
+        # target_frontier is a dictionary;
+        # how to obtain the key that matches this dictionary?
+
+        # target = self.krm.get_node_by_pos(target_frontier['pos'])
+        target = self.krm.get_node_by_UUID(target_frontier['id'])
         print("target: ", target)
         self.krm.KRM.remove_node(target)
 
@@ -83,9 +92,11 @@ class Agent():
 
         while self.no_more_frontiers == False:
             self.sample_frontiers(world)
-            self.krm.draw_current_krm()
+            # self.krm.draw_current_krm()
+            self.krm.draw_KRM_from_skratch()
             selected_frontier = self.select_target_frontier()
+            if self.no_more_frontiers == True:
+                break
             self.teleport_to_pos(selected_frontier['pos'])
             self.sample_waypoint(selected_frontier)
-
 
