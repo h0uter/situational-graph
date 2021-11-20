@@ -98,26 +98,27 @@ class KnowledgeRoadmap():
         nx.draw_networkx_edges(
             self.KRM, pos, ax=self.ax, edgelist=frontier_edges.keys(), edge_color='yellow', width=4)
         nx.draw_networkx_labels(self.KRM, pos, ax=self.ax, font_size=10)
-
         plt.axis('on')  # turns on axis
         self.ax.set_aspect('equal', 'box')  # set the aspect ratio of the plot
         self.ax.tick_params(left=True, bottom=True,
                             labelleft=True, labelbottom=True)
+        plt.show()
         plt.draw()
-        self.fig.canvas.draw()
+        # self.fig.canvas.draw()
         plt.pause(0.2)
         # plt.clf()
     
     def draw_KRM_from_skratch(self):
-        plt.close()
-        self.fig, self.ax = plt.subplots(figsize=(10, 10))
-        self.img = plt.imread("resource/floor-plan-villa.png")
+        plt.cla()
+        # plt.close()
+        # self.fig, self.ax = plt.subplots(figsize=(10, 10))
+        # self.img = plt.imread("resource/floor-plan-villa.png")
 
-        self.ax.set_title('Constructing Knowledge Roadmap')
-        self.ax.set_xlim([-20, 20])
-        self.ax.set_xlabel('x', size=10)
-        self.ax.set_ylim([-15, 15])
-        self.ax.set_ylabel('y', size=10)
+        # self.ax.set_title('Constructing Knowledge Roadmap')
+        # self.ax.set_xlim([-20, 20])
+        # self.ax.set_xlabel('x', size=10)
+        # self.ax.set_ylim([-15, 15])
+        # self.ax.set_ylabel('y', size=10)
 
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 

@@ -35,8 +35,8 @@ class Agent():
 
         for node in observable_nodes:
             if node not in self.krm.KRM.nodes:
-                print(node)
-                print(world.world._node[node]['pos'])
+                # print(node)
+                # print(world.world._node[node]['pos'])
                 frontier_pos = world.world._node[node]['pos']
                 self.krm.add_frontier(frontier_pos, self.at_wp)
                 frontier_counter += 1
@@ -68,13 +68,13 @@ class Agent():
         # HACK:: turn a visited frontier node into a waypoint
         # HACK:: need to decided between passing idx and the complete node dictionary
         # BUG:: the waypoint nodes are also being removed
-        print("target_frontier: ",target_frontier) 
+        # print("target_frontier: ",target_frontier) 
         # target_frontier is a dictionary;
         # how to obtain the key that matches this dictionary?
 
         # target = self.krm.get_node_by_pos(target_frontier['pos'])
         target = self.krm.get_node_by_UUID(target_frontier['id'])
-        print("target: ", target)
+        # print("target: ", target)
         self.krm.KRM.remove_node(target)
 
         self.at_wp = self.krm.add_waypoint(self.pos)
