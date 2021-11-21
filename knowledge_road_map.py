@@ -23,7 +23,7 @@ class KnowledgeRoadmap():
         self.fig = None
         self.ax = None
         self.next_wp_idx = 1
-        self.next_frontier_idx = 100
+        self.next_frontier_idx = 1000
         self.next_slide = False
         self.init_plot()
 
@@ -39,6 +39,8 @@ class KnowledgeRoadmap():
             self.add_waypoint(wp)
 
     def add_frontier(self, pos, agent_at_wp):
+        ''' adds a frontier to the graph'''
+
         self.KRM.add_node(self.next_frontier_idx, pos=pos,
                         type="frontier", id=uuid.uuid4())
         self.KRM.add_edge(agent_at_wp, self.next_frontier_idx,
@@ -47,12 +49,15 @@ class KnowledgeRoadmap():
 
     def remove_frontier(self, target_frontier):
         ''' removes a frontier from the graph'''
-        target = self.get_node_by_UUID(target_frontier['id'])
-        self.KRM.remove_node(target)
+        if target_frontier['type'] == 'frontier':
+            target = self.get_node_by_UUID(target_frontier['id'])
+            # print("removing frontier: ", target)
+            self.KRM.remove_node(target)
 
     def init_plot(self):
         ''' initializes the plot'''
-        self.fig, self.ax = plt.subplots(figsize=(10, 10))
+        # self.fig, self.ax = plt.subplots(figsize=(10, 10))
+        self.fig, self.ax = plt.subplots()
         self.img = plt.imread("resource/floor-plan-villa.png")
 
         self.ax.set_title('Constructing Knowledge Roadmap')
@@ -77,12 +82,13 @@ class KnowledgeRoadmap():
 
     def draw_current_krm(self):
         ''' draws the current Knowledge Roadmap Graph'''
+        # plt.ion()
+
         plt.cla()
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
         pos = nx.get_node_attributes(self.KRM, 'pos')
         # filter the nodes and edges based on their type
-        print(self.KRM.nodes().items())
         waypoint_nodes = dict((n, d['type'])
                             for n, d in self.KRM.nodes().items() if d['type'] == 'waypoint')
         frontier_nodes = dict((n, d['type'])
@@ -118,6 +124,7 @@ class KnowledgeRoadmap():
 
         plt.draw()
         plt.pause(0.1)
+        # plt.ioff()
     
     def get_node_by_pos(self, pos):
         ''' returns the node at the given position

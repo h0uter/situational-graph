@@ -16,9 +16,17 @@ class GraphWorld():
             self.world.add_node(self.idx, pos=wp)
             self.world.add_edge(self.idx, self.idx-1)
             self.idx += 1
-        self.world.add_edge(1, 13)
+        self.world.add_edge(1, 12)
 
         # self.init_plot()
+    def get_node_by_pos(self, pos):
+        ''' returns the node at the given position
+        
+        returns
+        '''
+        for node in self.world.nodes():
+            if self.world.nodes[node]['pos'] == pos:
+                return node
 
     def init_plot(self):
         ''' initializes the plot'''

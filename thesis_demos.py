@@ -11,16 +11,16 @@ from world import GraphWorld, GraphWorldLoops
 
 ############################################################################################
 # DEMONSTRATIONS
-############################################################################################
+################ ############################################################################
 
 def demo_instant_graph_from_waypoints(wp_data):
-    ''' This demo instantly creates a graph from a list of waypoints'''
+    ''' This demo instantly createsn a graph from a list of waypoints'''
     KRM = KnowledgeRoadmap((0,0))
 
     KRM.init_plot()
 
     KRM.add_waypoints(wp_data)
-    KRM.draw_current_krm()
+    KRM.draw_current_krm() 
     plt.ioff()
     plt.show()
 
