@@ -6,17 +6,24 @@ class Agent():
     ''' Agent only here to test the KRM framework im developping'''
     def __init__(self):
         self.at_wp = 0
+        self.previous_at_wp = self.at_wp
         self.pos = (0, 0)
+        self.previous_pos = self.pos
         self.agent_drawing = None
         self.krm = KnowledgeRoadmap((0, 0))
         self.no_more_frontiers = False
+        self.wp_idx = 0
 
     def teleport_to_wp(self, goal_wp):
         ''' teleport to goal_wp '''
+        self.previous_at_wp = self.at_wp
         self.at_wp = goal_wp
 
     def teleport_to_pos(self, pos):
+        # self.previous_at_wp = self.at_wp
+        self.previous_pos = self.pos
         self.pos = pos
+        self.wp_idx += 1
 
     def draw_agent(self, wp):
         ''' draw the agent on the world '''
@@ -30,14 +37,21 @@ class Agent():
         ''' sample new frontiers from local_grid '''
         # HACK:: check if nodes not already in KRM
 
-        observable_nodes = world.world.neighbors(self.at_wp)
+        # observable_nodes = world.world.neighbors(self.at_wp)
+        print(f"self.at_wp: {self.at_wp}")
+        # BUG:: this no longer syncs to the world.world. graph
+        # observable_nodes = world.world[self.at_wp]
+        observable_nodes = world.world[self.wp_idx]
         frontier_counter = 0
+        print(f"len observable nodes {observable_nodes}")
 
         for node in observable_nodes:
             if node not in self.krm.KRM.nodes:
                 # print(node)
                 # print(world.world._node[node]['pos'])
                 frontier_pos = world.world._node[node]['pos']
+                # print(f"frontierpos {frontier_pos}")
+
                 self.krm.add_frontier(frontier_pos, self.at_wp)
                 frontier_counter += 1
 
@@ -47,6 +61,7 @@ class Agent():
     def select_target_frontier(self):
         ''' using the KRM, obtain the optimal frontier to visit next'''
         frontiers = self.krm.get_all_frontiers()
+        print(f"len frontiers {len(frontiers)}")
         # HACK: just pick first frontier
         if len(frontiers) > 0:
             target_frontier = frontiers[0]
@@ -61,23 +76,24 @@ class Agent():
         
         pass
 
-    def sample_waypoint(self, target_frontier):
+    def sample_waypoint(self):
         '''
         sample a new waypoint from the pose graph of the agent and remove the current frontier.
         '''
         # HACK:: turn a visited frontier node into a waypoint
         # HACK:: need to decided between passing idx and the complete node dictionary
-        # BUG:: the waypoint nodes are also being removed
         # print("target_frontier: ",target_frontier) 
         # target_frontier is a dictionary;
         # how to obtain the key that matches this dictionary?
 
         # target = self.krm.get_node_by_pos(target_frontier['pos'])
-        target = self.krm.get_node_by_UUID(target_frontier['id'])
-        # print("target: ", target)
-        self.krm.KRM.remove_node(target)
 
-        self.at_wp = self.krm.add_waypoint(self.pos)
+        # HACK:: at_wp needs to me updated in the move function
+        wp_at_previous_pos = self.krm.get_node_by_pos(self.previous_pos)
+        print(f"wp_at_previous_pos: {wp_at_previous_pos}")
+
+        self.at_wp = self.krm.add_waypoint(self.pos, wp_at_previous_pos)
+        # self.wp_idx += 1
         # pass
 
     def explore(self, world):
@@ -98,5 +114,6 @@ class Agent():
             if self.no_more_frontiers == True:
                 break
             self.teleport_to_pos(selected_frontier['pos'])
-            self.sample_waypoint(selected_frontier)
+            self.krm.remove_frontier(selected_frontier)
+            self.sample_waypoint()
 

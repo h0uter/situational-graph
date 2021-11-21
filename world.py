@@ -16,9 +16,9 @@ class GraphWorld():
             self.world.add_node(self.idx, pos=wp)
             self.world.add_edge(self.idx, self.idx-1)
             self.idx += 1
-        self.world.add_edge(1, 9)
+        # self.world.add_edge(1, 13)
 
-        self.init_plot()
+        # self.init_plot()
 
     def init_plot(self):
         ''' initializes the plot'''
@@ -33,7 +33,7 @@ class GraphWorld():
         self.ax.set_ylabel('y', size=10)
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
-        # self.draw_world()
+        self.draw_world()
 
     def draw_world(self):
         # nx.draw(self.world, pos=nx.get_node_attributes(self.world, 'pos'))

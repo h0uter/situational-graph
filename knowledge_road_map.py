@@ -19,7 +19,7 @@ class KnowledgeRoadmap():
 
     def __init__(self, start_pos):
         self.KRM = nx.Graph() # Knowledge Road Map
-        self.KRM.add_node(0, pos=start_pos, type="waypoint",id=uuid.uuid4())
+        self.KRM.add_node(0, pos=start_pos, type="waypoint", id=uuid.uuid4())
         self.fig = None
         self.ax = None
         # self.frontier_plots = None
@@ -29,10 +29,10 @@ class KnowledgeRoadmap():
         self.init_plot()
 
 
-    def add_waypoint(self, pos):
+    def add_waypoint(self, pos, prev_wp):
         ''' adds new waypoints and increments wp the idx'''
         self.KRM.add_node(self.next_node_idx, pos=pos, type="waypoint", id=uuid.uuid4())
-        self.KRM.add_edge(self.next_node_idx, self.next_node_idx-1, type="waypoint_edge", id=uuid.uuid4())
+        self.KRM.add_edge(self.next_node_idx, prev_wp, type="waypoint_edge", id=uuid.uuid4())
         self.next_node_idx += 1
         return self.next_node_idx-1
 
@@ -41,12 +41,22 @@ class KnowledgeRoadmap():
         for wp in wp_array:
             self.add_waypoint(wp)
 
-    def add_frontier(self, pos, agent_pos):
+    def add_frontier(self, pos, agent_at_wp):
         self.KRM.add_node(self.next_node_idx, pos=pos,
-                                  type="frontier", id=uuid.uuid4())
+                        type="frontier", id=uuid.uuid4())
         # TODO: fix the edge from the current robot position to the frontier
-        self.KRM.add_edge(agent_pos, self.next_node_idx,
+        self.KRM.add_edge(agent_at_wp, self.next_node_idx,
                           type="frontier_edge", id=uuid.uuid4())
+        self.next_node_idx += 1
+
+    def remove_frontier(self, target_frontier):
+        ''' removes a frontier from the graph'''
+        target = self.get_node_by_UUID(target_frontier['id'])
+        # print("target: ", target)
+        # print(f"before {self.krm.KRM.nodes().items()}")
+
+        self.KRM.remove_node(target)
+        # print(f"mid  {self.krm.KRM.nodes().items()}")
 
     def init_plot(self):
         ''' initializes the plot'''
@@ -70,6 +80,7 @@ class KnowledgeRoadmap():
 
         pos = nx.get_node_attributes(self.KRM, 'pos')
         # filter the nodes and edges based on their type
+        print(self.KRM.nodes().items())
         waypoint_nodes = dict((n, d['type'])
                             for n, d in self.KRM.nodes().items() if d['type'] == 'waypoint')
         frontier_nodes = dict((n, d['type'])
@@ -110,18 +121,7 @@ class KnowledgeRoadmap():
     
     def draw_KRM_from_skratch(self):
         plt.cla()
-        # plt.close()
-        # self.fig, self.ax = plt.subplots(figsize=(10, 10))
-        # self.img = plt.imread("resource/floor-plan-villa.png")
-
-        # self.ax.set_title('Constructing Knowledge Roadmap')
-        # self.ax.set_xlim([-20, 20])
-        # self.ax.set_xlabel('x', size=10)
-        # self.ax.set_ylim([-15, 15])
-        # self.ax.set_ylabel('y', size=10)
-
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
-
         self.draw_current_krm()
         plt.pause(0.1)
 
