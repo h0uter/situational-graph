@@ -1,6 +1,5 @@
 import networkx as nx
 from networkx.drawing.nx_pylab import draw
-import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 
 from knowledge_road_map import KnowledgeRoadmap
@@ -65,6 +64,9 @@ def demo_agent_driven():
     agent = Agent()
 
     agent.explore(world)
+
+    plt.ioff()
+    plt.show()
 
 
 if __name__ == '__main__':

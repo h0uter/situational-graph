@@ -4,7 +4,7 @@ from numpy.core.shape_base import block
 
 class GraphWorld():
     def __init__(self):
-        self.structure = [(4, 0), (8, 0), (12, 0), (16, 0), (16, -4), (16, -8), (16, -12), (12, -12), (12, -8), (12, -4), (12, 0), (8, 0),
+        self.structure = [(4, 0), (8, 0), (12, 0), (16, 0), (16, -4), (16, -8), (16, -12), (12, -12), (12, -8), (12, -4), (12, -1), (8, -1),
                           (5, 6), (0, 6), (-4, 6), (-8, 6), (-12, 6), (-16, 6), (-16, 11)]
         
         self.world = nx.Graph()
@@ -16,7 +16,7 @@ class GraphWorld():
             self.world.add_node(self.idx, pos=wp)
             self.world.add_edge(self.idx, self.idx-1)
             self.idx += 1
-        # self.world.add_edge(1, 13)
+        self.world.add_edge(1, 13)
 
         # self.init_plot()
 
