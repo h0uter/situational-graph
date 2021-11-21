@@ -5,7 +5,6 @@ from matplotlib.artist import Artist
 from networkx.generators.small import sedgewick_maze_graph
 import numpy as np
 
-
 class KnowledgeRoadmap():
     '''
     An agent implements a Knowledge Roadmap to keep track of the 
@@ -110,7 +109,7 @@ class KnowledgeRoadmap():
                             labelleft=True, labelbottom=True)
 
         plt.draw()
-        plt.pause(0.1)
+        # plt.pause(0.1)
     
     def get_node_by_pos(self, pos):
         ''' returns the node at the given position '''

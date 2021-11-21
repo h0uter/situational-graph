@@ -44,7 +44,7 @@ class GraphWorld():
         self.idx += 1
 
 
-        self.init_plot()
+        # self.init_plot()
     def get_node_by_pos(self, pos):
         ''' returns the node at the given position
         

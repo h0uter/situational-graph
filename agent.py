@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from knowledge_road_map import KnowledgeRoadmap
 import networkx as nx
-
 import keyboard
 
 class Agent():
@@ -24,9 +23,7 @@ class Agent():
     def sample_frontiers(self, world):
         ''' sample new frontiers from local_grid '''
         agent_at_world_node = world.get_node_by_pos(self.pos)
-
         observable_nodes = world.world[agent_at_world_node] # indexing the graph like this returns the neigbors
-
         world_node_pos_dict = nx.get_node_attributes(world.world, 'pos')
 
         for node in observable_nodes:
@@ -72,6 +69,8 @@ class Agent():
         # HACK:: the whole logic of this function is one big hack
         self.sample_frontiers(world)  # sample frontiers from the world
         self.krm.draw_current_krm()  # illustrate krm with new frontiers
+        self.draw_agent(self.pos)  # draw the agent on the world
+        plt.pause(0.2)
         selected_frontier = self.select_target_frontier()  # select a frontier to visit
         if self.no_more_frontiers == True:  # if there are no more frontiers, we are done
             print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
@@ -113,8 +112,7 @@ class Agent():
             if self.keypress:
                 self.keypress = False
                 self.explore_algo(world)
-                
-            
+
         self.krm.draw_current_krm()
 
     def draw_agent(self, wp):
@@ -122,7 +120,10 @@ class Agent():
         if self.agent_drawing != None:
             self.agent_drawing.remove()
         self.agent_drawing = plt.arrow(
-            wp[0], wp[1], 0.3, 0.3, width=0.3, color='blue')
+            wp[0], wp[1], 0.3, 0.3, width=0.4, color='blue')
+        plt.draw()
+        # plt.pause(0.1)
+
 
     def debug_logger(self):
         print("==============================")
