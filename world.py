@@ -16,9 +16,35 @@ class GraphWorld():
             self.world.add_node(self.idx, pos=wp)
             self.world.add_edge(self.idx, self.idx-1)
             self.idx += 1
-        self.world.add_edge(1, 12)
 
-        # self.init_plot()
+        # add the kitchen nodes
+        self.world.add_node(self.idx, pos=(6, -5))
+        self.world.add_edge(1, self.idx)
+        self.idx += 1
+        self.world.add_node(self.idx, pos=(6, -9))
+        self.world.add_edge(self.idx, self.idx-1)
+        self.idx += 1
+        self.world.add_node(self.idx, pos=(6, -14))
+        self.world.add_edge(self.idx, self.idx-1)
+        self.idx += 1
+
+        # add the small room nodes
+        self.world.add_node(self.idx, pos=(-9, 10))
+        self.world.add_edge(self.idx, 16)
+        self.idx += 1
+        self.world.add_node(self.idx, pos=(-8, 13))
+        self.world.add_edge(self.idx, self.idx-1)
+        self.idx += 1
+        # 
+        self.world.add_node(self.idx, pos=(2, 10))
+        self.world.add_edge(self.idx, 14)
+        self.idx += 1
+        self.world.add_node(self.idx, pos=(-2, 13))
+        self.world.add_edge(self.idx, self.idx-1)
+        self.idx += 1
+
+
+        self.init_plot()
     def get_node_by_pos(self, pos):
         ''' returns the node at the given position
         
@@ -30,6 +56,7 @@ class GraphWorld():
 
     def init_plot(self):
         ''' initializes the plot'''
+        plt.ion()
         fig, self.ax = plt.subplots(figsize=(10, 10))
 
         self.img = plt.imread("resource/floor-plan-villa.png")
@@ -52,7 +79,10 @@ class GraphWorld():
             self.world, pos=nx.get_node_attributes(self.world, 'pos'), ax=self.ax, edge_color='grey')
         nx.draw_networkx_labels(self.world, pos=nx.get_node_attributes(
             self.world, 'pos'), ax=self.ax, font_size=10)
-        plt.show()
+        plt.axis('on')
+        self.ax.tick_params(left=True, bottom=True,
+                            labelleft=True, labelbottom=True)
+        plt.draw()
 
     # def observe(self, agent_at_wp):
     #     ''' 

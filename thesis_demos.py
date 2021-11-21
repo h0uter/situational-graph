@@ -58,11 +58,12 @@ def demo_with_agent_drawn(wp_data):
     plt.show()
 
 def demo_agent_driven():
-
+    ''' this is the first demo where the agent takes actions to explore a world'''
     world = GraphWorld()
     # world.draw_world()
     agent = Agent()
 
+    # agent.explore_stepwise(world)
     agent.explore(world)
 
     plt.ioff()

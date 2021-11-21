@@ -5,7 +5,6 @@ from matplotlib.artist import Artist
 from networkx.generators.small import sedgewick_maze_graph
 import numpy as np
 
-# TODO: implement frontier nodes
 
 class KnowledgeRoadmap():
     '''
@@ -16,7 +15,6 @@ class KnowledgeRoadmap():
     - Frontier Nodes:: correspond to places the robot has not been but expects it can go to.
     TODO:- World Object Nodes:: correspond to actionable items the robot has seen.
     '''
-
     def __init__(self, start_pos):
         self.KRM = nx.Graph() # Knowledge Road Map
         self.KRM.add_node(0, pos=start_pos, type="waypoint", id=uuid.uuid4())
@@ -67,23 +65,12 @@ class KnowledgeRoadmap():
         self.ax.set_ylabel('y', size=10)
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
-        # self.fig.canvas.mpl_connect('button_press_event', self.on_click)
-
         plt.ion()
         self.draw_current_krm()
         plt.pause(0.1)
-    
-    # def on_click(self, event):
-    #     ''' adds waypoints to the graph on click'''
-    #     if event.button == 1:
-    #         self.add_waypoint((event.xdata, event.ydata), 0)
-    #         self.draw_current_krm()
-    #         plt.pause(0.1)
 
     def draw_current_krm(self):
         ''' draws the current Knowledge Roadmap Graph'''
-        # plt.ion()
-
         plt.cla()
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
@@ -124,13 +111,9 @@ class KnowledgeRoadmap():
 
         plt.draw()
         plt.pause(0.1)
-        # plt.ioff()
     
     def get_node_by_pos(self, pos):
-        ''' returns the node at the given position
-        
-        returns
-        '''
+        ''' returns the node at the given position '''
         for node in self.KRM.nodes():
             if self.KRM.nodes[node]['pos'] == pos:
                 return node
