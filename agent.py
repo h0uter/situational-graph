@@ -41,10 +41,11 @@ class Agent():
         print(f"self.at_wp: {self.at_wp}")
         # BUG:: this no longer syncs to the world.world. graph
         # observable_nodes = world.world[self.at_wp]
-        observable_nodes = world.world[self.wp_idx]
+        observable_nodes = world.world[self.at_wp]
         frontier_counter = 0
         print(f"len observable nodes {observable_nodes}")
 
+        # these are in wp idx
         for node in observable_nodes:
             if node not in self.krm.KRM.nodes:
                 # print(node)
@@ -62,8 +63,8 @@ class Agent():
         ''' using the KRM, obtain the optimal frontier to visit next'''
         frontiers = self.krm.get_all_frontiers()
         print(f"len frontiers {len(frontiers)}")
-        # HACK: just pick first frontier
         if len(frontiers) > 0:
+        # HACK: just pick first frontier
             target_frontier = frontiers[0]
             return target_frontier
         else:

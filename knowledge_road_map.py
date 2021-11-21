@@ -23,18 +23,18 @@ class KnowledgeRoadmap():
         self.fig = None
         self.ax = None
         # self.frontier_plots = None
-        # self.next_wp_idx = 1
-        # self.next_frontier_idx = 100
-        self.next_node_idx = 1
+        self.next_wp_idx = 1
+        self.next_frontier_idx = 100
+        # self.next_node_idx = 1
         self.init_plot()
 
 
     def add_waypoint(self, pos, prev_wp):
         ''' adds new waypoints and increments wp the idx'''
-        self.KRM.add_node(self.next_node_idx, pos=pos, type="waypoint", id=uuid.uuid4())
-        self.KRM.add_edge(self.next_node_idx, prev_wp, type="waypoint_edge", id=uuid.uuid4())
-        self.next_node_idx += 1
-        return self.next_node_idx-1
+        self.KRM.add_node(self.next_wp_idx, pos=pos, type="waypoint", id=uuid.uuid4())
+        self.KRM.add_edge(self.next_wp_idx, prev_wp, type="waypoint_edge", id=uuid.uuid4())
+        self.next_wp_idx += 1
+        return self.next_wp_idx-1
 
     def add_waypoints(self, wp_array):
         ''' adds waypoints to the graph'''
@@ -42,12 +42,12 @@ class KnowledgeRoadmap():
             self.add_waypoint(wp)
 
     def add_frontier(self, pos, agent_at_wp):
-        self.KRM.add_node(self.next_node_idx, pos=pos,
+        self.KRM.add_node(self.next_frontier_idx, pos=pos,
                         type="frontier", id=uuid.uuid4())
         # TODO: fix the edge from the current robot position to the frontier
-        self.KRM.add_edge(agent_at_wp, self.next_node_idx,
+        self.KRM.add_edge(agent_at_wp, self.next_frontier_idx,
                           type="frontier_edge", id=uuid.uuid4())
-        self.next_node_idx += 1
+        self.next_frontier_idx += 1
 
     def remove_frontier(self, target_frontier):
         ''' removes a frontier from the graph'''
