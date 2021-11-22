@@ -16,12 +16,12 @@ class KnowledgeRoadmap():
     '''
     def __init__(self, start_pos):
         self.KRM = nx.Graph() # Knowledge Road Map
+
+        # TODO: start node like this is lame
         self.KRM.add_node(0, pos=start_pos, type="waypoint", id=uuid.uuid4())
-        self.fig = None
-        self.ax = None
         self.next_wp_idx = 1
         self.next_frontier_idx = 1000
-        self.next_slide = False
+
         self.init_plot()
 
     def add_waypoint(self, pos, prev_wp):
@@ -35,9 +35,9 @@ class KnowledgeRoadmap():
         for wp in wp_array:
             self.add_waypoint(wp)
 
+    # TODO: remove the agent_at_wp parameter requirement
     def add_frontier(self, pos, agent_at_wp):
         ''' adds a frontier to the graph'''
-
         self.KRM.add_node(self.next_frontier_idx, pos=pos,
                         type="frontier", id=uuid.uuid4())
         self.KRM.add_edge(agent_at_wp, self.next_frontier_idx,
@@ -51,18 +51,19 @@ class KnowledgeRoadmap():
             # print("removing frontier: ", target)
             self.KRM.remove_node(target)
 
+    # TODO: this feels duplicative wtih draw_current_krm
     def init_plot(self):
         ''' initializes the plot'''
         # self.fig, self.ax = plt.subplots(figsize=(10, 10))
         self.fig, self.ax = plt.subplots()
         self.img = plt.imread("resource/floor-plan-villa.png")
 
-        self.ax.set_title('Constructing Knowledge Roadmap')
-        self.ax.set_xlim([-20, 20])
-        self.ax.set_xlabel('x', size=10)
-        self.ax.set_ylim([-15, 15])
-        self.ax.set_ylabel('y', size=10)
-        self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
+        # self.ax.set_title('Online Construction of Knowledge Roadmap')
+        # self.ax.set_xlim([-20, 20])
+        # self.ax.set_xlabel('x', size=10)
+        # self.ax.set_ylim([-15, 15])
+        # self.ax.set_ylabel('y', size=10)
+        # self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
         plt.ion()
         self.draw_current_krm()
@@ -71,6 +72,11 @@ class KnowledgeRoadmap():
     def draw_current_krm(self):
         ''' draws the current Knowledge Roadmap Graph'''
         plt.cla()
+        self.ax.set_title('Online Construction of Knowledge Roadmap')
+        self.ax.set_xlim([-20, 20])
+        self.ax.set_xlabel('x', size=10)
+        self.ax.set_ylim([-15, 15])
+        self.ax.set_ylabel('y', size=10)
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
         pos = nx.get_node_attributes(self.KRM, 'pos')
@@ -118,11 +124,13 @@ class KnowledgeRoadmap():
                 return node
 
     def get_node_by_UUID(self, UUID):
+        ''' returns the node with the given UUID '''
         for node in self.KRM.nodes():
             if self.KRM.nodes[node]['id'] == UUID:
                 return node
 
     def get_node_by_idx(self, idx):
+        ''' returns the node corresponding to the given index '''
         return self.KRM.nodes[idx]
 
     def get_all_waypoints(self):

@@ -4,14 +4,11 @@ import matplotlib.pyplot as plt
 
 from knowledge_road_map import KnowledgeRoadmap
 from agent import Agent
-from world import GraphWorld, GraphWorldLoops
-
-
-# TODO: event stream model ipv statische graaf. check reactive programming.
+from world import GraphWorld, GraphWorldExperiment
 
 ############################################################################################
 # DEMONSTRATIONS
-################ ############################################################################
+############################################################################################
 
 def demo_instant_graph_from_waypoints(wp_data):
     ''' This demo instantly createsn a graph from a list of waypoints'''
@@ -80,6 +77,7 @@ if __name__ == '__main__':
     # demo_with_agent_drawn(world.structure)
     # demo_instant_graph_from_waypoints(wp_data)
     demo_agent_driven()
+    # world = GraphWorldExperiment()
     
 
 # how do I want to create this graph?

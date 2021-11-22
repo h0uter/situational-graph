@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.core.numeric import Inf, Infinity
 from knowledge_road_map import KnowledgeRoadmap
 import networkx as nx
 import keyboard
@@ -13,7 +14,6 @@ class Agent():
         self.agent_drawing = None
         self.krm = KnowledgeRoadmap((0, 0))
         self.no_more_frontiers = False
-        # self.keypress = None
 
     def teleport_to_pos(self, pos):
         self.previous_pos = self.pos
@@ -39,17 +39,42 @@ class Agent():
         ''' using the KRM, obtain the optimal frontier to visit next'''
         frontiers = self.krm.get_all_frontiers()
         if len(frontiers) > 0:
-            # HACK: just pick a random frontier. this is where the interesting logic comes in.
-            idx = np.random.randint(0, len(frontiers))
-            target_frontier = frontiers[idx]
+            ###############################################################################################################
+            # TODO:: this is where the interesting logic comes in.
+            ###############################################################################################################
+            shortest_path_len = float('inf')
+            selected_frontier = None
+            self.selected_path = None
+
+            # HACK: this whole logic is a hack ans should be refactored. 
+            for frontier in frontiers:
+                # print(f"frontier: {frontier}")
+                targ = self.krm.get_node_by_UUID(frontier['id'])
+                ans = nx.shortest_path(self.krm.KRM, source=self.at_wp, target=targ)
+                print(f"shortest path: {ans}")
+                if len(ans) < shortest_path_len:
+                    shortest_path_len = len(ans)
+                    selected_frontier = ans[-1]
+                    self.selected_path = ans
+                    ans.pop() # pop the last element, cause its a frontier
+                
+            target_frontier = self.krm.get_node_by_idx(selected_frontier)
             return target_frontier
         else:
             self.no_more_frontiers = True
             return 
 
-    def goto_target_frontier(self, target):
+    def goto_target_frontier(self):
         '''perform the move actions to reach the target frontier'''
-        pass
+
+        for node_idx in self.selected_path:
+            node = self.krm.get_node_by_idx(node_idx)
+            self.teleport_to_pos(node['pos'])
+            self.draw_agent(node['pos'])
+            plt.show()
+            plt.pause(0.1)
+            # self.debug_logger()
+    
 
     def sample_for_shortcuts(self):
         ''' check if we can add edges which create a shortcut for existing waypoints'''
@@ -70,7 +95,7 @@ class Agent():
         self.sample_frontiers(world)  # sample frontiers from the world
         self.krm.draw_current_krm()  # illustrate krm with new frontiers
         self.draw_agent(self.pos)  # draw the agent on the world
-        plt.pause(0.2)
+        plt.pause(0.5)
         selected_frontier = self.select_target_frontier()  # select a frontier to visit
         if self.no_more_frontiers == True:  # if there are no more frontiers, we are done
             print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
@@ -89,8 +114,11 @@ class Agent():
 
         if closest_wp_to_selected_frontier['pos'] != self.pos:
             # if the pos of the closest wp to our frontier is not our agent pos, we need to move to it
-            self.teleport_to_pos(
-                closest_wp_to_selected_frontier["pos"])
+            self.goto_target_frontier()
+            # self.teleport_to_pos(
+            #     closest_wp_to_selected_frontier["pos"])
+
+        # TODO: remove this teleport code
         self.teleport_to_pos(selected_frontier['pos'])
         self.krm.remove_frontier(selected_frontier)
         self.sample_waypoint()
