@@ -12,7 +12,7 @@ from world import GraphWorld, GraphWorldExperiment
 
 def demo_instant_graph_from_waypoints(wp_data):
     ''' This demo instantly createsn a graph from a list of waypoints'''
-    KRM = KnowledgeRoadmap((0,0))
+    KRM = KnowledgeRoadmap()
 
     KRM.init_plot()
 
@@ -26,7 +26,7 @@ def demo_online_graph(wp_data):
     This demo creates and visualises a graph online 
     from an array of waypoint data
     '''
-    KRM = KnowledgeRoadmap((0, 0))
+    KRM = KnowledgeRoadmap()
     KRM.init_plot()
     for wp in wp_data:
         KRM.add_waypoint(wp)
@@ -35,13 +35,11 @@ def demo_online_graph(wp_data):
     plt.ioff()
     plt.show()
 
-
 def demo_with_agent_drawn(wp_data):
     ''' 
     This demo creates and visualises a graph online 
     from an array of waypoint data
     '''
-
     agent = Agent()
     KRM = KnowledgeRoadmap((0, 0))
     KRM.init_plot()
@@ -62,6 +60,8 @@ def demo_agent_driven():
 
     # agent.explore_stepwise(world)
     agent.explore(world)
+
+    # TODO:: agent.await_command()
 
     plt.ioff()
     plt.show()

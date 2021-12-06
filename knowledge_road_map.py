@@ -14,13 +14,14 @@ class KnowledgeRoadmap():
     - Frontier Nodes:: correspond to places the robot has not been but expects it can go to.
     TODO:- World Object Nodes:: correspond to actionable items the robot has seen.
     '''
-    def __init__(self, start_pos):
+    def __init__(self, start_pos=(0, 0)):
         self.KRM = nx.Graph() # Knowledge Road Map
 
         # TODO: start node like this is lame
         self.KRM.add_node(0, pos=start_pos, type="waypoint", id=uuid.uuid4())
         self.next_wp_idx = 1
         self.next_frontier_idx = 1000
+        self.next_wo_idx = 2000
 
         self.init_plot()
 
@@ -51,19 +52,17 @@ class KnowledgeRoadmap():
             # print("removing frontier: ", target)
             self.KRM.remove_node(target)
 
+    def add_world_object(self, pos, label):
+        ''' adds a world object to the graph'''
+        self.KRM.add_node(label, pos=pos, type="world_object", id=uuid.uuid4())
+        self.next_wo_idx += 1
+
     # TODO: this feels duplicative wtih draw_current_krm
     def init_plot(self):
         ''' initializes the plot'''
         # self.fig, self.ax = plt.subplots(figsize=(10, 10))
         self.fig, self.ax = plt.subplots()
         self.img = plt.imread("resource/floor-plan-villa.png")
-
-        # self.ax.set_title('Online Construction of Knowledge Roadmap')
-        # self.ax.set_xlim([-20, 20])
-        # self.ax.set_xlabel('x', size=10)
-        # self.ax.set_ylim([-15, 15])
-        # self.ax.set_ylabel('y', size=10)
-        # self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
         plt.ion()
         self.draw_current_krm()
@@ -97,24 +96,24 @@ class KnowledgeRoadmap():
 
         # draw the nodes, edges and labels separately
         nx.draw_networkx_nodes(self.KRM, pos, nodelist=world_object_nodes.keys(),
-                            ax=self.ax, node_color='orange')
+                            ax=self.ax, node_color='purple')
         nx.draw_networkx_nodes(self.KRM, pos, nodelist=frontier_nodes.keys(),
-                            ax=self.ax, node_color='yellow')
+                            ax=self.ax, node_color='green')
         nx.draw_networkx_nodes(
-            self.KRM, pos, nodelist=waypoint_nodes.keys(), ax=self.ax, node_color='red', node_size=100)
+            self.KRM, pos, nodelist=waypoint_nodes.keys(), ax=self.ax, node_color='red', node_size=150)
         nx.draw_networkx_edges(
             self.KRM, pos, ax=self.ax, edgelist=waypoint_edges.keys(), edge_color='red')
         nx.draw_networkx_edges(
-            self.KRM, pos, ax=self.ax, edgelist=world_object_edges.keys(), edge_color='orange')
+            self.KRM, pos, ax=self.ax, edgelist=world_object_edges.keys(), edge_color='purple')
         nx.draw_networkx_edges(
-            self.KRM, pos, ax=self.ax, edgelist=frontier_edges.keys(), edge_color='yellow', width=4)
-        nx.draw_networkx_labels(self.KRM, pos, ax=self.ax, font_size=10)
+            self.KRM, pos, ax=self.ax, edgelist=frontier_edges.keys(), edge_color='green', width=4)
+        nx.draw_networkx_labels(self.KRM, pos, ax=self.ax, font_size=8)
         plt.axis('on')  # turns on axis
         self.ax.set_aspect('equal', 'box')  # set the aspect ratio of the plot
         self.ax.tick_params(left=True, bottom=True,
                             labelleft=True, labelbottom=True)
 
-        plt.draw()
+        # plt.draw()
         # plt.pause(0.1)
     
     def get_node_by_pos(self, pos):

@@ -6,13 +6,16 @@ import networkx as nx
 import keyboard
 
 class Agent():
-    ''' Agent only here to test the KRM framework im developping'''
+    ''' 
+    Agent only here to test the KRM framework im developping.
+    Feature wise it should match the out of the box capabilities of Spot.
+    '''
     def __init__(self):
         self.at_wp = 0
         self.pos = (0, 0)
         self.previous_pos = self.pos
         self.agent_drawing = None
-        self.krm = KnowledgeRoadmap((0, 0))
+        self.krm = KnowledgeRoadmap()
         self.no_more_frontiers = False
 
     def teleport_to_pos(self, pos):
@@ -72,7 +75,7 @@ class Agent():
             self.teleport_to_pos(node['pos'])
             self.draw_agent(node['pos'])
             plt.show()
-            plt.pause(0.1)
+            plt.pause(0.05)
             # self.debug_logger()
     
 
@@ -95,7 +98,8 @@ class Agent():
         self.sample_frontiers(world)  # sample frontiers from the world
         self.krm.draw_current_krm()  # illustrate krm with new frontiers
         self.draw_agent(self.pos)  # draw the agent on the world
-        plt.pause(0.5)
+        plt.pause(0.3)
+
         selected_frontier = self.select_target_frontier()  # select a frontier to visit
         if self.no_more_frontiers == True:  # if there are no more frontiers, we are done
             print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
@@ -147,11 +151,11 @@ class Agent():
         ''' draw the agent on the world '''
         if self.agent_drawing != None:
             self.agent_drawing.remove()
-        self.agent_drawing = plt.arrow(
-            wp[0], wp[1], 0.3, 0.3, width=0.4, color='blue')
-        plt.draw()
-        # plt.pause(0.1)
-
+        # self.agent_drawing = plt.arrow(
+        #     wp[0], wp[1], 0.3, 0.3, width=0.4, color='blue')
+        self.agent_drawing = plt.gca().add_patch(plt.Circle(
+            (wp[0], wp[1]), 1, fc='blue'))
+        # plt.draw()
 
     def debug_logger(self):
         print("==============================")
@@ -160,3 +164,4 @@ class Agent():
         print(f">>> movement: {self.previous_pos} >>>>>> {self.pos}")
         print(f">>> frontiers: {self.krm.get_all_frontiers()}")
         print("==============================")
+
