@@ -42,18 +42,22 @@ class Agent():
 
     # TODO:: write a test for the sample frontiers function with a networkx demo graph
     def sample_frontiers(self, world):
-        ''' sample new frontiers from local_grid '''
+        ''' sample new frontier positions from local_grid '''
         agent_at_world_node = world.get_node_by_pos(self.pos)
         observable_nodes = world.world[agent_at_world_node] # indexing the graph like this returns the neigbors
+
+        # so this is godmode dictionary with all info
         world_node_pos_dict = nx.get_node_attributes(world.world, 'pos')
 
         for node in observable_nodes:
             obs_pos = world_node_pos_dict[node]
-            krm_node_pos_dict = nx.get_node_attributes(self.krm.KRM, 'pos')
-            # check if the there is already a node in my KRM with the same position as the observable node
+            krm_node_pos_dict = nx.get_node_attributes(self.krm.KRM, 'pos') # dict with all the pos of nodes already in krm
+            
+            # check if the there is not already a node in my KRM with the same position as the observable node
             if obs_pos not in krm_node_pos_dict.values():
-                # frontier_pos = world.world._node[node]['pos']
                 frontier_pos = obs_pos
+
+                # if there is no node at that pos in the KRM, add it
                 self.krm.add_frontier(frontier_pos, self.at_wp)
 
     # FIXME: this function needs to be made more explicit
@@ -65,7 +69,7 @@ class Agent():
             # TODO:: this is where the interesting logic comes in.
             ###############################################################################################################
             shortest_path_len = float('inf')
-            selected_frontier = None
+            selected_frontier_idx = None
             self.selected_path = None
 
             # HACK: this whole logic is a hack ans should be refactored. 
@@ -76,11 +80,11 @@ class Agent():
                 print(f"shortest path: {ans}")
                 if len(ans) < shortest_path_len:
                     shortest_path_len = len(ans)
-                    selected_frontier = ans[-1] # just take the last one if there are multiple
+                    selected_frontier_idx = ans[-1] # just take the last one if there are multiple
                     self.selected_path = ans
                     ans.pop() # pop the last element, cause its a frontier
                 
-            target_frontier = self.krm.get_node_by_idx(selected_frontier)
+            target_frontier = self.krm.get_node_by_idx(selected_frontier_idx)
             return target_frontier
         else:
             self.no_more_frontiers = True
@@ -123,11 +127,16 @@ class Agent():
             print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
             return
 
+
+        ###############################################################################################################
+        # FIXME:: all of this logic should be in goto_target_frontier()
         # TODO:: hide this logic to obtain the index of the frontier somewhere appropriate
         # so apparently we dont want the frontier itself, we want its idx
         # so the function above should return this idx instead of the object
         selected_frontier_idx = self.krm.get_node_by_UUID(
             selected_frontier["id"])         # obtain the idx from the frontier object using its id
+
+
 
         # SO Apparently we need to check if we are at the cloostest wp to the selected frontier.
         # prob got to do with Y sections?
@@ -143,6 +152,8 @@ class Agent():
         '''after reaching the wp next to the selected frontier, move to the selected frontier'''
         # TODO: remove this teleport code
         self.teleport_to_pos(selected_frontier['pos'])
+        ###############################################################################################################
+
 
         '''now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place'''
         self.krm.remove_frontier(selected_frontier)
