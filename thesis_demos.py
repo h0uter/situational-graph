@@ -79,7 +79,3 @@ if __name__ == '__main__':
     demo_agent_driven()
     # world = GraphWorldExperiment()
     
-
-# how do I want to create this graph?
-# probably I want to create a system which can dynamically add nodes and edges
-# I want to demonstrate how this graph is created dynamically from inputs about the world. 

@@ -18,6 +18,24 @@ class Agent():
         self.krm = KnowledgeRoadmap()
         self.no_more_frontiers = False
 
+    def debug_logger(self):
+        print("==============================")
+        print(">>> " + nx.info(self.krm.KRM))
+        print(f">>> self.at_wp: {self.at_wp}")
+        print(f">>> movement: {self.previous_pos} >>>>>> {self.pos}")
+        print(f">>> frontiers: {self.krm.get_all_frontiers()}")
+        print("==============================")
+
+    def draw_agent(self, wp):
+        ''' draw the agent on the world '''
+        if self.agent_drawing != None:
+            self.agent_drawing.remove()
+        # self.agent_drawing = plt.arrow(
+        #     wp[0], wp[1], 0.3, 0.3, width=0.4, color='blue')
+        self.agent_drawing = plt.gca().add_patch(plt.Circle(
+            (wp[0], wp[1]), 1, fc='blue'))
+        # plt.draw()
+
     def teleport_to_pos(self, pos):
         self.previous_pos = self.pos
         self.pos = pos
@@ -37,7 +55,6 @@ class Agent():
                 # frontier_pos = world.world._node[node]['pos']
                 frontier_pos = obs_pos
                 self.krm.add_frontier(frontier_pos, self.at_wp)
-
 
     # FIXME: this function needs to be made more explicit
     def select_target_frontier(self):
@@ -59,7 +76,7 @@ class Agent():
                 print(f"shortest path: {ans}")
                 if len(ans) < shortest_path_len:
                     shortest_path_len = len(ans)
-                    selected_frontier = ans[-1]
+                    selected_frontier = ans[-1] # just take the last one if there are multiple
                     self.selected_path = ans
                     ans.pop() # pop the last element, cause its a frontier
                 
@@ -71,7 +88,6 @@ class Agent():
 
     def goto_target_frontier(self):
         '''perform the move actions to reach the target frontier'''
-
         for node_idx in self.selected_path:
             node = self.krm.get_node_by_idx(node_idx)
             self.teleport_to_pos(node['pos'])
@@ -79,10 +95,6 @@ class Agent():
             plt.show()
             plt.pause(0.05)
             # self.debug_logger()
-
-    def sample_for_shortcuts(self):
-        ''' check if we can add edges which create a shortcut for existing waypoints'''
-        pass
 
     def sample_waypoint(self):
         '''
@@ -117,7 +129,6 @@ class Agent():
         selected_frontier_idx = self.krm.get_node_by_UUID(
             selected_frontier["id"])         # obtain the idx from the frontier object using its id
 
-
         # SO Apparently we need to check if we are at the cloostest wp to the selected frontier.
         # prob got to do with Y sections?
         # a frontier only has 1 wp as neighbor, so we ask for that neigbor
@@ -136,43 +147,22 @@ class Agent():
         '''now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place'''
         self.krm.remove_frontier(selected_frontier)
         self.sample_waypoint()
-        
+
         self.debug_logger()
 
-    def explore(self, world):
-        ''' explore the world by sampling new frontiers and waypoints '''
-
+    def explore(self, world, stepwise=False):
+        '''
+        Explore the world by sampling new frontiers and waypoints.
+        if stepwise is True, the exploration will be done in steps.
+        '''
         while self.no_more_frontiers == False:
-            self.explore_algo(world)
-
-        self.krm.draw_current_krm()
-
-    def explore_stepwise(self, world):
-        ''' explore the world one step for each key press'''
-        while self.no_more_frontiers == False:
-            # BUG:: matplotlib crashes after 10 sec if we block the execution like this.
-            self.keypress = keyboard.read_key()
-            if self.keypress:
-                self.keypress = False
+            if not stepwise:
                 self.explore_algo(world)
+            elif stepwise:
+                # BUG:: matplotlib crashes after 10 sec if we block the execution like this.
+                self.keypress = keyboard.read_key()
+                if self.keypress:
+                    self.keypress = False
+                    self.explore_algo(world)
 
         self.krm.draw_current_krm()
-
-    def draw_agent(self, wp):
-        ''' draw the agent on the world '''
-        if self.agent_drawing != None:
-            self.agent_drawing.remove()
-        # self.agent_drawing = plt.arrow(
-        #     wp[0], wp[1], 0.3, 0.3, width=0.4, color='blue')
-        self.agent_drawing = plt.gca().add_patch(plt.Circle(
-            (wp[0], wp[1]), 1, fc='blue'))
-        # plt.draw()
-
-    def debug_logger(self):
-        print("==============================")
-        print(">>> " + nx.info(self.krm.KRM))
-        print(f">>> self.at_wp: {self.at_wp}")
-        print(f">>> movement: {self.previous_pos} >>>>>> {self.pos}")
-        print(f">>> frontiers: {self.krm.get_all_frontiers()}")
-        print("==============================")
-
