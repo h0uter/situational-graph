@@ -138,7 +138,7 @@ class Agent():
 
         self.sample_frontiers(world)  # sample frontiers from the world
 
-        '''illustrate the KRM'''
+        '''visualize the KRM'''
         self.krm.draw_current_krm()  # illustrate krm with new frontiers
         self.draw_agent(self.pos)  # draw the agent on the world
         plt.pause(0.3)
@@ -155,7 +155,6 @@ class Agent():
             '''after reaching the wp next to the selected frontier, move to the selected frontier'''
             self.step_from_wp_to_frontier(selected_frontier_idx)
 
-            ##############################################################################################
             '''now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place'''
             self.krm.remove_frontier(selected_frontier_idx)
             # TODO: pruning frontiers should be independent of sampling waypoints
@@ -165,7 +164,6 @@ class Agent():
             # - if I get near the frontier prune it
             # - if i get out of range d_b of my waypoint, sample a new waypoint
 
-            ##############################################################################################
         else:
             print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
 
