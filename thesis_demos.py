@@ -56,7 +56,7 @@ def demo_agent_driven():
     ''' this is the first demo where the agent takes actions to explore a world'''
     world = ManualGraphWorld()
     # world = LatticeWorld()
-    agent = Agent()
+    agent = Agent(debug=False)
 
     # agent.explore_stepwise(world)
     agent.explore(world)

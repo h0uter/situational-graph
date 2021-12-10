@@ -9,7 +9,7 @@ class ManualGraphWorld():
         self.idx = 1
         self.create_complex_graph_world()
 
-        self.init_plot()
+        # self.init_plot()
 
     def create_path_graph_world(self):
         structure = [(4, 0), (8, 0), (12, 0), (16, 0), (16, -4), (16, -8), (16, -12), (12, -12), (12, -8), (12, -4), (12, -1), (8, -1),
