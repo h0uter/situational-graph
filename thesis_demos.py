@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from knowledge_road_map import KnowledgeRoadmap
 from agent import Agent
-from world import GraphWorld, GraphWorldExperiment
+from world import *
 
 ############################################################################################
 # DEMONSTRATIONS
@@ -54,8 +54,8 @@ def demo_with_agent_drawn(wp_data):
 
 def demo_agent_driven():
     ''' this is the first demo where the agent takes actions to explore a world'''
-    world = GraphWorld()
-    # world.draw_world()
+    world = ManualGraphWorld()
+    # world = LatticeWorld()
     agent = Agent()
 
     # agent.explore_stepwise(world)

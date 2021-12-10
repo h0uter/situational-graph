@@ -38,6 +38,8 @@ class Agent():
                 frontier_pos = obs_pos
                 self.krm.add_frontier(frontier_pos, self.at_wp)
 
+
+    # FIXME: this function needs to be made more explicit
     def select_target_frontier(self):
         ''' using the KRM, obtain the optimal frontier to visit next'''
         frontiers = self.krm.get_all_frontiers()
@@ -77,7 +79,6 @@ class Agent():
             plt.show()
             plt.pause(0.05)
             # self.debug_logger()
-    
 
     def sample_for_shortcuts(self):
         ''' check if we can add edges which create a shortcut for existing waypoints'''
@@ -92,40 +93,50 @@ class Agent():
         self.krm.add_waypoint(self.pos, wp_at_previous_pos)
         self.at_wp = self.krm.get_node_by_pos(self.pos)
 
+    # HACK:: the whole logic of this function is one big hack
     def explore_algo(self, world):
         '''the logic powering exploration'''
-        # HACK:: the whole logic of this function is one big hack
+
         self.sample_frontiers(world)  # sample frontiers from the world
+ 
+        '''illustrate the KRM'''
         self.krm.draw_current_krm()  # illustrate krm with new frontiers
         self.draw_agent(self.pos)  # draw the agent on the world
         plt.pause(0.3)
 
+        '''select the target frontier and if there are no more frontiers remaining, we are done'''
         selected_frontier = self.select_target_frontier()  # select a frontier to visit
+        #  this should be handled in select_target_frontier()
         if self.no_more_frontiers == True:  # if there are no more frontiers, we are done
             print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
             return
 
-        # TODO:: hide this logic somewhere appropriate
-        # obtain the idx from the frontier object using its id
+        # TODO:: hide this logic to obtain the index of the frontier somewhere appropriate
+        # so apparently we dont want the frontier itself, we want its idx
+        # so the function above should return this idx instead of the object
         selected_frontier_idx = self.krm.get_node_by_UUID(
-            selected_frontier["id"])
+            selected_frontier["id"])         # obtain the idx from the frontier object using its id
 
+
+        # SO Apparently we need to check if we are at the cloostest wp to the selected frontier.
+        # prob got to do with Y sections?
         # a frontier only has 1 wp as neighbor, so we ask for that neigbor
         closest_wp_to_selected_frontier_idx = list(
             nx.neighbors(self.krm.KRM, selected_frontier_idx))[0]
         closest_wp_to_selected_frontier = self.krm.get_node_by_idx(
             closest_wp_to_selected_frontier_idx)
-
+        '''if the pos of the closest wp to our frontier is not our agent pos, we need to move to it'''
         if closest_wp_to_selected_frontier['pos'] != self.pos:
-            # if the pos of the closest wp to our frontier is not our agent pos, we need to move to it
             self.goto_target_frontier()
-            # self.teleport_to_pos(
-            #     closest_wp_to_selected_frontier["pos"])
 
+        '''after reaching the wp next to the selected frontier, move to the selected frontier'''
         # TODO: remove this teleport code
         self.teleport_to_pos(selected_frontier['pos'])
+
+        '''now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place'''
         self.krm.remove_frontier(selected_frontier)
         self.sample_waypoint()
+        
         self.debug_logger()
 
     def explore(self, world):

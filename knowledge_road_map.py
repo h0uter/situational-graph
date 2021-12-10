@@ -76,6 +76,8 @@ class KnowledgeRoadmap():
         self.ax.set_xlabel('x', size=10)
         self.ax.set_ylim([-15, 15])
         self.ax.set_ylabel('y', size=10)
+
+        # FIXME: floorplan should be dependent on the specified priors and not be included in KRM
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
         pos = nx.get_node_attributes(self.KRM, 'pos')
