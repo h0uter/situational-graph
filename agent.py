@@ -20,6 +20,7 @@ class Agent():
         self.agent_drawing = None
         self.krm = KnowledgeRoadmap()
         self.no_more_frontiers = False
+        self.step_counter = 0
 
     def debug_logger(self):
         print("==============================")
@@ -41,6 +42,7 @@ class Agent():
     def teleport_to_pos(self, pos):
         self.previous_pos = self.pos
         self.pos = pos
+        self.step_counter += 1
 
     def sample_frontiers(self, world):
         ''' sample new frontier positions from local_grid '''
@@ -64,22 +66,22 @@ class Agent():
                 self.krm.add_frontier(frontier_pos, self.at_wp)
 
     #############################################################################################
-    ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTIC###
+    ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
     #############################################################################################
     def evaluate_frontiers(self, frontier_idxs):
         ''' Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics        
         '''
-        shortest_path_len = float('inf')
+        shortest_path_by_node_count = float('inf')
         selected_frontier_idx = None
 
         for frontier_idx in frontier_idxs:
             candidate_path = nx.shortest_path(
                 self.krm.KRM, source=self.at_wp, target=frontier_idx)
             # choose the last shortest path among equals
-            if len(candidate_path) <= shortest_path_len:
+            if len(candidate_path) <= shortest_path_by_node_count:
                 # if len(candidate_path) < shortest_path_len: # choose the first shortest path among equals
-                shortest_path_len = len(candidate_path)
+                shortest_path_by_node_count = len(candidate_path)
                 selected_frontier_idx = candidate_path[-1]
 
         return selected_frontier_idx
@@ -166,6 +168,7 @@ class Agent():
 
         else:
             print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
+            print(f"I took {self.step_counter} steps to complete the exploration")
 
         if self.debug:
             self.debug_logger()

@@ -1,8 +1,6 @@
 import uuid
 import networkx as nx
 import matplotlib.pyplot as plt
-from matplotlib.artist import Artist
-from networkx.generators.small import sedgewick_maze_graph
 import numpy as np
 
 class KnowledgeRoadmap():
@@ -12,7 +10,7 @@ class KnowledgeRoadmap():
     A KRM is a graph with 3 distinct node and corresponding edge types.
     - Waypoint Nodes:: correspond to places the robot has been and can go to.
     - Frontier Nodes:: correspond to places the robot has not been but expects it can go to.
-    TODO:- World Object Nodes:: correspond to actionable items the robot has seen.
+    TODO: - World Object Nodes:: correspond to actionable items the robot has seen.
     '''
     def __init__(self, start_pos=(0, 0)):
         self.KRM = nx.Graph() # Knowledge Road Map
