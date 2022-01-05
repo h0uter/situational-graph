@@ -3,13 +3,14 @@ import matplotlib.pyplot as plt
 from numpy.core.shape_base import block
 
 class ManualGraphWorld():
-    def __init__(self):
+    def __init__(self, debug=False):
         self.world = nx.Graph()
         self.world.add_node(0, pos=(0, 0))
         self.idx = 1
         self.create_complex_graph_world()
 
-        # self.init_plot()
+        if debug:
+            self.init_plot()
 
     def create_path_graph_world(self):
         structure = [(4, 0), (8, 0), (12, 0), (16, 0), (16, -4), (16, -8), (16, -12), (12, -12), (12, -8), (12, -4), (12, -1), (8, -1),
@@ -22,9 +23,9 @@ class ManualGraphWorld():
             self.idx += 1
 
     def create_complex_graph_world(self):
-        living = [(12, 0), (16, 0), (16, -4), (16, -8),
-                  (16, -12), (12, -12), (12, -8), (12, -4)]
-        hall = [(4, 0), (8, -1), (5, 6), (0, 6), (-4, 6),
+        living = [(12, 0), (15, 3), (18, 0), (18, -4), (18, -8),
+                  (18, -12),(15, -13), (12, -12), (12, -8), (12, -4)]
+        hall = [(4, 0), (8, -1), (7,3), (5, 6), (0, 6), (-4, 6),
                 (-8, 6), (-12, 6), (-16, 6), (-16, 11)]
         hall_init = False
         living_init = False
@@ -39,7 +40,7 @@ class ManualGraphWorld():
                 hall_init = True
 
         self.world.add_edge(0, 1)  # connect start to the hall
-
+        self.world.add_edge(1, 3) # make cyclic the start
         for wp in living:
             if living_init:
                 self.world.add_node(self.idx, pos=wp)
@@ -50,8 +51,8 @@ class ManualGraphWorld():
                 self.idx += 1
                 living_init = True
 
-        self.world.add_edge(17, 10)
-        self.world.add_edge(2, 10)
+        self.world.add_edge(20, 11) # make cyclic the living
+        self.world.add_edge(2, 11) # connect living to hall
 
         # add the kitchen nodes
         self.world.add_node(self.idx, pos=(7, -5))
@@ -60,20 +61,20 @@ class ManualGraphWorld():
         self.world.add_node(self.idx, pos=(6, -9))
         self.world.add_edge(self.idx, self.idx-1)
         self.idx += 1
-        self.world.add_node(self.idx, pos=(6, -14))
+        self.world.add_node(self.idx, pos=(6, -13))
         self.world.add_edge(self.idx, self.idx-1)
         self.idx += 1
 
         # add the small room nodes
         self.world.add_node(self.idx, pos=(-9, 10))
-        self.world.add_edge(self.idx, 6)
+        self.world.add_edge(self.idx, 7) # connect left small room to hall
         self.idx += 1
         self.world.add_node(self.idx, pos=(-8, 13))
         self.world.add_edge(self.idx, self.idx-1)
         self.idx += 1
         #
         self.world.add_node(self.idx, pos=(-2, 10))
-        self.world.add_edge(self.idx, 4)
+        self.world.add_edge(self.idx, 5) # connect right small room to hall
         self.idx += 1
         self.world.add_node(self.idx, pos=(2, 13))
         self.world.add_edge(self.idx, self.idx-1)
