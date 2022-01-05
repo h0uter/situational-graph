@@ -140,7 +140,7 @@ class KnowledgeRoadmap():
                                 width=4
         )
 
-        nx.draw_networkx_labels(self.KRM, pos, ax=self.ax, font_size=8)
+        nx.draw_networkx_labels(self.KRM, pos, ax=self.ax, font_size=6)
         plt.axis('on')  # turns on axis
         self.ax.set_aspect('equal', 'box')  # set the aspect ratio of the plot
         self.ax.tick_params(left=True, bottom=True,

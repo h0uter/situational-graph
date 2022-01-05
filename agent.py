@@ -18,9 +18,10 @@ class Agent():
         self.pos = (0, 0)
         self.previous_pos = self.pos
         self.agent_drawing = None
+        self.local_grid_drawing = None
         self.krm = KnowledgeRoadmap()
         self.no_more_frontiers = False
-        self.step_counter = 0
+        self.steps_taken = 0
 
     def debug_logger(self):
         print("==============================")
@@ -30,19 +31,26 @@ class Agent():
         print(f">>> frontiers: {self.krm.get_all_frontiers_idxs()}")
         print("==============================")
 
+    # TODO: this shouldnt be in the agent but in a GUI
     def draw_agent(self, wp):
         ''' draw the agent on the world '''
         if self.agent_drawing != None:
             self.agent_drawing.remove()
+        if self.local_grid_drawing != None:
+            self.local_grid_drawing.remove()
         # self.agent_drawing = plt.arrow(
         #     wp[0], wp[1], 0.3, 0.3, width=0.4, color='blue') # One day the agent will have direction
         self.agent_drawing = plt.gca().add_patch(plt.Circle(
             (wp[0], wp[1]), 1.2, fc='blue'))
+        
+        rec_len = 10
+        self.local_grid_drawing = plt.gca().add_patch(plt.Rectangle(
+            (wp[0]-0.5*rec_len, wp[1]-0.5*rec_len), rec_len, rec_len, alpha=0.2, fc='blue'))
 
     def teleport_to_pos(self, pos):
         self.previous_pos = self.pos
         self.pos = pos
-        self.step_counter += 1
+        self.steps_taken += 1
 
     def sample_frontiers(self, world):
         ''' sample new frontier positions from local_grid '''
@@ -168,7 +176,7 @@ class Agent():
 
         else:
             print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
-            print(f"I took {self.step_counter} steps to complete the exploration")
+            print(f"I took {self.steps_taken} steps to complete the exploration")
 
         if self.debug:
             self.debug_logger()
