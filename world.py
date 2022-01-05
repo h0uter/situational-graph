@@ -23,9 +23,9 @@ class ManualGraphWorld():
             self.idx += 1
 
     def create_complex_graph_world(self):
-        living = [(12, 0), (15, 3), (18, 0), (18, -4), (18, -8),
-                  (18, -12),(15, -13), (12, -12), (12, -8), (12, -4)]
-        hall = [(4, 0), (8, -1), (7,3), (5, 6), (0, 6), (-4, 6),
+        living = [(12.5, 0), (15, 3), (17.5, 0), (17.5, -4), (17.5, -8),
+                  (17.5, -12), (12.5, -12), (12.5, -8), (12.5, -4)]
+        hall = [(4, 0), (8, -1), (7,3), (4, 6), (0, 6), (-4, 6),
                 (-8, 6), (-12, 6), (-16, 6), (-16, 11)]
         hall_init = False
         living_init = False
@@ -51,7 +51,20 @@ class ManualGraphWorld():
                 self.idx += 1
                 living_init = True
 
-        self.world.add_edge(20, 11) # make cyclic the living
+        # make the living dense
+        self.world.add_edge(11, 13)  
+        self.world.add_edge(19, 14)  
+        self.world.add_edge(18, 15)  
+
+        self.world.add_edge(11, 14)
+        self.world.add_edge(13, 19)
+        self.world.add_edge(19, 15)
+        self.world.add_edge(14, 18)
+        self.world.add_edge(16, 18)
+        self.world.add_edge(15, 17)
+
+
+        self.world.add_edge(19, 11) # make cyclic the living
         self.world.add_edge(2, 11) # connect living to hall
 
         # add the kitchen nodes
