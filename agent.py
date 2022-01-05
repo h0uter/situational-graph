@@ -123,7 +123,7 @@ class Agent():
         self.krm.add_waypoint(self.pos, wp_at_previous_pos)
         self.at_wp = self.krm.get_node_by_pos(self.pos)
 
-    def execute_path(self, path):
+    def execute_path(self, path, world):
 
         closest_wp_to_selected_frontier = self.krm.get_node_data_by_idx(
             path[-1])
@@ -143,6 +143,34 @@ class Agent():
             selected_frontier_idx)
         self.teleport_to_pos(selected_frontier_data['pos'])
 
+    def check_for_shortcuts(self, world):
+
+        # for the node the agent is currently at, check if there are wp or frontiers nearby without an edge connecting them
+        # if there is such a shortcut, add and edge between the current node and the frontier
+        agent_at_world_node = world.get_node_by_pos(self.pos)
+        observable_nodes = world.world[agent_at_world_node]
+
+        print(f"observable nodes: {observable_nodes}")
+        for world_node in observable_nodes:
+            # convert observable world node to krm node
+            krm_node = self.krm.get_node_by_pos(world.world.nodes[world_node]['pos'])
+
+            if not self.krm.KRM.has_edge(krm_node, self.at_wp):
+                if krm_node != self.at_wp and krm_node:
+                    print("shortcut found")
+                    self.krm.KRM.add_edge(self.at_wp, krm_node, type="waypoint_edge")
+
+
+        # for node in self.krm.KRM:
+        #     node_data = self.krm.get_node_data_by_idx(node)
+        #     shortcut_treshold = 4
+        #     if self.pos[0] - shortcut_treshold <= node_data['pos'][0] <= self.pos[0] + shortcut_treshold and self.pos[1] - shortcut_treshold <= node_data['pos'][1] <= self.pos[1] + shortcut_treshold:
+        #         print(f"shortcut possible::: {node}")
+        #         
+
+        # self.pos
+
+
     def explore_algo(self, world):
         '''the logic powering exploration'''
 
@@ -160,7 +188,7 @@ class Agent():
             selected_path = self.find_path_to_closest_wp_to_selected_frontier(
                 selected_frontier_idx)
 
-            self.execute_path(selected_path)
+            self.execute_path(selected_path, world)
 
             '''after reaching the wp next to the selected frontier, move to the selected frontier'''
             self.step_from_wp_to_frontier(selected_frontier_idx)
@@ -169,6 +197,8 @@ class Agent():
             self.krm.remove_frontier(selected_frontier_idx)
             # TODO: pruning frontiers should be independent of sampling waypoints
             self.sample_waypoint()
+            self.check_for_shortcuts(world)  # check for shortcuts
+
 
             #  ok what I actually want is:
             # - if I get near the frontier prune it
