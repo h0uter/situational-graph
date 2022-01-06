@@ -93,6 +93,10 @@ class ManualGraphWorld():
         self.world.add_edge(self.idx, self.idx-1)
         self.idx += 1
 
+        # add the world objects
+        self.world.nodes[10]["world_object_dummy"] = "victim1"
+        # print(self.world.nodes[1])
+
     def get_node_by_pos(self, pos):
         ''' returns the node at the given position '''
         for node in self.world.nodes():

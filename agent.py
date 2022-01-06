@@ -160,6 +160,16 @@ class Agent():
                     else:
                         self.krm.KRM.add_edge(self.at_wp, krm_node, type="waypoint_edge")
 
+    def process_perception(self, world):
+        agent_at_world_node = world.get_node_by_pos(self.pos)
+        # print(world.world.nodes[agent_at_world_node].keys())
+        if "world_object_dummy" in world.world.nodes[agent_at_world_node].keys():
+        # if world.world[agent_at_world_node]["world_object_dummy"]:
+            print(f"world object found!!!!!")
+            world_object = world.world.nodes[agent_at_world_node]["world_object_dummy"]
+            self.krm.add_world_object((-13.5,13), world_object)
+        
+
     def explore_algo(self, world):
         '''the logic powering exploration'''
 
@@ -187,6 +197,7 @@ class Agent():
             # TODO: pruning frontiers should be independent of sampling waypoints
             self.sample_waypoint()
             self.check_for_shortcuts(world)  # check for shortcuts
+            self.process_perception(world)
 
             #  ok what I actually want is:
             # - if I get near the frontier prune it

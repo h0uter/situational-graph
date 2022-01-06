@@ -34,6 +34,13 @@ class KnowledgeRoadmap():
         for wp in wp_array:
             self.add_waypoint(wp)
 
+    def add_world_object(self, pos, label):
+        ''' adds a world object to the graph'''
+        self.KRM.add_node(label, pos=pos, type="world_object", id=uuid.uuid4())
+        self.KRM.add_edge(self.next_wp_idx-1, label, type="world_object_edge", id=uuid.uuid4())
+
+        # self.next_wo_idx += 1
+
     # TODO: remove the agent_at_wp parameter requirement
     def add_frontier(self, pos, agent_at_wp):
         ''' adds a frontier to the graph'''
@@ -49,10 +56,6 @@ class KnowledgeRoadmap():
         if target_frontier['type'] == 'frontier':
             self.KRM.remove_node(target_frontier_idx)  
 
-    def add_world_object(self, pos, label):
-        ''' adds a world object to the graph'''
-        self.KRM.add_node(label, pos=pos, type="world_object", id=uuid.uuid4())
-        self.next_wo_idx += 1
 
     def init_plot(self):
         ''' initializes the plot'''
@@ -98,7 +101,8 @@ class KnowledgeRoadmap():
                                 pos, 
                                 nodelist=world_object_nodes.keys(),
                                 ax=self.ax, 
-                                node_color='purple'
+                                node_color='violet',
+                                node_size=575
         )
         nx.draw_networkx_nodes(
                                 self.KRM, 
@@ -115,7 +119,7 @@ class KnowledgeRoadmap():
                                 nodelist=waypoint_nodes.keys(), 
                                 ax=self.ax, 
                                 node_color='red', 
-                                node_size=120
+                                node_size=140
         )
         nx.draw_networkx_edges(
                                 self.KRM, 
