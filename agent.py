@@ -154,7 +154,11 @@ class Agent():
             if not self.krm.KRM.has_edge(krm_node, self.at_wp):
                 if krm_node != self.at_wp and krm_node: # prevent self loops and None errors
                     if self.debug: print("shortcut found")
-                    self.krm.KRM.add_edge(self.at_wp, krm_node, type="waypoint_edge")
+                    # add the correct type of edge
+                    if self.krm.KRM.nodes[krm_node]["type"] == "frontier":
+                        self.krm.KRM.add_edge(self.at_wp, krm_node, type="frontier_edge")
+                    else:
+                        self.krm.KRM.add_edge(self.at_wp, krm_node, type="waypoint_edge")
 
     def explore_algo(self, world):
         '''the logic powering exploration'''
