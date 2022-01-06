@@ -94,8 +94,15 @@ class ManualGraphWorld():
         self.idx += 1
 
         # add the world objects
-        self.world.nodes[10]["world_object_dummy"] = "victim1"
-        # print(self.world.nodes[1])
+        self.world.nodes[10]["world_object_dummy"] = "victim1" # top left room
+        self.world.nodes[10]["world_object_pos_dummy"] = (-13.5,13)
+
+        self.world.nodes[17]["world_object_dummy"] = "victim2" # living
+        self.world.nodes[17]["world_object_pos_dummy"] = (11,-14)
+
+        self.world.nodes[22]["world_object_dummy"] = "victim3" # kitchen
+        self.world.nodes[22]["world_object_pos_dummy"] = (8,-14)
+
 
     def get_node_by_pos(self, pos):
         ''' returns the node at the given position '''

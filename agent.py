@@ -167,9 +167,9 @@ class Agent():
         # if world.world[agent_at_world_node]["world_object_dummy"]:
             print(f"world object found!!!!!")
             world_object = world.world.nodes[agent_at_world_node]["world_object_dummy"]
-            self.krm.add_world_object((-13.5,13), world_object)
+            wo_pos = world.world.nodes[agent_at_world_node]["world_object_pos_dummy"]
+            self.krm.add_world_object(wo_pos, world_object)
         
-
     def explore_algo(self, world):
         '''the logic powering exploration'''
 
