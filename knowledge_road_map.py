@@ -1,8 +1,6 @@
 import uuid
 import networkx as nx
 import matplotlib.pyplot as plt
-from matplotlib.artist import Artist
-from networkx.generators.small import sedgewick_maze_graph
 import numpy as np
 
 class KnowledgeRoadmap():
@@ -12,7 +10,7 @@ class KnowledgeRoadmap():
     A KRM is a graph with 3 distinct node and corresponding edge types.
     - Waypoint Nodes:: correspond to places the robot has been and can go to.
     - Frontier Nodes:: correspond to places the robot has not been but expects it can go to.
-    TODO:- World Object Nodes:: correspond to actionable items the robot has seen.
+    TODO: - World Object Nodes:: correspond to actionable items the robot has seen.
     '''
     def __init__(self, start_pos=(0, 0)):
         self.KRM = nx.Graph() # Knowledge Road Map
@@ -36,6 +34,13 @@ class KnowledgeRoadmap():
         for wp in wp_array:
             self.add_waypoint(wp)
 
+    def add_world_object(self, pos, label):
+        ''' adds a world object to the graph'''
+        self.KRM.add_node(label, pos=pos, type="world_object", id=uuid.uuid4())
+        self.KRM.add_edge(self.next_wp_idx-1, label, type="world_object_edge", id=uuid.uuid4())
+
+        # self.next_wo_idx += 1
+
     # TODO: remove the agent_at_wp parameter requirement
     def add_frontier(self, pos, agent_at_wp):
         ''' adds a frontier to the graph'''
@@ -51,10 +56,6 @@ class KnowledgeRoadmap():
         if target_frontier['type'] == 'frontier':
             self.KRM.remove_node(target_frontier_idx)  
 
-    def add_world_object(self, pos, label):
-        ''' adds a world object to the graph'''
-        self.KRM.add_node(label, pos=pos, type="world_object", id=uuid.uuid4())
-        self.next_wo_idx += 1
 
     def init_plot(self):
         ''' initializes the plot'''
@@ -66,6 +67,7 @@ class KnowledgeRoadmap():
         self.draw_current_krm()
         plt.pause(0.1)
 
+    # FIXME: move this method to GUI class
     def draw_current_krm(self):
         ''' draws the current Knowledge Roadmap Graph'''
         plt.cla()
@@ -75,7 +77,7 @@ class KnowledgeRoadmap():
         self.ax.set_ylim([-15, 15])
         self.ax.set_ylabel('y', size=10)
 
-        # FIXME: floorplan should be dependent on the specified priors and not be included in KRM
+        # HACK: floorplan should be dependent on the specified priors and not be included in KRM
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
         pos = nx.get_node_attributes(self.KRM, 'pos')
@@ -100,7 +102,8 @@ class KnowledgeRoadmap():
                                 pos, 
                                 nodelist=world_object_nodes.keys(),
                                 ax=self.ax, 
-                                node_color='purple'
+                                node_color='violet',
+                                node_size=575
         )
         nx.draw_networkx_nodes(
                                 self.KRM, 
@@ -117,7 +120,7 @@ class KnowledgeRoadmap():
                                 nodelist=waypoint_nodes.keys(), 
                                 ax=self.ax, 
                                 node_color='red', 
-                                node_size=120
+                                node_size=140
         )
         nx.draw_networkx_edges(
                                 self.KRM, 
@@ -142,7 +145,7 @@ class KnowledgeRoadmap():
                                 width=4
         )
 
-        nx.draw_networkx_labels(self.KRM, pos, ax=self.ax, font_size=8)
+        nx.draw_networkx_labels(self.KRM, pos, ax=self.ax, font_size=6)
         plt.axis('on')  # turns on axis
         self.ax.set_aspect('equal', 'box')  # set the aspect ratio of the plot
         self.ax.tick_params(left=True, bottom=True,

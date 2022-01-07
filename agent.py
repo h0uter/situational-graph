@@ -18,8 +18,10 @@ class Agent():
         self.pos = (0, 0)
         self.previous_pos = self.pos
         self.agent_drawing = None
+        self.local_grid_drawing = None
         self.krm = KnowledgeRoadmap()
         self.no_more_frontiers = False
+        self.steps_taken = 0
 
     def debug_logger(self):
         print("==============================")
@@ -29,18 +31,26 @@ class Agent():
         print(f">>> frontiers: {self.krm.get_all_frontiers_idxs()}")
         print("==============================")
 
+    # TODO: this shouldnt be in the agent but in a GUI
     def draw_agent(self, wp):
         ''' draw the agent on the world '''
         if self.agent_drawing != None:
             self.agent_drawing.remove()
+        if self.local_grid_drawing != None:
+            self.local_grid_drawing.remove()
         # self.agent_drawing = plt.arrow(
         #     wp[0], wp[1], 0.3, 0.3, width=0.4, color='blue') # One day the agent will have direction
         self.agent_drawing = plt.gca().add_patch(plt.Circle(
             (wp[0], wp[1]), 1.2, fc='blue'))
+        
+        rec_len = 10
+        self.local_grid_drawing = plt.gca().add_patch(plt.Rectangle(
+            (wp[0]-0.5*rec_len, wp[1]-0.5*rec_len), rec_len, rec_len, alpha=0.2, fc='blue'))
 
     def teleport_to_pos(self, pos):
         self.previous_pos = self.pos
         self.pos = pos
+        self.steps_taken += 1
 
     def sample_frontiers(self, world):
         ''' sample new frontier positions from local_grid '''
@@ -64,22 +74,22 @@ class Agent():
                 self.krm.add_frontier(frontier_pos, self.at_wp)
 
     #############################################################################################
-    ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTIC###
+    ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
     #############################################################################################
     def evaluate_frontiers(self, frontier_idxs):
         ''' Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics        
         '''
-        shortest_path_len = float('inf')
+        shortest_path_by_node_count = float('inf')
         selected_frontier_idx = None
 
         for frontier_idx in frontier_idxs:
             candidate_path = nx.shortest_path(
                 self.krm.KRM, source=self.at_wp, target=frontier_idx)
             # choose the last shortest path among equals
-            if len(candidate_path) <= shortest_path_len:
+            if len(candidate_path) <= shortest_path_by_node_count:
                 # if len(candidate_path) < shortest_path_len: # choose the first shortest path among equals
-                shortest_path_len = len(candidate_path)
+                shortest_path_by_node_count = len(candidate_path)
                 selected_frontier_idx = candidate_path[-1]
 
         return selected_frontier_idx
@@ -113,7 +123,7 @@ class Agent():
         self.krm.add_waypoint(self.pos, wp_at_previous_pos)
         self.at_wp = self.krm.get_node_by_pos(self.pos)
 
-    def execute_path(self, path):
+    def execute_path(self, path, world):
 
         closest_wp_to_selected_frontier = self.krm.get_node_data_by_idx(
             path[-1])
@@ -133,6 +143,32 @@ class Agent():
             selected_frontier_idx)
         self.teleport_to_pos(selected_frontier_data['pos'])
 
+    def check_for_shortcuts(self, world):
+        agent_at_world_node = world.get_node_by_pos(self.pos)
+        observable_nodes = world.world[agent_at_world_node]
+
+        for world_node in observable_nodes:
+            # convert observable world node to krm node
+            krm_node = self.krm.get_node_by_pos(world.world.nodes[world_node]['pos'])
+
+            if not self.krm.KRM.has_edge(krm_node, self.at_wp):
+                if krm_node != self.at_wp and krm_node: # prevent self loops and None errors
+                    if self.debug: print("shortcut found")
+                    # add the correct type of edge
+                    if self.krm.KRM.nodes[krm_node]["type"] == "frontier":
+                        self.krm.KRM.add_edge(self.at_wp, krm_node, type="frontier_edge")
+                    else:
+                        self.krm.KRM.add_edge(self.at_wp, krm_node, type="waypoint_edge")
+
+    # HACK: perception processing should be more eleborate
+    def process_perception(self, world):
+        agent_at_world_node = world.get_node_by_pos(self.pos)
+        if "world_object_dummy" in world.world.nodes[agent_at_world_node].keys():
+            world_object = world.world.nodes[agent_at_world_node]["world_object_dummy"]
+            print(f"world object '{world_object}' found")
+            wo_pos = world.world.nodes[agent_at_world_node]["world_object_pos_dummy"]
+            self.krm.add_world_object(wo_pos, world_object)
+        
     def explore_algo(self, world):
         '''the logic powering exploration'''
 
@@ -150,7 +186,7 @@ class Agent():
             selected_path = self.find_path_to_closest_wp_to_selected_frontier(
                 selected_frontier_idx)
 
-            self.execute_path(selected_path)
+            self.execute_path(selected_path, world)
 
             '''after reaching the wp next to the selected frontier, move to the selected frontier'''
             self.step_from_wp_to_frontier(selected_frontier_idx)
@@ -159,6 +195,8 @@ class Agent():
             self.krm.remove_frontier(selected_frontier_idx)
             # TODO: pruning frontiers should be independent of sampling waypoints
             self.sample_waypoint()
+            self.check_for_shortcuts(world)  # check for shortcuts
+            self.process_perception(world)
 
             #  ok what I actually want is:
             # - if I get near the frontier prune it
@@ -166,6 +204,7 @@ class Agent():
 
         else:
             print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
+            print(f"I took {self.steps_taken} steps to complete the exploration")
 
         if self.debug:
             self.debug_logger()
@@ -185,4 +224,4 @@ class Agent():
                     self.keypress = False
                     self.explore_algo(world)
 
-        self.krm.draw_current_krm()
+        self.krm.draw_current_krm() # 
