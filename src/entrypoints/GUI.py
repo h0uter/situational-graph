@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 
+
+
 class GUI():
     def __init__(self):
         pass

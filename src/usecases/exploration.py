@@ -1,11 +1,11 @@
 from src.entities.agent import Agent
-from src.entities.world import *
+from src.data_providers.world import ManualGraphWorld, LatticeWorld
 import matplotlib.pyplot as plt
 import keyboard
 
 
+# HACK: exploration logic is still very tightly coupled to the agent class
 class Exploration:
-
     def __init__(self):
         self.agent  = Agent()
 
@@ -14,7 +14,7 @@ class Exploration:
     
         self.agent.sample_frontiers(world)  # sample frontiers from the world
 
-        # FIXME: this should be done using the GUI
+        # FIXME: exploration logic should not contain vizualisation
         '''visualize the KRM'''
         self.agent.krm.draw_current_krm()  # illustrate krm with new frontiers
         self.agent.draw_agent(self.agent.pos)  # draw the agent on the world
