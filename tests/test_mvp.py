@@ -1,6 +1,6 @@
 import unittest
 # from thesis_demos import create_complete_nav_graph
-from knowledge_road_map import KnowledgeRoadmap  
+from entities.knowledge_road_map import KnowledgeRoadmap  
 
 def hello_world():
     return "Hello World!"

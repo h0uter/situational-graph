@@ -9,8 +9,8 @@ class ManualGraphWorld():
         self.idx = 1
         self.create_complex_graph_world()
 
-        if debug:
-            self.init_plot()
+        # if debug:
+            # self.init_plot()
 
     def create_path_graph_world(self):
         structure = [(4, 0), (7, 0), (12, 0), (16, 0), (16, -4), (16, -8), (16, -12), (12, -12), (12, -8), (12, -4), (12, -1), (8, -1),
@@ -110,49 +110,49 @@ class ManualGraphWorld():
             if self.world.nodes[node]['pos'] == pos:
                 return node
 
-    # FIXME: 2 move this method to GUI class
-    def init_plot(self):
-        ''' initializes the plot'''
-        # plt.ion()
-        fig, self.ax = plt.subplots(figsize=(10, 10))
+    # # FIXME: 2 move this method to GUI class
+    # def init_plot(self):
+    #     ''' initializes the plot'''
+    #     # plt.ion()
+    #     fig, self.ax = plt.subplots(figsize=(10, 10))
 
-        self.img = plt.imread("resource/floor-plan-villa.png")
+    #     self.img = plt.imread("resource/floor-plan-villa.png")
 
-        self.ax.set_title('GraphWorld simplification of optimal frontiers for exploration')
-        self.ax.set_xlim([-20, 20])
-        self.ax.set_xlabel('x', size=10)
-        self.ax.set_ylim([-15, 15])
-        self.ax.set_ylabel('y', size=10)
-        self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
+    #     self.ax.set_title('GraphWorld simplification of optimal frontiers for exploration')
+    #     self.ax.set_xlim([-20, 20])
+    #     self.ax.set_xlabel('x', size=10)
+    #     self.ax.set_ylim([-15, 15])
+    #     self.ax.set_ylabel('y', size=10)
+    #     self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
-        self.draw_world()
+    #     self.draw_world()
 
-    # FIXME: 2 move this method to GUI class
-    def draw_world(self):
-        ''' draws the world '''
-        nx.draw_networkx_nodes(
-                                self.world, 
-                                pos=nx.get_node_attributes(self.world, 'pos'),
-                                ax=self.ax, 
-                                node_color='grey')
-        nx.draw_networkx_edges(
-                                self.world, 
-                                pos=nx.get_node_attributes(self.world, 'pos'), 
-                                ax=self.ax, 
-                                edge_color='grey')
+    # # FIXME: 2 move this method to GUI class
+    # def draw_world(self):
+    #     ''' draws the world '''
+    #     nx.draw_networkx_nodes(
+    #                             self.world, 
+    #                             pos=nx.get_node_attributes(self.world, 'pos'),
+    #                             ax=self.ax, 
+    #                             node_color='grey')
+    #     nx.draw_networkx_edges(
+    #                             self.world, 
+    #                             pos=nx.get_node_attributes(self.world, 'pos'), 
+    #                             ax=self.ax, 
+    #                             edge_color='grey')
 
-        nx.draw_networkx_labels(
-                                self.world, 
-                                pos=nx.get_node_attributes(self.world, 'pos'), 
-                                ax=self.ax, 
-                                font_size=10)
+    #     nx.draw_networkx_labels(
+    #                             self.world, 
+    #                             pos=nx.get_node_attributes(self.world, 'pos'), 
+    #                             ax=self.ax, 
+    #                             font_size=10)
 
-        plt.axis('on')
-        self.ax.tick_params(left=True, 
-                            bottom=True,
-                            labelleft=True, 
-                            labelbottom=True)
-        plt.show()
+    #     plt.axis('on')
+    #     self.ax.tick_params(left=True, 
+    #                         bottom=True,
+    #                         labelleft=True, 
+    #                         labelbottom=True)
+    #     plt.show()
 
 
 # TODO: create abstract world class which implements the plot methods

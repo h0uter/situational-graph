@@ -2,9 +2,10 @@ import networkx as nx
 from networkx.drawing.nx_pylab import draw
 import matplotlib.pyplot as plt
 
-from knowledge_road_map import KnowledgeRoadmap
-from agent import Agent
-from world import *
+from src.entities.knowledge_road_map import KnowledgeRoadmap
+from src.entities.agent import Agent
+from src.entities.world import *
+from src.entrypoints.GUI import GUI
 
 ############################################################################################
 # DEMONSTRATIONS
@@ -56,6 +57,8 @@ def demo_agent_driven():
     ''' This is the first demo where the agent takes actions to explore a world'''
     world = ManualGraphWorld(debug=True)
     # world = LatticeWorld()
+    gui = GUI()
+    gui.draw_world(world.world)
     agent = Agent(debug=False)
 
     # agent.explore_stepwise(world)

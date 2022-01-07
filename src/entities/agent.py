@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.core.numeric import Inf, Infinity
-from knowledge_road_map import KnowledgeRoadmap
+from src.entities.knowledge_road_map import KnowledgeRoadmap
 import networkx as nx
 import keyboard
 
