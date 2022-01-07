@@ -106,8 +106,6 @@ class ManualGraphWorld():
             if self.world.nodes[node]['pos'] == pos:
                 return node
 
-
-# TODO: create abstract world class which implements the plot methods
 class LatticeWorld():
     def __init__(self):
         N = 10

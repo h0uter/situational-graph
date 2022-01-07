@@ -1,7 +1,7 @@
 from src.entities.agent import Agent
 from src.entities.world import *
 import matplotlib.pyplot as plt
-
+import keyboard
 
 
 class Exploration:
@@ -50,7 +50,6 @@ class Exploration:
         if self.agent.debug:
             self.agent.debug_logger()
 
-    # FIXME: move this to exploration usecase
     def explore(self, world, stepwise=False):
         '''
         Explore the world by sampling new frontiers and waypoints.
@@ -66,4 +65,5 @@ class Exploration:
                     self.keypress = False
                     self.explore_algo(world)
 
+        # FIXME: this should be done using the GUI
         self.agent.krm.draw_current_krm() # 

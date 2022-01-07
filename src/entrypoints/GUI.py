@@ -3,10 +3,8 @@ import networkx as nx
 
 class GUI():
     def __init__(self):
-        # self.init_plot()
         pass
 
-    # FIXME: 2 move this method to GUI class
     def draw_world(self, world):
         ''' draws the world '''
 
