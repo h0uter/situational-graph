@@ -67,6 +67,7 @@ class KnowledgeRoadmap():
         self.draw_current_krm()
         plt.pause(0.1)
 
+    # FIXME: move this method to GUI class
     def draw_current_krm(self):
         ''' draws the current Knowledge Roadmap Graph'''
         plt.cla()
@@ -76,7 +77,7 @@ class KnowledgeRoadmap():
         self.ax.set_ylim([-15, 15])
         self.ax.set_ylabel('y', size=10)
 
-        # FIXME: floorplan should be dependent on the specified priors and not be included in KRM
+        # HACK: floorplan should be dependent on the specified priors and not be included in KRM
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
         pos = nx.get_node_attributes(self.KRM, 'pos')

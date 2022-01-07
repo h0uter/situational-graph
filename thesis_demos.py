@@ -11,7 +11,7 @@ from world import *
 ############################################################################################
 
 def demo_instant_graph_from_waypoints(wp_data):
-    ''' This demo instantly createsn a graph from a list of waypoints'''
+    ''' This demo instantly creates a graph from a list of waypoints'''
     KRM = KnowledgeRoadmap()
 
     KRM.init_plot()
@@ -53,8 +53,8 @@ def demo_with_agent_drawn(wp_data):
     plt.show()
 
 def demo_agent_driven():
-    ''' this is the first demo where the agent takes actions to explore a world'''
-    world = ManualGraphWorld(debug=False)
+    ''' This is the first demo where the agent takes actions to explore a world'''
+    world = ManualGraphWorld(debug=True)
     # world = LatticeWorld()
     agent = Agent(debug=False)
 

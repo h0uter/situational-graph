@@ -160,13 +160,12 @@ class Agent():
                     else:
                         self.krm.KRM.add_edge(self.at_wp, krm_node, type="waypoint_edge")
 
+    # HACK: perception processing should be more eleborate
     def process_perception(self, world):
         agent_at_world_node = world.get_node_by_pos(self.pos)
-        # print(world.world.nodes[agent_at_world_node].keys())
         if "world_object_dummy" in world.world.nodes[agent_at_world_node].keys():
-        # if world.world[agent_at_world_node]["world_object_dummy"]:
-            print(f"world object found!!!!!")
             world_object = world.world.nodes[agent_at_world_node]["world_object_dummy"]
+            print(f"world object '{world_object}' found")
             wo_pos = world.world.nodes[agent_at_world_node]["world_object_pos_dummy"]
             self.krm.add_world_object(wo_pos, world_object)
         
@@ -225,4 +224,4 @@ class Agent():
                     self.keypress = False
                     self.explore_algo(world)
 
-        self.krm.draw_current_krm()
+        self.krm.draw_current_krm() # 

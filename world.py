@@ -93,7 +93,7 @@ class ManualGraphWorld():
         self.world.add_edge(self.idx, self.idx-1)
         self.idx += 1
 
-        # add the world objects
+        # HACK: add the world objects
         self.world.nodes[10]["world_object_dummy"] = "victim1" # top left room
         self.world.nodes[10]["world_object_pos_dummy"] = (-13.5,13)
 
@@ -110,6 +110,7 @@ class ManualGraphWorld():
             if self.world.nodes[node]['pos'] == pos:
                 return node
 
+    # FIXME: 2 move this method to GUI class
     def init_plot(self):
         ''' initializes the plot'''
         # plt.ion()
@@ -117,7 +118,7 @@ class ManualGraphWorld():
 
         self.img = plt.imread("resource/floor-plan-villa.png")
 
-        self.ax.set_title('GraphWorld for the robot to explore')
+        self.ax.set_title('GraphWorld simplification of optimal frontiers for exploration')
         self.ax.set_xlim([-20, 20])
         self.ax.set_xlabel('x', size=10)
         self.ax.set_ylim([-15, 15])
@@ -126,6 +127,7 @@ class ManualGraphWorld():
 
         self.draw_world()
 
+    # FIXME: 2 move this method to GUI class
     def draw_world(self):
         ''' draws the world '''
         nx.draw_networkx_nodes(
@@ -164,6 +166,7 @@ class LatticeWorld():
 
         self.init_plot()
 
+    # FIXME: 2 move this method to GUI class
     def init_plot(self):
         ''' initializes the plot'''
         # plt.ion()
@@ -183,6 +186,8 @@ class LatticeWorld():
             if self.world.nodes[node]['pos'] == pos:
                 return node
 
+
+    # FIXME: 2 move this method to GUI class
     def draw_world(self):
         ''' draws the world '''
         nx.draw_networkx_nodes(
