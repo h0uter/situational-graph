@@ -6,6 +6,7 @@ from src.entities.knowledge_road_map import KnowledgeRoadmap
 from src.entities.agent import Agent
 from src.entities.world import *
 from src.entrypoints.GUI import GUI
+from src.usecases.exploration import Exploration
 
 ############################################################################################
 # DEMONSTRATIONS
@@ -55,14 +56,15 @@ def demo_with_agent_drawn(wp_data):
 
 def demo_agent_driven():
     ''' This is the first demo where the agent takes actions to explore a world'''
-    world = ManualGraphWorld()
-    # world = LatticeWorld()
+    # world = ManualGraphWorld()
+    world = LatticeWorld()
     gui = GUI()
     gui.draw_world(world.world)
-    agent = Agent(debug=False)
-
+    # agent = Agent(debug=False)
+    exploration = Exploration()
+    exploration.explore(world)
     # agent.explore_stepwise(world)
-    agent.explore(world)
+    # agent.explore(world)
 
     # TODO:: agent.await_command()
 

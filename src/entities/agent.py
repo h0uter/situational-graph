@@ -31,7 +31,7 @@ class Agent():
         print(f">>> frontiers: {self.krm.get_all_frontiers_idxs()}")
         print("==============================")
 
-    # TODO: this shouldnt be in the agent but in a GUI
+    # FIXME: this shouldnt be in the agent but in a GUI
     def draw_agent(self, wp):
         ''' draw the agent on the world '''
         if self.agent_drawing != None:
@@ -168,60 +168,3 @@ class Agent():
             print(f"world object '{world_object}' found")
             wo_pos = world.world.nodes[agent_at_world_node]["world_object_pos_dummy"]
             self.krm.add_world_object(wo_pos, world_object)
-        
-    def explore_algo(self, world):
-        '''the logic powering exploration'''
-
-        self.sample_frontiers(world)  # sample frontiers from the world
-
-        '''visualize the KRM'''
-        self.krm.draw_current_krm()  # illustrate krm with new frontiers
-        self.draw_agent(self.pos)  # draw the agent on the world
-        plt.pause(0.3)
-
-        '''select the target frontier and if there are no more frontiers remaining, we are done'''
-        selected_frontier_idx = self.select_target_frontier()  # select a frontier to visit
-        
-        if not self.no_more_frontiers:  # if there are no more frontiers, we are done
-            selected_path = self.find_path_to_closest_wp_to_selected_frontier(
-                selected_frontier_idx)
-
-            self.execute_path(selected_path, world)
-
-            '''after reaching the wp next to the selected frontier, move to the selected frontier'''
-            self.step_from_wp_to_frontier(selected_frontier_idx)
-
-            '''now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place'''
-            self.krm.remove_frontier(selected_frontier_idx)
-            # TODO: pruning frontiers should be independent of sampling waypoints
-            self.sample_waypoint()
-            self.check_for_shortcuts(world)  # check for shortcuts
-            self.process_perception(world)
-
-            #  ok what I actually want is:
-            # - if I get near the frontier prune it
-            # - if i get out of range d_b of my waypoint, sample a new waypoint
-
-        else:
-            print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
-            print(f"I took {self.steps_taken} steps to complete the exploration")
-
-        if self.debug:
-            self.debug_logger()
-
-    def explore(self, world, stepwise=False):
-        '''
-        Explore the world by sampling new frontiers and waypoints.
-        if stepwise is True, the exploration will be done in steps.
-        '''
-        while self.no_more_frontiers == False:
-            if not stepwise:
-                self.explore_algo(world)
-            elif stepwise:
-                # BUG:: matplotlib crashes after 10 sec if we block the execution like this.
-                self.keypress = keyboard.read_key()
-                if self.keypress:
-                    self.keypress = False
-                    self.explore_algo(world)
-
-        self.krm.draw_current_krm() # 
