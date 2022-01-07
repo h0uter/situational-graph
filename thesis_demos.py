@@ -55,7 +55,7 @@ def demo_with_agent_drawn(wp_data):
 
 def demo_agent_driven():
     ''' This is the first demo where the agent takes actions to explore a world'''
-    world = ManualGraphWorld(debug=True)
+    world = ManualGraphWorld()
     # world = LatticeWorld()
     gui = GUI()
     gui.draw_world(world.world)
