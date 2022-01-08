@@ -59,14 +59,14 @@ def demo_agent_driven():
     world = ManualGraphWorld()
     # world = LatticeWorld()
     gui = GUI()
-    gui.draw_world(world.world)
+    # gui.draw_world(world.world)
     # agent = Agent(debug=False)
     exploration = Exploration()
+    # gui.run_and_vizualize_exploration(exploration, world)
+
     exploration.explore(world)
     # agent.explore_stepwise(world)
     # agent.explore(world)
-
-    # TODO:: agent.await_command()
 
     plt.ioff()
 

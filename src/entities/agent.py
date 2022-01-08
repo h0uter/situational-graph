@@ -9,6 +9,7 @@ class Agent():
     ''' 
     Agent only here to test the KRM framework im developping.
     Feature wise it should match the out of the box capabilities of Spot.
+    If its not in the spot services, it should not be here.
     '''
 
     def __init__(self, debug=False):
@@ -93,7 +94,7 @@ class Agent():
         path = nx.shortest_path(
             self.krm.KRM, source=self.at_wp, target=target_frontier)
         # HACK:: pop the last element, cause its a frontier and this is required for the wp sampling logic....
-        path.pop()
+        # path.pop()
         return path
 
     def sample_waypoint(self):
@@ -106,25 +107,41 @@ class Agent():
         self.krm.add_waypoint(self.pos, wp_at_previous_pos)
         self.at_wp = self.krm.get_node_by_pos(self.pos)
 
-    def execute_path(self, path, world):
+    # def execute_path(self, path, selected_frontier_idx):
 
-        closest_wp_to_selected_frontier = self.krm.get_node_data_by_idx(
-            path[-1])
+    #     closest_wp_to_selected_frontier = self.krm.get_node_data_by_idx(
+    #         path[-1])
 
-        '''If the pos of the closest wp to our frontier is not our agent pos, we need to move to it'''
-        if closest_wp_to_selected_frontier['pos'] != self.pos:
-            for node_idx in path:
-                node_data = self.krm.get_node_data_by_idx(node_idx)
-                self.teleport_to_pos(node_data['pos'])
-                # FIXME: how to decouple drawing from movement logic?
-                self.draw_agent(node_data['pos'])
-                plt.show()
-                plt.pause(0.05)
+    #     '''If the pos of the closest wp to our frontier is not our agent pos, we need to move to it'''
+    #     if closest_wp_to_selected_frontier['pos'] != self.pos:
+    #         for node_idx in path:
+    #             node_data = self.krm.get_node_data_by_idx(node_idx)
+    #             self.teleport_to_pos(node_data['pos'])
+    #             # FIXME: how to decouple drawing from movement logic?
+    #             self.draw_agent(node_data['pos'])
+    #             plt.show()
+    #             plt.pause(0.05)
+        
+    #     '''after reaching the wp next to the selected frontier, move to the selected frontier'''
+    #     selected_frontier_data = self.krm.get_node_data_by_idx(
+    #         selected_frontier_idx)
+    #     self.teleport_to_pos(selected_frontier_data['pos'])
 
-    def step_from_wp_to_frontier(self, selected_frontier_idx):
-        selected_frontier_data = self.krm.get_node_data_by_idx(
-            selected_frontier_idx)
-        self.teleport_to_pos(selected_frontier_data['pos'])
+    def perform_path_step(self, path, selected_frontier_idx):
+        '''
+        Execute a single step of the path.
+        '''
+        if len(path) > 1:
+            node_data = self.krm.get_node_data_by_idx(path[0])
+            self.teleport_to_pos(node_data['pos'])
+            path.pop(0)
+            return path
+
+        elif len(path) == 1:
+            selected_frontier_data = self.krm.get_node_data_by_idx(
+                selected_frontier_idx)
+            self.teleport_to_pos(selected_frontier_data['pos'])
+            return None
 
     def check_for_shortcuts(self, world):
         agent_at_world_node = world.get_node_by_pos(self.pos)
@@ -136,7 +153,8 @@ class Agent():
 
             if not self.krm.KRM.has_edge(krm_node, self.at_wp):
                 if krm_node != self.at_wp and krm_node: # prevent self loops and None errors
-                    if self.debug: print("shortcut found")
+                    if self.debug: 
+                        print("shortcut found")
                     # add the correct type of edge
                     if self.krm.KRM.nodes[krm_node]["type"] == "frontier":
                         self.krm.KRM.add_edge(self.at_wp, krm_node, type="frontier_edge")
@@ -144,7 +162,7 @@ class Agent():
                         self.krm.KRM.add_edge(self.at_wp, krm_node, type="waypoint_edge")
 
     # HACK: perception processing should be more eleborate
-    def process_perception(self, world):
+    def process_world_object_perception(self, world):
         agent_at_world_node = world.get_node_by_pos(self.pos)
         if "world_object_dummy" in world.world.nodes[agent_at_world_node].keys():
             world_object = world.world.nodes[agent_at_world_node]["world_object_dummy"]

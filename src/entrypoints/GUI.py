@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 
+from src.usecases.exploration import Exploration
 
 
 class GUI():
@@ -44,3 +45,6 @@ class GUI():
                             labelleft=True, 
                             labelbottom=True)
         plt.show()
+
+    def run_and_vizualize_exploration(self, exploration, world):
+        pass
