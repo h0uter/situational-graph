@@ -73,6 +73,20 @@ def demo_agent_driven():
     plt.show()
 
 
+def demo_separate_gui_from_exploration():
+
+    world = ManualGraphWorld()
+    gui = GUI()
+    # gui.draw_world(world.world)
+    exploration = Exploration()
+
+    exploration.explore2(world)
+
+
+    plt.ioff()
+
+    plt.show()
+
 if __name__ == '__main__':
 
     # TODO: generalize this to a "sensor data stream" which is then processed by the agent.
@@ -82,6 +96,7 @@ if __name__ == '__main__':
 
     # demo_with_agent_drawn(world.structure)
     # demo_instant_graph_from_waypoints(wp_data)
-    demo_agent_driven()
+    # demo_agent_driven()
+    demo_separate_gui_from_exploration()
     # world = GraphWorldExperiment()
     

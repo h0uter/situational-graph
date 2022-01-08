@@ -90,7 +90,7 @@ class Agent():
             self.no_more_frontiers = True
             return None, None
 
-    def find_path_to_closest_wp_to_selected_frontier(self, target_frontier):
+    def find_path_to_selected_frontier(self, target_frontier):
         path = nx.shortest_path(
             self.krm.KRM, source=self.at_wp, target=target_frontier)
         # HACK:: pop the last element, cause its a frontier and this is required for the wp sampling logic....
@@ -127,10 +127,12 @@ class Agent():
     #         selected_frontier_idx)
     #     self.teleport_to_pos(selected_frontier_data['pos'])
 
-    def perform_path_step(self, path, selected_frontier_idx):
+    # def perform_path_step(self, path, selected_frontier_idx):
+    def perform_path_step(self, path):
         '''
         Execute a single step of the path.
         '''
+        print(f"the path {path} length is {len(path)}")
         if len(path) > 1:
             node_data = self.krm.get_node_data_by_idx(path[0])
             self.teleport_to_pos(node_data['pos'])
@@ -139,8 +141,9 @@ class Agent():
 
         elif len(path) == 1:
             selected_frontier_data = self.krm.get_node_data_by_idx(
-                selected_frontier_idx)
+                path[0])
             self.teleport_to_pos(selected_frontier_data['pos'])
+            print(f"SELECTED FRONTIER POS {selected_frontier_data['pos']}")
             return None
 
     def check_for_shortcuts(self, world):

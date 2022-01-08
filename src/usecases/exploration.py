@@ -7,8 +7,10 @@ import keyboard
 # HACK: exploration logic is still very tightly coupled to the agent class
 class Exploration:
     def __init__(self):
-        self.agent  = Agent()
-        self.active_path = None
+        self.agent  = Agent(debug=True)
+        self.consumable_path = None
+        self.selected_frontier_idx = None
+        self.init = False
 
     # def perform_path_step(self):
     #     '''
@@ -25,10 +27,6 @@ class Exploration:
     def exploration_procedure(self, world):
         '''the logic powering exploration'''
     
-        # if self.active_path:
-        #     self.perform_path_step()
-        #     return
-
         self.agent.sample_frontiers(world)  # sample frontiers from the world
         self.agent.process_world_object_perception(world)
 
@@ -47,30 +45,25 @@ class Exploration:
             print(f"It took {self.agent.steps_taken} steps to complete the exploration.")
             return
 
-        # if not self.active_path:
-        selected_path = self.agent.find_path_to_closest_wp_to_selected_frontier(
+        selected_path = self.agent.find_path_to_selected_frontier(
             selected_frontier_idx)
-        # self.active_path = selected_path
-            # return
 
-        # self.agent.execute_path(selected_path, selected_frontier_idx)
         consumable_path = selected_path
         while consumable_path:
-            consumable_path = self.agent.perform_path_step(consumable_path, selected_frontier_idx)
+            # consumable_path = self.agent.perform_path_step(consumable_path, selected_frontier_idx)
+            consumable_path = self.agent.perform_path_step(consumable_path)
             # FIXME: this drawing logic should go in the GUI
             self.agent.draw_agent(self.agent.pos)
             plt.show()
             plt.pause(0.05)
+            if self.agent.krm.KRM.nodes[self.agent.krm.get_node_by_pos(self.agent.pos)]["type"] == "frontier":
+                print(f"we are on a frontier node")
 
         '''now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place'''
         self.agent.krm.remove_frontier(selected_frontier_idx)
         # TODO: pruning frontiers should be independent of sampling waypoints
         self.agent.sample_waypoint()
         self.agent.check_for_shortcuts(world)  # check for shortcuts
-
-        #  ok what I actually want is:
-        # - if I get near the frontier prune it
-        # - if i get out of range d_b of my waypoint, sample a new waypoint
 
         if self.agent.debug:
             self.agent.debug_logger()
@@ -96,13 +89,65 @@ class Exploration:
         # FIXME: this should be done using the GUI
         self.agent.krm.draw_current_krm() # 
 
+
+    # FIXME: I guess this should go to the GUI class
+    def explore2(self, world, stepwise=False):
+        '''
+        Explore the world by sampling new frontiers and waypoints.
+        if stepwise is True, the exploration will be done in steps.
+        '''
+        while self.agent.no_more_frontiers == False:
+            if not stepwise:
+                self.run_exploration_step(world)
+
+                self.agent.krm.draw_current_krm()  # illustrate krm with new frontiers
+                self.agent.draw_agent(self.agent.pos)  # draw the agent on the world
+                plt.pause(0.05)
+            # FIXME: this is the entrpoint for the gui
+            elif stepwise:
+                # BUG:: matplotlib crashes after 10 sec if we block the execution like this.
+                self.keypress = keyboard.read_key()
+                if self.keypress:
+                    self.keypress = False
+                    self.exploration_procedure(world)
+
+        # FIXME: this should be done using the GUI
+        self.agent.krm.draw_current_krm() # 
+
+
     # TODO: create some perform exploration step function.  
     def run_exploration_step(self, world):
 
+        if not self.init:
+            self.agent.sample_frontiers(world)  # sample frontiers from the world
+            self.init = True
         # if there are no more frontiers, we are done
-        if self.agent.no_more_frontiers:
-            print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
-            print(f"It took {self.agent.steps_taken} steps to complete the exploration.")
-            return
-        # elif 
-    
+        elif self.agent.krm.KRM.nodes[self.agent.krm.get_node_by_pos(self.agent.pos)]["type"] == "frontier":
+            print(f"we are on a frontier node")
+            '''now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place'''
+            self.agent.krm.remove_frontier(self.selected_frontier_idx)
+            # TODO: pruning frontiers should be independent of sampling waypoints
+            self.agent.sample_waypoint()
+            self.agent.check_for_shortcuts(world)  # check for shortcuts
+            self.agent.process_world_object_perception(world)
+            self.agent.sample_frontiers(world)  # sample frontiers from the world
+            self.selected_frontier_idx = None
+        # elif self.consumable_path:
+        elif self.consumable_path:
+            print(f"we are executing a consumable path")
+            self.consumable_path = self.agent.perform_path_step(self.consumable_path)
+        elif self.selected_frontier_idx and not self.consumable_path:
+            print(f"we are calculating a path")
+            self.consumable_path = self.agent.find_path_to_selected_frontier(self.selected_frontier_idx)
+        elif not self.selected_frontier_idx:
+            print(f"we are selecting a new target frontier")
+            self.agent.sample_frontiers(world)  # sample frontiers from the world
+            self.selected_frontier_idx = self.agent.select_target_frontier()
+            if self.agent.no_more_frontiers:
+                print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
+                print(f"It took {self.agent.steps_taken} steps to complete the exploration.")
+                return
+        # else:
+
+        if self.agent.debug:
+            self.agent.debug_logger()
