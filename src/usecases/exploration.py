@@ -5,9 +5,10 @@ import keyboard
 
 
 # HACK: exploration logic is still very tightly coupled to the agent class
+
 class Exploration:
     def __init__(self):
-        self.agent  = Agent(debug=True)
+        self.agent  = Agent(debug=False)
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False
@@ -100,10 +101,10 @@ class Exploration:
             if not stepwise:
                 self.run_exploration_step(world)
 
+                # FIXME: this is the entrpoint for the gui
                 self.agent.krm.draw_current_krm()  # illustrate krm with new frontiers
                 self.agent.draw_agent(self.agent.pos)  # draw the agent on the world
                 plt.pause(0.05)
-            # FIXME: this is the entrpoint for the gui
             elif stepwise:
                 # BUG:: matplotlib crashes after 10 sec if we block the execution like this.
                 self.keypress = keyboard.read_key()
@@ -115,8 +116,10 @@ class Exploration:
         self.agent.krm.draw_current_krm() # 
 
 
-    # TODO: create some perform exploration step function.  
     def run_exploration_step(self, world):
+        # TODO: the conditions for these if statements are hella wonky
+        # they should be tested more.
+
 
         if not self.init:
             self.agent.sample_frontiers(world)  # sample frontiers from the world
@@ -132,7 +135,6 @@ class Exploration:
             self.agent.process_world_object_perception(world)
             self.agent.sample_frontiers(world)  # sample frontiers from the world
             self.selected_frontier_idx = None
-        # elif self.consumable_path:
         elif self.consumable_path:
             print(f"we are executing a consumable path")
             self.consumable_path = self.agent.perform_path_step(self.consumable_path)
@@ -147,7 +149,6 @@ class Exploration:
                 print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
                 print(f"It took {self.agent.steps_taken} steps to complete the exploration.")
                 return
-        # else:
 
         if self.agent.debug:
             self.agent.debug_logger()
