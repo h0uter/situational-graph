@@ -94,8 +94,6 @@ class Agent():
     def find_path_to_selected_frontier(self, target_frontier):
         path = nx.shortest_path(
             self.krm.KRM, source=self.at_wp, target=target_frontier)
-        # HACK:: pop the last element, cause its a frontier and this is required for the wp sampling logic....
-        # path.pop()
         return path
 
     def sample_waypoint(self):
@@ -144,7 +142,7 @@ class Agent():
                     else:
                         self.krm.KRM.add_edge(self.at_wp, krm_node, type="waypoint_edge")
 
-    # HACK: perception processing should be more eleborate
+    # HACK: perception processing should be more eleborate and perhaps be its own separate entity
     def process_world_object_perception(self, world):
         agent_at_world_node = world.get_node_by_pos(self.pos)
         if "world_object_dummy" in world.world.nodes[agent_at_world_node].keys():

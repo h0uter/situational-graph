@@ -13,7 +13,6 @@ class ManualGraphWorld():
         structure = [(4, 0), (7, 0), (12, 0), (16, 0), (16, -4), (16, -8), (16, -12), (12, -12), (12, -8), (12, -4), (12, -1), (8, -1),
                      (5, 6), (0, 6), (-4, 6), (-8, 6), (-12, 6), (-16, 6), (-16, 11)]
 
-        # TODO:: find a cleaner way to init graph world
         for wp in structure:
             self.world.add_node(self.idx, pos=wp)
             self.world.add_edge(self.idx, self.idx-1)

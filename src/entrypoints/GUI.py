@@ -64,6 +64,7 @@ class GUI():
         self.ax.set_ylabel('y', size=10)
 
         # HACK: floorplan should be dependent on the specified priors and not be included in KRM
+        # TODO: make floorplan an argument of the KRM
         self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
 
         pos = nx.get_node_attributes(krm.KRM, 'pos') # TODO: unclear variable name
