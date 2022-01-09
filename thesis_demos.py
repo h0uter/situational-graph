@@ -60,8 +60,8 @@ def demo_agent_driven():
     # world = LatticeWorld()
     gui = GUI()
     # gui.draw_world(world.world)
-    # agent = Agent(debug=False)
-    exploration = Exploration()
+    agent = Agent(debug=False)
+    exploration = Exploration(agent)
     # gui.run_and_vizualize_exploration(exploration, world)
 
     exploration.explore(world)
@@ -69,22 +69,43 @@ def demo_agent_driven():
     # agent.explore(world)
 
     plt.ioff()
-
     plt.show()
 
 
-def demo_separate_gui_from_exploration():
+def pure_exploration_usecase():
 
     world = ManualGraphWorld()
     gui = GUI()
     # gui.draw_world(world.world)
-    exploration = Exploration()
+    agent = Agent(debug=False)
+    exploration_use_case = Exploration(agent)
 
-    exploration.explore2(world)
+    # exploration_use_case.explore2(world)
+
+    stepwise = False
+    gui.init_plot(agent, agent.krm)
+    while agent.no_more_frontiers == False:
+        if not stepwise:
+            exploration_use_case.run_exploration_step(world)
+
+            # FIXME: this is the entrpoint for the gui
+            gui.viz_krm(agent, agent.krm) # TODO: make the KRM independent of the agent
+            # self.agent.krm.draw_current_krm()  # illustrate krm with new frontiers
+            # agent.draw_agent(agent.pos)  # draw the agent on the world
+            gui.draw_agent(agent.pos)
+            plt.pause(0.05)
+        # elif stepwise:
+        #     # BUG:: matplotlib crashes after 10 sec if we block the execution like this.
+        #     self.keypress = keyboard.read_key()
+        #     if self.keypress:
+        #         self.keypress = False
+        #         self.exploration_procedure(world)
+
+        # FIXME: this should be done using the GUI
+    # self.agent.krm.draw_current_krm() # 
 
 
     plt.ioff()
-
     plt.show()
 
 if __name__ == '__main__':
@@ -97,6 +118,6 @@ if __name__ == '__main__':
     # demo_with_agent_drawn(world.structure)
     # demo_instant_graph_from_waypoints(wp_data)
     # demo_agent_driven()
-    demo_separate_gui_from_exploration()
+    pure_exploration_usecase()
     # world = GraphWorldExperiment()
     

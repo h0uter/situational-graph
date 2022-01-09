@@ -173,18 +173,18 @@ class Agent():
             wo_pos = world.world.nodes[agent_at_world_node]["world_object_pos_dummy"]
             self.krm.add_world_object(wo_pos, world_object)
 
-    # FIXME: this shouldnt be in the agent but in a GUI
-    def draw_agent(self, wp):
-        ''' draw the agent on the world '''
-        if self.agent_drawing != None:
-            self.agent_drawing.remove()
-        if self.local_grid_drawing != None:
-            self.local_grid_drawing.remove()
-        # self.agent_drawing = plt.arrow(
-        #     wp[0], wp[1], 0.3, 0.3, width=0.4, color='blue') # One day the agent will have direction
-        self.agent_drawing = plt.gca().add_patch(plt.Circle(
-            (wp[0], wp[1]), 1.2, fc='blue'))
+    # # FIXME: this shouldnt be in the agent but in a GUI
+    # def draw_agent(self, wp):
+    #     ''' draw the agent on the world '''
+    #     if self.agent_drawing != None:
+    #         self.agent_drawing.remove()
+    #     if self.local_grid_drawing != None:
+    #         self.local_grid_drawing.remove()
+    #     # self.agent_drawing = plt.arrow(
+    #     #     wp[0], wp[1], 0.3, 0.3, width=0.4, color='blue') # One day the agent will have direction
+    #     self.agent_drawing = plt.gca().add_patch(plt.Circle(
+    #         (wp[0], wp[1]), 1.2, fc='blue'))
         
-        rec_len = 10
-        self.local_grid_drawing = plt.gca().add_patch(plt.Rectangle(
-            (wp[0]-0.5*rec_len, wp[1]-0.5*rec_len), rec_len, rec_len, alpha=0.2, fc='blue'))
+    #     rec_len = 10
+    #     self.local_grid_drawing = plt.gca().add_patch(plt.Rectangle(
+    #         (wp[0]-0.5*rec_len, wp[1]-0.5*rec_len), rec_len, rec_len, alpha=0.2, fc='blue'))

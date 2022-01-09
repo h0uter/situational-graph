@@ -7,8 +7,9 @@ import keyboard
 # HACK: exploration logic is still very tightly coupled to the agent class
 
 class Exploration:
-    def __init__(self):
-        self.agent  = Agent(debug=False)
+    def __init__(self, agent:Agent):
+        # self.agent  = Agent(debug=False)
+        self.agent  = agent
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False

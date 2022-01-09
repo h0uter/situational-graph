@@ -21,7 +21,7 @@ class KnowledgeRoadmap():
         self.next_frontier_idx = 100
         self.next_wo_idx = 200
 
-        self.init_plot()
+        # self.init_plot()
 
     def add_waypoint(self, pos, prev_wp):
         ''' adds new waypoints and increments wp the idx'''
@@ -56,101 +56,6 @@ class KnowledgeRoadmap():
         if target_frontier['type'] == 'frontier':
             self.KRM.remove_node(target_frontier_idx)  
 
-
-    def init_plot(self):
-        ''' initializes the plot'''
-        # self.fig, self.ax = plt.subplots(figsize=(10, 10))
-        self.fig, self.ax = plt.subplots()
-        self.img = plt.imread("resource/floor-plan-villa.png")
-
-        plt.ion()
-        self.draw_current_krm()
-        plt.pause(0.1)
-
-    # FIXME: move this method to GUI class
-    def draw_current_krm(self):
-        ''' draws the current Knowledge Roadmap Graph'''
-        plt.cla()
-        self.ax.set_title('Online Construction of Knowledge Roadmap')
-        self.ax.set_xlim([-20, 20])
-        self.ax.set_xlabel('x', size=10)
-        self.ax.set_ylim([-15, 15])
-        self.ax.set_ylabel('y', size=10)
-
-        # HACK: floorplan should be dependent on the specified priors and not be included in KRM
-        self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
-
-        pos = nx.get_node_attributes(self.KRM, 'pos')
-        # filter the nodes and edges based on their type
-        waypoint_nodes = dict((n, d['type'])
-                                for n, d in self.KRM.nodes().items() if d['type'] == 'waypoint')
-        frontier_nodes = dict((n, d['type'])
-                                for n, d in self.KRM.nodes().items() if d['type'] == 'frontier')
-        world_object_nodes = dict((n, d['type'])
-                                for n, d in self.KRM.nodes().items() if d['type'] == 'world_object')
-
-        world_object_edges = dict((e, d['type'])
-                                for e, d in self.KRM.edges().items() if d['type'] == 'world_object_edge')
-        waypoint_edges = dict((e, d['type'])
-                                for e, d in self.KRM.edges().items() if d['type'] == 'waypoint_edge')
-        frontier_edges = dict((e, d['type'])
-                                for e, d in self.KRM.edges().items() if d['type'] == 'frontier_edge')
-
-        '''draw the nodes, edges and labels separately'''
-        nx.draw_networkx_nodes(
-                                self.KRM, 
-                                pos, 
-                                nodelist=world_object_nodes.keys(),
-                                ax=self.ax, 
-                                node_color='violet',
-                                node_size=575
-        )
-        nx.draw_networkx_nodes(
-                                self.KRM, 
-                                pos, 
-                                nodelist=frontier_nodes.keys(),
-                                ax=self.ax, 
-                                node_color='green',
-                                node_size=350
-                                
-        )
-        nx.draw_networkx_nodes(
-                                self.KRM, 
-                                pos, 
-                                nodelist=waypoint_nodes.keys(), 
-                                ax=self.ax, 
-                                node_color='red', 
-                                node_size=140
-        )
-        nx.draw_networkx_edges(
-                                self.KRM, 
-                                pos, 
-                                ax=self.ax, 
-                                edgelist=waypoint_edges.keys(), 
-                                edge_color='red'
-        )
-        nx.draw_networkx_edges(
-                                self.KRM, 
-                                pos, 
-                                ax=self.ax, 
-                                edgelist=world_object_edges.keys(), 
-                                edge_color='purple'
-        )
-        nx.draw_networkx_edges(
-                                self.KRM, 
-                                pos, 
-                                ax=self.ax, 
-                                edgelist=frontier_edges.keys(), 
-                                edge_color='green', 
-                                width=4
-        )
-
-        nx.draw_networkx_labels(self.KRM, pos, ax=self.ax, font_size=6)
-        plt.axis('on')  # turns on axis
-        self.ax.set_aspect('equal', 'box')  # set the aspect ratio of the plot
-        self.ax.tick_params(left=True, bottom=True,
-                            labelleft=True, labelbottom=True)
-    
     def get_node_by_pos(self, pos):
         ''' returns the node idx at the given position '''
         for node in self.KRM.nodes():
@@ -174,3 +79,98 @@ class KnowledgeRoadmap():
     def get_all_frontiers_idxs(self):
         ''' returns all frontier idxs in the graph'''
         return [node for node in self.KRM.nodes() if self.KRM.nodes[node]['type'] == 'frontier']
+
+    # def init_plot(self):
+    #     ''' initializes the plot'''
+    #     # self.fig, self.ax = plt.subplots(figsize=(10, 10))
+    #     self.fig, self.ax = plt.subplots()
+    #     self.img = plt.imread("resource/floor-plan-villa.png")
+
+    #     plt.ion()
+    #     self.draw_current_krm()
+    #     plt.pause(0.1)
+
+    # FIXME: move this method to GUI class
+    # def draw_current_krm(self):
+    #     ''' draws the current Knowledge Roadmap Graph'''
+    #     plt.cla()
+    #     self.ax.set_title('Online Construction of Knowledge Roadmap')
+    #     self.ax.set_xlim([-20, 20])
+    #     self.ax.set_xlabel('x', size=10)
+    #     self.ax.set_ylim([-15, 15])
+    #     self.ax.set_ylabel('y', size=10)
+
+    #     # HACK: floorplan should be dependent on the specified priors and not be included in KRM
+    #     self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
+
+    #     pos = nx.get_node_attributes(self.KRM, 'pos')
+    #     # filter the nodes and edges based on their type
+    #     waypoint_nodes = dict((n, d['type'])
+    #                             for n, d in self.KRM.nodes().items() if d['type'] == 'waypoint')
+    #     frontier_nodes = dict((n, d['type'])
+    #                             for n, d in self.KRM.nodes().items() if d['type'] == 'frontier')
+    #     world_object_nodes = dict((n, d['type'])
+    #                             for n, d in self.KRM.nodes().items() if d['type'] == 'world_object')
+
+    #     world_object_edges = dict((e, d['type'])
+    #                             for e, d in self.KRM.edges().items() if d['type'] == 'world_object_edge')
+    #     waypoint_edges = dict((e, d['type'])
+    #                             for e, d in self.KRM.edges().items() if d['type'] == 'waypoint_edge')
+    #     frontier_edges = dict((e, d['type'])
+    #                             for e, d in self.KRM.edges().items() if d['type'] == 'frontier_edge')
+
+    #     '''draw the nodes, edges and labels separately'''
+    #     nx.draw_networkx_nodes(
+    #                             self.KRM, 
+    #                             pos, 
+    #                             nodelist=world_object_nodes.keys(),
+    #                             ax=self.ax, 
+    #                             node_color='violet',
+    #                             node_size=575
+    #     )
+    #     nx.draw_networkx_nodes(
+    #                             self.KRM, 
+    #                             pos, 
+    #                             nodelist=frontier_nodes.keys(),
+    #                             ax=self.ax, 
+    #                             node_color='green',
+    #                             node_size=350
+                                
+    #     )
+    #     nx.draw_networkx_nodes(
+    #                             self.KRM, 
+    #                             pos, 
+    #                             nodelist=waypoint_nodes.keys(), 
+    #                             ax=self.ax, 
+    #                             node_color='red', 
+    #                             node_size=140
+    #     )
+    #     nx.draw_networkx_edges(
+    #                             self.KRM, 
+    #                             pos, 
+    #                             ax=self.ax, 
+    #                             edgelist=waypoint_edges.keys(), 
+    #                             edge_color='red'
+    #     )
+    #     nx.draw_networkx_edges(
+    #                             self.KRM, 
+    #                             pos, 
+    #                             ax=self.ax, 
+    #                             edgelist=world_object_edges.keys(), 
+    #                             edge_color='purple'
+    #     )
+    #     nx.draw_networkx_edges(
+    #                             self.KRM, 
+    #                             pos, 
+    #                             ax=self.ax, 
+    #                             edgelist=frontier_edges.keys(), 
+    #                             edge_color='green', 
+    #                             width=4
+    #     )
+
+    #     nx.draw_networkx_labels(self.KRM, pos, ax=self.ax, font_size=6)
+    #     plt.axis('on')  # turns on axis
+    #     self.ax.set_aspect('equal', 'box')  # set the aspect ratio of the plot
+    #     self.ax.tick_params(left=True, bottom=True,
+    #                         labelleft=True, labelbottom=True)
+    
