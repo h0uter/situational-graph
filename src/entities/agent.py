@@ -61,7 +61,8 @@ class Agent():
     ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
     #############################################################################################
     def evaluate_frontiers(self, frontier_idxs):
-        ''' Evaluate the frontiers and return the best one.
+        ''' 
+        Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics        
         '''
         shortest_path_by_node_count = float('inf')
@@ -107,27 +108,6 @@ class Agent():
         self.krm.add_waypoint(self.pos, wp_at_previous_pos)
         self.at_wp = self.krm.get_node_by_pos(self.pos)
 
-    # def execute_path(self, path, selected_frontier_idx):
-
-    #     closest_wp_to_selected_frontier = self.krm.get_node_data_by_idx(
-    #         path[-1])
-
-    #     '''If the pos of the closest wp to our frontier is not our agent pos, we need to move to it'''
-    #     if closest_wp_to_selected_frontier['pos'] != self.pos:
-    #         for node_idx in path:
-    #             node_data = self.krm.get_node_data_by_idx(node_idx)
-    #             self.teleport_to_pos(node_data['pos'])
-    #             # FIXME: how to decouple drawing from movement logic?
-    #             self.draw_agent(node_data['pos'])
-    #             plt.show()
-    #             plt.pause(0.05)
-        
-    #     '''after reaching the wp next to the selected frontier, move to the selected frontier'''
-    #     selected_frontier_data = self.krm.get_node_data_by_idx(
-    #         selected_frontier_idx)
-    #     self.teleport_to_pos(selected_frontier_data['pos'])
-
-    # def perform_path_step(self, path, selected_frontier_idx):
     def perform_path_step(self, path):
         '''
         Execute a single step of the path.
@@ -172,19 +152,3 @@ class Agent():
             print(f"world object '{world_object}' found")
             wo_pos = world.world.nodes[agent_at_world_node]["world_object_pos_dummy"]
             self.krm.add_world_object(wo_pos, world_object)
-
-    # # FIXME: this shouldnt be in the agent but in a GUI
-    # def draw_agent(self, wp):
-    #     ''' draw the agent on the world '''
-    #     if self.agent_drawing != None:
-    #         self.agent_drawing.remove()
-    #     if self.local_grid_drawing != None:
-    #         self.local_grid_drawing.remove()
-    #     # self.agent_drawing = plt.arrow(
-    #     #     wp[0], wp[1], 0.3, 0.3, width=0.4, color='blue') # One day the agent will have direction
-    #     self.agent_drawing = plt.gca().add_patch(plt.Circle(
-    #         (wp[0], wp[1]), 1.2, fc='blue'))
-        
-    #     rec_len = 10
-    #     self.local_grid_drawing = plt.gca().add_patch(plt.Rectangle(
-    #         (wp[0]-0.5*rec_len, wp[1]-0.5*rec_len), rec_len, rec_len, alpha=0.2, fc='blue'))

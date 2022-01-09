@@ -1,20 +1,13 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from src.usecases.exploration import Exploration
-
-
 class GUI():
     def __init__(self):
-        # self.init_plot()
         self.agent_drawing = None
         self.local_grid_drawing = None
 
-        # pass
-
-    def draw_world(self, world):
-        ''' draws the world '''
-
+    def preview_godmode_frontier_graph_world(self, world):
+        ''' draws the underlying graph from which the frontiers are sampled (placeholder for sampling from localgrid) '''
         fig, self.ax = plt.subplots(figsize=(10, 10))
 
         self.img = plt.imread("resource/floor-plan-villa.png")
