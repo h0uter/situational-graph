@@ -71,8 +71,9 @@ class Agent():
             candidate_path = nx.shortest_path(
                 self.krm.KRM, source=self.at_wp, target=frontier_idx)
             # choose the last shortest path among equals
-            if len(candidate_path) <= shortest_path_by_node_count:
-                # if len(candidate_path) < shortest_path_len: # choose the first shortest path among equals
+            # if len(candidate_path) <= shortest_path_by_node_count:
+            #  choose the first shortest path among equals
+            if len(candidate_path) < shortest_path_by_node_count:
                 shortest_path_by_node_count = len(candidate_path)
                 selected_frontier_idx = candidate_path[-1]
 
@@ -109,7 +110,8 @@ class Agent():
         '''
         Execute a single step of the path.
         '''
-        print(f"the path {path} length is {len(path)}")
+        if self.debug:
+            print(f"the path {path} length is {len(path)}")
         if len(path) > 1:
             node_data = self.krm.get_node_data_by_idx(path[0])
             self.teleport_to_pos(node_data['pos'])
@@ -120,7 +122,8 @@ class Agent():
             selected_frontier_data = self.krm.get_node_data_by_idx(
                 path[0])
             self.teleport_to_pos(selected_frontier_data['pos'])
-            print(f"SELECTED FRONTIER POS {selected_frontier_data['pos']}")
+            if self.debug:
+                print(f"SELECTED FRONTIER POS {selected_frontier_data['pos']}")
             return None
 
     def check_for_shortcuts(self, world):
@@ -146,6 +149,7 @@ class Agent():
         agent_at_world_node = world.get_node_by_pos(self.pos)
         if "world_object_dummy" in world.world.nodes[agent_at_world_node].keys():
             world_object = world.world.nodes[agent_at_world_node]["world_object_dummy"]
-            print(f"world object '{world_object}' found")
+            if self.debug:
+                print(f"world object '{world_object}' found")
             wo_pos = world.world.nodes[agent_at_world_node]["world_object_pos_dummy"]
             self.krm.add_world_object(wo_pos, world_object)

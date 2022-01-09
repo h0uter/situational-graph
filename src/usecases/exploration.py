@@ -1,11 +1,12 @@
 from src.entities.agent import Agent
 
 class Exploration:
-    def __init__(self, agent:Agent):
+    def __init__(self, agent:Agent, debug=False):
         self.agent  = agent
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False
+        self.debug = debug
 
     def run_exploration_step(self, world):
         # TODO: some logic that is only used for exploration should be moved from the agent to here.
@@ -16,8 +17,8 @@ class Exploration:
             self.init = True
 
         elif self.agent.krm.KRM.nodes[self.agent.krm.get_node_by_pos(self.agent.pos)]["type"] == "frontier":
-            
-            print(f"we are on a frontier node")
+            if self.debug:
+                print(f"we are on a frontier node")
             '''now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place'''
             self.agent.krm.remove_frontier(self.selected_frontier_idx)
             self.agent.sample_waypoint()
@@ -26,13 +27,16 @@ class Exploration:
             self.agent.sample_frontiers(world)  # sample frontiers from the world
             self.selected_frontier_idx = None
         elif self.consumable_path:
-            print(f"we are executing a consumable path")
+            if self.debug:
+                print(f"we are executing a consumable path")
             self.consumable_path = self.agent.perform_path_step(self.consumable_path)
         elif self.selected_frontier_idx and not self.consumable_path:
-            print(f"we are calculating a path")
+            if self.debug:
+                print(f"we are calculating a path")
             self.consumable_path = self.agent.find_path_to_selected_frontier(self.selected_frontier_idx)
         elif not self.selected_frontier_idx:
-            print(f"we are selecting a new target frontier")
+            if self.debug:
+                print(f"we are selecting a new target frontier")
             self.agent.sample_frontiers(world)  # sample frontiers from the world
             self.selected_frontier_idx = self.agent.select_target_frontier()
             

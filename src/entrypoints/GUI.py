@@ -51,7 +51,7 @@ class GUI():
 
         plt.ion()
         self.viz_krm(agent, krm)
-        plt.pause(0.1)
+        plt.pause(0.01)
 
     def viz_krm(self, agent, krm):
 

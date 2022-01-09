@@ -36,7 +36,7 @@ def pure_exploration_usecase():
     gui = GUI()
     # gui.preview_godmode_frontier_graph_world(world.world)
     agent = Agent(debug=False)
-    exploration_use_case = Exploration(agent)
+    exploration_use_case = Exploration(agent, debug=False)
 
     stepwise = False
     # TODO: fix agent.krm bullshit
@@ -48,7 +48,7 @@ def pure_exploration_usecase():
 
             gui.viz_krm(agent, agent.krm) # TODO: make the KRM independent of the agent
             gui.draw_agent(agent.pos)
-            plt.pause(0.05)
+            plt.pause(0.001)
         elif stepwise:
             # BUG:: matplotlib crashes after 10 sec if we block the execution like this.
             keypress = keyboard.read_key()
@@ -58,7 +58,7 @@ def pure_exploration_usecase():
 
                 gui.viz_krm(agent, agent.krm) # TODO: make the KRM independent of the agent
                 gui.draw_agent(agent.pos)
-                plt.pause(0.05)
+                plt.pause(0.01)
 
     plt.ioff()
     plt.show()
