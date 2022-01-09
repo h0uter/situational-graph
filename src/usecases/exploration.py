@@ -1,7 +1,4 @@
 from src.entities.agent import Agent
-from src.data_providers.world import ManualGraphWorld, LatticeWorld
-import matplotlib.pyplot as plt
-
 
 class Exploration:
     def __init__(self, agent:Agent):

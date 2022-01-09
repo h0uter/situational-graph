@@ -1,5 +1,4 @@
 import unittest
-# from thesis_demos import create_complete_nav_graph
 from src.entities.knowledge_road_map import KnowledgeRoadmap  
 from src.entities.agent import Agent
 from src.data_providers.world import ManualGraphWorld, LatticeWorld
@@ -15,7 +14,6 @@ class TestMVP(unittest.TestCase):
 
     def test_get_node_by_pos(self):
         KRM = KnowledgeRoadmap((55, 55))
-        
         self.assertEqual(0, KRM.get_node_by_pos((55, 55)))
 
     def test_exploration_steps(self):
@@ -28,11 +26,8 @@ class TestMVP(unittest.TestCase):
         while agent.no_more_frontiers == False:
             exploration_use_case.run_exploration_step(world)
 
-
+        # 66 is the amount of steps for the graph world
         self.assertEqual(66, agent.steps_taken)
-
-
-
 
 if __name__ == '__main__':
     unittest.main(argv=['first-arg-is-ignored'], exit=False)

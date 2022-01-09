@@ -13,48 +13,6 @@ from src.usecases.exploration import Exploration
 # DEMONSTRATIONS
 ############################################################################################
 
-# def demo_instant_graph_from_waypoints(wp_data):
-#     ''' This demo instantly creates a graph from a list of waypoints'''
-#     KRM = KnowledgeRoadmap()
-
-#     KRM.init_plot()
-
-#     KRM.add_waypoints(wp_data)
-#     KRM.draw_current_krm() 
-#     plt.ioff()
-#     plt.show()
-
-# def demo_online_graph(wp_data):
-#     ''' 
-#     This demo creates and visualises a graph online 
-#     from an array of waypoint data
-#     '''
-#     KRM = KnowledgeRoadmap()
-#     KRM.init_plot()
-#     for wp in wp_data:
-#         KRM.add_waypoint(wp)
-#         KRM.draw_current_krm()
-
-#     plt.ioff()
-#     plt.show()
-
-# def demo_with_agent_drawn(wp_data):
-#     ''' 
-#     This demo creates and visualises a graph online 
-#     from an array of waypoint data
-#     '''
-#     agent = Agent()
-#     KRM = KnowledgeRoadmap((0, 0))
-#     KRM.init_plot()
-
-#     for wp in wp_data:
-#         KRM.add_waypoint(wp)
-#         agent.draw_agent(wp)
-#         KRM.draw_current_krm()
-
-#     plt.ioff()
-#     plt.show()
-
 def demo_agent_driven():
     ''' This is the first demo where the agent takes actions to explore a world'''
     world = ManualGraphWorld()

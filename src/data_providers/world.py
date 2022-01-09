@@ -1,6 +1,4 @@
 import networkx as nx
-# import matplotlib.pyplot as plt
-# from numpy.core.shape_base import block
 
 class ManualGraphWorld():
     def __init__(self):
