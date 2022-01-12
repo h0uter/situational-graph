@@ -29,5 +29,9 @@ class TestMVP(unittest.TestCase):
         # 66 is the amount of steps for the graph world
         self.assertEqual(66, agent.steps_taken)
 
+    def test_graph_generator(self):
+        ''' this test checks whether the distance between nodes is always 4 meters.'''
+        pass
+
 if __name__ == '__main__':
     unittest.main(argv=['first-arg-is-ignored'], exit=False)

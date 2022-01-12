@@ -2,12 +2,14 @@ import networkx as nx
 from networkx.drawing.nx_pylab import draw
 import matplotlib.pyplot as plt
 import keyboard
+import time
 
 from src.entities.knowledge_road_map import KnowledgeRoadmap
 from src.entities.agent import Agent
 from src.data_providers.world import *
 from src.entrypoints.GUI import GUI
 from src.usecases.exploration import Exploration
+from src.data_providers.world_graph_generator import GraphGenerator
 
 ############################################################################################
 # DEMONSTRATIONS
@@ -36,7 +38,7 @@ def pure_exploration_usecase():
     gui = GUI()
     # gui.preview_godmode_frontier_graph_world(world.world)
     agent = Agent(debug=False)
-    exploration_use_case = Exploration(agent, debug=False)
+    exploration_use_case = Exploration(agent, debug=True)
 
     stepwise = False
     # TODO: fix agent.krm bullshit
@@ -63,10 +65,18 @@ def pure_exploration_usecase():
     plt.ioff()
     plt.show()
 
+def graph_generator_debug():
+    gen = GraphGenerator()
+    gui = GUI()
+    world = gen.generate_graph(10)
+    print(world)
+    gui.preview_godmode_frontier_graph_world(world)
+
 if __name__ == '__main__':
 
     # demo_with_agent_drawn(world.structure)
     # demo_instant_graph_from_waypoints(wp_data)
     # demo_agent_driven()
-    pure_exploration_usecase()
+    # pure_exploration_usecase()
+    graph_generator_debug()
     
