@@ -68,9 +68,9 @@ def pure_exploration_usecase():
 def graph_generator_debug():
     gen = GraphGenerator()
     gui = GUI()
-    world = gen.generate_graph(10)
+    world = gen.generate_graph(100)
     print(world)
-    gui.preview_godmode_frontier_graph_world(world)
+    gui.preview_graph_world(world)
 
 if __name__ == '__main__':
 

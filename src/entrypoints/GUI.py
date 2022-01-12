@@ -10,6 +10,35 @@ class GUI():
     def preview_graph_world(self, world):
         fig, self.ax = plt.subplots(figsize=(10, 10))
 
+        self.ax.set_xlim([-100, 100])
+        self.ax.set_xlabel('x', size=10)
+        self.ax.set_ylim([-100, 100])
+        self.ax.set_ylabel('y', size=10)
+
+        nx.draw_networkx_nodes(
+                                world, 
+                                pos=nx.get_node_attributes(world, 'pos'),
+                                ax=self.ax, 
+                                node_color='grey')
+        nx.draw_networkx_edges(
+                                world, 
+                                pos=nx.get_node_attributes(world, 'pos'), 
+                                ax=self.ax, 
+                                edge_color='grey')
+
+        nx.draw_networkx_labels(
+                                world, 
+                                pos=nx.get_node_attributes(world, 'pos'), 
+                                ax=self.ax, 
+                                font_size=10)
+
+        plt.axis('on')
+        self.ax.tick_params(left=True, 
+                            bottom=True,
+                            labelleft=True, 
+                            labelbottom=True)
+        plt.show()
+
 
     def preview_godmode_frontier_graph_world(self, world):
         ''' draws the underlying graph from which the frontiers are sampled (placeholder for sampling from localgrid) '''
