@@ -65,6 +65,10 @@ class GraphGenerator():
                 self.graph.add_node(i, pos=candidate_pos)
                 self.graph.add_edge(i, i-1)
 
+        '''save the generated map object to a pickle file so it can be used for testing'''
+        self.save_graph()
+
+    def save_graph(self):
         full_path = os.path.join('src', 'data_providers', 'generated_world_graphs', f'{time.time()}_generated_world_graph.p')
         file_to_store = open(full_path, "wb")
         pickle.dump(self, file_to_store)

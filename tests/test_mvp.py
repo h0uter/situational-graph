@@ -31,10 +31,10 @@ class TestMVP(unittest.TestCase):
         # 68 is the amount of steps for the graph world
         self.assertEqual(68, agent.steps_taken)
 
-    def test_exploration_steps_1642082841(self):
+    def test_exploration_steps_1642083709(self):
         ''' This test checks whether the amount of steps neccesary to explore the world is correct'''
         
-        world = pickle.load( open( "src/data_providers/generated_world_graphs/1642083709.9957886generated_world_graph.p", "rb" ) )
+        world = pickle.load( open( "src/data_providers/test_world_graphs/1642083709.9957886_generated_world_graph.p", "rb" ) )
         # world = ManualGraphWorld()
         agent = Agent(debug=False)
         exploration_use_case = Exploration(agent)
@@ -44,6 +44,20 @@ class TestMVP(unittest.TestCase):
 
         # 280 is the amount of steps for the graph world
         self.assertEqual(280, agent.steps_taken)
+
+    def test_exploration_steps_1642089098(self):
+        ''' This test checks whether the amount of steps neccesary to explore the world is correct'''
+        
+        world = pickle.load( open( "src/data_providers/test_world_graphs/1642089098.4996877_generated_world_graph.p", "rb" ) )
+        # world = ManualGraphWorld()
+        agent = Agent(debug=False)
+        exploration_use_case = Exploration(agent)
+
+        while agent.no_more_frontiers == False:
+            exploration_use_case.run_exploration_step(world)
+
+        # 280 is the amount of steps for the graph world
+        self.assertEqual(291, agent.steps_taken)
 
     def test_graph_generator(self):
         ''' this test checks whether the distance between nodes is always 4 meters.'''
