@@ -39,10 +39,10 @@ class Agent():
         ''' sample new frontier positions from local_grid '''
         agent_at_world_node = world.get_node_by_pos(self.pos)
         # indexing the graph like this returns the neigbors
-        observable_nodes = world.world[agent_at_world_node]
+        observable_nodes = world.graph[agent_at_world_node]
 
         # so this is godmode dictionary with pos info of all nodes
-        world_node_pos_dict = nx.get_node_attributes(world.world, 'pos')
+        world_node_pos_dict = nx.get_node_attributes(world.graph, 'pos')
 
         for node in observable_nodes:
             obs_pos = world_node_pos_dict[node]
@@ -128,11 +128,11 @@ class Agent():
 
     def check_for_shortcuts(self, world):
         agent_at_world_node = world.get_node_by_pos(self.pos)
-        observable_nodes = world.world[agent_at_world_node]
+        observable_nodes = world.graph[agent_at_world_node]
 
         for world_node in observable_nodes:
             # convert observable world node to krm node
-            krm_node = self.krm.get_node_by_pos(world.world.nodes[world_node]['pos'])
+            krm_node = self.krm.get_node_by_pos(world.graph.nodes[world_node]['pos'])
 
             if not self.krm.KRM.has_edge(krm_node, self.at_wp):
                 if krm_node != self.at_wp and krm_node: # prevent self loops and None errors
@@ -147,9 +147,9 @@ class Agent():
     # HACK: perception processing should be more eleborate and perhaps be its own separate entity
     def process_world_object_perception(self, world):
         agent_at_world_node = world.get_node_by_pos(self.pos)
-        if "world_object_dummy" in world.world.nodes[agent_at_world_node].keys():
-            world_object = world.world.nodes[agent_at_world_node]["world_object_dummy"]
+        if "world_object_dummy" in world.graph.nodes[agent_at_world_node].keys():
+            world_object = world.graph.nodes[agent_at_world_node]["world_object_dummy"]
             if self.debug:
                 print(f"world object '{world_object}' found")
-            wo_pos = world.world.nodes[agent_at_world_node]["world_object_pos_dummy"]
+            wo_pos = world.graph.nodes[agent_at_world_node]["world_object_pos_dummy"]
             self.krm.add_world_object(wo_pos, world_object)

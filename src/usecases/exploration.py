@@ -31,17 +31,18 @@ class Exploration:
                 print(f"2. step: execute consumable path")
             self.consumable_path = self.agent.perform_path_step(self.consumable_path)
         elif not self.selected_frontier_idx:
-            if self.debug:
-                print(f"3. step: select target frontier and find path")
-            self.agent.sample_frontiers(world)  # sample frontiers from the world
-            self.selected_frontier_idx = self.agent.select_target_frontier()
-            self.consumable_path = self.agent.find_path_to_selected_frontier(self.selected_frontier_idx)
-            
             '''if there are no more frontiers, exploration is done'''
+            self.selected_frontier_idx = self.agent.select_target_frontier()
             if self.agent.no_more_frontiers:
                 print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
                 print(f"It took {self.agent.steps_taken} steps to complete the exploration.")
                 return
+
+            if self.debug:
+                print(f"3. step: select target frontier and find path")
+            self.agent.sample_frontiers(world)  # sample frontiers from the world
+            self.consumable_path = self.agent.find_path_to_selected_frontier(self.selected_frontier_idx)
+            
 
         if self.agent.debug:
             self.agent.debug_logger()

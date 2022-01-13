@@ -2,7 +2,6 @@ import networkx as nx
 from networkx.drawing.nx_pylab import draw
 import matplotlib.pyplot as plt
 import keyboard
-import time
 
 from src.entities.knowledge_road_map import KnowledgeRoadmap
 from src.entities.agent import Agent
@@ -15,32 +14,7 @@ from src.data_providers.world_graph_generator import GraphGenerator
 # DEMONSTRATIONS
 ############################################################################################
 
-def demo_agent_driven():
-    ''' This is the first demo where the agent takes actions to explore a world'''
-    world = ManualGraphWorld()
-    # world = LatticeWorld()
-    gui = GUI()
-    # gui.draw_world(world.world)
-    agent = Agent(debug=False)
-    exploration = Exploration(agent)
-
-    exploration.explore(world)
-    # agent.explore_stepwise(world)
-    # agent.explore(world)
-
-    plt.ioff()
-    plt.show()
-
-
-def pure_exploration_usecase():
-
-    world = ManualGraphWorld()
-    gui = GUI()
-    # gui.preview_godmode_frontier_graph_world(world.world)
-    agent = Agent(debug=False)
-    exploration_use_case = Exploration(agent, debug=True)
-
-    stepwise = False
+def exploration(world, agent, exploration_use_case, gui, stepwise=False):
     # TODO: fix agent.krm bullshit
     # TODO: fix ugly init_plot(), like hide this in the vizualisaiton and run the first time only
     gui.init_plot(agent, agent.krm)
@@ -65,18 +39,30 @@ def pure_exploration_usecase():
     plt.ioff()
     plt.show()
 
+def exploration_on_randomly_generated_graph_world():
+    world = GraphGenerator(100)
+    gui = GUI(map_img=False)
+    gui.preview_graph_world(world)
+    agent = Agent(debug=False)
+    exploration_use_case = Exploration(agent, debug=False)
+    exploration(world, agent, exploration_use_case, gui)
+
+def exploration_on_manual_graph_world():
+    world = ManualGraphWorld()
+    gui = GUI(map_img=True)
+    gui.preview_graph_world(world)
+    agent = Agent(debug=False)
+    exploration_use_case = Exploration(agent, debug=False)
+    exploration(world, agent, exploration_use_case, gui)
+
 def graph_generator_debug():
-    gen = GraphGenerator()
+    world = GraphGenerator(200)
     gui = GUI()
-    world = gen.generate_graph(10)
-    print(world)
-    gui.preview_godmode_frontier_graph_world(world)
+    gui.preview_graph_world(world)
 
 if __name__ == '__main__':
 
-    # demo_with_agent_drawn(world.structure)
-    # demo_instant_graph_from_waypoints(wp_data)
-    # demo_agent_driven()
-    # pure_exploration_usecase()
-    graph_generator_debug()
+    exploration_on_manual_graph_world()
+    # exploration_on_randomly_generated_graph_world()
+    # graph_generator_debug()
     
