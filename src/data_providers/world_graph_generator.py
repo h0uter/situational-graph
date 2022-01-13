@@ -6,7 +6,12 @@ import time
 
 class GraphGenerator():
     def __init__(self, num_nodes) -> None:
-        self.generate_graph(num_nodes)
+        self.graph = nx.Graph()
+
+        success = False
+        self.tries_before_reset = 25
+        while not success:
+            success = self.generate_graph(num_nodes)
 
     def get_node_by_pos(self, pos):
         ''' returns the node at the given position '''
@@ -25,8 +30,8 @@ class GraphGenerator():
         return new_pos
 
     def generate_graph(self, num_nodes: int) -> nx.Graph:
-        self.graph = nx.Graph()
         count = 0
+        reset_counter = 0
 
         for i in range(num_nodes):
             if i == 0:
@@ -35,7 +40,10 @@ class GraphGenerator():
                 count = 0
                 valid_candidate = False
                 while not valid_candidate:
-                    self.graph.add_node(i , pos=(0, 0))
+                    if reset_counter > self.tries_before_reset:
+                        print("STUCK, retrying")
+                        return False
+                    # self.graph.add_node(i , pos=(0, 0))
                     min_idx = min(self.graph.nodes)
                     max_idx = max(self.graph.nodes)
                     new_root_idx = np.random.randint(low=min_idx, high=max_idx)
@@ -45,7 +53,8 @@ class GraphGenerator():
                     nodes_in_rad = self.get_nodes_in_radius(self.graph, candidate_pos, 4)
                     if nodes_in_rad == []:
                         valid_candidate = True
-
+                
+                reset_counter = 0
                 self.graph.add_node(i, pos=candidate_pos)
                 self.graph.add_edge(i, new_root_idx)
 
@@ -54,19 +63,26 @@ class GraphGenerator():
                 
                 valid_candidate = False
                 while not valid_candidate:
+                    if reset_counter > self.tries_before_reset:
+                        print("STUCK, retrying")
+                        return False
+
                     candidate_pos = self.sample_pos(old_pos)
                     nodes_in_rad = self.get_nodes_in_radius(self.graph, candidate_pos, 4)
                     if nodes_in_rad == []:
                         valid_candidate = True
 
                     print(i)
+                    reset_counter += 1
                     # TODO: reset the whole unit if it gets stuck
+                reset_counter = 0
                 count += 1
                 self.graph.add_node(i, pos=candidate_pos)
                 self.graph.add_edge(i, i-1)
 
         '''save the generated map object to a pickle file so it can be used for testing'''
         self.save_graph()
+        return True
 
     def save_graph(self):
         full_path = os.path.join('src', 'data_providers', 'generated_world_graphs', f'{time.time()}_generated_world_graph.p')

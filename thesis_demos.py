@@ -69,7 +69,7 @@ def pure_exploration_usecase():
 
 
 def graph_generator_debug():
-    world = GraphGenerator(50)
+    world = GraphGenerator(200)
     # world = gen.generate_graph(50)
     print(world)
     gui = GUI()
@@ -80,6 +80,6 @@ if __name__ == '__main__':
     # demo_with_agent_drawn(world.structure)
     # demo_instant_graph_from_waypoints(wp_data)
     # demo_agent_driven()
-    pure_exploration_usecase()
-    # graph_generator_debug()
+    # pure_exploration_usecase()
+    graph_generator_debug()
     
