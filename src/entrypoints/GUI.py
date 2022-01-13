@@ -19,7 +19,8 @@ class GUI():
                                 world, 
                                 pos=nx.get_node_attributes(world, 'pos'),
                                 ax=self.ax, 
-                                node_color='grey')
+                                node_color='grey',
+                                node_size=100)
         nx.draw_networkx_edges(
                                 world, 
                                 pos=nx.get_node_attributes(world, 'pos'), 
@@ -30,7 +31,7 @@ class GUI():
                                 world, 
                                 pos=nx.get_node_attributes(world, 'pos'), 
                                 ax=self.ax, 
-                                font_size=10)
+                                font_size=7)
 
         plt.axis('on')
         self.ax.tick_params(left=True, 

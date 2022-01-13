@@ -33,10 +33,10 @@ def demo_agent_driven():
 
 
 def pure_exploration_usecase():
-    # gen = GraphGenerator()
+    world = GraphGenerator(100)
     # world = gen.generate_graph(100)
 
-    world = ManualGraphWorld()
+    # world = ManualGraphWorld()
     gui = GUI()
     # gui.preview_godmode_frontier_graph_world(world.world)
     agent = Agent(debug=False)
@@ -68,8 +68,8 @@ def pure_exploration_usecase():
     plt.show()
 
 def graph_generator_debug():
-    gen = GraphGenerator()
-    world = gen.generate_graph(50)
+    world = GraphGenerator(50)
+    # world = gen.generate_graph(50)
     print(world)
     gui = GUI()
     gui.preview_graph_world(world)
@@ -79,6 +79,6 @@ if __name__ == '__main__':
     # demo_with_agent_drawn(world.structure)
     # demo_instant_graph_from_waypoints(wp_data)
     # demo_agent_driven()
-    # pure_exploration_usecase()
-    graph_generator_debug()
+    pure_exploration_usecase()
+    # graph_generator_debug()
     
