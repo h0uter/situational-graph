@@ -3,16 +3,25 @@ import networkx as nx
 import time
 
 class GUI():
-    def __init__(self):
+    def __init__(self, map_img=False):
         self.agent_drawing = None
         self.local_grid_drawing = None
+        self.map_img = map_img
 
     def preview_graph_world(self, world):
+        '''This function is used to preview the underlying graph used as a simplified world to sample from.'''
         fig, self.ax = plt.subplots(figsize=(10, 10))
 
-        self.ax.set_xlim([-100, 100])
+        if self.map_img:
+            self.img = plt.imread("resource/floor-plan-villa.png")
+            self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
+            self.ax.set_xlim([-20, 20])
+            self.ax.set_ylim([-15, 15])
+        else:
+            self.ax.set_xlim([-100, 100])
+            self.ax.set_ylim([-100, 100])
+
         self.ax.set_xlabel('x', size=10)
-        self.ax.set_ylim([-100, 100])
         self.ax.set_ylabel('y', size=10)
 
         nx.draw_networkx_nodes(
@@ -41,76 +50,43 @@ class GUI():
         plt.show()
 
 
-    def preview_godmode_frontier_graph_world(self, world):
-        ''' draws the underlying graph from which the frontiers are sampled (placeholder for sampling from localgrid) '''
-        fig, self.ax = plt.subplots(figsize=(10, 10))
-
-        self.img = plt.imread("resource/floor-plan-villa.png")
-
-        self.ax.set_title('GraphWorld simplification of optimal frontiers for exploration')
-        self.ax.set_xlim([-20, 20])
-        self.ax.set_xlabel('x', size=10)
-        self.ax.set_ylim([-15, 15])
-        self.ax.set_ylabel('y', size=10)
-        self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
-
-        nx.draw_networkx_nodes(
-                                world, 
-                                pos=nx.get_node_attributes(world, 'pos'),
-                                ax=self.ax, 
-                                node_color='grey',
-                                node_size=10)
-        nx.draw_networkx_edges(
-                                world, 
-                                pos=nx.get_node_attributes(world, 'pos'), 
-                                ax=self.ax, 
-                                edge_color='grey')
-
-        nx.draw_networkx_labels(
-                                world, 
-                                pos=nx.get_node_attributes(world, 'pos'), 
-                                ax=self.ax, 
-                                font_size=8)
-
-        plt.axis('on')
-        self.ax.tick_params(left=True, 
-                            bottom=True,
-                            labelleft=True, 
-                            labelbottom=True)
-        plt.show()
-
     def init_plot(self, agent, krm):
-        ''' initializes the plot'''
+        ''' initializes the dynamic plotting of the KRM'''
         # self.fig, self.ax = plt.subplots(figsize=(10, 10))
         self.fig, self.ax = plt.subplots()
-        self.img = plt.imread("resource/floor-plan-villa.png")
 
+        if self.map_img:
+            self.img = plt.imread("resource/floor-plan-villa.png")
+            self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
+            self.ax.set_xlim([-20, 20])
+            self.ax.set_ylim([-15, 15])
+        else:
+            self.ax.set_xlim([-50, 50])
+            self.ax.set_ylim([-50, 50])
+            
         self.ax.set_title('Online Construction of Knowledge Roadmap')
-        self.ax.set_xlim([-20, 20])
         self.ax.set_xlabel('x', size=10)
-        self.ax.set_ylim([-15, 15])
         self.ax.set_ylabel('y', size=10)
-
 
         plt.ion()
         self.viz_krm(agent, krm)
         plt.pause(0.01)
 
     def viz_krm(self, agent, krm):
-        t0 = time.time()
-
         ''' draws the current Knowledge Roadmap Graph'''
+        # t0 = time.time()
+        self.ax.cla() # XXX: plt.cla is the bottleneck in my performance.
 
-        # plt.cla is the bottleneck in my performance.
-        # plt.cla()
-        self.ax.clear()
-        self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
-
+        if self.map_img:
+            self.ax.imshow(self.img, extent=[-20, 20, -15, 15])
+        else:
+            self.ax.set_xlim([-70, 70])
+            self.ax.set_ylim([-70, 70])
 
         # HACK: floorplan should be dependent on the specified priors and not be included in KRM
         # TODO: make floorplan an argument of the KRM
-        print(f"drawing init step took {time.time() - t0} seconds")
-        t1 = time.time()
+        # print(f"drawing init step took {time.time() - t0} seconds")
+        # t1 = time.time()
         pos = nx.get_node_attributes(krm.KRM, 'pos') # TODO: unclear variable name
         # filter the nodes and edges based on their type
         waypoint_nodes = dict((n, d['type'])
@@ -127,8 +103,8 @@ class GUI():
         frontier_edges = dict((e, d['type'])
                                 for e, d in krm.KRM.edges().items() if d['type'] == 'frontier_edge')
 
-        print(f"dict looping step took {time.time() - t1} seconds")
-        t2 = time.time()
+        # print(f"dict looping step took {time.time() - t1} seconds")
+        # t2 = time.time()
         '''draw the nodes, edges and labels separately'''
         nx.draw_networkx_nodes(
                                 krm.KRM, 
@@ -179,7 +155,7 @@ class GUI():
         )
 
         nx.draw_networkx_labels(krm.KRM, pos, ax=self.ax, font_size=6)
-        print(f"drawing step took {time.time() - t2} seconds")
+        # print(f"drawing step took {time.time() - t2} seconds")
         plt.axis('on')  # turns on axis
         self.ax.set_aspect('equal', 'box')  # set the aspect ratio of the plot
         self.ax.tick_params(left=True, bottom=True,

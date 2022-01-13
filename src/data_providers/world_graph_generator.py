@@ -6,20 +6,19 @@ import time
 
 class GraphGenerator():
     def __init__(self, num_nodes) -> None:
-        self.graph = nx.Graph()
 
         success = False
         self.tries_before_reset = 25
         while not success:
             success = self.generate_graph(num_nodes)
 
-    def get_node_by_pos(self, pos):
+    def get_node_by_pos(self, pos: tuple) -> int:
         ''' returns the node at the given position '''
         for node in self.graph.nodes():
             if self.graph.nodes[node]['pos'] == pos:
                 return node
 
-    def sample_pos(self, from_node_pos):
+    def sample_pos(self, from_node_pos: tuple) -> tuple:
         sign1 = np.random.choice([-1, 1])
         sign2 = np.random.choice([-1, 1])
         sample_dist = np.random.randint(low=3, high=6)
@@ -29,7 +28,8 @@ class GraphGenerator():
         new_pos = (new_x, new_y)
         return new_pos
 
-    def generate_graph(self, num_nodes: int) -> nx.Graph:
+    def generate_graph(self, num_nodes: int) -> bool:
+        self.graph = nx.Graph()
         count = 0
         reset_counter = 0
 
@@ -50,8 +50,8 @@ class GraphGenerator():
                     new_root_pos  = self.graph.nodes[new_root_idx]['pos']
 
                     candidate_pos = self.sample_pos(new_root_pos)
-                    nodes_in_rad = self.get_nodes_in_radius(self.graph, candidate_pos, 4)
-                    if nodes_in_rad == []:
+                    nodes_in_radius = self.get_nodes_in_radius(self.graph, candidate_pos, 4)
+                    if nodes_in_radius == []:
                         valid_candidate = True
                 
                 reset_counter = 0
@@ -68,13 +68,14 @@ class GraphGenerator():
                         return False
 
                     candidate_pos = self.sample_pos(old_pos)
-                    nodes_in_rad = self.get_nodes_in_radius(self.graph, candidate_pos, 4)
-                    if nodes_in_rad == []:
+                    nodes_in_radius = self.get_nodes_in_radius(self.graph, candidate_pos, 4)
+                    if nodes_in_radius == []:
                         valid_candidate = True
 
-                    print(i)
+                    
+                    print(f"idx:{i}, attempted pos: {candidate_pos}, nodes in radius: {nodes_in_radius}")
                     reset_counter += 1
-                    # TODO: reset the whole unit if it gets stuck
+
                 reset_counter = 0
                 count += 1
                 self.graph.add_node(i, pos=candidate_pos)
