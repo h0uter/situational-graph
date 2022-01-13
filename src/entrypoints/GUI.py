@@ -16,20 +16,20 @@ class GUI():
         self.ax.set_ylabel('y', size=10)
 
         nx.draw_networkx_nodes(
-                                world, 
-                                pos=nx.get_node_attributes(world, 'pos'),
+                                world.graph, 
+                                pos=nx.get_node_attributes(world.graph, 'pos'),
                                 ax=self.ax, 
                                 node_color='grey',
                                 node_size=100)
         nx.draw_networkx_edges(
-                                world, 
-                                pos=nx.get_node_attributes(world, 'pos'), 
+                                world.graph, 
+                                pos=nx.get_node_attributes(world.graph, 'pos'), 
                                 ax=self.ax, 
                                 edge_color='grey')
 
         nx.draw_networkx_labels(
-                                world, 
-                                pos=nx.get_node_attributes(world, 'pos'), 
+                                world.graph, 
+                                pos=nx.get_node_attributes(world.graph, 'pos'), 
                                 ax=self.ax, 
                                 font_size=7)
 

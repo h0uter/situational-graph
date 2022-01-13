@@ -79,6 +79,6 @@ if __name__ == '__main__':
     # demo_with_agent_drawn(world.structure)
     # demo_instant_graph_from_waypoints(wp_data)
     # demo_agent_driven()
-    pure_exploration_usecase()
-    # graph_generator_debug()
+    # pure_exploration_usecase()
+    graph_generator_debug()
     
