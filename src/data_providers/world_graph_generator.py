@@ -5,8 +5,8 @@ import pickle
 import time
 
 class GraphGenerator():
-    def __init__(self, num_nodes) -> None:
-
+    def __init__(self, num_nodes: int, save_world_to_file=False) -> None:
+        self.save = save_world_to_file
         success = False
         self.tries_before_reset = 25
         while not success:
@@ -72,7 +72,7 @@ class GraphGenerator():
                     if nodes_in_radius == []:
                         valid_candidate = True
 
-                    
+
                     print(f"idx:{i}, attempted pos: {candidate_pos}, nodes in radius: {nodes_in_radius}")
                     reset_counter += 1
 
@@ -82,7 +82,8 @@ class GraphGenerator():
                 self.graph.add_edge(i, i-1)
 
         '''save the generated map object to a pickle file so it can be used for testing'''
-        self.save_graph()
+        if self.save:
+            self.save_graph()
         return True
 
     def save_graph(self):
