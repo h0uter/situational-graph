@@ -33,6 +33,8 @@ def demo_agent_driven():
 
 
 def pure_exploration_usecase():
+    # gen = GraphGenerator()
+    # world = gen.generate_graph(100)
 
     world = ManualGraphWorld()
     gui = GUI()
@@ -67,9 +69,9 @@ def pure_exploration_usecase():
 
 def graph_generator_debug():
     gen = GraphGenerator()
-    gui = GUI()
-    world = gen.generate_graph(100)
+    world = gen.generate_graph(50)
     print(world)
+    gui = GUI()
     gui.preview_graph_world(world)
 
 if __name__ == '__main__':

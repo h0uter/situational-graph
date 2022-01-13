@@ -10,10 +10,41 @@ class GraphGenerator():
 
     def generate_graph(self, num_nodes: int) -> nx.Graph:
         graph = nx.Graph()
+        count = 0
 
         for i in range(num_nodes):
             if i == 0:
                 graph.add_node(0, pos=(0, 0))
+            elif count == 15:
+                subtree_idx = i
+                count = 0
+
+                valid_candidate = False
+                while not valid_candidate:
+                    graph.add_node(i , pos=(0, 0))
+                    min_idx = min(graph.nodes)
+                    max_idx = max(graph.nodes)
+                    new_root_idx = np.random.randint(low=min_idx, high=max_idx)
+                    print(f"min_idx: {min_idx}, max_idx: {max_idx}, new root idx: {new_root_idx}")
+                    new_root_pos  = graph.nodes[new_root_idx]['pos']
+
+                    sign1 = get_rand_sign()
+                    sign2 = get_rand_sign()
+                    sample_dist = np.random.randint(low=3, high=6)
+                    sample_dist2 = np.random.randint(low=3, high=6)
+                    new_x = new_root_pos[0] + sample_dist*sign1
+                    new_y = new_root_pos[1] + sample_dist2*sign2
+                    new_pos = (new_x, new_y)
+
+                    candidate_node_pos = new_pos
+
+                    nodes_in_rad = self.get_nodes_in_radius(graph, candidate_node_pos, 4)
+                    if nodes_in_rad == []:
+                        valid_candidate = True
+
+                graph.add_node(i, pos=new_pos)
+                graph.add_edge(i, new_root_idx)
+
             else:
                 old_pos = graph.nodes[i-1]['pos']
                 
@@ -32,12 +63,12 @@ class GraphGenerator():
 
                     candidate_node_pos = new_pos
 
-                    nodes_in_rad = self.get_nodes_in_radius(graph, candidate_node_pos, 3)
+                    nodes_in_rad = self.get_nodes_in_radius(graph, candidate_node_pos, 4)
                     if nodes_in_rad == []:
                         valid_candidate = True
 
                     print(i)
-
+                count += 1
                 
                 graph.add_node(i, pos=new_pos)
                 graph.add_edge(i, i-1)
