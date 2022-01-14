@@ -1,6 +1,6 @@
 # Knowledge Roadmaps for Search and Rescue Missions
 
-## Introduction
+## General Picture
 It is expected of robots to interact more richly with the world. Which is why us roboticists are no longer content with simply detecting and recognizing objects in images. Instead, what is desired is higher-level understanding and reasoning about complete dynamic 3D scenes. 
 In robotics and related research fields, the study of understanding is often referred to as semantics, which dictates what does the world _‘mean'_ to a robot, this is strongly tied to the question of _how to represent that meaning._ Part of this twofold challenge is **semantic mapping**, which lies at the intersection of computer vision, task & motion planning, and simultaneous localization & mapping. 
 My goal is to advance the design principles of semantic mapping to generalize its integration across task domains.
@@ -30,11 +30,12 @@ Data objects can be retrieved with get methods.
 ### TODO
 
 #### general
+- [X] Code a generator for large graph world as a baseline for exploration and for testing.
+- [ ] Exploration on metric world instead of graph world.
 - [ ] Emulate spot robot API one-on-one, run a test on the physical robot.
 - [ ] Incorporate semantic information in exploration 
 - [ ] Use the height of the local grid to calculate a risk for each frontier edge and sample multiple frontiers in the same region.
 - [ ] Interface world-object classes with the knowledge base. If the world object class is correlated with the search target class, then it should influence how the surrounding region is valued for the search.
-- [X] Code a generator for large exploration graphs as a baseline and for testing
 
 #### usecases
 - [X] Frontier Based Exploration
