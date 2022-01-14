@@ -62,7 +62,7 @@ def graph_generator_debug():
 
 if __name__ == '__main__':
 
-    # exploration_on_manual_graph_world()
-    exploration_on_randomly_generated_graph_world()
+    exploration_on_manual_graph_world()
+    # exploration_on_randomly_generated_graph_world()
     # graph_generator_debug()
     
