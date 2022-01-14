@@ -7,17 +7,17 @@ My goal is to advance the design principles of semantic mapping to generalize it
 
 <img src="documentation/villa%20frontier%20exploration.gif" alt="alt text" width="500" height="whatever">
 
+
 ## Quick start
 - pip install `networkx`
 - select a demo at the bottom of `thesis_demos.py` and run it.
-
 
 ## Implementation
 During exploration, this implementation should ground the knowledge about mission critical entities spatially in a sparse data structure which can be directly used for robot navigation.
 This will enable spatial reasoning and provide a high level overview of the mission progress.
 
 ## Assumptions/Simplifications
-- Currently the exploration algorithms is **frontier based lowest cost-to-go (shortest path)**
+- Currently the exploration algorithms is _frontier based lowest cost-to-go (shortest path)_.
 - currently the sampling of frontiers is simplified to sampling from a partially observable world graph. This should be expanded to sampling from the local-grid of the robot.
 - The presented high level layer relies on robust local planners and controllers to deal with uncertainties at runtime.
   
@@ -33,10 +33,10 @@ Data objects can be retrieved with get methods.
 - [ ] Emulate spot robot API one-on-one, run a test on the physical robot.
 - [ ] Incorporate semantic information in exploration 
 - [ ] Use the height of the local grid to calculate a risk for each frontier edge and sample multiple frontiers in the same region.
-- [ ] Interface world-objects classes with the knowledge base. If the world object class is correlated with the search target class, then it should influence the value of that search direction.
+- [ ] Interface world-object classes with the knowledge base. If the world object class is correlated with the search target class, then it should influence how the surrounding region is valued for the search.
 - [X] Code a generator for large exploration graphs as a baseline and for testing
 
 #### usecases
-- [X] Basic Frontier Based Exploration
+- [X] Frontier Based Exploration
 - [ ] Semantic Information Gain Exploration
 - [ ] Victim Assessment Action Mapping
