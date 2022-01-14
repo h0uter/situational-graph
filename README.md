@@ -1,4 +1,4 @@
-# Knowledge Roadmaps for Search and Rescue Mission Planning
+# Knowledge Roadmaps for Search and Rescue Missions
 
 ## Introduction
 It is expected of robots to interact more richly with the world. Which is why us roboticists are no longer content with simply detecting and recognizing objects in images. Instead, what is desired is higher-level understanding and reasoning about complete dynamic 3D scenes. 
