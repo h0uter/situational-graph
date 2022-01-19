@@ -1,7 +1,7 @@
 import unittest
 from src.entities.knowledge_road_map import KnowledgeRoadmap  
 from src.entities.agent import Agent
-from src.data_providers.world import ManualGraphWorld, LatticeWorld
+from data_providers.manual_graph_world import ManualGraphWorld, LatticeWorld
 from src.usecases.exploration import Exploration
 
 import pickle

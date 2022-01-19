@@ -1,11 +1,12 @@
 import networkx as nx
 
 class ManualGraphWorld():
-    def __init__(self):
+    def __init__(self, map_img=False):
         self.graph = nx.Graph()
         self.graph.add_node(0, pos=(0, 0))
         self.idx = 1
         self.create_complex_graph_world()
+        self.map_img = map_img
 
     def create_path_graph_world(self):
         structure = [(4, 0), (7, 0), (12, 0), (16, 0), (16, -4), (16, -8), (16, -12), (12, -12), (12, -8), (12, -4), (12, -1), (8, -1),
@@ -68,7 +69,7 @@ class ManualGraphWorld():
         self.graph.add_node(self.idx, pos=(6, -9))
         self.graph.add_edge(self.idx, self.idx-1)
         self.idx += 1
-        self.graph.add_node(self.idx, pos=(6, -13))
+        self.graph.add_node(self.idx, pos=(5, -12))
         self.graph.add_edge(self.idx, self.idx-1)
         self.idx += 1
 
@@ -76,14 +77,14 @@ class ManualGraphWorld():
         self.graph.add_node(self.idx, pos=(-9, 10))
         self.graph.add_edge(self.idx, 7) # connect left small room to hall
         self.idx += 1
-        self.graph.add_node(self.idx, pos=(-8, 13))
+        self.graph.add_node(self.idx, pos=(-7, 12))
         self.graph.add_edge(self.idx, self.idx-1)
         self.idx += 1
         #
         self.graph.add_node(self.idx, pos=(-2, 10))
         self.graph.add_edge(self.idx, 5) # connect right small room to hall
         self.idx += 1
-        self.graph.add_node(self.idx, pos=(2, 13))
+        self.graph.add_node(self.idx, pos=(2, 12))
         self.graph.add_edge(self.idx, self.idx-1)
         self.idx += 1
 

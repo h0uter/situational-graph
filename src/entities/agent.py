@@ -153,3 +153,49 @@ class Agent():
                 print(f"world object '{world_object}' found")
             wo_pos = world.graph.nodes[agent_at_world_node]["world_object_pos_dummy"]
             self.krm.add_world_object(wo_pos, world_object)
+
+    def observe_local_grid(self, size, world):
+        '''crops the image around pos with size'''
+        x, y = self.pos # world coords
+        # x, y = self.previous_pos # world coords
+        print(f"world map size: {world.map_img.shape}")
+
+        x, y = self.world_coord2pix_idx(world, x,y)
+
+
+        print(f"y-size: {y-size}, y+size: {y+size}, x-size: {x-size}, x+size: {x+size}")
+        # BUG:: cannot sample near edge of the image world.
+        local_grid = world.map_img[int(y-size):int(y+size), int(x-size):int(x+size)]
+        print(f"local grid size: {local_grid.shape}")
+        return local_grid
+
+    # def pix_coord2world_coord(self, x_pix, y_pix):
+    #     '''converts image coordinates to world coordinates'''
+    #     x_pix = x * (self.map_img.shape[1] // 20)
+    #     y_pix = x * (self.map_img.shape[0] // 20)
+    #     x_offset = self.map_img.shape[1] // 2
+    #     y_offset = self.map_img.shape[0] // 2
+    #     x = x_pix + x_offset
+    #     y = y_pix + y_offset
+    #     return x, y
+
+    def world_coord2pix_idx(self, world,x_pos, y_pos):
+        '''converts world coordinates to image pixel indices'''
+
+        Nx_pix = world.map_img.shape[1]
+        Ny_pix = world.map_img.shape[0]
+        print(f"nx_pix: {Nx_pix}, ny_pix: {Ny_pix}")
+
+        x_map_length_scale = 40
+        y_map_length_scale = 30
+
+        x_pix_per_meter = Nx_pix // x_map_length_scale
+        y_pix_per_meter = Ny_pix // y_map_length_scale
+
+        x_origin_pix_offset = Nx_pix // 2
+        y_origin_pix_offset = Ny_pix // 2
+
+        x_pix = x_pos * x_pix_per_meter - x_origin_pix_offset
+        y_pix = y_pos * y_pix_per_meter - y_origin_pix_offset
+
+        return x_pix, y_pix
