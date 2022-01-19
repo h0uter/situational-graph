@@ -11,7 +11,7 @@ from src.data_providers.manual_graph_world import *
 from src.entrypoints.GUI import GUI
 from src.usecases.exploration import Exploration
 from src.data_providers.world_graph_generator import GraphGenerator
-from src.usecases.sample_local_grid import Sampler # TODO: make this the same name
+from src.usecases.sampler import Sampler 
 
 ############################################################################################
 # DEMONSTRATIONS

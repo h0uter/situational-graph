@@ -184,7 +184,7 @@ class Agent():
 
         # BUG:: cannot sample near edge of the image world.
         local_grid = world.map_img[int(y-size):int(y+size), int(x-size):int(x+size)]
-        print(f"local grid size: {local_grid.shape}")
+        # print(f"local grid size: {local_grid.shape}")
         return local_grid
 
     # def pix_coord2world_coord(self, x_pix, y_pix):

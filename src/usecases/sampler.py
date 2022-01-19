@@ -105,10 +105,10 @@ class Sampler():
             # if data[r,c] == 1 :
             # if np.less(data[r,c], [230, 230, 230, 230]).any():
             if np.less(data[r,c], [100, 100, 100, 100]).any():
-                print(f" hello data {data[r,c]}")
+                # print(f" hello data {data[r,c]}")
                 # print(f"Collision at {r}, {c}")
 
-                x_meter, y_meter = self.pix_idx2world_coord(data, c, r)
+                # x_meter, y_meter = self.pix_idx2world_coord(data, c, r)
                 # x_meter, y_meter = self.pix_idx2world_coord(data, r, c)
                 # print(f"Collision at {x_meter}, {y_meter} meters")
 
@@ -145,9 +145,21 @@ class Sampler():
 
     def sample_point_around_other_point(self, x, y, radius, data):
         valid_sample = False
+        inner_radius = radius // 2
         while not valid_sample:
-            x_sample = np.random.randint(low=x-radius, high=x+radius)
-            y_sample = np.random.randint(low=y-radius, high=y+radius)
+
+            r = radius * np.sqrt(np.random.uniform(low=1, high=2.2))
+            theta = np.random.random() * 2 * np.pi
+
+            x_sample = int(x + r * np.cos(theta))
+            y_sample = int(y + r * np.sin(theta))
+            print(f"x_sample {x_sample} y_sample {y_sample}")
+
+            # # x_sample = np.random.randint(low=x-radius, high=x+radius) 
+            # x_sample = x + np.random.randint(low=inner_radius, high=radius) * np.random.choice([-1, 1])
+            # # y_sample = np.random.randint(low=y-radius, high=y+radius) 
+            # y_sample = y + np.random.randint(low=inner_radius, high=radius) * np.random.choice([-1, 1])
+            
             valid_sample = self.collision_check(data=data, at=(x, y), to=(x_sample, y_sample))
 
         # plt.figure(6)
@@ -160,7 +172,7 @@ class Sampler():
 
     def sample_frontiers(self, agent: Agent, local_grid, grid_size, cell_size=1) -> list:
         candidate_frontiers = []
-        while len(candidate_frontiers) < 10:
+        while len(candidate_frontiers) < 20:
             corrected_x = grid_size
             # corrected_x = agent.pos[0] + grid_size
             corrected_y = grid_size
@@ -169,7 +181,7 @@ class Sampler():
             # corrected_x = int(corrected_x)
             # corrected_y = int(corrected_y)
             # x_sample, y_sample = self.sample_point_around_other_point(agent.pos[0], agent.pos[1], radius=100, data=local_grid)
-            x_sample, y_sample = self.sample_point_around_other_point(corrected_x, corrected_y, radius=120, data=local_grid)
+            x_sample, y_sample = self.sample_point_around_other_point(corrected_x, corrected_y, radius=60, data=local_grid)
             # x_sample, y_sample = self.pix_idx2world_coord(local_grid, x_sample, y_sample)
             x_sample, y_sample = self.pix_idx2world_coord(local_grid, y_sample, x_sample)
             
