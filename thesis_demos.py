@@ -62,18 +62,14 @@ def exploration_sampling(world, agent, exploration_use_case, gui, stepwise=False
                 local_grid_img = agent.observe_local_grid(local_grid_size, world)
                 gui.draw_local_grid(local_grid_img)
 
-                frontiers = sampler.sample_frontiers(agent, local_grid_img, local_grid_size)
-                # print(frontiers)
-                frontiers = np.array(frontiers)
-                # print(f"frontiers: {frontiers[:,1]}")
-                # print(f"hello {frontiers[:, 1]+local_grid_size}")
-                # plt.plot(frontiers[:,0]+local_grid_size, frontiers[:, 1]+local_grid_size, 'ro')
+                frontiers = sampler.sample_frontiers(local_grid_img, local_grid_size)
+                frontiers = np.array(frontiers).astype(np.int)
+
                 for frontier in frontiers:
-                    # x, y = sampler.pix_idx2world_coord
-                    plt.plot([local_grid_size, frontier[0]], [local_grid_size, frontier[1]])
-                # plt.pause(0.001)
-                # plt.plot(frontiers[:,0], frontiers[:, 1], 'ro')
-                # plt.pause(0.1)
+                    xx, yy = sampler.get_cells_under_line((local_grid_size, local_grid_size), frontier)
+                    # plt.plot([local_grid_size, frontier[0]], [local_grid_size, frontier[1]])
+                    plt.plot(xx, yy) # draw the line as collection of pixels
+
             # TODO: put all drawing logic in one function
             # FIXME: fix agent.krm bullshit, KRM should be an entity which can be shared by multiple agents
             plt.pause(0.001)
@@ -123,22 +119,12 @@ def exploration_with_sampling_viz():
     full_path = os.path.join('resource', 'output-onlinepngtools.png')
     upside_down_map_img = Image.open(full_path)
     map_img = img_axes2world_axes(upside_down_map_img)
-    # print(str(map_img.tolist()))
-    # for i in range(map_img.shape[0]):
-    #     for j in range(map_img.shape[1]):
-    #         for k in range(map_img.shape[2]):
-    #             if map_img[i,j, k] != 255:
-    #                 print(f"map_img: {map_img[i,j]}")
-    # print(f"map_img: {map_img[10, 10]}")
-
     world = ManualGraphWorld(map_img=map_img)
     gui = GUI(map_img=world.map_img)
     # gui.preview_graph_world(world)
     agent = Agent(debug=False)
     exploration_use_case = Exploration(agent, debug=False)
     exploration_sampling(world, agent, exploration_use_case, gui)
-
-
 
 def graph_generator_debug():
     world = GraphGenerator(200)
@@ -170,7 +156,7 @@ def local_grid_sampler_test():
 
     for i in range(10):
         x_sample, y_sample = local_grid.sample_point_around_other_point(x_prev, y_prev, radius=20, data=data)
-        print(f"Sampled point: {x_sample}, {y_sample}")
+        # print(f"Sampled point: {x_sample}, {y_sample}")
         # local_grid.draw_line(x_prev, y_prev, x_sample, y_sample)
         # x_prev, y_prev = x_sample, y_sample
         data[y_sample, x_sample] = FRONTIER_CELL
@@ -178,13 +164,6 @@ def local_grid_sampler_test():
     plt.ioff()
     plt.plot(x_prev, y_prev, marker='s', color='red', linestyle='none')
     local_grid.draw_grid(data)
-
-# def sample_img_world_while_moving():
-#     world = ManualGraphWorld()
-#     gui = GUI(map_img=True)
-#     agent = Agent()
-#     exploration_use_case = Exploration(agent, debug=False)
-#     exploration(world, agent, exploration_use_case, gui)
 
 if __name__ == '__main__':
 

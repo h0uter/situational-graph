@@ -103,7 +103,6 @@ class Agent():
         this should be sampled from the pose graph eventually
         '''
         wp_at_previous_pos = self.krm.get_node_by_pos(self.previous_pos)
-        # TODO: add a check if the proposed new wp is not already in the KRM
         self.krm.add_waypoint(self.pos, wp_at_previous_pos)
         self.at_wp = self.krm.get_node_by_pos(self.pos)
 
@@ -160,7 +159,6 @@ class Agent():
 
         Nx_pix = world.map_img.shape[1]
         Ny_pix = world.map_img.shape[0]
-        # print(f"nx_pix: {Nx_pix}, ny_pix: {Ny_pix}")
 
         # FIXME: this has to be linked to the x and y offset in the gui
         x_map_length_scale = 50
@@ -181,19 +179,10 @@ class Agent():
         '''crops the image around pos with size'''
         x, y = self.pos # world coords
         x, y = self.world_coord2pix_idx(world, x,y)
-
         # BUG:: cannot sample near edge of the image world.
         local_grid = world.map_img[int(y-size):int(y+size), int(x-size):int(x+size)]
-        # print(f"local grid size: {local_grid.shape}")
+        
         return local_grid
 
-    # def pix_coord2world_coord(self, x_pix, y_pix):
-    #     '''converts image coordinates to world coordinates'''
-    #     x_pix = x * (self.map_img.shape[1] // 20)
-    #     y_pix = x * (self.map_img.shape[0] // 20)
-    #     x_offset = self.map_img.shape[1] // 2
-    #     y_offset = self.map_img.shape[0] // 2
-    #     x = x_pix + x_offset
-    #     y = y_pix + y_offset
-    #     return x, y
+
 

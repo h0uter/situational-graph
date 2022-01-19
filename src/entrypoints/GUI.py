@@ -28,7 +28,6 @@ class GUI():
             (pos[0]-0.5*rec_len, pos[1]-0.5*rec_len), rec_len, rec_len, alpha=0.2, fc='blue'))
 
     def draw_local_grid(self, local_grid_img):
-        # plt.figure(1)
         if not self.initialized:
             fig, (self.ax1, self.ax2) = plt.subplots(1,2, figsize=(15, 10), num=1)
             self.initialized = True
