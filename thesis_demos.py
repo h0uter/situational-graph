@@ -6,12 +6,12 @@ import numpy as np
 from skimage import draw
 from PIL import Image
 
-from src.entities.agent import Agent
-from src.data_providers.manual_graph_world import *
-from src.entrypoints.GUI import GUI
-from src.usecases.exploration import Exploration
-from src.data_providers.world_graph_generator import GraphGenerator
-from src.usecases.sampler import Sampler 
+from knowledge_roadmap.entities.agent import Agent
+from knowledge_roadmap.data_providers.manual_graph_world import *
+from knowledge_roadmap.entrypoints.GUI import GUI
+from knowledge_roadmap.usecases.exploration import Exploration
+from knowledge_roadmap.data_providers.world_graph_generator import GraphGenerator
+from knowledge_roadmap.usecases.sampler import Sampler 
 
 ############################################################################################
 # DEMONSTRATIONS
@@ -88,7 +88,7 @@ def exploration_sampling(world, agent, exploration_use_case, gui, stepwise=False
     plt.show()
 
 def exploration_on_randomly_generated_graph_world():
-    world = GraphGenerator(100)
+    world = GraphGenerator(100,save_world_to_file=True)
     gui = GUI(map_img=None)
     gui.preview_graph_world(world)
     agent = Agent(debug=False)
@@ -167,9 +167,9 @@ def local_grid_sampler_test():
 
 if __name__ == '__main__':
 
-    exploration_with_sampling_viz()
+    # exploration_with_sampling_viz()
     # exploration_on_manual_graph_world()
-    # exploration_on_randomly_generated_graph_world()
+    exploration_on_randomly_generated_graph_world()
     # graph_generator_debug()
     # local_grid_sampler_test()
     

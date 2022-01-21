@@ -87,7 +87,7 @@ class GraphGenerator():
         return True
 
     def save_graph(self):
-        full_path = os.path.join('src', 'data_providers', 'generated_world_graphs', f'{time.time()}_generated_world_graph.p')
+        full_path = os.path.join('knowledge_roadmap', 'data_providers', 'generated_world_graphs', f'{time.time()}_generated_world_graph.p')
         file_to_store = open(full_path, "wb")
         pickle.dump(self, file_to_store)
         file_to_store.close()

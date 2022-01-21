@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from src.entities.knowledge_road_map import KnowledgeRoadmap
+from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
 import networkx as nx
 
 

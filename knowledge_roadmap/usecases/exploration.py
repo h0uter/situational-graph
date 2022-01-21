@@ -1,4 +1,4 @@
-from src.entities.agent import Agent
+from knowledge_roadmap.entities.agent import Agent
 
 class Exploration:
     def __init__(self, agent:Agent, debug=False):

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 from skimage import draw
 
-from src.entities.agent import Agent
+from knowledge_roadmap.entities.agent import Agent
 
 EMPTY_CELL = 0
 OBSTACLE_CELL = 1
