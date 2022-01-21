@@ -1,4 +1,5 @@
 # Knowledge Roadmaps for Search and Rescue Missions
+![](https://github.com/h0uter/knowledge-roadmap/workflows/Project%20Tests/badge.svg)
 
 ## General Picture
 It is expected of robots to interact more richly with the world. Which is why us roboticists are no longer content with simply detecting and recognizing objects in images. Instead, what is desired is higher-level understanding and reasoning about complete dynamic 3D scenes. 
