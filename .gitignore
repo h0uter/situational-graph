@@ -4,3 +4,6 @@ tempCodeRunnerFile.py
 __pycache__/
 
 src/data_providers/generated_world_graphs/
+
+knowledge_roadmap.egg-info/
+.pytest_cache/
