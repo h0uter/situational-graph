@@ -135,9 +135,9 @@ class Sampler():
 
         return x_sample, y_sample
 
-    def sample_frontiers(self, local_grid, grid_size, radius=90) -> list:
+    def sample_frontiers(self, local_grid, grid_size, radius=90, num_frontiers_to_sample=5) -> list:
         candidate_frontiers = []
-        while len(candidate_frontiers) < 20:
+        while len(candidate_frontiers) < num_frontiers_to_sample:
             x_center = grid_size
             y_center = grid_size
 

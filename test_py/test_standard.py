@@ -45,3 +45,4 @@ def test_exploration_steps_on_graph_a():
 
 def test_exploration_steps_on_graph_b():
     assert 288 == exploration_steps_on_graph("b")
+

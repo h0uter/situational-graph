@@ -62,13 +62,30 @@ def exploration_sampling(world, agent, exploration_use_case, gui, stepwise=False
                 local_grid_img = agent.observe_local_grid(local_grid_size, world)
                 gui.draw_local_grid(local_grid_img)
 
-                frontiers = sampler.sample_frontiers(local_grid_img, local_grid_size)
+                frontiers = sampler.sample_frontiers(local_grid_img, local_grid_size, radius=100, num_frontiers_to_sample=1)
                 frontiers = np.array(frontiers).astype(np.int)
-
+                print(f"-frontierS: {frontiers}")
                 for frontier in frontiers:
                     xx, yy = sampler.get_cells_under_line((local_grid_size, local_grid_size), frontier)
                     # plt.plot([local_grid_size, frontier[0]], [local_grid_size, frontier[1]])
                     plt.plot(xx, yy) # draw the line as collection of pixels
+
+                    print(f"frontier: {frontier}")
+                    print(f"local_grid_img shape: {local_grid_img.shape}")
+                    # x_local, y_local = sampler.pix_idx2world_coord(local_grid_img, frontier[0], frontier[1])
+                    x_local, y_local = frontier[0], frontier[1]
+                    # print(f"x_local: {x_local}, y_local: {y_local}")
+                    # x_global_ = agent.pos[0] + x_local
+                    x_global = agent.pos[0] + (x_local - local_grid_size) / 50
+                    # y_global_ = agent.pos[1] + y_local
+                    y_global = agent.pos[1] +  (y_local - local_grid_size) /50
+                    frontier_pos_global = (x_global, y_global)
+                    # todo translate pixel coords to world coords 
+                    print(f"frontier global: {frontier_pos_global}")
+                    print(">>>>>>>>>>>>>>>>>>>>>>>")
+                    # gui.ax1.plot(x_global, y_global, 'ro')
+                    # plt.plot(x_global, y_global, 'ro')
+                    agent.krm.add_frontier(frontier_pos_global, agent.at_wp)
 
             # TODO: put all drawing logic in one function
             # FIXME: fix agent.krm bullshit, KRM should be an entity which can be shared by multiple agents
@@ -167,9 +184,9 @@ def local_grid_sampler_test():
 
 if __name__ == '__main__':
 
-    # exploration_with_sampling_viz()
+    exploration_with_sampling_viz()
     # exploration_on_manual_graph_world()
-    exploration_on_randomly_generated_graph_world()
+    # exploration_on_randomly_generated_graph_world()
     # graph_generator_debug()
     # local_grid_sampler_test()
     
