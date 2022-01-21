@@ -2,3 +2,4 @@ networkx
 keyboard
 PIL
 scikit-image
+pytest
