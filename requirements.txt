@@ -1,0 +1,4 @@
+networkx
+keyboard
+PIL
+scikit-image
