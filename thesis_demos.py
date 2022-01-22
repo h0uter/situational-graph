@@ -148,7 +148,7 @@ def exploration_with_sampling_viz():
     gui = GUI(map_img=map_img)
     # gui.preview_graph_world(world)
     agent = Agent(debug=False)
-    exploration_use_case = Exploration(agent, debug=False)
+    exploration_use_case = Exploration(agent, debug=True)
 
     debug_container = {
         'world': world, 
@@ -170,24 +170,25 @@ def exploration_with_sampling_viz():
         local_grid_img = local_grid_adapter.get_local_grid()
         gui.draw_local_grid(local_grid_img)
 
-        exploration_use_case.run_exploration_step(world)
-        if gui.map_img is not None: 
+        # exploration_use_case.run_exploration_step(world)
+        exploration_use_case.run_exploration_step(world, agent, local_grid_img, local_grid_adapter)
+        # if gui.map_img is not None: 
 
-            frontiers = sampler.sample_frontiers(local_grid_img, local_grid_adapter, radius=100, num_frontiers_to_sample=1)
-            for frontier in frontiers:
-                # plot the sampled frontier edge in fig2
-                # should go to gui
-                xx, yy = sampler.get_cells_under_line((local_grid_adapter.size_pix, local_grid_adapter.size_pix), frontier)
-                plt.plot(xx, yy) # draw the line as collection of pixels
+        #     frontiers = sampler.sample_frontiers(local_grid_img, local_grid_adapter, radius=100, num_frontiers_to_sample=1)
+        #     for frontier in frontiers:
+        #         # plot the sampled frontier edge in fig2
+        #         # should go to gui
+        #         xx, yy = sampler.get_cells_under_line((local_grid_adapter.size_pix, local_grid_adapter.size_pix), frontier)
+        #         plt.plot(xx, yy) # draw the line as collection of pixels
 
-                # translate the above to the global map
-                # this shoould go into the exploration logic
-                x_local, y_local = frontier[0], frontier[1]
-                x_global = agent.pos[0] + (x_local - local_grid_adapter.size_pix) / 50
-                y_global = agent.pos[1] +  (y_local - local_grid_adapter.size_pix) /50
-                frontier_pos_global = (x_global, y_global)
-                # gui.ax1.plot(x_global, y_global, 'ro')
-                agent.krm.add_frontier(frontier_pos_global, agent.at_wp)
+        #         # translate the above to the global map
+        #         # this shoould go into the exploration logic
+        #         x_local, y_local = frontier[0], frontier[1]
+        #         x_global = agent.pos[0] + (x_local - local_grid_adapter.size_pix) / 50
+        #         y_global = agent.pos[1] +  (y_local - local_grid_adapter.size_pix) /50
+        #         frontier_pos_global = (x_global, y_global)
+        #         # gui.ax1.plot(x_global, y_global, 'ro')
+        #         agent.krm.add_frontier(frontier_pos_global, agent.at_wp)
 
 
         gui.viz_krm(agent, agent.krm) # TODO: make the KRM independent of the agent
