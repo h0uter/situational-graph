@@ -1,4 +1,5 @@
 from knowledge_roadmap.entities.agent import Agent
+from knowledge_roadmap.entities.frontier_sampler import FrontierSampler
 
 class Exploration:
     def __init__(self, agent:Agent, debug=False):
@@ -7,6 +8,10 @@ class Exploration:
         self.selected_frontier_idx = None
         self.init = False
         self.debug = debug
+        # self.sampler = FrontierSampler()
+
+    def sample_step(self, local_grid):
+        pass
 
     def run_exploration_step(self, world):
         # TODO: some logic that is only used for exploration should be moved from the agent to here.

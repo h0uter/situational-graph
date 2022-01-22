@@ -3,6 +3,13 @@ import networkx as nx
 import numpy as np
 
 class GUI():
+
+    ''' 
+    The goal of this class is to 
+    - hanlle all visualizations, so that the logic can be tested headless.
+    - take user input later on
+    '''
+
     def __init__(self, map_img=None):
         self.agent_drawing = None
         self.local_grid_drawing = None

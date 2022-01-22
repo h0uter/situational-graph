@@ -5,6 +5,11 @@ import pickle
 import time
 
 class GraphGenerator():
+    ''' 
+    The goal of this class is to 
+    - enable randomized testing of the exploration algorithm without sampling
+    '''
+
     def __init__(self, num_nodes: int, save_world_to_file=False) -> None:
         self.save = save_world_to_file
         success = False

@@ -1,12 +1,26 @@
 import networkx as nx
+from PIL import Image
+import os
+
+from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
+
 
 class ManualGraphWorld():
+    ''' 
+    The goal of this class is to 
+    - enable testing of the exploration without the sampler
+    '''
     def __init__(self, map_img=False):
+        
         self.graph = nx.Graph()
         self.graph.add_node(0, pos=(0, 0))
         self.idx = 1
         self.create_complex_graph_world()
-        self.map_img = map_img
+
+        # this is the map we use to emulate the local grid, not the one used by the gui.
+        full_path = os.path.join('resource', 'output-onlinepngtools.png')
+        upside_down_map_img = Image.open(full_path)
+        self.map_img = img_axes2world_axes(upside_down_map_img)
 
     def create_path_graph_world(self):
         structure = [(4, 0), (7, 0), (12, 0), (16, 0), (16, -4), (16, -8), (16, -12), (12, -12), (12, -8), (12, -4), (12, -1), (8, -1),

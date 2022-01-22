@@ -6,9 +6,8 @@ import networkx as nx
 
 class Agent():
     ''' 
-    Agent only here to test the KRM framework im developping.
-    Feature wise it should match the out of the box capabilities of Spot.
-    If its not in the spot services, it should not be here.
+    The goal of this method is to
+    - be an adapter for sending commands to the spot robot.
     '''
 
     def __init__(self, debug=False):
@@ -153,36 +152,6 @@ class Agent():
                 print(f"world object '{world_object}' found")
             wo_pos = world.graph.nodes[agent_at_world_node]["world_object_pos_dummy"]
             self.krm.add_world_object(wo_pos, world_object)
-
-    def world_coord2pix_idx(self, world, x_pos, y_pos):
-        '''converts world coordinates to image pixel indices'''
-
-        Nx_pix = world.map_img.shape[1]
-        Ny_pix = world.map_img.shape[0]
-
-        # FIXME: this has to be linked to the x and y offset in the gui
-        x_map_length_scale = 50
-        y_map_length_scale = 40
-
-        x_pix_per_meter = Nx_pix // x_map_length_scale
-        y_pix_per_meter = Ny_pix // y_map_length_scale
-
-        x_origin_pix_offset = Nx_pix // 2
-        y_origin_pix_offset = Ny_pix // 2
-
-        x_pix = x_pos * x_pix_per_meter - x_origin_pix_offset
-        y_pix = y_pos * y_pix_per_meter - y_origin_pix_offset
-
-        return x_pix, y_pix
-
-    def observe_local_grid(self, size, world):
-        '''crops the image around pos with size'''
-        x, y = self.pos # world coords
-        x, y = self.world_coord2pix_idx(world, x,y)
-        # BUG:: cannot sample near edge of the image world.
-        local_grid = world.map_img[int(y-size):int(y+size), int(x-size):int(x+size)]
-        
-        return local_grid
 
 
 
