@@ -141,7 +141,8 @@ def local_grid_sampler_test():
 def exploration_with_sampling_viz():
     # this is the prior image of the villa we can include for visualization purposes
     # It is different from the map we use to emulate the local grid.
-    full_path = os.path.join('resource', 'output-onlinepngtools.png')
+    # full_path = os.path.join('resource', 'output-onlinepngtools.png')
+    full_path = os.path.join('resource', 'villa_holes_closed.png')
     upside_down_map_img = Image.open(full_path)
     map_img = img_axes2world_axes(upside_down_map_img)
     world = ManualGraphWorld()
