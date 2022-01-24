@@ -1,4 +1,6 @@
 from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
+from knowledge_roadmap.entities.local_grid import LocalGrid
+
 
 class LocalGridAdapter():
     def __init__(self, map_length_scales, mode='spoof', size_pix=150, cell_size=1,debug_container=None):
@@ -38,6 +40,17 @@ class LocalGridAdapter():
         # BUG:: cannot sample near edge of the image world_img.
         local_grid = world.map_img[int(y-size_in_pix):int(y+size_in_pix), int(x-size_in_pix):int(x+size_in_pix)]
         
+        return local_grid
+
+
+
+    def local_grid_constructor(self) -> LocalGrid:
+        '''
+        Constructs a local grid object.
+        
+        :return: The local grid object.
+        '''
+        local_grid = LocalGrid(self.size_pix, self.cell_size)
         return local_grid
 
     def world_coord2global_pix_idx(self, world, x_pos, y_pos) -> tuple:

@@ -1,7 +1,4 @@
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap  
-from knowledge_roadmap.entities.agent import Agent
-from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld, LatticeWorld
-from knowledge_roadmap.usecases.exploration import Exploration
 
 from thesis_demos import exploration_with_sampling_viz
 
@@ -21,7 +18,6 @@ def test_get_node_by_pos():
 def test_sampling_exploration_completion():
     assert True == exploration_with_sampling_viz(True)
     
-# def 
 
 
 
