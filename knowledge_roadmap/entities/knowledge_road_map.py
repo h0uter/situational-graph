@@ -81,3 +81,4 @@ class KnowledgeRoadmap():
     def get_all_frontiers_idxs(self):
         ''' returns all frontier idxs in the graph'''
         return [node for node in self.KRM.nodes() if self.KRM.nodes[node]['type'] == 'frontier']
+

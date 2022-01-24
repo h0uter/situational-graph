@@ -2,6 +2,11 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
+from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
+from knowledge_roadmap.entities.agent import Agent
+
+
+
 
 import matplotlib
 matplotlib.use("Qt5agg")
@@ -206,3 +211,15 @@ class GUI():
         # self.fig.canvas.start_event_loop(0.001)
 
 
+    def debug_logger(self,krm: KnowledgeRoadmap, agent: Agent):
+        '''
+        Prints debug statements.
+        
+        :return: None
+        '''
+        print("==============================")
+        print(">>> " + nx.info(krm.graph))
+        print(f">>> self.at_wp: {agent.at_wp}")
+        print(f">>> movement: {agent.previous_pos} >>>>>> {agent.pos}")
+        print(f">>> frontiers: {krm.get_all_frontiers_idxs()}")
+        print("==============================")
