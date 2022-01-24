@@ -15,8 +15,8 @@ def test_get_node_by_pos():
     assert 0 == KRM.get_node_by_pos((55, 55))
 
 
-def test_sampling_exploration_completion():
-    assert True == exploration_with_sampling_viz(True)
+# def test_sampling_exploration_completion():
+#     assert True == exploration_with_sampling_viz(True)
     
 
 

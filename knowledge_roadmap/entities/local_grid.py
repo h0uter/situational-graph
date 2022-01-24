@@ -1,10 +1,16 @@
 
 class LocalGrid():
-    def __init__(self, world_pos:tuple, length_in_m=3.0, cell_size_in_m=0.003):
+    def __init__(self, world_pos:tuple, data, length_in_m=3.0, cell_size_in_m=0.003):
         self.world_pos = world_pos
+        self.data = data
         self.length_in_m = length_in_m
         self.cell_size_in_m = cell_size_in_m
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
+
+        try:
+            self.data.shape = (self.length_num_cells, self.length_num_cells)
+        except:
+            raise ValueError('The data does not match')
 
     def is_inside(self, world_pos):
         '''
