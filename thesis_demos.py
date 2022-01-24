@@ -64,7 +64,7 @@ def exploration_with_sampling_viz(result_only):
             return exploration_completed
         if not result_only:
             gui.viz_krm(agent, krm) # TODO: make the KRM independent of the agent
-            gui.draw_agent(agent.pos, )
+            gui.draw_agent(agent.pos)
             plt.pause(0.001)
     
     plt.ioff()

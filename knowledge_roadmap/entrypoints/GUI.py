@@ -138,25 +138,25 @@ class GUI():
             self.ax1.set_xlim([-70, 70])
             self.ax1.set_ylim([-70, 70])
 
-        pos = nx.get_node_attributes(krm.KRM, 'pos') # TODO: unclear variable name
+        pos = nx.get_node_attributes(krm.graph, 'pos') # TODO: unclear variable name
         # filter the nodes and edges based on their type
         waypoint_nodes = dict((n, d['type'])
-                                for n, d in krm.KRM.nodes().items() if d['type'] == 'waypoint')
+                                for n, d in krm.graph.nodes().items() if d['type'] == 'waypoint')
         frontier_nodes = dict((n, d['type'])
-                                for n, d in krm.KRM.nodes().items() if d['type'] == 'frontier')
+                                for n, d in krm.graph.nodes().items() if d['type'] == 'frontier')
         world_object_nodes = dict((n, d['type'])
-                                for n, d in krm.KRM.nodes().items() if d['type'] == 'world_object')
+                                for n, d in krm.graph.nodes().items() if d['type'] == 'world_object')
 
         world_object_edges = dict((e, d['type'])
-                                for e, d in krm.KRM.edges().items() if d['type'] == 'world_object_edge')
+                                for e, d in krm.graph.edges().items() if d['type'] == 'world_object_edge')
         waypoint_edges = dict((e, d['type'])
-                                for e, d in krm.KRM.edges().items() if d['type'] == 'waypoint_edge')
+                                for e, d in krm.graph.edges().items() if d['type'] == 'waypoint_edge')
         frontier_edges = dict((e, d['type'])
-                                for e, d in krm.KRM.edges().items() if d['type'] == 'frontier_edge')
+                                for e, d in krm.graph.edges().items() if d['type'] == 'frontier_edge')
 
         '''draw the nodes, edges and labels separately'''
         nx.draw_networkx_nodes(
-                                krm.KRM, 
+                                krm.graph, 
                                 pos, 
                                 nodelist=world_object_nodes.keys(),
                                 ax=self.ax1, 
@@ -164,7 +164,7 @@ class GUI():
                                 node_size=575
         )
         nx.draw_networkx_nodes(
-                                krm.KRM, 
+                                krm.graph, 
                                 pos, 
                                 nodelist=frontier_nodes.keys(),
                                 ax=self.ax1, 
@@ -173,7 +173,7 @@ class GUI():
                                 
         )
         nx.draw_networkx_nodes(
-                                krm.KRM, 
+                                krm.graph, 
                                 pos, 
                                 nodelist=waypoint_nodes.keys(), 
                                 ax=self.ax1, 
@@ -181,21 +181,21 @@ class GUI():
                                 node_size=140
         )
         nx.draw_networkx_edges(
-                                krm.KRM, 
+                                krm.graph, 
                                 pos, 
                                 ax=self.ax1, 
                                 edgelist=waypoint_edges.keys(), 
                                 edge_color='red'
         )
         nx.draw_networkx_edges(
-                                krm.KRM, 
+                                krm.graph, 
                                 pos, 
                                 ax=self.ax1, 
                                 edgelist=world_object_edges.keys(), 
                                 edge_color='purple'
         )
         nx.draw_networkx_edges(
-                                krm.KRM, 
+                                krm.graph, 
                                 pos, 
                                 ax=self.ax1, 
                                 edgelist=frontier_edges.keys(), 
@@ -203,7 +203,7 @@ class GUI():
                                 width=4
         )
 
-        nx.draw_networkx_labels(krm.KRM, pos, ax=self.ax1, font_size=6)
+        nx.draw_networkx_labels(krm.graph, pos, ax=self.ax1, font_size=6)
         self.ax1.axis('on')  # turns on axis
         self.ax1.set_aspect('equal', 'box')  # set the aspect ratio of the plot
         self.ax1.tick_params(left=True, bottom=True,

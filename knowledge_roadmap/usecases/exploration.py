@@ -33,7 +33,7 @@ class Exploration:
 
         for frontier_idx in frontier_idxs:
             candidate_path = nx.shortest_path(
-                krm.KRM, source=agent.at_wp, target=frontier_idx)
+                krm.graph, source=agent.at_wp, target=frontier_idx)
             # choose the last shortest path among equals
             # if len(candidate_path) <= shortest_path_by_node_count:
             #  choose the first shortest path among equals
@@ -63,7 +63,7 @@ class Exploration:
         :return: The path to the selected frontier.
         '''
         path = nx.shortest_path(
-            krm.KRM, source=agent.at_wp, target=target_frontier)
+            krm.graph, source=agent.at_wp, target=target_frontier)
         return path
 
     def real_sample_step(self, agent, local_grid_img, local_grid_adapter, krm):
@@ -102,7 +102,7 @@ class Exploration:
         :return: The list of nodes that are close to the given position.
         '''
         close_nodes = []
-        for node in krm.KRM.nodes:
+        for node in krm.graph.nodes:
             data = krm.get_node_data_by_idx(node)
             if data['type'] == node_type:
                 node_pos = data['pos']
@@ -148,7 +148,7 @@ class Exploration:
                     new_wp_pix = (local_grid_adapter.size_pix, local_grid_adapter.size_pix)
                     new_edge_not_in_collision =self.sampler.collision_check(local_grid_img, new_wp_pix, existing_wp_pix,local_grid_adapter)
                     if new_edge_not_in_collision:
-                        krm.KRM.add_edge(new_wp, existing_wp, type="waypoint_edge", id=uuid.uuid4())
+                        krm.graph.add_edge(new_wp, existing_wp, type="waypoint_edge", id=uuid.uuid4())
                     else:
                         print(f"existing_wp {existing_wp} is in collision with new_wp {new_wp}")
 
@@ -158,7 +158,7 @@ class Exploration:
             self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
             self.init = True
 
-        elif krm.KRM.nodes[krm.get_node_by_pos(self.agent.pos)]["type"] == "frontier":
+        elif krm.graph.nodes[krm.get_node_by_pos(self.agent.pos)]["type"] == "frontier":
             if self.debug:
                 print(f"1. step: frontier processing")
             '''now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place'''
