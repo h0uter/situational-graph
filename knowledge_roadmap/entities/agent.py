@@ -13,15 +13,20 @@ class Agent():
     def __init__(self, debug=False):
         self.debug = debug
         self.at_wp = 0
-        self.pos = (0, 0)
+        self.pos = (-16, 10)
         self.previous_pos = self.pos
         self.agent_drawing = None
         self.local_grid_drawing = None
-        self.krm = KnowledgeRoadmap()
+        self.krm = KnowledgeRoadmap(start_pos=self.pos)
         self.no_more_frontiers = False
         self.steps_taken = 0
 
     def debug_logger(self):
+        '''
+        Prints debug statements.
+        
+        :return: None
+        '''
         print("==============================")
         print(">>> " + nx.info(self.krm.KRM))
         print(f">>> self.at_wp: {self.at_wp}")
@@ -30,13 +35,25 @@ class Agent():
         print("==============================")
 
     def teleport_to_pos(self, pos):
+        '''
+        Teleport the agent to a new position.
+        
+        :param pos: the position of the agent
+        :return: None
+        '''
         # TODO: add a check to see if the position is within the navigation radius.
         self.previous_pos = self.pos
         self.pos = pos
         self.steps_taken += 1
 
-    def sample_frontiers(self, world):
         ''' sample new frontier positions from local_grid '''
+    def sample_frontiers(self, world):
+        '''
+        It samples a frontier from the world and adds it to the KRM, if its not already in it.
+        
+        :param world: the world object
+        :return: None
+        '''
         agent_at_world_node = world.get_node_by_pos(self.pos)
         # indexing the graph like this returns the neigbors
         observable_nodes = world.graph[agent_at_world_node]
@@ -92,6 +109,12 @@ class Agent():
             return None, None
 
     def find_path_to_selected_frontier(self, target_frontier):
+        '''
+        Find the shortest path from the current waypoint to the target frontier.
+        
+        :param target_frontier: the frontier that we want to reach
+        :return: The path to the selected frontier.
+        '''
         path = nx.shortest_path(
             self.krm.KRM, source=self.at_wp, target=target_frontier)
         return path
@@ -125,7 +148,7 @@ class Agent():
                 print(f"SELECTED FRONTIER POS {selected_frontier_data['pos']}")
             return None
 
-    def check_for_shortcuts(self, world):
+    def check_for_shortcuts_node_world(self, world):
         agent_at_world_node = world.get_node_by_pos(self.pos)
         observable_nodes = world.graph[agent_at_world_node]
 
@@ -152,6 +175,3 @@ class Agent():
                 print(f"world object '{world_object}' found")
             wo_pos = world.graph.nodes[agent_at_world_node]["world_object_pos_dummy"]
             self.krm.add_world_object(wo_pos, world_object)
-
-
-

@@ -1,8 +1,4 @@
-
 from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
-# from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
-
-
 
 class LocalGridAdapter():
     def __init__(self, map_length_scales, mode='spoof', size_pix=150, cell_size=1,debug_container=None):
@@ -12,7 +8,12 @@ class LocalGridAdapter():
         self.map_length_scales = map_length_scales
         self.debug_container = debug_container
 
-    def get_local_grid(self):
+    def get_local_grid(self) -> list:
+        '''
+        Given the agent's position, return the local grid around the agent.
+        
+        :return: The local grid.
+        '''
 
         if self.mode == 'spoof':
             agent_pos = self.debug_container['agent'].pos
@@ -23,19 +24,31 @@ class LocalGridAdapter():
             # here comes calls to the spot API
             raise NotImplementedError
             
-    def sim_observe_local_grid_from_img_world(self, agent_pos, world):
-        '''crops the image around pos with size'''
+    def sim_observe_local_grid_from_img_world(self, agent_pos, world) -> list:
+        '''
+        Given an agent's position in the world, and the world, return a local grid centered on the agent.
+        
+        :param agent_pos: the position of the agent in the world
+        :param world: the world object
+        :return: The local grid.
+        '''
         x, y = agent_pos # world coords
-        x, y = self.world_coord2pix_idx(world, x,y)
+        x, y = self.world_coord2global_pix_idx(world, x,y)
         size_in_pix = self.size_pix
         # BUG:: cannot sample near edge of the image world_img.
         local_grid = world.map_img[int(y-size_in_pix):int(y+size_in_pix), int(x-size_in_pix):int(x+size_in_pix)]
         
         return local_grid
 
-
-    def world_coord2pix_idx(self, world, x_pos, y_pos):
-        '''converts world coordinates to image pixel indices'''
+    def world_coord2global_pix_idx(self, world, x_pos, y_pos) -> tuple:
+        '''
+        Converts world coordinates to pixel indices on the global image.
+        
+        :param world: the world object
+        :param x_pos: the x-coordinate of the point in the map
+        :param y_pos: the y-coordinate of the point in the map
+        :return: The pixel indices of the world coordinates.
+        '''
 
         Nx_pix = world.map_img.shape[1]
         Ny_pix = world.map_img.shape[0]
@@ -57,15 +70,23 @@ class LocalGridAdapter():
 
         return x_pix, y_pix
 
+    # def world_coord2local_pix_idx(self, )
 
-    def pix_idx2world_coord(self, img, x_idx, y_idx):
+    def local_pix_idx2world_coord(self, img, x_idx, y_idx) -> tuple:
+        '''
+        Given the pixel index of a point in the image, return the world coordinate of that point.
+        
+        :param img: the image to be displayed
+        :param x_idx: the x-coordinate of the pixel in the image
+        :param y_idx: the y-coordinate of the pixel in the image
+        :return: The x and y coordinates of the pixel in meters.
+        '''
         Nx_pix = img.shape[0]
         Ny_pix = img.shape[1]
         
         # FIXME: this has to be linked to the x and y offset in the gui
-        x_map_length_scale = 300
-        y_map_length_scale = 300
-
+        x_map_length_scale = 2*self.size_pix
+        y_map_length_scale = 2*self.size_pix
 
         # x_origin_meter_offset = x_map_length_scale // 2
         # y_origin_meter_offset = y_map_length_scale // 2

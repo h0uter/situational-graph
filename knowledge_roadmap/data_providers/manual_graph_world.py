@@ -19,6 +19,8 @@ class ManualGraphWorld():
 
         # this is the map we use to emulate the local grid, not the one used by the gui.
         full_path = os.path.join('resource', 'villa_holes_closed.png')
+        # full_path = os.path.join('resource', 'output-onlinepngtools.png')
+        
         upside_down_map_img = Image.open(full_path)
         self.map_img = img_axes2world_axes(upside_down_map_img)
 

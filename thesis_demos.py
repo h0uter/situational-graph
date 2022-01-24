@@ -14,12 +14,31 @@ from knowledge_roadmap.data_providers.world_graph_generator import GraphGenerato
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.frontier_sampler import FrontierSampler 
 
+
+import matplotlib
+matplotlib.use("Tkagg")
+
 ############################################################################################
 # DEMONSTRATIONS
 ############################################################################################
 
 
 def exploration_sampling(world, agent, exploration_use_case, gui, stepwise=False):
+    '''
+    The function runs the exploration use case until the agent has no more frontiers to explore. 
+    
+    The function visualizes the exploration process by showing the local grid, the agent's position, the
+    KRM, and the frontiers. 
+        
+    :param world: the world object
+    :param agent: the agent object
+    :param exploration_use_case: the exploration use case to use. It is a class that implements the
+    run_exploration_step method
+    :param gui: the GUI object
+    :param stepwise: If True, the exploration will be run stepwise. If False, the exploration will be
+    run in a loop, defaults to False (optional)
+    :return: None
+    '''
 
     debug_container = {
         'world': world, 
@@ -30,7 +49,7 @@ def exploration_sampling(world, agent, exploration_use_case, gui, stepwise=False
     local_grid_adapter = LocalGridAdapter(
         map_length_scales=(gui.x_offset, gui.y_offset),
         mode='spoof',
-        size_pix=150, 
+        size_pix=200, 
         cell_size=1, 
         debug_container=debug_container
         )
@@ -45,7 +64,13 @@ def exploration_sampling(world, agent, exploration_use_case, gui, stepwise=False
             exploration_use_case.run_exploration_step(world)
             if gui.map_img is not None: 
 
-                frontiers = sampler.sample_frontiers(local_grid_img, local_grid_adapter.size_pix, radius=100, num_frontiers_to_sample=1, local_grid_adapter=local_grid_adapter)
+                frontiers = sampler.sample_frontiers(
+                    local_grid_img, 
+                    local_grid_adapter.size_pix, 
+                    radius=150, 
+                    num_frontiers_to_sample=1, 
+                    local_grid_adapter=local_grid_adapter
+                    )
                 for frontier in frontiers:
                     xx, yy = sampler.get_cells_under_line((local_grid_adapter.size_pix, local_grid_adapter.size_pix), frontier)
                     plt.plot(xx, yy) # draw the line as collection of pixels
@@ -138,18 +163,19 @@ def local_grid_sampler_test():
     local_grid.draw_grid(data)
 
 
-def exploration_with_sampling_viz():
+def exploration_with_sampling_viz(result_only):
     # this is the prior image of the villa we can include for visualization purposes
     # It is different from the map we use to emulate the local grid.
     # full_path = os.path.join('resource', 'output-onlinepngtools.png')
     full_path = os.path.join('resource', 'villa_holes_closed.png')
     upside_down_map_img = Image.open(full_path)
+    print(upside_down_map_img.size)
     map_img = img_axes2world_axes(upside_down_map_img)
     world = ManualGraphWorld()
     gui = GUI(map_img=map_img)
     # gui.preview_graph_world(world)
     agent = Agent(debug=False)
-    exploration_use_case = Exploration(agent, debug=True)
+    exploration_use_case = Exploration(agent, debug=False)
 
     debug_container = {
         'world': world, 
@@ -158,51 +184,34 @@ def exploration_with_sampling_viz():
         'gui': gui}
 
     local_grid_adapter = LocalGridAdapter(
-        map_length_scales=(gui.x_offset, gui.y_offset),
+        map_length_scales=(gui.origin_x_offset, gui.origin_y_offset),
         mode='spoof',
-        size_pix=150, 
+        size_pix=200, 
         cell_size=1, 
         debug_container=debug_container
         )
 
-    sampler = FrontierSampler()
+    # sampler = FrontierSampler()
 
     while agent.no_more_frontiers == False:
         local_grid_img = local_grid_adapter.get_local_grid()
         gui.draw_local_grid(local_grid_img)
 
-        # exploration_use_case.run_exploration_step(world)
         exploration_use_case.run_exploration_step(world, agent, local_grid_img, local_grid_adapter)
-        # if gui.map_img is not None: 
 
-        #     frontiers = sampler.sample_frontiers(local_grid_img, local_grid_adapter, radius=100, num_frontiers_to_sample=1)
-        #     for frontier in frontiers:
-        #         # plot the sampled frontier edge in fig2
-        #         # should go to gui
-        #         xx, yy = sampler.get_cells_under_line((local_grid_adapter.size_pix, local_grid_adapter.size_pix), frontier)
-        #         plt.plot(xx, yy) # draw the line as collection of pixels
-
-        #         # translate the above to the global map
-        #         # this shoould go into the exploration logic
-        #         x_local, y_local = frontier[0], frontier[1]
-        #         x_global = agent.pos[0] + (x_local - local_grid_adapter.size_pix) / 50
-        #         y_global = agent.pos[1] +  (y_local - local_grid_adapter.size_pix) /50
-        #         frontier_pos_global = (x_global, y_global)
-        #         # gui.ax1.plot(x_global, y_global, 'ro')
-        #         agent.krm.add_frontier(frontier_pos_global, agent.at_wp)
-
-
-        gui.viz_krm(agent, agent.krm) # TODO: make the KRM independent of the agent
-        gui.draw_agent(agent.pos)
-        plt.pause(0.001)
-
+        if not result_only:
+            gui.viz_krm(agent, agent.krm) # TODO: make the KRM independent of the agent
+            gui.draw_agent(agent.pos, )
+            plt.pause(0.001)
+    
+    gui.viz_krm(agent, agent.krm) # TODO: make the KRM independent of the agent
     plt.ioff()
     plt.show()
 
 
 if __name__ == '__main__':
 
-    exploration_with_sampling_viz()
+    exploration_with_sampling_viz(False)
     # exploration_on_manual_graph_world()
     # exploration_on_randomly_generated_graph_world()
     # graph_generator_debug()

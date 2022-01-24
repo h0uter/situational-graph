@@ -20,7 +20,7 @@ class KnowledgeRoadmap():
         # TODO: start node like this is lame
         self.KRM.add_node(0, pos=start_pos, type="waypoint", id=uuid.uuid4())
         self.next_wp_idx = 1
-        self.next_frontier_idx = 100
+        self.next_frontier_idx = 1000
         self.next_wo_idx = 200
 
     def add_waypoint(self, pos, prev_wp):

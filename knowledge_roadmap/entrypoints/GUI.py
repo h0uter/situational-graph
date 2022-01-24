@@ -2,6 +2,11 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
+
+import matplotlib
+matplotlib.use("Qt5agg")
+
+
 class GUI():
 
     ''' 
@@ -17,11 +22,18 @@ class GUI():
         self.initialized = False
 
         # FIXME: this has to be linked to the x_map_length_scale and y offset in the gui
-        self.x_offset = 25
-        self.y_offset = 20
+        self.origin_x_offset = 25
+        self.origin_y_offset = 20
 
     def draw_agent(self, pos, rec_len=7):
-        ''' draw the agent on the world '''
+        '''
+        Draw the agent on the world.
+        
+        :param pos: the position of the agent
+        :param rec_len: the length of the rectangle that will be drawn around the agent, defaults to 7
+        (optional)
+        :return: None
+        '''
         if self.agent_drawing != None:
             self.agent_drawing.remove()
         if self.local_grid_drawing != None:
@@ -35,10 +47,16 @@ class GUI():
             (pos[0]-0.5*rec_len, pos[1]-0.5*rec_len), rec_len, rec_len, alpha=0.2, fc='blue'))
 
     def draw_local_grid(self, local_grid_img):
+        '''
+        Draw the local grid in the right axes.
+        
+        :param local_grid_img: the local grid image
+        :return: None
+        '''
         if not self.initialized:
-            fig, (self.ax1, self.ax2) = plt.subplots(1,2, figsize=(15, 10), num=1)
+            self.fig, (self.ax1, self.ax2) = plt.subplots(1,2, figsize=(15, 10), num=1)
             self.initialized = True
-
+ 
         self.ax2.cla()
         self.ax2.imshow(local_grid_img, origin='lower')
         self.ax2.set_aspect('equal', 'box')  # set the aspect ratio of the plot
@@ -51,10 +69,10 @@ class GUI():
         if self.map_img is not None:
             ax.imshow(
                 self.map_img, 
-                extent=[-self.x_offset, self.x_offset, -self.y_offset, self.y_offset], 
+                extent=[-self.origin_x_offset, self.origin_x_offset, -self.origin_y_offset, self.origin_y_offset], 
                 origin='lower')
-            ax.set_xlim([-self.x_offset, self.x_offset])
-            ax.set_ylim([-self.y_offset, self.y_offset])
+            ax.set_xlim([-self.origin_x_offset, self.origin_x_offset])
+            ax.set_ylim([-self.origin_y_offset, self.origin_y_offset])
         else:
             ax.set_xlim([-100, 100])
             ax.set_ylim([-100, 100])
@@ -88,10 +106,17 @@ class GUI():
         plt.show()
 
     def viz_krm(self, agent, krm):
-        ''' draws the current Knowledge Roadmap Graph'''
+        '''
+        Draws the current Knowledge Roadmap Graph.
+        
+        :param agent: the agent object
+        :param krm: the Knowledge Roadmap object
+        :return: None
+        '''
         if not self.initialized:
-            fig, (self.ax1, self.ax2) = plt.subplots(1,2, figsize=(15, 10), num=1)
+            self.fig, (self.ax1, self.ax2) = plt.subplots(1,2, figsize=(15, 10), num=1)
             self.initialized = True
+
         # plt.figure(1)
         self.ax1.cla() # XXX: plt1.cla is the bottleneck in my performance.
 
@@ -102,7 +127,7 @@ class GUI():
         if self.map_img  is not None:
             self.ax1.imshow(
                 self.map_img, 
-                extent=[-self.x_offset, self.x_offset, -self.y_offset, self.y_offset], 
+                extent=[-self.origin_x_offset, self.origin_x_offset, -self.origin_y_offset, self.origin_y_offset], 
                 origin='lower')
         else:
             self.ax1.set_xlim([-70, 70])
@@ -178,3 +203,6 @@ class GUI():
         self.ax1.set_aspect('equal', 'box')  # set the aspect ratio of the plot
         self.ax1.tick_params(left=True, bottom=True,
                             labelleft=True, labelbottom=True)
+        # self.fig.canvas.start_event_loop(0.001)
+
+
