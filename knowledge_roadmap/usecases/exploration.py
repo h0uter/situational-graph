@@ -1,6 +1,9 @@
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.frontier_sampler import FrontierSampler
+from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
+
+import networkx as nx
 
 import uuid
 
@@ -17,6 +20,52 @@ class Exploration:
         self.shortcut_radius = 5
         self.N_samples = 20
 
+    #############################################################################################
+    ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
+    #############################################################################################
+    def evaluate_frontiers(self, agent: Agent, frontier_idxs: list, krm: KnowledgeRoadmap):
+        ''' 
+        Evaluate the frontiers and return the best one.
+        this is the entrypoint for exploiting semantics        
+        '''
+        shortest_path_by_node_count = float('inf')
+        selected_frontier_idx = None
+
+        for frontier_idx in frontier_idxs:
+            candidate_path = nx.shortest_path(
+                krm.KRM, source=agent.at_wp, target=frontier_idx)
+            # choose the last shortest path among equals
+            # if len(candidate_path) <= shortest_path_by_node_count:
+            #  choose the first shortest path among equals
+            if len(candidate_path) < shortest_path_by_node_count:
+                shortest_path_by_node_count = len(candidate_path)
+                selected_frontier_idx = candidate_path[-1]
+
+        return selected_frontier_idx
+    #############################################################################################
+
+    def select_target_frontier(self, agent: Agent, krm: KnowledgeRoadmap) -> int:
+        ''' using the KRM, obtain the optimal frontier to visit next'''
+        frontier_idxs = krm.get_all_frontiers_idxs()
+        if len(frontier_idxs) > 0:
+            target_frontier = self.evaluate_frontiers(agent, frontier_idxs, krm)
+
+            return target_frontier
+        else:
+            self.no_more_frontiers = True
+            return None, None
+
+    def find_path_to_selected_frontier(self, agent: Agent, target_frontier: int, krm: KnowledgeRoadmap) -> list:
+        '''
+        Find the shortest path from the current waypoint to the target frontier.
+        
+        :param target_frontier: the frontier that we want to reach
+        :return: The path to the selected frontier.
+        '''
+        path = nx.shortest_path(
+            krm.KRM, source=agent.at_wp, target=target_frontier)
+        return path
+
     def real_sample_step(self, agent, local_grid_img, local_grid_adapter, krm):
         frontiers = self.sampler.sample_frontiers(local_grid_img, local_grid_adapter, radius=self.frontier_sample_radius, num_frontiers_to_sample=self.N_samples)
         for frontier in frontiers:
@@ -29,12 +78,20 @@ class Exploration:
                 # this shoould go into the exploration logic
                 x_local, y_local = frontier[0], frontier[1]
                 x_global = agent.pos[0] + (x_local - local_grid_adapter.size_pix) / 50
-                y_global = agent.pos[1] +  (y_local - local_grid_adapter.size_pix) /50
+                y_global = agent.pos[1] +  (y_local - local_grid_adapter.size_pix) / 50
                 frontier_pos_global = (x_global, y_global)
                 # gui.ax1.plot(x_global, y_global, 'ro')
                 krm.add_frontier(frontier_pos_global, agent.at_wp)
-        
-
+    
+    def sample_waypoint(self, agent, krm):
+        '''
+        Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
+        this should be sampled from the pose graph eventually
+        '''
+        wp_at_previous_pos = krm.get_node_by_pos(agent.previous_pos)
+        krm.add_waypoint(agent.pos, wp_at_previous_pos)
+        agent.at_wp = krm.get_node_by_pos(agent.pos)
+   
     def get_nodes_of_type_in_radius(self, pos, radius, node_type, krm):
         '''
         Given a position, a radius and a node type, return a list of nodes of that type that are within the radius of the position.
@@ -57,11 +114,9 @@ class Exploration:
         '''obtain all the frontier nodes in krm in a certain radius around the current position'''
         
         waypoints = krm.get_all_waypoint_idxs()
-        # print(f"all waypoints: {waypoints}")
 
         for wp in waypoints:
             wp_pos = krm.get_node_data_by_idx(wp)['pos']
-            # close_frontiers = self.get_frontiers_in_radius(wp_pos)
             close_frontiers = self.get_nodes_of_type_in_radius(wp_pos, self.prune_radius, 'frontier', krm)
             for frontier in close_frontiers:
                 krm.remove_frontier(frontier)
@@ -77,7 +132,6 @@ class Exploration:
             for existing_wp in existing_nearby_wps:
             # if there is a waypoint in the radius, add a new edge between the two waypoints
                 if existing_wp != new_wp:
-                    # print(f"--existing wp: {existing_wp}")
                     # BUG: do collision check here
                     existing_wp_pos = krm.get_node_data_by_idx(existing_wp)['pos']
                     # new_wp_x_pix, new_wp_y_pix = local_grid_adapter.world_coord2pix_idx(world, new_wp_pos[0], new_wp_pos[1])
@@ -92,20 +146,15 @@ class Exploration:
                     
                     print(f"--existing wp pix : {existing_wp_pix}")
                     new_wp_pix = (local_grid_adapter.size_pix, local_grid_adapter.size_pix)
-                    # print(f"--new wp pix : {new_wp_pix}")
                     new_edge_not_in_collision =self.sampler.collision_check(local_grid_img, new_wp_pix, existing_wp_pix,local_grid_adapter)
                     if new_edge_not_in_collision:
                         krm.KRM.add_edge(new_wp, existing_wp, type="waypoint_edge", id=uuid.uuid4())
-                        # print(f"--added edge between {new_wp} and {existing_wp}")
                     else:
                         print(f"existing_wp {existing_wp} is in collision with new_wp {new_wp}")
 
-    def run_exploration_step(self, world, agent, local_grid_img, local_grid_adapter, krm):
-        # TODO: some logic that is only used for exploration should be moved from the agent to here.
-        # TODO: the conditions for these if statements are hella wonky. They should be tested more.
 
+    def run_exploration_step(self, agent, local_grid_img, local_grid_adapter, krm):
         if not self.init:
-            # self.agent.sample_frontiers(world)  # sample frontiers from the world
             self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
             self.init = True
 
@@ -114,13 +163,9 @@ class Exploration:
                 print(f"1. step: frontier processing")
             '''now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place'''
             krm.remove_frontier(self.selected_frontier_idx)
-            self.agent.sample_waypoint(krm)
-            # self.agent.check_for_shortcuts(world)  # check for shortcuts
-            # self.agent.process_world_object_perception(world)
-            # self.agent.sample_frontiers(world)  # sample frontiers from the world
+            self.sample_waypoint(agent, krm)
             self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
             self.prune_frontiers(agent, krm)
-            # print(f"agent_at_wp: {self.agent.at_wp}")
             # self.look_for_shortcuts(self.agent.at_wp, agent, local_grid_img, local_grid_adapter, world)
             
             self.selected_frontier_idx = None
@@ -130,7 +175,7 @@ class Exploration:
             self.consumable_path = self.agent.perform_path_step(self.consumable_path, krm)
         elif not self.selected_frontier_idx:
             '''if there are no more frontiers, exploration is done'''
-            self.selected_frontier_idx = self.agent.select_target_frontier(krm)
+            self.selected_frontier_idx = self.select_target_frontier(agent, krm)
             if self.agent.no_more_frontiers:
                 print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
                 print(f"It took {self.agent.steps_taken} steps to complete the exploration.")
@@ -138,10 +183,9 @@ class Exploration:
 
             if self.debug:
                 print(f"3. step: select target frontier and find path")
-            # self.agent.sample_frontiers(world)  # sample frontiers from the world
             self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
             self.prune_frontiers(agent, krm)
-            self.consumable_path = self.agent.find_path_to_selected_frontier(self.selected_frontier_idx, krm)
+            self.consumable_path = self.find_path_to_selected_frontier(agent, self.selected_frontier_idx, krm)
             
 
         if self.agent.debug:

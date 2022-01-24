@@ -59,7 +59,7 @@ def exploration_with_sampling_viz(result_only):
         local_grid_img = local_grid_adapter.get_local_grid()
         gui.draw_local_grid(local_grid_img)
 
-        exploration_completed = exploration_use_case.run_exploration_step(world, agent, local_grid_img, local_grid_adapter, krm)
+        exploration_completed = exploration_use_case.run_exploration_step(agent, local_grid_img, local_grid_adapter, krm)
         if exploration_completed:
             return exploration_completed
         if not result_only:
