@@ -53,3 +53,8 @@ def test_transformation_back_to_back():
     b = lg.world_coords2cell_idxs(a)
     assert a == pytest.approx(lg.cell_idxs2world_coords(b), 0.1)
 
+    
+
+# def test_derive_size_per_cell():
+#     lg = LocalGrid((0,0), length_in_m=5)
+#     assert lg.cell_size_in_m == pytest.approx(0.2, 0.1)

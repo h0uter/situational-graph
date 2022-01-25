@@ -3,11 +3,11 @@ from knowledge_roadmap.entities.local_grid import LocalGrid
 
 
 class LocalGridAdapter():
-    def __init__(self, map_length_scales, mode='spoof', size_pix=150, cell_size=1,debug_container=None):
+    def __init__(self, img_length_in_m=None, mode='spoof', size_pix=150, cell_size=None, debug_container=None):
         self.mode = mode
         self.size_pix = size_pix
         self.cell_size = cell_size
-        self.map_length_scales = map_length_scales
+        self.map_length_scales = img_length_in_m
         self.debug_container = debug_container
 
     def get_local_grid(self) -> list:
@@ -42,15 +42,59 @@ class LocalGridAdapter():
         
         return local_grid
 
+    def sim_calc_total_img_length_in_m(self, whole_damn_img, cell_size_in_m:float) -> tuple:
+            total_img_length_in_m_x = whole_damn_img.shape[0] * cell_size_in_m
+            total_img_length_in_m_y = whole_damn_img.shape[1] * cell_size_in_m
+            return total_img_length_in_m_x, total_img_length_in_m_y
 
-
-    def local_grid_constructor(self) -> LocalGrid:
+    def sim_calc_cells_per_m(self, whole_damn_img, total_img_length_in_m:tuple) -> tuple:
         '''
-        Constructs a local grid object.
+        Given the total length of the image in meters, return the cell size in pixels.
+        
+        :param whole_damn_img: the image
+        :param total_img_length_in_m: the length of the image in meters
+        :return: The cell size in pixels.
+        '''
+        Nx_cells = whole_damn_img.shape[1]
+        Ny_cells = whole_damn_img.shape[0]
+
+        x_cells_per_meter = Nx_cells // total_img_length_in_m[0]
+        y_cells_per_meter = Ny_cells // total_img_length_in_m[1]
+
+        return x_cells_per_meter, y_cells_per_meter
+
+    def sim_calc_cell_size_in_m(self, whole_damn_img, total_img_length_in_m:tuple) -> tuple:
+        '''
+        Given the total length of the image in meters, return the cell size in meters.
+        
+        :param whole_damn_img: the image
+        :param total_img_length_in_m: the length of the image in meters
+        :return: The cell size in meters.
+        '''
+        Nx_cells = whole_damn_img.shape[0]
+        Ny_cells = whole_damn_img.shape[1]
+
+        cell_length_x = total_img_length_in_m[0] / Nx_cells
+        cell_length_y = total_img_length_in_m[1] / Ny_cells
+
+        return cell_length_x, cell_length_y
+
+
+
+
+    def sim_local_grid_from_img_constructor(self, whole_damn_img, world_pos, cell_size_in_m, img_world_length=None ,num_cells=None, length_in_m=None) -> LocalGrid:
+        '''
+        Given a photo with NxM pixels, specify the pixel size in m, and return a local grid with the correct parameters
         
         :return: The local grid object.
         '''
-        local_grid = LocalGrid(self.size_pix, self.cell_size)
+        # if cell_size_in_m:
+
+
+        # if num_cells:
+        # local_img = self.sim_observe_local_grid_from_img_world(world_pos, whole_damn_img)
+
+        local_grid = LocalGrid(world_pos, local_img)
         return local_grid
 
     def world_coord2global_pix_idx(self, world, x_pos, y_pos) -> tuple:
