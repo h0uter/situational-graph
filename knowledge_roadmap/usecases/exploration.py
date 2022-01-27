@@ -13,7 +13,7 @@ class Exploration:
         self.selected_frontier_idx = None
         self.init = False
         self.debug = debug
-        self.sampler = FrontierSampler(debug_mode=False)
+        self.sampler = FrontierSampler(debug_mode=True)
         self.frontier_sample_radius = 180
         self.prune_radius = 2.2
         self.shortcut_radius = 5
@@ -80,8 +80,8 @@ class Exploration:
             # translate the above to the global map
             x_local, y_local = frontier[0], frontier[1]
             # FIXME: what the hell conversiion is this
-            x_global = agent.pos[0] + (x_local - local_grid_adapter.num_cells) / self.len_of_entire_map[0]
-            y_global = agent.pos[1] +  (y_local - local_grid_adapter.num_cells) / self.len_of_entire_map[1]
+            x_global = agent.pos[0] + (x_local - local_grid_adapter.num_cells//2) / self.len_of_entire_map[0]
+            y_global = agent.pos[1] +  (y_local - local_grid_adapter.num_cells//2) / self.len_of_entire_map[1]
             frontier_pos_global = (x_global, y_global)
             # gui.ax1.plot(x_global, y_global, 'ro')
             krm.add_frontier(frontier_pos_global, agent.at_wp)

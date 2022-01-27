@@ -5,8 +5,8 @@ class LocalGridAdapter():
     def __init__(self, img_length_in_m:tuple, num_cells:int, cell_size_m:float, mode='spoof', debug_container=None):
         self.mode = mode
         self.num_cells = num_cells
-        self.lg_size = 3.0
         self.cell_size_m = cell_size_m
+        self.lg_size = num_cells * cell_size_m
         self.spoof_img_length_in_m = img_length_in_m
         self.debug_container = debug_container
 
@@ -38,10 +38,10 @@ class LocalGridAdapter():
         '''
         x, y = agent_pos # world coords
         x, y = self.world_coord2global_pix_idx(world, x,y)
-        size_in_pix = self.num_cells
+        half_size_in_pix = self.num_cells//2
         # BUG:: cannot sample near edge of the image world_img.
         # local_grid_img = world.map_img[int(y-self.num_cells//2):int(y+self.num_cells//2), int(x-self.num_cells//2):int(x+self.num_cells//2)]
-        local_grid_img = world.map_img[int(y-size_in_pix):int(y+size_in_pix), int(x-size_in_pix):int(x+size_in_pix)]
+        local_grid_img = world.map_img[int(y-half_size_in_pix):int(y+half_size_in_pix), int(x-half_size_in_pix):int(x+half_size_in_pix)]
         
         return local_grid_img
 
@@ -61,9 +61,9 @@ class LocalGridAdapter():
         # FIXME: this has to be linked to the x and y offset in the gui
         # x_map_length_scale = 50
         # FIXME: this times 2 is annoying
-        x_map_length_scale = self.spoof_img_length_in_m[0]*2
+        x_map_length_scale = self.spoof_img_length_in_m[0]
         # y_map_length_scale = 40
-        y_map_length_scale = self.spoof_img_length_in_m[1]*2
+        y_map_length_scale = self.spoof_img_length_in_m[1]
 
         x_pix_per_meter = Nx_pix // x_map_length_scale
         y_pix_per_meter = Ny_pix // y_map_length_scale
@@ -91,8 +91,8 @@ class LocalGridAdapter():
         Ny_pix = img.shape[1]
         
         # FIXME: this has to be linked to the x and y offset in the gui
-        x_map_length_scale = self.num_cells*2
-        y_map_length_scale = self.num_cells*2
+        x_map_length_scale = self.num_cells
+        y_map_length_scale = self.num_cells
 
         # x_origin_meter_offset = x_map_length_scale // 2
         # y_origin_meter_offset = y_map_length_scale // 2

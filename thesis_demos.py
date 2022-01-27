@@ -31,7 +31,7 @@ class CFG():
         # self.total_map_len_m_y = 13
         self.total_map_len_m_y = 40
         self.total_map_len_m = (self.total_map_len_m_x, self.total_map_len_m_y)
-        self.lg_num_cells = 200
+        self.lg_num_cells = 400
 
 
 def exploration_with_sampling_viz(result_only):
@@ -63,7 +63,7 @@ def exploration_with_sampling_viz(result_only):
 
     lga = LocalGridAdapter(
         # img_length_in_m=(gui.origin_x_offset, gui.origin_y_offset),
-        img_length_in_m=(gui.origin_x_offset, gui.origin_y_offset),
+        img_length_in_m=cfg.total_map_len_m,
         mode='spoof',
         num_cells=cfg.lg_num_cells, 
         cell_size_m=1, 
@@ -76,9 +76,9 @@ def exploration_with_sampling_viz(result_only):
     while agent.no_more_frontiers == False:
     # while agent.no_more_frontiers == False:
         local_grid_img = lga.get_local_grid()
-        cell_size = 3.0 / local_grid_img.shape[1]
-        print(f"local_grid_img.shape: {local_grid_img.shape}")
-        print(cell_size)
+        # cell_size = 3.0 / local_grid_img.shape[1]
+        # print(f"local_grid_img.shape: {local_grid_img.shape}")
+        # print(cell_size)
         lg = LocalGrid(agent.pos, local_grid_img, lga.lg_size, lga.cell_size_m)
         # lg.plot_zoomed_world_coord()
         lg.plot_unzoomed_world_coord((gui.origin_x_offset, gui.origin_y_offset))

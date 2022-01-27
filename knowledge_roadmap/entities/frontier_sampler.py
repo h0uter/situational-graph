@@ -106,10 +106,9 @@ class FrontierSampler():
         :return: A list of tuples, each tuple is a frontier point.
         '''
         candidate_frontiers = []
-        grid_size = local_grid_adapter.num_cells
         while len(candidate_frontiers) < num_frontiers_to_sample:
-            x_center = grid_size
-            y_center = grid_size
+            x_center = local_grid_adapter.num_cells // 2
+            y_center = local_grid_adapter.num_cells // 2
 
             x_sample, y_sample = self.sample_cell_around_other_cell(
                 x_center, 
