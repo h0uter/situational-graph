@@ -83,6 +83,7 @@ def exploration_with_sampling_viz(result_only):
         # lg.plot_zoomed_world_coord()
         lg.plot_unzoomed_world_coord((gui.origin_x_offset, gui.origin_y_offset))
 
+        print(f"lga.num_cells: {lga.num_cells}, lg.num_cells: {lg.length_num_cells}")
         gui.draw_local_grid(local_grid_img)
 
         exploration_completed = exploration_use_case.run_exploration_step(agent, local_grid_img, lga, krm)

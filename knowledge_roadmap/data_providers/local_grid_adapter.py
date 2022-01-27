@@ -79,38 +79,38 @@ class LocalGridAdapter():
 
     # def world_coord2local_pix_idx(self, )
 
-    def local_pix_idx2world_coord(self, img, x_idx, y_idx) -> tuple:
-        '''
-        Given the pixel index of a point in the image, return the world coordinate of that point.
+    # def local_pix_idx2world_coord(self, img, x_idx, y_idx) -> tuple:
+    #     '''
+    #     Given the pixel index of a point in the image, return the world coordinate of that point.
         
-        :param img: the image to be displayed
-        :param x_idx: the x-coordinate of the pixel in the image
-        :param y_idx: the y-coordinate of the pixel in the image
-        :return: The x and y coordinates of the pixel in meters.
-        '''
-        # Nx_pix = img.shape[0]
-        # Ny_pix = img.shape[1]
+    #     :param img: the image to be displayed
+    #     :param x_idx: the x-coordinate of the pixel in the image
+    #     :param y_idx: the y-coordinate of the pixel in the image
+    #     :return: The x and y coordinates of the pixel in meters.
+    #     '''
+    #     # Nx_pix = img.shape[0]
+    #     # Ny_pix = img.shape[1]
 
-        # # print(f"Nx_pix: {Nx_pix}, Ny_pix: {Ny_pix}")
+    #     # # print(f"Nx_pix: {Nx_pix}, Ny_pix: {Ny_pix}")
         
-        # # FIXME: this has to be linked to the x and y offset in the gui
-        # x_map_length_scale = self.num_cells
-        # y_map_length_scale = self.num_cells
+    #     # # FIXME: this has to be linked to the x and y offset in the gui
+    #     # x_map_length_scale = self.num_cells
+    #     # y_map_length_scale = self.num_cells
 
-        # # x_origin_meter_offset = x_map_length_scale // 2
-        # # y_origin_meter_offset = y_map_length_scale // 2
+    #     # # x_origin_meter_offset = x_map_length_scale // 2
+    #     # # y_origin_meter_offset = y_map_length_scale // 2
 
-        # x_meter_per_pix = x_map_length_scale / Nx_pix
-        # y_meter_per_pix = y_map_length_scale / Ny_pix
-        # # print(f"x_meter_per_pix: {x_meter_per_pix}, y_meter_per_pix: {y_meter_per_pix}")
+    #     # x_meter_per_pix = x_map_length_scale / Nx_pix
+    #     # y_meter_per_pix = y_map_length_scale / Ny_pix
+    #     # # print(f"x_meter_per_pix: {x_meter_per_pix}, y_meter_per_pix: {y_meter_per_pix}")
 
-        # x_meter = x_idx * x_meter_per_pix
-        # y_meter = y_idx * y_meter_per_pix
+    #     # x_meter = x_idx * x_meter_per_pix
+    #     # y_meter = y_idx * y_meter_per_pix
         
-        # return x_meter, y_meter
+    #     # return x_meter, y_meter
 
-        # return y_idx, x_idx
-        return x_idx, y_idx
+    #     # return y_idx, x_idx
+    #     return x_idx, y_idx
 
 
     def sim_calc_total_img_length_in_m(self, whole_damn_img, cell_size_in_m:float) -> tuple:

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 from skimage import draw
 
-from knowledge_roadmap.entities.agent import Agent
+# from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 
 
@@ -31,7 +31,7 @@ class FrontierSampler():
         plt.figure(9)
         # x_meter, y_meter = local_grid_adapter.local_pix_idx2world_coord(data, c, r)
         x_meter, y_meter = c, r
-        print(f"x_meter: {x_meter}, y_meter: {y_meter}, r: {r}, c: {c}")
+        # print(f"x_meter: {x_meter}, y_meter: {y_meter}, r: {r}, c: {c}")
         plt.cla()
         plt.ion()
         plt.imshow(data, origin='lower')

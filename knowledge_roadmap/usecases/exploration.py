@@ -17,7 +17,7 @@ class Exploration:
         self.frontier_sample_radius = 180
         self.prune_radius = 2.2
         self.shortcut_radius = 5
-        self.N_samples = 20
+        self.N_samples = 5
         self.len_of_entire_map = len_of_map
 
     #############################################################################################
