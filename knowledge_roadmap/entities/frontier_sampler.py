@@ -29,13 +29,16 @@ class FrontierSampler():
     # this is the inspiration for how I can debug my shite
     def plot_collision_cell_map(self, data:list, r:int, c:int, to:tuple, at:tuple, local_grid_adapter:LocalGridAdapter) -> None:
         plt.figure(9)
-        x_meter, y_meter = local_grid_adapter.local_pix_idx2world_coord(data, c, r)
-
+        # x_meter, y_meter = local_grid_adapter.local_pix_idx2world_coord(data, c, r)
+        x_meter, y_meter = c, r
+        print(f"x_meter: {x_meter}, y_meter: {y_meter}, r: {r}, c: {c}")
         plt.cla()
         plt.ion()
         plt.imshow(data, origin='lower')
-        *at_meters, = local_grid_adapter.local_pix_idx2world_coord(data, at[1], at[0])
-        *to_meters, = local_grid_adapter.local_pix_idx2world_coord(data, to[1], to[0])
+        # *at_meters, = local_grid_adapter.local_pix_idx2world_coord(data, at[1], at[0])
+        *at_meters, = at[1], at[0]
+        # *to_meters, = local_grid_adapter.local_pix_idx2world_coord(data, to[1], to[0])
+        *to_meters, = to[1], to[0]
         print(at_meters)
         plt.plot([at_meters[0], to_meters[0]], [at_meters[1], to_meters[1]], color='green')
         plt.plot(x_meter, y_meter, marker='s', color='red', markersize=10)
@@ -118,7 +121,8 @@ class FrontierSampler():
                 local_grid_adapter=local_grid_adapter)
             
             # BUG: why the hell is this y,x ....
-            x_sample, y_sample = local_grid_adapter.local_pix_idx2world_coord(local_grid, y_sample, x_sample)
+            # x_sample, y_sample = local_grid_adapter.local_pix_idx2world_coord(local_grid, y_sample, x_sample)
+            x_sample, y_sample = y_sample, x_sample
             
             candidate_frontiers.append((x_sample, y_sample))
 
