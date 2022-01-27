@@ -7,10 +7,10 @@ class Agent():
     - be an adapter for sending commands to the spot robot.
     '''
 
-    def __init__(self, debug=False) -> None:
+    def __init__(self, start_pos:tuple, debug=False) -> None:
         self.debug = debug
         self.at_wp = 0
-        self.pos = (-16, 10)
+        self.pos = start_pos
         self.previous_pos = self.pos
         self.agent_drawing = None
         self.local_grid_drawing = None

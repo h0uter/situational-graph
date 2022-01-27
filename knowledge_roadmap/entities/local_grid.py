@@ -9,11 +9,11 @@ class LocalGrid():
         self.cell_size_in_m = cell_size_in_m
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
 
-        try:
-            self.data.shape = (self.length_num_cells, self.length_num_cells)
-        except:
-            pass
-            # raise ValueError('The data does not match')
+        # try:
+        #     self.data.shape = (self.length_num_cells, self.length_num_cells)
+        # except:
+        #     pass
+        #     # raise ValueError('The data does not match')
 
     def is_inside(self, world_pos: tuple) -> bool:
         '''
@@ -61,19 +61,22 @@ class LocalGrid():
                 self.world_pos[1]-self.length_in_m/2, 
                 self.world_pos[1]+self.length_in_m/2, 
             ],
+
         )
         plt.show()
         plt.pause(0.1)
         plt.figure(1)
 
     def plot_unzoomed_world_coord(self, world_lengths:tuple) -> None:
-        plt.figure(10)
-        plt.cla()
-        plt.ion()
+        # plt.figure(10)
+        # plt.cla()
+        # plt.ion()
+        print(plt.figure(1).get_axes()[0])
 
         # plt.imshow(self.data, origin='lower')
-
-        plt.imshow(
+        print(f"world pos: {self.world_pos} self.length_in_m: {self.length_in_m}")
+        # plt.imshow(
+        plt.figure(1).get_axes()[0].imshow(
             self.data, 
             origin='lower', 
             extent=[
@@ -83,8 +86,8 @@ class LocalGrid():
                 self.world_pos[1]+self.length_in_m/2, 
             ],
         )
-        plt.xlim(-world_lengths[0], world_lengths[0])
-        plt.ylim(-world_lengths[1], world_lengths[1])
-        plt.show()
+        plt.xlim(-world_lengths[0]/2, world_lengths[0]/2)
+        plt.ylim(-world_lengths[1]/2, world_lengths[1]/2)
+        # plt.show()
         plt.pause(0.1)
-        plt.figure(1)
+        # plt.figure(1)

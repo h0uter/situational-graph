@@ -7,7 +7,7 @@ class LocalGridAdapter():
         self.mode = mode
         self.num_cells = num_cells
         self.cell_size_m = cell_size_m
-        self.lg_size = num_cells * cell_size_m
+        self.lg_length_in_m = num_cells * cell_size_m
         self.spoof_img_length_in_m = img_length_in_m
         self.debug_container = debug_container
 
@@ -21,6 +21,8 @@ class LocalGridAdapter():
         if self.mode == 'spoof':
             agent_pos = self.debug_container['agent'].pos
             img_world = ManualGraphWorld()
+            #  (1686, 2026, 4)
+            print(f"img_world.map_img.shape = {img_world.map_img.shape}")
             
             local_grid_img = self.sim_observe_local_grid_from_img_world(agent_pos, img_world)
 

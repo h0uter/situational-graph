@@ -1,9 +1,12 @@
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import networkx as nx
 import numpy as np
 
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
 from knowledge_roadmap.entities.agent import Agent
+from knowledge_roadmap.entities.local_grid import LocalGrid
+
 
 import matplotlib
 matplotlib.use("Qt5agg")
@@ -132,7 +135,9 @@ class GUI():
             self.ax1.imshow(
                 self.map_img, 
                 extent=[-self.origin_x_offset, self.origin_x_offset, -self.origin_y_offset, self.origin_y_offset], 
-                origin='lower')
+                origin='lower',
+                alpha=0.5
+                )
         else:
             self.ax1.set_xlim([-70, 70])
             self.ax1.set_ylim([-70, 70])
@@ -208,6 +213,43 @@ class GUI():
         self.ax1.tick_params(left=True, bottom=True,
                             labelleft=True, labelbottom=True)
         # self.fig.canvas.start_event_loop(0.001)
+
+
+    def plot_unzoomed_world_coord(self, lg:LocalGrid) -> None:
+        # # plt.figure(10)
+        # # plt.cla()
+        # # plt.ion()
+        # print(plt.figure(1).get_axes()[0])
+
+        # plt.imshow(self.data, origin='lower')
+        print(f"world pos: {lg.world_pos} lg.length_in_m: {lg.length_in_m}")
+
+        # TODO: emulate the local grid with this cmap alpha yada yada
+        my_cmap = cm.jet
+        my_cmap.set_under('k', alpha=0)
+
+        # plt.imshow(
+        self.ax1.imshow(
+            lg.data, 
+            origin='lower', 
+            extent=[
+                lg.world_pos[0]-lg.length_in_m/2, 
+                lg.world_pos[0]+lg.length_in_m/2, 
+                lg.world_pos[1]-lg.length_in_m/2, 
+                lg.world_pos[1]+lg.length_in_m/2, 
+            ],
+            cmap=my_cmap, 
+            interpolation='none', 
+            clim=[0,0.5 ]
+        )
+
+        self.ax1.set_xlim([-self.origin_x_offset, self.origin_x_offset])
+        self.ax1.set_ylim([-self.origin_y_offset, self.origin_y_offset])
+        # plt.show()
+        plt.pause(0.1)
+        # plt.figure(1)
+
+
 
 
     def debug_logger(self,krm: KnowledgeRoadmap, agent: Agent) -> None:

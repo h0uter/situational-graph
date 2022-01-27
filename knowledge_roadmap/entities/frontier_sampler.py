@@ -27,7 +27,7 @@ class FrontierSampler():
         return rr, cc
 
     # this is the inspiration for how I can debug my shite
-    def plot_collision_cell_map(self, data:list, r:int, c:int, to:tuple, at:tuple, local_grid_adapter:LocalGridAdapter) -> None:
+    def plot_collision_cell_map(self, data:list, r:int, c:int, to:tuple, at:tuple) -> None:
         plt.figure(9)
         # x_meter, y_meter = local_grid_adapter.local_pix_idx2world_coord(data, c, r)
         x_meter, y_meter = c, r
@@ -46,7 +46,7 @@ class FrontierSampler():
         plt.figure(1)
 
     # TODO: add robot size as parameter to the collision check.
-    def collision_check_line_between_cells(self, data:list, at:tuple, to:tuple, local_grid_adapter:LocalGridAdapter) -> bool:
+    def collision_check_line_between_cells(self, data:list, at:tuple, to:tuple) -> bool:
         '''
         If the path goes through an obstacle, report collision.
         
@@ -63,12 +63,12 @@ class FrontierSampler():
             if np.less(data[r,c], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
                 if self.debug:
                     print(f"Collision at {r}, {c}")
-                    self.plot_collision_cell_map(data, r, c, to, at, local_grid_adapter)
+                    self.plot_collision_cell_map(data, r, c, to, at)
 
                 return False  
         return True
 
-    def sample_cell_around_other_cell(self, x:int, y:int, radius:float, data:list, local_grid_adapter:LocalGridAdapter) -> tuple:
+    def sample_cell_around_other_cell(self, x:int, y:int, radius:float, data:list) -> tuple:
         '''
         Given a point and a radius, sample a point in the circle around the point.
         
@@ -92,7 +92,6 @@ class FrontierSampler():
                 data=data, 
                 at=(x, y), 
                 to=(x_sample, y_sample), 
-                local_grid_adapter=local_grid_adapter
             )
 
         return x_sample, y_sample
@@ -118,7 +117,7 @@ class FrontierSampler():
                 y_center, 
                 radius=radius, 
                 data=local_grid, 
-                local_grid_adapter=local_grid_adapter)
+            )
             
             # BUG: why the hell is this y,x ....
             # x_sample, y_sample = local_grid_adapter.local_pix_idx2world_coord(local_grid, y_sample, x_sample)
