@@ -1,6 +1,8 @@
+import matplotlib.pyplot as plt
+
 
 class LocalGrid():
-    def __init__(self, world_pos:tuple, data=None, length_in_m=3.0, cell_size_in_m=0.003):
+    def __init__(self, world_pos:tuple, data:list, length_in_m:float, cell_size_in_m:float):
         self.world_pos = world_pos
         self.data = data
         self.length_in_m = length_in_m
@@ -42,3 +44,47 @@ class LocalGrid():
         x_coord = self.world_pos[0] + idxs[0] * self.cell_size_in_m - self.length_in_m/2
         y_coord = self.world_pos[1] + idxs[1] * self.cell_size_in_m - self.length_in_m/2
         return x_coord, y_coord
+    
+    def plot_zoomed_world_coord(self):
+        plt.figure(10)
+        plt.cla()
+        plt.ion()
+
+        # plt.imshow(self.data, origin='lower')
+
+        plt.imshow(
+            self.data, 
+            origin='lower', 
+            extent=[
+                self.world_pos[0]-self.length_in_m/2, 
+                self.world_pos[0]+self.length_in_m/2, 
+                self.world_pos[1]-self.length_in_m/2, 
+                self.world_pos[1]+self.length_in_m/2, 
+            ],
+        )
+        plt.show()
+        plt.pause(0.1)
+        plt.figure(1)
+
+    def plot_unzoomed_world_coord(self, world_lengths:tuple):
+        plt.figure(10)
+        plt.cla()
+        plt.ion()
+
+        # plt.imshow(self.data, origin='lower')
+
+        plt.imshow(
+            self.data, 
+            origin='lower', 
+            extent=[
+                self.world_pos[0]-self.length_in_m/2, 
+                self.world_pos[0]+self.length_in_m/2, 
+                self.world_pos[1]-self.length_in_m/2, 
+                self.world_pos[1]+self.length_in_m/2, 
+            ],
+        )
+        plt.xlim(-world_lengths[0], world_lengths[0])
+        plt.ylim(-world_lengths[1], world_lengths[1])
+        plt.show()
+        plt.pause(0.1)
+        plt.figure(1)

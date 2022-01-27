@@ -16,6 +16,7 @@ class FrontierSampler():
     def __init__(self, debug_mode=False) -> None:
         self.init = False
         self.debug = debug_mode
+        self.pixel_occupied_treshold = 230
 
     def get_cells_under_line(self, point_a, point_b):  
         # TODO: check if x and y is correct
@@ -23,6 +24,7 @@ class FrontierSampler():
 
         return rr, cc
 
+    # this is the inspiration for how I can debug my shite
     def plot_collision(self, data, r, c, to, at, local_grid_adapter):
         plt.figure(9)
         x_meter, y_meter = local_grid_adapter.local_pix_idx2world_coord(data, c, r)
@@ -53,8 +55,8 @@ class FrontierSampler():
         
         # for cell in path, if one of them is an obstacle, resample
         for r, c in zip(rr, cc):
-            if np.less(data[r,c], [230, 230, 230, 230]).any():
-                if debug:
+            if np.less(data[r,c], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
+                if self.debug:
                     print(f"Collision at {r}, {c}")
                     self.plot_collision(data, r, c, to, at, local_grid_adapter)
 
@@ -73,19 +75,24 @@ class FrontierSampler():
         :return: The x and y coordinates of the sampled point.
         '''
         valid_sample = False
-
+        sample_ring_width = 0.4
         while not valid_sample:
-            r = radius * np.sqrt(np.random.uniform(low=0.6, high=1))
+            r = radius * np.sqrt(np.random.uniform(low=1 - sample_ring_width, high=1))
             theta = np.random.random() * 2 * np.pi
 
             x_sample = int(x + r * np.cos(theta))
             y_sample = int(y + r * np.sin(theta))
 
-            valid_sample = self.collision_check(data=data, at=(x, y), to=(x_sample, y_sample), local_grid_adapter=local_grid_adapter)
+            valid_sample = self.collision_check(
+                data=data, 
+                at=(x, y), 
+                to=(x_sample, y_sample), 
+                local_grid_adapter=local_grid_adapter
+            )
 
         return x_sample, y_sample
 
-    def sample_frontiers(self, local_grid, local_grid_adapter, radius=90, num_frontiers_to_sample=5) -> list:
+    def sample_frontiers(self, local_grid, local_grid_adapter, radius:float, num_frontiers_to_sample:int) -> list:
         '''
         Given a local grid, sample N points around a given point, and return the sampled points.
         
@@ -102,7 +109,12 @@ class FrontierSampler():
             x_center = grid_size
             y_center = grid_size
 
-            x_sample, y_sample = self.sample_point_around_other_point(x_center, y_center, radius=radius, data=local_grid, local_grid_adapter=local_grid_adapter)
+            x_sample, y_sample = self.sample_point_around_other_point(
+                x_center, 
+                y_center, 
+                radius=radius, 
+                data=local_grid, 
+                local_grid_adapter=local_grid_adapter)
             
             # BUG: why the hell is this y,x ....
             x_sample, y_sample = local_grid_adapter.local_pix_idx2world_coord(local_grid, y_sample, x_sample)
@@ -112,6 +124,11 @@ class FrontierSampler():
         candidate_frontiers = np.array(candidate_frontiers).astype(np.int)
         
         return candidate_frontiers
+
+
+
+
+
 
 
     # def init_plot(self, data) -> None:

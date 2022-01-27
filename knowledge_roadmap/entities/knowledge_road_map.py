@@ -12,7 +12,7 @@ class KnowledgeRoadmap():
     '''
 
     # TODO: adress local vs global KRM
-    def __init__(self, start_pos=(0, 0)):
+    def __init__(self, start_pos:tuple):
         # TODO: this leads to hella ugly krm.KRM notation everywhere
         # perhaps krm should just be the graph and, this should be a KRM_manager?
         self.graph = nx.Graph() # Knowledge Road Map

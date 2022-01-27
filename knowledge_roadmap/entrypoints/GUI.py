@@ -5,9 +5,6 @@ import numpy as np
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
 from knowledge_roadmap.entities.agent import Agent
 
-
-
-
 import matplotlib
 matplotlib.use("Qt5agg")
 
@@ -28,7 +25,9 @@ class GUI():
 
         # FIXME: this has to be linked to the x_map_length_scale and y offset in the gui
         self.origin_x_offset = 25
+        # self.origin_x_offset = 17/2
         self.origin_y_offset = 20
+        # self.origin_y_offset = 13/2
 
     def draw_agent(self, pos, rec_len=7):
         '''

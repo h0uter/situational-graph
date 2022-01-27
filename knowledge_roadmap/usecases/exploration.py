@@ -7,20 +7,20 @@ import networkx as nx
 import uuid
 
 class Exploration:
-    def __init__(self, agent:Agent, debug=True):
+    def __init__(self, agent:Agent, len_of_map:float, debug=True):
         self.agent  = agent
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False
         self.debug = debug
-        self.sampler = FrontierSampler(debug_mode=True)
+        self.sampler = FrontierSampler(debug_mode=False)
         self.frontier_sample_radius = 180
         self.prune_radius = 2.2
         self.shortcut_radius = 5
         self.N_samples = 20
         
         # help
-        self.idk_one_fourth_pix_size = 50
+        self.len_of_entire_map = len_of_map
 
     #############################################################################################
     ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
@@ -65,25 +65,33 @@ class Exploration:
         :return: The path to the selected frontier.
         '''
         path = nx.shortest_path(
-            krm.graph, source=agent.at_wp, target=target_frontier)
+                                krm.graph, 
+                                source=agent.at_wp, 
+                                target=target_frontier
+                                )
         return path
 
     def real_sample_step(self, agent, local_grid_img, local_grid_adapter, krm):
-        frontiers = self.sampler.sample_frontiers(local_grid_img, local_grid_adapter, radius=self.frontier_sample_radius, num_frontiers_to_sample=self.N_samples)
+        frontiers = self.sampler.sample_frontiers(
+                                                local_grid_img, 
+                                                local_grid_adapter, 
+                                                radius=self.frontier_sample_radius, 
+                                                num_frontiers_to_sample=self.N_samples
+                                                )
         for frontier in frontiers:
-                # plot the sampled frontier edge in fig2
-                # should go to gui
-                # xx, yy = self.sampler.get_cells_under_line((local_grid_adapter.size_pix, local_grid_adapter.size_pix), frontier)
-                # plt.plot(xx, yy) # draw the line as collection of pixels
+            # plot the sampled frontier edge in fig2
+            # should go to gui
+            # xx, yy = self.sampler.get_cells_under_line((local_grid_adapter.size_pix, local_grid_adapter.size_pix), frontier)
+            # plt.plot(xx, yy) # draw the line as collection of pixels
 
-                # translate the above to the global map
-                x_local, y_local = frontier[0], frontier[1]
-                # FIXME: what the hell conversiion is this
-                x_global = agent.pos[0] + (x_local - local_grid_adapter.size_pix) / self.idk_one_fourth_pix_size
-                y_global = agent.pos[1] +  (y_local - local_grid_adapter.size_pix) / self.idk_one_fourth_pix_size
-                frontier_pos_global = (x_global, y_global)
-                # gui.ax1.plot(x_global, y_global, 'ro')
-                krm.add_frontier(frontier_pos_global, agent.at_wp)
+            # translate the above to the global map
+            x_local, y_local = frontier[0], frontier[1]
+            # FIXME: what the hell conversiion is this
+            x_global = agent.pos[0] + (x_local - local_grid_adapter.size_pix) / self.len_of_entire_map
+            y_global = agent.pos[1] +  (y_local - local_grid_adapter.size_pix) / self.len_of_entire_map
+            frontier_pos_global = (x_global, y_global)
+            # gui.ax1.plot(x_global, y_global, 'ro')
+            krm.add_frontier(frontier_pos_global, agent.at_wp)
     
     def sample_waypoint(self, agent, krm):
         '''

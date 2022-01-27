@@ -1,11 +1,11 @@
 from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
-from knowledge_roadmap.entities.local_grid import LocalGrid
 
 
 class LocalGridAdapter():
-    def __init__(self, img_length_in_m=None, mode='spoof', size_pix=150, cell_size=None, debug_container=None):
+    def __init__(self, img_length_in_m:float, size_pix:int, cell_size:float, mode='spoof', debug_container=None):
         self.mode = mode
         self.size_pix = size_pix
+        self.lg_size = 3.0
         self.cell_size = cell_size
         self.map_length_scales = img_length_in_m
         self.debug_container = debug_container
@@ -21,7 +21,9 @@ class LocalGridAdapter():
             agent_pos = self.debug_container['agent'].pos
             img_world = ManualGraphWorld()
             
-            return self.sim_observe_local_grid_from_img_world(agent_pos, img_world)
+            local_grid_img = self.sim_observe_local_grid_from_img_world(agent_pos, img_world)
+
+            return local_grid_img
         else:
             # here comes calls to the spot API
             raise NotImplementedError
@@ -79,23 +81,20 @@ class LocalGridAdapter():
 
         return cell_length_x, cell_length_y
 
-
-
-
-    def sim_local_grid_from_img_constructor(self, whole_damn_img, world_pos, cell_size_in_m, img_world_length=None ,num_cells=None, length_in_m=None) -> LocalGrid:
-        '''
-        Given a photo with NxM pixels, specify the pixel size in m, and return a local grid with the correct parameters
+    # def sim_local_grid_from_img_constructor(self, whole_damn_img, world_pos, cell_size_in_m, img_world_length=None ,num_cells=None, length_in_m=None) -> LocalGrid:
+    #     '''
+    #     Given a photo with NxM pixels, specify the pixel size in m, and return a local grid with the correct parameters
         
-        :return: The local grid object.
-        '''
-        # if cell_size_in_m:
+    #     :return: The local grid object.
+    #     '''
+    #     # if cell_size_in_m:
 
 
-        # if num_cells:
-        # local_img = self.sim_observe_local_grid_from_img_world(world_pos, whole_damn_img)
+    #     # if num_cells:
+    #     # local_img = self.sim_observe_local_grid_from_img_world(world_pos, whole_damn_img)
 
-        local_grid = LocalGrid(world_pos, local_img)
-        return local_grid
+    #     local_grid = LocalGrid(world_pos, local_img)
+    #     return local_grid
 
     def world_coord2global_pix_idx(self, world, x_pos, y_pos) -> tuple:
         '''
@@ -112,6 +111,7 @@ class LocalGridAdapter():
 
         # FIXME: this has to be linked to the x and y offset in the gui
         # x_map_length_scale = 50
+        # FIXME: this times 2 is annoying
         x_map_length_scale = self.map_length_scales[0]*2
         # y_map_length_scale = 40
         y_map_length_scale = self.map_length_scales[1]*2

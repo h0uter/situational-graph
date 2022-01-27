@@ -14,6 +14,8 @@ from knowledge_roadmap.data_providers.world_graph_generator import GraphGenerato
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.frontier_sampler import FrontierSampler 
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
+from knowledge_roadmap.entities.local_grid import LocalGrid
+
 
 import matplotlib
 matplotlib.use("Tkagg")
@@ -35,7 +37,7 @@ def exploration_with_sampling_viz(result_only):
     # gui.preview_graph_world(world)
     agent = Agent(debug=False)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
-    exploration_use_case = Exploration(agent, debug=False)
+    exploration_use_case = Exploration(agent, debug=False, len_of_map=2*gui.origin_x_offset)
 
     debug_container = {
         'world': world, 
@@ -43,7 +45,7 @@ def exploration_with_sampling_viz(result_only):
         'exploration_use_case': exploration_use_case, 
         'gui': gui}
 
-    local_grid_adapter = LocalGridAdapter(
+    lga = LocalGridAdapter(
         img_length_in_m=(gui.origin_x_offset, gui.origin_y_offset),
         mode='spoof',
         size_pix=200, 
@@ -56,10 +58,17 @@ def exploration_with_sampling_viz(result_only):
 
     while agent.no_more_frontiers == False:
     # while agent.no_more_frontiers == False:
-        local_grid_img = local_grid_adapter.get_local_grid()
+        local_grid_img = lga.get_local_grid()
+        cell_size = 3.0 / local_grid_img.shape[1]
+        print(f"local_grid_img.shape: {local_grid_img.shape}")
+        print(cell_size)
+        lg = LocalGrid(agent.pos, local_grid_img, lga.lg_size, cell_size)
+        # lg.plot_zoomed_world_coord()
+        lg.plot_unzoomed_world_coord((gui.origin_x_offset, gui.origin_y_offset))
+
         gui.draw_local_grid(local_grid_img)
 
-        exploration_completed = exploration_use_case.run_exploration_step(agent, local_grid_img, local_grid_adapter, krm)
+        exploration_completed = exploration_use_case.run_exploration_step(agent, local_grid_img, lga, krm)
         if exploration_completed:
             return exploration_completed
         if not result_only:
