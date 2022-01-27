@@ -17,16 +17,16 @@ class GUI():
     - take user input later on
     '''
 
-    def __init__(self, map_img=None) -> None:
+    def __init__(self,  origin_x_offset, origin_y_offset ,map_img=None,) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
         self.map_img = map_img
         self.initialized = False
 
         # FIXME: this has to be linked to the x_map_length_scale and y offset in the gui
-        self.origin_x_offset = 25
+        self.origin_x_offset = origin_x_offset
         # self.origin_x_offset = 17/2
-        self.origin_y_offset = 20
+        self.origin_y_offset = origin_y_offset
         # self.origin_y_offset = 13/2
 
     def draw_agent(self, pos: tuple, rec_len=7) -> None:

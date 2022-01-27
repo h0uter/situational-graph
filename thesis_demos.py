@@ -26,25 +26,34 @@ matplotlib.use("Tkagg")
 
 class CFG():
     def __init__(self):
-        self.total_map_len_m_x = 17
-        self.total_map_len_m_y = 13
-        
+        # self.total_map_len_m_x = 17
+        self.total_map_len_m_x = 50
+        # self.total_map_len_m_y = 13
+        self.total_map_len_m_y = 40
+        self.total_map_len_m = (self.total_map_len_m_x, self.total_map_len_m_y)
+        self.lg_num_cells = 200
 
 
 def exploration_with_sampling_viz(result_only):
     # this is the prior image of the villa we can include for visualization purposes
     # It is different from the map we use to emulate the local grid.
     # full_path = os.path.join('resource', 'output-onlinepngtools.png')
+    cfg = CFG()
     full_path = os.path.join('resource', 'villa_holes_closed.png')
     upside_down_map_img = Image.open(full_path)
     # print(upside_down_map_img.size)
     map_img = img_axes2world_axes(upside_down_map_img)
     world = ManualGraphWorld()
-    gui = GUI(map_img=map_img)
+    gui = GUI(
+            map_img=map_img, 
+            origin_x_offset=cfg.total_map_len_m_x/2, 
+            origin_y_offset=cfg.total_map_len_m_y/2,
+            )
+
     # gui.preview_graph_world(world)
     agent = Agent(debug=False)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
-    exploration_use_case = Exploration(agent, debug=False, len_of_map=2*gui.origin_x_offset)
+    exploration_use_case = Exploration(agent, debug=False, len_of_map=cfg.total_map_len_m)
 
     debug_container = {
         'world': world, 
@@ -53,9 +62,10 @@ def exploration_with_sampling_viz(result_only):
         'gui': gui}
 
     lga = LocalGridAdapter(
+        # img_length_in_m=(gui.origin_x_offset, gui.origin_y_offset),
         img_length_in_m=(gui.origin_x_offset, gui.origin_y_offset),
         mode='spoof',
-        num_cells=200, 
+        num_cells=cfg.lg_num_cells, 
         cell_size_m=1, 
         debug_container=debug_container
         )

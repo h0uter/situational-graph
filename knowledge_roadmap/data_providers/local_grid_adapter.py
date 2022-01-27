@@ -7,7 +7,7 @@ class LocalGridAdapter():
         self.num_cells = num_cells
         self.lg_size = 3.0
         self.cell_size_m = cell_size_m
-        self.total_img_length_in_m = img_length_in_m
+        self.spoof_img_length_in_m = img_length_in_m
         self.debug_container = debug_container
 
     def get_local_grid(self) -> list:
@@ -61,9 +61,9 @@ class LocalGridAdapter():
         # FIXME: this has to be linked to the x and y offset in the gui
         # x_map_length_scale = 50
         # FIXME: this times 2 is annoying
-        x_map_length_scale = self.total_img_length_in_m[0]*2
+        x_map_length_scale = self.spoof_img_length_in_m[0]*2
         # y_map_length_scale = 40
-        y_map_length_scale = self.total_img_length_in_m[1]*2
+        y_map_length_scale = self.spoof_img_length_in_m[1]*2
 
         x_pix_per_meter = Nx_pix // x_map_length_scale
         y_pix_per_meter = Ny_pix // y_map_length_scale

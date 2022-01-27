@@ -1,4 +1,3 @@
-from tomlkit import string
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.frontier_sampler import FrontierSampler
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
@@ -81,8 +80,8 @@ class Exploration:
             # translate the above to the global map
             x_local, y_local = frontier[0], frontier[1]
             # FIXME: what the hell conversiion is this
-            x_global = agent.pos[0] + (x_local - local_grid_adapter.num_cells) / self.len_of_entire_map
-            y_global = agent.pos[1] +  (y_local - local_grid_adapter.num_cells) / self.len_of_entire_map
+            x_global = agent.pos[0] + (x_local - local_grid_adapter.num_cells) / self.len_of_entire_map[0]
+            y_global = agent.pos[1] +  (y_local - local_grid_adapter.num_cells) / self.len_of_entire_map[1]
             frontier_pos_global = (x_global, y_global)
             # gui.ax1.plot(x_global, y_global, 'ro')
             krm.add_frontier(frontier_pos_global, agent.at_wp)
