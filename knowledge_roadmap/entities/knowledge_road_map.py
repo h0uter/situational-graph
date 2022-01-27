@@ -1,6 +1,8 @@
 import uuid
 import networkx as nx
 
+from knowledge_roadmap.entities.local_grid import LocalGrid
+
 class KnowledgeRoadmap():
     '''
     An agent implements a Knowledge Roadmap to keep track of the 
@@ -82,3 +84,43 @@ class KnowledgeRoadmap():
         ''' returns all frontier idxs in the graph'''
         return [node for node in self.graph.nodes() if self.graph.nodes[node]['type'] == 'frontier']
 
+    def get_nodes_of_type_in_margin(self, pos: tuple, margin: float, node_type: str) -> list:
+        '''
+        Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.
+
+        :param pos: the position of the agent
+        :param margin: the margin of the square to look
+        :param node_type: the type of node to search for
+        :return: The list of nodes that are close to the given position.
+        '''
+        close_nodes = []
+        for node in self.graph.nodes:
+            data = self.get_node_data_by_idx(node)
+            if data['type'] == node_type:
+                node_pos = data['pos']
+                if abs(pos[0] - node_pos[0]) < margin and abs(pos[1] - node_pos[1]) < margin:
+                    close_nodes.append(node)
+        return close_nodes
+
+    # def get_all_waypoints_in_lg(self, lg:LocalGrid) -> list:
+    #     lg.world_pos
+    #     existing_nearby_wps = self.get_nodes_of_type_in_margin(lg.world_pos, lg.length_in_m, 'waypoint')
+    #     if len(existing_nearby_wps) > 0:    
+    #         for existing_wp in existing_nearby_wps:
+    #                 existing_wp_pos = krm.get_node_data_by_idx(existing_wp)['pos']
+    #                 # new_wp_x_pix, new_wp_y_pix = local_grid_adapter.world_coord2pix_idx(world, new_wp_pos[0], new_wp_pos[1])
+    #                 new_wp_pix = local_grid_adapter.world_coord2global_pix_idx(world, new_wp_pos[0], new_wp_pos[1])
+    #                 # new_wp_pix = local_grid_adapter.world_coord2global_pix_idx(world, new_wp_pos[1], new_wp_pos[0])
+    #                 existing_wp_pix = local_grid_adapter.world_coord2global_pix_idx(world, existing_wp_pos[0], existing_wp_pos[1])
+    #                 # existing_wp_pix = local_grid_adapter.world_coord2global_pix_idx(world, existing_wp_pos[1], existing_wp_pos[0])
+
+    #                 # existing_wp_pix = (abs(new_wp_pix[0]) - abs(existing_wp_pix[0]), abs(new_wp_pix[1]) - abs(existing_wp_pix[1]))
+    #                 existing_wp_pix = (local_grid_adapter.size_pix + abs(existing_wp_pix[0]) - abs(new_wp_pix[0]), local_grid_adapter.size_pix + abs(existing_wp_pix[1]) - abs(new_wp_pix[1]))
+
+    #                 print(f"--existing wp pix : {existing_wp_pix}")
+    #                 new_wp_pix = (local_grid_adapter.size_pix, local_grid_adapter.size_pix)
+    #                 new_edge_not_in_collision =self.sampler.collision_check(local_grid_img, new_wp_pix, existing_wp_pix,local_grid_adapter)
+    #                 if new_edge_not_in_collision:
+    #                     krm.graph.add_edge(new_wp, existing_wp, type="waypoint_edge", id=uuid.uuid4())
+    #                 else:
+    #                     print(f"existing_wp {existing_wp} is in collision with new_wp {new_wp}")

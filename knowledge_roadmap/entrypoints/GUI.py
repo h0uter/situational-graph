@@ -1,12 +1,10 @@
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import networkx as nx
-import numpy as np
 
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.local_grid import LocalGrid
-
 
 import matplotlib
 matplotlib.use("Qt5agg")
@@ -53,7 +51,7 @@ class GUI():
         self.local_grid_drawing = self.ax1.add_patch(plt.Rectangle(
             (pos[0]-0.5*rec_len, pos[1]-0.5*rec_len), rec_len, rec_len, alpha=0.2, fc='blue'))
 
-    def draw_local_grid(self, local_grid_img: list) -> None:
+    def draw_local_grid(self, lg:LocalGrid) -> None:
         '''
         Draw the local grid in the right axes.
         
@@ -65,7 +63,8 @@ class GUI():
             self.initialized = True
  
         self.ax2.cla()
-        self.ax2.imshow(local_grid_img, origin='lower')
+        self.ax2.imshow(lg.data, origin='lower')
+        plt.plot(lg.data.shape[1]/2, lg.data.shape[0]/2, marker='o', markersize=10, color='red')
         self.ax2.set_aspect('equal', 'box')  # set the aspect ratio of the plot
         self.ax2.set_title('local grid')
 
@@ -124,7 +123,6 @@ class GUI():
             self.fig, (self.ax1, self.ax2) = plt.subplots(1,2, figsize=(15, 10), num=1)
             self.initialized = True
 
-        # plt.figure(1)
         self.ax1.cla() # XXX: plt1.cla is the bottleneck in my performance.
 
         self.ax1.set_title('Online Construction of Knowledge Roadmap')
@@ -212,23 +210,13 @@ class GUI():
         self.ax1.set_aspect('equal', 'box')  # set the aspect ratio of the plot
         self.ax1.tick_params(left=True, bottom=True,
                             labelleft=True, labelbottom=True)
-        # self.fig.canvas.start_event_loop(0.001)
 
 
     def plot_unzoomed_world_coord(self, lg:LocalGrid) -> None:
-        # # plt.figure(10)
-        # # plt.cla()
-        # # plt.ion()
-        # print(plt.figure(1).get_axes()[0])
-
-        # plt.imshow(self.data, origin='lower')
-        print(f"world pos: {lg.world_pos} lg.length_in_m: {lg.length_in_m}")
-
         # TODO: emulate the local grid with this cmap alpha yada yada
         my_cmap = cm.jet
         my_cmap.set_under('k', alpha=0)
 
-        # plt.imshow(
         self.ax1.imshow(
             lg.data, 
             origin='lower', 
@@ -245,12 +233,6 @@ class GUI():
 
         self.ax1.set_xlim([-self.origin_x_offset, self.origin_x_offset])
         self.ax1.set_ylim([-self.origin_y_offset, self.origin_y_offset])
-        # plt.show()
-        plt.pause(0.1)
-        # plt.figure(1)
-
-
-
 
     def debug_logger(self,krm: KnowledgeRoadmap, agent: Agent) -> None:
         '''

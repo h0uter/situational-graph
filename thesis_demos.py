@@ -1,9 +1,5 @@
 import matplotlib.pyplot as plt
-import keyboard
-from matplotlib import image
 import os
-import numpy as np
-from skimage import draw
 from PIL import Image
 
 from knowledge_roadmap.entities.agent import Agent
@@ -32,7 +28,7 @@ class CFG():
         # self.total_map_len_m_y = 40
         self.total_map_len_m_y = (self.total_map_len_m_x/2026)*1686 # zo klopt het met de foto verhoudingen (square cells)
         self.total_map_len_m = (self.total_map_len_m_x, self.total_map_len_m_y)
-        self.lg_num_cells = 300
+        self.lg_num_cells = 400 # max:400 due to img border margins
         # self.lg_num_cells = 50
         self.lg_cell_size_m = self.total_map_len_m_x/2026
         self.lg_length_scale = self.lg_num_cells * self.lg_cell_size_m /2
@@ -42,7 +38,6 @@ class CFG():
 def exploration_with_sampling_viz(result_only):
     # this is the prior image of the villa we can include for visualization purposes
     # It is different from the map we use to emulate the local grid.
-    # full_path = os.path.join('resource', 'output-onlinepngtools.png')
     cfg = CFG()
 
     full_path = os.path.join('resource', 'villa_holes_closed.png')
@@ -67,7 +62,6 @@ def exploration_with_sampling_viz(result_only):
         'gui': gui}
 
     lga = LocalGridAdapter(
-        # img_length_in_m=(gui.origin_x_offset, gui.origin_y_offset),
         img_length_in_m=cfg.total_map_len_m,
         mode='spoof',
         num_cells=cfg.lg_num_cells, 
@@ -89,11 +83,9 @@ def exploration_with_sampling_viz(result_only):
     exploration_completed = False
 
     while agent.no_more_frontiers == False:
-    # while agent.no_more_frontiers == False:
+
         local_grid_img = lga.get_local_grid()
-        # cell_size = 3.0 / local_grid_img.shape[1]
-        # print(f"local_grid_img.shape: {local_grid_img.shape}")
-        # print(cell_size)
+        
 
         lg = LocalGrid(
             world_pos=agent.pos, 
@@ -101,11 +93,9 @@ def exploration_with_sampling_viz(result_only):
             length_in_m=lga.lg_length_in_m, 
             cell_size_in_m=lga.cell_size_m
         )
-        # lg.plot_zoomed_world_coord()
-        # lg.plot_unzoomed_world_coord((gui.origin_x_offset, gui.origin_y_offset))
 
         print(f"lga.num_cells: {lga.num_cells}, lg.num_cells: {lg.length_num_cells}, lg shape")
-        gui.draw_local_grid(local_grid_img)
+        gui.draw_local_grid(lg)
 
         exploration_completed = exploration_use_case.run_exploration_step(agent, local_grid_img, lga, krm)
         if exploration_completed:

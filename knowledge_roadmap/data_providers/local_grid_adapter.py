@@ -1,4 +1,3 @@
-from turtle import ycor
 from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
 
 
@@ -61,11 +60,7 @@ class LocalGridAdapter():
         Nx_pix = world.map_img.shape[1]
         Ny_pix = world.map_img.shape[0]
 
-        # FIXME: this has to be linked to the x and y offset in the gui
-        # x_map_length_scale = 50
-        # FIXME: this times 2 is annoying
         x_map_length_scale = self.spoof_img_length_in_m[0]
-        # y_map_length_scale = 40
         y_map_length_scale = self.spoof_img_length_in_m[1]
 
         x_pix_per_meter = Nx_pix // x_map_length_scale
