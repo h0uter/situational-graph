@@ -8,7 +8,7 @@ import networkx as nx
 import uuid
 
 class Exploration:
-    def __init__(self, agent:Agent, len_of_map:float, debug=True):
+    def __init__(self, agent:Agent, len_of_map:float, debug=True) -> None:
         self.agent  = agent
         self.consumable_path = None
         self.selected_frontier_idx = None
@@ -24,7 +24,7 @@ class Exploration:
     #############################################################################################
     ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
     #############################################################################################
-    def evaluate_frontiers(self, agent: Agent, frontier_idxs: list, krm: KnowledgeRoadmap):
+    def evaluate_frontiers(self, agent: Agent, frontier_idxs: list, krm: KnowledgeRoadmap) -> int:
         ''' 
         Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics        
@@ -96,7 +96,7 @@ class Exploration:
         krm.add_waypoint(agent.pos, wp_at_previous_pos)
         agent.at_wp = krm.get_node_by_pos(agent.pos)
    
-    def get_nodes_of_type_in_radius(self, pos:tuple, radius:float, node_type:str, krm:KnowledgeRoadmap):
+    def get_nodes_of_type_in_radius(self, pos:tuple, radius:float, node_type:str, krm:KnowledgeRoadmap) -> list:
         '''
         Given a position, a radius and a node type, return a list of nodes of that type that are within the radius of the position.
         
@@ -114,7 +114,7 @@ class Exploration:
                     close_nodes.append(node)
         return close_nodes
 
-    def prune_frontiers(self, krm:KnowledgeRoadmap):
+    def prune_frontiers(self, krm:KnowledgeRoadmap) -> None:
         '''obtain all the frontier nodes in krm in a certain radius around the current position'''
         
         waypoints = krm.get_all_waypoint_idxs()
@@ -157,7 +157,7 @@ class Exploration:
     #                     print(f"existing_wp {existing_wp} is in collision with new_wp {new_wp}")
 
 
-    def run_exploration_step(self, agent:Agent, local_grid_img:list, local_grid_adapter:LocalGridAdapter, krm:KnowledgeRoadmap):
+    def run_exploration_step(self, agent:Agent, local_grid_img:list, local_grid_adapter:LocalGridAdapter, krm:KnowledgeRoadmap) -> None or bool:
         if not self.init:
             self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
             self.init = True
