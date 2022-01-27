@@ -27,7 +27,7 @@ class FrontierSampler():
         return rr, cc
 
     # this is the inspiration for how I can debug my shite
-    def plot_collision(self, data:list, r:int, c:int, to:tuple, at:tuple, local_grid_adapter:LocalGridAdapter):
+    def plot_collision(self, data:list, r:int, c:int, to:tuple, at:tuple, local_grid_adapter:LocalGridAdapter) -> None:
         plt.figure(9)
         x_meter, y_meter = local_grid_adapter.local_pix_idx2world_coord(data, c, r)
 
