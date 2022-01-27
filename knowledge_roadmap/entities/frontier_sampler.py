@@ -20,7 +20,7 @@ class FrontierSampler():
         self.debug = debug_mode
         self.pixel_occupied_treshold = 230
 
-    def get_cells_under_line(self, point_a, point_b):  
+    def get_cells_under_line(self, point_a, point_b) -> tuple:  
         # TODO: check if x and y is correct
         rr, cc = draw.line(int(point_a[0]), int(point_a[1]), int(point_b[0]), int(point_b[1]))
 

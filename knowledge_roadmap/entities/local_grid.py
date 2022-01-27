@@ -15,7 +15,7 @@ class LocalGrid():
             pass
             # raise ValueError('The data does not match')
 
-    def is_inside(self, world_pos):
+    def is_inside(self, world_pos: tuple) -> bool:
         '''
         Check if the world position is inside the local grid.
         '''
@@ -29,7 +29,7 @@ class LocalGrid():
             return False
         return True
 
-    def world_coords2cell_idxs(self, coords):
+    def world_coords2cell_idxs(self, coords:tuple) -> tuple:
         '''
         Convert the world coordinates to the cell indices of the local grid.
         '''
@@ -37,7 +37,7 @@ class LocalGrid():
         y_idx = int((coords[1] - self.world_pos[1] + self.length_in_m/2) / self.cell_size_in_m)
         return x_idx, y_idx
 
-    def cell_idxs2world_coords(self, idxs):
+    def cell_idxs2world_coords(self, idxs:tuple) -> tuple:
         '''
         Convert the cell indices to the world coordinates.
         '''
@@ -45,7 +45,7 @@ class LocalGrid():
         y_coord = self.world_pos[1] + idxs[1] * self.cell_size_in_m - self.length_in_m/2
         return x_coord, y_coord
     
-    def plot_zoomed_world_coord(self):
+    def plot_zoomed_world_coord(self) -> None:
         plt.figure(10)
         plt.cla()
         plt.ion()
@@ -66,7 +66,7 @@ class LocalGrid():
         plt.pause(0.1)
         plt.figure(1)
 
-    def plot_unzoomed_world_coord(self, world_lengths:tuple):
+    def plot_unzoomed_world_coord(self, world_lengths:tuple) -> None:
         plt.figure(10)
         plt.cla()
         plt.ion()
