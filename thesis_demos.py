@@ -62,7 +62,7 @@ def exploration_with_sampling_viz(result_only):
         cell_size = 3.0 / local_grid_img.shape[1]
         print(f"local_grid_img.shape: {local_grid_img.shape}")
         print(cell_size)
-        lg = LocalGrid(agent.pos, local_grid_img, lga.lg_size, cell_size)
+        lg = LocalGrid(agent.pos, local_grid_img, lga.lg_size, lga.cell_size)
         # lg.plot_zoomed_world_coord()
         lg.plot_unzoomed_world_coord((gui.origin_x_offset, gui.origin_y_offset))
 

@@ -19,8 +19,6 @@ class Exploration:
         self.shortcut_radius = 5
         self.N_samples = 20
         self.len_of_entire_map = len_of_map
-        
-        # help
 
     #############################################################################################
     ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
@@ -79,11 +77,6 @@ class Exploration:
                                                 num_frontiers_to_sample=self.N_samples
                                                 )
         for frontier in frontiers:
-            # plot the sampled frontier edge in fig2
-            # should go to gui
-            # xx, yy = self.sampler.get_cells_under_line((local_grid_adapter.size_pix, local_grid_adapter.size_pix), frontier)
-            # plt.plot(xx, yy) # draw the line as collection of pixels
-
             # translate the above to the global map
             x_local, y_local = frontier[0], frontier[1]
             # FIXME: what the hell conversiion is this

@@ -40,9 +40,10 @@ class LocalGridAdapter():
         x, y = self.world_coord2global_pix_idx(world, x,y)
         size_in_pix = self.num_cells
         # BUG:: cannot sample near edge of the image world_img.
-        local_grid = world.map_img[int(y-size_in_pix):int(y+size_in_pix), int(x-size_in_pix):int(x+size_in_pix)]
+        # local_grid_img = world.map_img[int(y-self.num_cells//2):int(y+self.num_cells//2), int(x-self.num_cells//2):int(x+self.num_cells//2)]
+        local_grid_img = world.map_img[int(y-size_in_pix):int(y+size_in_pix), int(x-size_in_pix):int(x+size_in_pix)]
         
-        return local_grid
+        return local_grid_img
 
     def sim_calc_total_img_length_in_m(self, whole_damn_img, cell_size_in_m:float) -> tuple:
             total_img_length_in_m_x = whole_damn_img.shape[0] * cell_size_in_m
@@ -142,8 +143,8 @@ class LocalGridAdapter():
         Ny_pix = img.shape[1]
         
         # FIXME: this has to be linked to the x and y offset in the gui
-        x_map_length_scale = 2*self.num_cells
-        y_map_length_scale = 2*self.num_cells
+        x_map_length_scale = self.num_cells*2
+        y_map_length_scale = self.num_cells*2
 
         # x_origin_meter_offset = x_map_length_scale // 2
         # y_origin_meter_offset = y_map_length_scale // 2
