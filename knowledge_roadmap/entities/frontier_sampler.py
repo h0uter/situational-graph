@@ -5,6 +5,8 @@ from matplotlib import colors
 from skimage import draw
 
 from knowledge_roadmap.entities.agent import Agent
+from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
+
 
 EMPTY_CELL = 0
 OBSTACLE_CELL = 1
@@ -25,7 +27,7 @@ class FrontierSampler():
         return rr, cc
 
     # this is the inspiration for how I can debug my shite
-    def plot_collision(self, data, r, c, to, at, local_grid_adapter):
+    def plot_collision(self, data:list, r:int, c:int, to:tuple, at:tuple, local_grid_adapter:LocalGridAdapter):
         plt.figure(9)
         x_meter, y_meter = local_grid_adapter.local_pix_idx2world_coord(data, c, r)
 
@@ -41,7 +43,7 @@ class FrontierSampler():
         plt.figure(1)
 
     # TODO: add robot size as parameter to the collision check.
-    def collision_check(self, data, at, to, local_grid_adapter,debug=False):
+    def collision_check(self, data:list, at:tuple, to:tuple, local_grid_adapter:LocalGridAdapter) -> bool:
         '''
         If the path goes through an obstacle, report collision.
         
@@ -63,7 +65,7 @@ class FrontierSampler():
                 return False  
         return True
 
-    def sample_point_around_other_point(self, x, y, radius, data, local_grid_adapter):
+    def sample_point_around_other_point(self, x:int, y:int, radius:float, data:list, local_grid_adapter:LocalGridAdapter) -> tuple:
         '''
         Given a point and a radius, sample a point in the circle around the point.
         
@@ -92,7 +94,7 @@ class FrontierSampler():
 
         return x_sample, y_sample
 
-    def sample_frontiers(self, local_grid, local_grid_adapter, radius:float, num_frontiers_to_sample:int) -> list:
+    def sample_frontiers(self, local_grid:list, local_grid_adapter:LocalGridAdapter, radius:float, num_frontiers_to_sample:int) -> list:
         '''
         Given a local grid, sample N points around a given point, and return the sampled points.
         
