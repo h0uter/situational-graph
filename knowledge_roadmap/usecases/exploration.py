@@ -71,7 +71,7 @@ class Exploration:
         return path
 
     def real_sample_step(self, agent:Agent, local_grid_img:list, local_grid_adapter:LocalGridAdapter, krm:KnowledgeRoadmap):
-        frontiers = self.sampler.sample_frontiers(
+        frontiers = self.sampler.sample_frontier_on_cellmap(
                                                 local_grid_img, 
                                                 local_grid_adapter, 
                                                 radius=self.frontier_sample_radius, 

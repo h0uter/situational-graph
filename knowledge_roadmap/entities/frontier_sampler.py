@@ -27,7 +27,7 @@ class FrontierSampler():
         return rr, cc
 
     # this is the inspiration for how I can debug my shite
-    def plot_collision(self, data:list, r:int, c:int, to:tuple, at:tuple, local_grid_adapter:LocalGridAdapter) -> None:
+    def plot_collision_cell_map(self, data:list, r:int, c:int, to:tuple, at:tuple, local_grid_adapter:LocalGridAdapter) -> None:
         plt.figure(9)
         x_meter, y_meter = local_grid_adapter.local_pix_idx2world_coord(data, c, r)
 
@@ -43,7 +43,7 @@ class FrontierSampler():
         plt.figure(1)
 
     # TODO: add robot size as parameter to the collision check.
-    def collision_check(self, data:list, at:tuple, to:tuple, local_grid_adapter:LocalGridAdapter) -> bool:
+    def collision_check_line_between_cells(self, data:list, at:tuple, to:tuple, local_grid_adapter:LocalGridAdapter) -> bool:
         '''
         If the path goes through an obstacle, report collision.
         
@@ -60,12 +60,12 @@ class FrontierSampler():
             if np.less(data[r,c], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
                 if self.debug:
                     print(f"Collision at {r}, {c}")
-                    self.plot_collision(data, r, c, to, at, local_grid_adapter)
+                    self.plot_collision_cell_map(data, r, c, to, at, local_grid_adapter)
 
                 return False  
         return True
 
-    def sample_point_around_other_point(self, x:int, y:int, radius:float, data:list, local_grid_adapter:LocalGridAdapter) -> tuple:
+    def sample_cell_around_other_cell(self, x:int, y:int, radius:float, data:list, local_grid_adapter:LocalGridAdapter) -> tuple:
         '''
         Given a point and a radius, sample a point in the circle around the point.
         
@@ -85,7 +85,7 @@ class FrontierSampler():
             x_sample = int(x + r * np.cos(theta))
             y_sample = int(y + r * np.sin(theta))
 
-            valid_sample = self.collision_check(
+            valid_sample = self.collision_check_line_between_cells(
                 data=data, 
                 at=(x, y), 
                 to=(x_sample, y_sample), 
@@ -94,7 +94,7 @@ class FrontierSampler():
 
         return x_sample, y_sample
 
-    def sample_frontiers(self, local_grid:list, local_grid_adapter:LocalGridAdapter, radius:float, num_frontiers_to_sample:int) -> list:
+    def sample_frontier_on_cellmap(self, local_grid:list, local_grid_adapter:LocalGridAdapter, radius:float, num_frontiers_to_sample:int) -> list:
         '''
         Given a local grid, sample N points around a given point, and return the sampled points.
         
@@ -111,7 +111,7 @@ class FrontierSampler():
             x_center = grid_size
             y_center = grid_size
 
-            x_sample, y_sample = self.sample_point_around_other_point(
+            x_sample, y_sample = self.sample_cell_around_other_cell(
                 x_center, 
                 y_center, 
                 radius=radius, 

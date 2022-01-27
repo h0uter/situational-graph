@@ -24,6 +24,13 @@ matplotlib.use("Tkagg")
 # DEMONSTRATIONS
 ############################################################################################
 
+class CFG():
+    def __init__(self):
+        self.total_map_len_m_x = 17
+        self.total_map_len_m_y = 13
+        
+
+
 def exploration_with_sampling_viz(result_only):
     # this is the prior image of the villa we can include for visualization purposes
     # It is different from the map we use to emulate the local grid.
@@ -49,7 +56,7 @@ def exploration_with_sampling_viz(result_only):
         img_length_in_m=(gui.origin_x_offset, gui.origin_y_offset),
         mode='spoof',
         num_cells=200, 
-        cell_size=1, 
+        cell_size_m=1, 
         debug_container=debug_container
         )
 
@@ -62,7 +69,7 @@ def exploration_with_sampling_viz(result_only):
         cell_size = 3.0 / local_grid_img.shape[1]
         print(f"local_grid_img.shape: {local_grid_img.shape}")
         print(cell_size)
-        lg = LocalGrid(agent.pos, local_grid_img, lga.lg_size, lga.cell_size)
+        lg = LocalGrid(agent.pos, local_grid_img, lga.lg_size, lga.cell_size_m)
         # lg.plot_zoomed_world_coord()
         lg.plot_unzoomed_world_coord((gui.origin_x_offset, gui.origin_y_offset))
 
