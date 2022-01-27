@@ -1,3 +1,4 @@
+from tomlkit import string
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.frontier_sampler import FrontierSampler
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
@@ -69,7 +70,7 @@ class Exploration:
                                 )
         return path
 
-    def real_sample_step(self, agent, local_grid_img, local_grid_adapter, krm):
+    def real_sample_step(self, agent:Agent, local_grid_img:list, local_grid_adapter:LocalGridAdapter, krm:KnowledgeRoadmap):
         frontiers = self.sampler.sample_frontiers(
                                                 local_grid_img, 
                                                 local_grid_adapter, 
@@ -86,7 +87,7 @@ class Exploration:
             # gui.ax1.plot(x_global, y_global, 'ro')
             krm.add_frontier(frontier_pos_global, agent.at_wp)
     
-    def sample_waypoint(self, agent, krm):
+    def sample_waypoint(self, agent:Agent, krm:KnowledgeRoadmap):
         '''
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         this should be sampled from the pose graph eventually
@@ -95,7 +96,7 @@ class Exploration:
         krm.add_waypoint(agent.pos, wp_at_previous_pos)
         agent.at_wp = krm.get_node_by_pos(agent.pos)
    
-    def get_nodes_of_type_in_radius(self, pos, radius, node_type, krm):
+    def get_nodes_of_type_in_radius(self, pos:tuple, radius:float, node_type:str, krm:KnowledgeRoadmap):
         '''
         Given a position, a radius and a node type, return a list of nodes of that type that are within the radius of the position.
         
@@ -113,7 +114,7 @@ class Exploration:
                     close_nodes.append(node)
         return close_nodes
 
-    def prune_frontiers(self, agent, krm):
+    def prune_frontiers(self, krm:KnowledgeRoadmap):
         '''obtain all the frontier nodes in krm in a certain radius around the current position'''
         
         waypoints = krm.get_all_waypoint_idxs()
@@ -156,7 +157,7 @@ class Exploration:
     #                     print(f"existing_wp {existing_wp} is in collision with new_wp {new_wp}")
 
 
-    def run_exploration_step(self, agent, local_grid_img, local_grid_adapter, krm):
+    def run_exploration_step(self, agent:Agent, local_grid_img:list, local_grid_adapter:LocalGridAdapter, krm:KnowledgeRoadmap):
         if not self.init:
             self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
             self.init = True
@@ -168,7 +169,7 @@ class Exploration:
             krm.remove_frontier(self.selected_frontier_idx)
             self.sample_waypoint(agent, krm)
             self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
-            self.prune_frontiers(agent, krm)
+            self.prune_frontiers(krm)
             # self.look_for_shortcuts(self.agent.at_wp, agent, local_grid_img, local_grid_adapter, world)
             
             self.selected_frontier_idx = None
@@ -187,7 +188,7 @@ class Exploration:
             if self.debug:
                 print(f"3. step: select target frontier and find path")
             self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
-            self.prune_frontiers(agent, krm)
+            self.prune_frontiers(krm)
             self.consumable_path = self.find_path_to_selected_frontier(agent, self.selected_frontier_idx, krm) 
 
         if self.agent.debug:
