@@ -48,7 +48,7 @@ def exploration_with_sampling_viz(result_only):
     lga = LocalGridAdapter(
         img_length_in_m=(gui.origin_x_offset, gui.origin_y_offset),
         mode='spoof',
-        size_pix=200, 
+        num_cells=200, 
         cell_size=1, 
         debug_container=debug_container
         )

@@ -2,9 +2,9 @@ from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
 
 
 class LocalGridAdapter():
-    def __init__(self, img_length_in_m:float, size_pix:int, cell_size:float, mode='spoof', debug_container=None):
+    def __init__(self, img_length_in_m:float, num_cells:int, cell_size:float, mode='spoof', debug_container=None):
         self.mode = mode
-        self.size_pix = size_pix
+        self.num_cells = num_cells
         self.lg_size = 3.0
         self.cell_size = cell_size
         self.map_length_scales = img_length_in_m
@@ -38,7 +38,7 @@ class LocalGridAdapter():
         '''
         x, y = agent_pos # world coords
         x, y = self.world_coord2global_pix_idx(world, x,y)
-        size_in_pix = self.size_pix
+        size_in_pix = self.num_cells
         # BUG:: cannot sample near edge of the image world_img.
         local_grid = world.map_img[int(y-size_in_pix):int(y+size_in_pix), int(x-size_in_pix):int(x+size_in_pix)]
         
@@ -142,8 +142,8 @@ class LocalGridAdapter():
         Ny_pix = img.shape[1]
         
         # FIXME: this has to be linked to the x and y offset in the gui
-        x_map_length_scale = 2*self.size_pix
-        y_map_length_scale = 2*self.size_pix
+        x_map_length_scale = 2*self.num_cells
+        y_map_length_scale = 2*self.num_cells
 
         # x_origin_meter_offset = x_map_length_scale // 2
         # y_origin_meter_offset = y_map_length_scale // 2
