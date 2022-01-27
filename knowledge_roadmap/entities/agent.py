@@ -1,3 +1,5 @@
+from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
+
 
 class Agent():
     ''' 
@@ -5,7 +7,7 @@ class Agent():
     - be an adapter for sending commands to the spot robot.
     '''
 
-    def __init__(self, debug=False):
+    def __init__(self, debug=False) -> None:
         self.debug = debug
         self.at_wp = 0
         self.pos = (-16, 10)
@@ -15,7 +17,7 @@ class Agent():
         self.no_more_frontiers = False
         self.steps_taken = 0
 
-    def teleport_to_pos(self, pos):
+    def teleport_to_pos(self, pos:tuple) -> None:
         '''
         Teleport the agent to a new position.
         
@@ -28,7 +30,7 @@ class Agent():
         self.steps_taken += 1
 
 
-    def perform_path_step(self, path, krm):
+    def perform_path_step(self, path:list, krm:KnowledgeRoadmap) -> list or None:
         '''
         Execute a single step of the path.
         '''
