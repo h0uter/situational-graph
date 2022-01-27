@@ -17,7 +17,7 @@ class GUI():
     - take user input later on
     '''
 
-    def __init__(self, map_img=None):
+    def __init__(self, map_img=None) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
         self.map_img = map_img
@@ -29,7 +29,7 @@ class GUI():
         self.origin_y_offset = 20
         # self.origin_y_offset = 13/2
 
-    def draw_agent(self, pos, rec_len=7):
+    def draw_agent(self, pos: tuple, rec_len=7) -> None:
         '''
         Draw the agent on the world.
         
@@ -50,7 +50,7 @@ class GUI():
         self.local_grid_drawing = self.ax1.add_patch(plt.Rectangle(
             (pos[0]-0.5*rec_len, pos[1]-0.5*rec_len), rec_len, rec_len, alpha=0.2, fc='blue'))
 
-    def draw_local_grid(self, local_grid_img):
+    def draw_local_grid(self, local_grid_img: list) -> None:
         '''
         Draw the local grid in the right axes.
         
@@ -66,7 +66,7 @@ class GUI():
         self.ax2.set_aspect('equal', 'box')  # set the aspect ratio of the plot
         self.ax2.set_title('local grid')
 
-    def preview_graph_world(self, world):
+    def preview_graph_world(self, world:object) -> None:
         '''This function is used to preview the underlying graph used as a simplified world to sample from.'''
         fig, ax = plt.subplots(figsize=(10, 10))
 
@@ -109,7 +109,7 @@ class GUI():
                             labelbottom=True)
         plt.show()
 
-    def viz_krm(self, agent, krm):
+    def viz_krm(self, krm: KnowledgeRoadmap) -> None:
         '''
         Draws the current Knowledge Roadmap Graph.
         
@@ -210,7 +210,7 @@ class GUI():
         # self.fig.canvas.start_event_loop(0.001)
 
 
-    def debug_logger(self,krm: KnowledgeRoadmap, agent: Agent):
+    def debug_logger(self,krm: KnowledgeRoadmap, agent: Agent) -> None:
         '''
         Prints debug statements.
         
