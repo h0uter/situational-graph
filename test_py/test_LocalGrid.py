@@ -32,26 +32,26 @@ def test_world_coord2cell_idxs():
 def test_cell_idxs2world_coords():
     lg = LocalGrid((0,0), length_in_m=6)
     a = (500, 1500)
-    b = lg.cell_idxs2world_coords(a)
+    b = lg.cell_idx2world_coords(a)
     assert b == pytest.approx((-1.5,1.5), 0.1)
 
 def test_cell_idxs2world_coords_offcenter():
     lg = LocalGrid((1,1), length_in_m=3)
     a = (0,0) # cell idxs
-    b = lg.cell_idxs2world_coords(a)
+    b = lg.cell_idx2world_coords(a)
     assert b == pytest.approx((-0.5,-0.5), 0.1)
 
 def test_cell_idxs2world_coords_offcenter2():
     lg = LocalGrid((1,1), length_in_m=10, cell_size_in_m=0.1)
     a = (50,50) # cell idxs
-    b = lg.cell_idxs2world_coords(a)
+    b = lg.cell_idx2world_coords(a)
     assert b == pytest.approx((1,1), 0.1)
 
 def test_transformation_back_to_back():
     lg = LocalGrid((10,10), length_in_m=5)
     a = (10,10)
     b = lg.world_coords2cell_idxs(a)
-    assert a == pytest.approx(lg.cell_idxs2world_coords(b), 0.1)
+    assert a == pytest.approx(lg.cell_idx2world_coords(b), 0.1)
 
     
 
