@@ -106,8 +106,6 @@ def exploration_with_sampling_viz(result_only):
         if exploration_completed:
             return exploration_completed
         if not result_only:
-            gui.viz_krm(krm)  # TODO: make the KRM independent of the agent
-            gui.draw_agent(agent.pos, rec_len=cfg.lg_length_scale * 2)
 
             close_nodes = krm.get_nodes_of_type_in_margin(lg.world_pos, cfg.lg_length_scale, "waypoint")
             points = []
@@ -117,6 +115,8 @@ def exploration_with_sampling_viz(result_only):
             if points:
                 lg.plot_line_to_points_in_world_coord(points)
             gui.plot_unzoomed_world_coord(lg)
+            gui.viz_krm(krm)  # TODO: make the KRM independent of the agent
+            gui.draw_agent(agent.pos, rec_len=cfg.lg_length_scale * 2)
             plt.pause(0.001)
 
     plt.ioff()

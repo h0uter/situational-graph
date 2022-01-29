@@ -12,7 +12,7 @@ class LocalGrid:
         self.cell_size_in_m = cell_size_in_m
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
 
-        self.pixel_occupied_treshold = 230
+        self.pixel_occupied_treshold = 220
 
         try:
             assert self.data.shape[0:2] == (
@@ -97,19 +97,16 @@ class LocalGrid:
         )
         for point in points:
             # print(f"point = {point}")
-            at = self.length_num_cells / 2, self.length_num_cells / 2
-            to = self.world_coords2cell_idxs(point)
+            at_cell = self.length_num_cells / 2, self.length_num_cells / 2
+            to_cell = self.world_coords2cell_idxs(point)
 
-            rr, cc = self.get_cells_under_line(at, to)
+            self.collision_check_line_between_cells(at_cell, to_cell)
+            rr, cc = self.get_cells_under_line(at_cell, to_cell)
             
             xx, yy = self.cell_idxs2world_coords((cc, rr))
 
-            # rr, cc = self.get_cells_under_line(
-            #     point, (self.world_pos[0], self.world_pos[1])
-            # )
             plt.plot(xx, yy, "g")
             # self.collision_check_line_between_cells(self.world_pos, point)
-            self.collision_check_line_between_cells(at, to)
 
         plt.show()
         plt.pause(0.001)
@@ -135,18 +132,22 @@ class LocalGrid:
         rr, cc = self.get_cells_under_line(at, to)
         # print("rrcc",rr,cc)
         # for cell in path, if one of them is an obstacle, resample
+        # plt.figure(12)
+        # plt.imshow(self.data, origin="lower")
+        # plt.figure(10)
         for r, c in zip(rr, cc):
-            if np.less(self.data[r, c], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
-                if 1:
-                    # x = c
-                    # x = self.world_pos[0] + c
-                    # y = r
-                    # y = self.world_pos[1] + y
-                    # self.plot_collision_cell_map(data, r, c, to, at)
-                    # plt.plot(r, c, marker='s', color='red', markersize=10)
-                    x, y = self.cell_idx2world_coords((c, r))
-                    print(f"Collision at x:{x}, y:{y}")
-                    print(f"Collision at r:{r}, c:{c}")
-                    plt.plot(x, y, marker='s', color='red', markersize=10)
+            # if np.less(self.data[r, c], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
+            if np.less(self.data[c, r], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
+                # print(f" self.data[r, c] = {self.data[r, c]}")
+                # x = c
+                # x = self.world_pos[0] + c
+                # y = r
+                # y = self.world_pos[1] + y
+                # self.plot_collision_cell_map(data, r, c, to, at)
+                # plt.plot(r, c, marker='s', color='red', markersize=10)
+                x, y = self.cell_idx2world_coords((c, r))
+                # print(f"Collision at x:{x}, y:{y}")
+                # print(f"Collision at r:{r}, c:{c}")
+                plt.plot(x, y, marker='s', color='red', markersize=10)
                 return False
         return True
