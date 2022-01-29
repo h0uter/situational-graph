@@ -101,11 +101,12 @@ class LocalGrid:
             to_cell = self.world_coords2cell_idxs(point)
 
             self.collision_check_line_between_cells(at_cell, to_cell)
-            rr, cc = self.get_cells_under_line(at_cell, to_cell)
+            # rr, cc = self.get_cells_under_line(at_cell, to_cell)
             
-            xx, yy = self.cell_idxs2world_coords((cc, rr))
+            # xx, yy = self.cell_idxs2world_coords((cc, rr))
 
-            plt.plot(xx, yy, "g")
+            # plt.plot(xx, yy, "g")
+            plt.plot([self.world_pos[0],point[0]], [self.world_pos[1],point[1]], "g")
             # self.collision_check_line_between_cells(self.world_pos, point)
 
         plt.show()

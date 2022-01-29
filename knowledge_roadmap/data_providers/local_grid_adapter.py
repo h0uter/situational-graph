@@ -52,10 +52,13 @@ class LocalGridAdapter:
         half_size_in_pix = self.num_cells // 2
         # BUG:: cannot sample near edge of the image world_img.
         # local_grid_img = world.map_img[int(y-self.num_cells//2):int(y+self.num_cells//2), int(x-self.num_cells//2):int(x+self.num_cells//2)]
+        
+        # BUG: rounding error can create uneven shaped local grid.
         local_grid_img = world.map_img[
             int(y - half_size_in_pix) : int(y + half_size_in_pix),
             int(x - half_size_in_pix) : int(x + half_size_in_pix),
         ]
+        assert local_grid_img.shape[0:2] == (self.num_cells, self.num_cells)
 
         return local_grid_img
 
