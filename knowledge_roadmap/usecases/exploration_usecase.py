@@ -1,9 +1,11 @@
 import networkx as nx
+import uuid
 
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.frontier_sampler import FrontierSampler
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
+from knowledge_roadmap.entities.local_grid import LocalGrid
 
 
 class ExplorationUsecase:
@@ -12,7 +14,7 @@ class ExplorationUsecase:
         agent: Agent,
         len_of_map: float,
         lg_num_cells: int,
-        lg_length_m,
+        lg_length_scale,
         debug=False,
     ) -> None:
         self.agent = agent
@@ -25,11 +27,11 @@ class ExplorationUsecase:
         self.len_of_entire_map = len_of_map
         # self.frontier_sample_radius = 180
         self.lg_num_cells = lg_num_cells
-        self.lg_length_m = lg_length_m
+        self.lg_length_scale = lg_length_scale
         self.frontier_sample_radius_num_cells = self.lg_num_cells / 2.2
         # print(f"self.frontier_sample_radius: {self.frontier_sample_radius_num_cells}")
         # self.prune_radius = 2.2
-        self.prune_radius = self.lg_length_m * 0.4
+        self.prune_radius = self.lg_length_scale * 0.4
         # self.shortcut_radius = 5
 
     ############################################################################################
@@ -159,65 +161,83 @@ class ExplorationUsecase:
             for frontier in close_frontiers:
                 krm.remove_frontier(frontier)
 
-    def look_for_shortcuts(
-        self,
-        new_wp,
-        agent,
-        local_grid_img,
-        local_grid_adapter: LocalGridAdapter,
-        world,
-        krm,
-    ):
-        # get new_wp pos,
-        new_wp_pos = krm.get_node_data_by_idx(new_wp)["pos"]
+    # def look_for_shortcuts(
+    #     self,
+    #     new_wp,
+    #     agent,
+    #     local_grid_img,
+    #     local_grid_adapter: LocalGridAdapter,
+    #     world,
+    #     krm,
+    # ):
+    #     # get new_wp pos,
+    #     new_wp_pos = krm.get_node_data_by_idx(new_wp)["pos"]
 
-        # get all the waypoints in a radius around it
-        existing_nearby_wps = self.get_nodes_of_type_in_radius(
-            new_wp_pos, self.shortcut_radius, "waypoint"
-        )
-        print(f"--nearby wps: {existing_nearby_wps}")
-        if len(existing_nearby_wps) > 0:
-            for existing_wp in existing_nearby_wps:
-                # if there is a waypoint in the radius, add a new edge between the two waypoints
-                if existing_wp != new_wp:
-                    # BUG: do collision check here
-                    existing_wp_pos = krm.get_node_data_by_idx(existing_wp)["pos"]
-                    # new_wp_x_pix, new_wp_y_pix = local_grid_adapter.world_coord2pix_idx(world, new_wp_pos[0], new_wp_pos[1])
-                    new_wp_pix = local_grid_adapter.world_coord2global_pix_idx(
-                        world, new_wp_pos[0], new_wp_pos[1]
-                    )
-                    # new_wp_pix = local_grid_adapter.world_coord2global_pix_idx(world, new_wp_pos[1], new_wp_pos[0])
-                    existing_wp_pix = local_grid_adapter.world_coord2global_pix_idx(
-                        world, existing_wp_pos[0], existing_wp_pos[1]
-                    )
-                    # existing_wp_pix = local_grid_adapter.world_coord2global_pix_idx(world, existing_wp_pos[1], existing_wp_pos[0])
+    #     # get all the waypoints in a radius around it
+    #     existing_nearby_wps = self.get_nodes_of_type_in_radius(
+    #         new_wp_pos, self.shortcut_radius, "waypoint"
+    #     )
+    #     print(f"--nearby wps: {existing_nearby_wps}")
+    #     if len(existing_nearby_wps) > 0:
+    #         for existing_wp in existing_nearby_wps:
+    #             # if there is a waypoint in the radius, add a new edge between the two waypoints
+    #             if existing_wp != new_wp:
+    #                 # BUG: do collision check here
+    #                 existing_wp_pos = krm.get_node_data_by_idx(existing_wp)["pos"]
+    #                 # new_wp_x_pix, new_wp_y_pix = local_grid_adapter.world_coord2pix_idx(world, new_wp_pos[0], new_wp_pos[1])
+    #                 new_wp_pix = local_grid_adapter.world_coord2global_pix_idx(
+    #                     world, new_wp_pos[0], new_wp_pos[1]
+    #                 )
+    #                 # new_wp_pix = local_grid_adapter.world_coord2global_pix_idx(world, new_wp_pos[1], new_wp_pos[0])
+    #                 existing_wp_pix = local_grid_adapter.world_coord2global_pix_idx(
+    #                     world, existing_wp_pos[0], existing_wp_pos[1]
+    #                 )
+    #                 # existing_wp_pix = local_grid_adapter.world_coord2global_pix_idx(world, existing_wp_pos[1], existing_wp_pos[0])
 
-                    # existing_wp_pix = (abs(new_wp_pix[0]) - abs(existing_wp_pix[0]), abs(new_wp_pix[1]) - abs(existing_wp_pix[1]))
-                    existing_wp_pix = (
-                        local_grid_adapter.size_pix
-                        + abs(existing_wp_pix[0])
-                        - abs(new_wp_pix[0]),
-                        local_grid_adapter.size_pix
-                        + abs(existing_wp_pix[1])
-                        - abs(new_wp_pix[1]),
-                    )
+    #                 # existing_wp_pix = (abs(new_wp_pix[0]) - abs(existing_wp_pix[0]), abs(new_wp_pix[1]) - abs(existing_wp_pix[1]))
+    #                 existing_wp_pix = (
+    #                     local_grid_adapter.size_pix
+    #                     + abs(existing_wp_pix[0])
+    #                     - abs(new_wp_pix[0]),
+    #                     local_grid_adapter.size_pix
+    #                     + abs(existing_wp_pix[1])
+    #                     - abs(new_wp_pix[1]),
+    #                 )
 
-                    print(f"--existing wp pix : {existing_wp_pix}")
-                    new_wp_pix = (
-                        local_grid_adapter.size_pix,
-                        local_grid_adapter.size_pix,
-                    )
-                    new_edge_not_in_collision = self.sampler.collision_check(
-                        local_grid_img, new_wp_pix, existing_wp_pix, local_grid_adapter
-                    )
-                    if new_edge_not_in_collision:
-                        krm.graph.add_edge(
-                            new_wp, existing_wp, type="waypoint_edge", id=uuid.uuid4()
-                        )
-                    else:
-                        print(
-                            f"existing_wp {existing_wp} is in collision with new_wp {new_wp}"
-                        )
+    #                 print(f"--existing wp pix : {existing_wp_pix}")
+    #                 new_wp_pix = (
+    #                     local_grid_adapter.size_pix,
+    #                     local_grid_adapter.size_pix,
+    #                 )
+    #                 new_edge_not_in_collision = self.sampler.collision_check(
+    #                     local_grid_img, new_wp_pix, existing_wp_pix, local_grid_adapter
+    #                 )
+    #                 if new_edge_not_in_collision:
+    #                     krm.graph.add_edge(
+    #                         new_wp, existing_wp, type="waypoint_edge", id=uuid.uuid4()
+    #                     )
+    #                 else:
+    #                     print(
+    #                         f"existing_wp {existing_wp} is in collision with new_wp {new_wp}"
+    #                     )
+
+    def find_shortcuts(self, lg:LocalGrid, krm:KnowledgeRoadmap, agent:Agent):
+            close_nodes = krm.get_nodes_of_type_in_margin(lg.world_pos, self.lg_length_scale, "waypoint")
+            points = []
+            for node in close_nodes:
+                if node != agent.at_wp:
+                    points.append(krm.get_node_data_by_idx(node)['pos'])
+
+            if points:
+                # lg.viz_collision_line_to_points_in_world_coord(points)
+                for point in points:
+                    at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
+                    to_cell = lg.world_coords2cell_idxs(point)
+                    if lg.is_collision_free_straight_line_between_cells(at_cell, to_cell):
+                        from_wp = agent.at_wp
+                        to_wp = krm.get_node_by_pos(point)
+                        krm.graph.add_edge(from_wp, to_wp, type="waypoint_edge", id=uuid.uuid4())
+
 
     def run_exploration_step(
         self,
@@ -225,6 +245,7 @@ class ExplorationUsecase:
         local_grid_img: list,
         local_grid_adapter: LocalGridAdapter,
         krm: KnowledgeRoadmap,
+        lg: LocalGrid,
     ) -> None or bool:
         if not self.init:
             self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
@@ -240,6 +261,7 @@ class ExplorationUsecase:
             self.prune_frontiers(krm)
             # self.look_for_shortcuts(self.agent.at_wp, agent, local_grid_img, local_grid_adapter, world)
 
+            self.find_shortcuts(lg, krm, agent)
             self.selected_frontier_idx = None
         elif self.consumable_path:
             if self.debug:
@@ -250,7 +272,7 @@ class ExplorationUsecase:
         elif not self.selected_frontier_idx:
             """if there are no more frontiers, exploration is done"""
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
-            if self.agent.no_more_frontiers:
+            if agent.no_more_frontiers:
                 print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
                 print(
                     f"It took {self.agent.steps_taken} steps to complete the exploration."

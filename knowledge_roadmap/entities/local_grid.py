@@ -80,7 +80,7 @@ class LocalGrid:
             )
         return x_coords, y_coords
 
-    def plot_line_to_points_in_world_coord(self, points: list ) -> None:
+    def viz_collision_line_to_points_in_world_coord(self, points: list ) -> None:
         plt.figure(10)
         plt.cla()
         plt.ion()
@@ -95,17 +95,15 @@ class LocalGrid:
                 self.world_pos[1] + self.length_in_m / 2,
             ],
         )
-        for point in points:
-            # print(f"point = {point}")
+        for point in points:            
             at_cell = self.length_num_cells / 2, self.length_num_cells / 2
             to_cell = self.world_coords2cell_idxs(point)
+            self.is_collision_free_straight_line_between_cells(at_cell, to_cell)
 
-            self.collision_check_line_between_cells(at_cell, to_cell)
             # rr, cc = self.get_cells_under_line(at_cell, to_cell)
-            
             # xx, yy = self.cell_idxs2world_coords((cc, rr))
-
             # plt.plot(xx, yy, "g")
+
             plt.plot([self.world_pos[0],point[0]], [self.world_pos[1],point[1]], "g")
             # self.collision_check_line_between_cells(self.world_pos, point)
 
@@ -114,13 +112,12 @@ class LocalGrid:
         plt.figure(1)
 
     def get_cells_under_line(self, a: tuple, b: tuple) -> tuple:
-        # TODO: check if x and y is correct
         rr, cc = draw.line(int(a[0]), int(a[1]), int(b[0]), int(b[1]))
 
         return rr, cc
 
     # TODO: add robot size as parameter to the collision check.
-    def collision_check_line_between_cells(self, at: tuple, to: tuple) -> bool:
+    def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> bool:
         '''
         If the path goes through an obstacle, report collision.
 

@@ -80,7 +80,7 @@ def exploration_with_sampling_viz(result_only):
         debug=False,
         len_of_map=cfg.total_map_len_m,
         lg_num_cells=cfg.lg_num_cells,
-        lg_length_m=cfg.lg_length_scale,
+        lg_length_scale=cfg.lg_length_scale,
     )
 
     # sampler = FrontierSampler()
@@ -101,7 +101,7 @@ def exploration_with_sampling_viz(result_only):
         gui.draw_local_grid(lg)
 
         exploration_completed = exploration_use_case.run_exploration_step(
-            agent, local_grid_img, lga, krm
+            agent, local_grid_img, lga, krm, lg
         )
         if exploration_completed:
             return exploration_completed
@@ -113,7 +113,7 @@ def exploration_with_sampling_viz(result_only):
                 points.append(krm.get_node_data_by_idx(node)['pos'])
 
             if points:
-                lg.plot_line_to_points_in_world_coord(points)
+                lg.viz_collision_line_to_points_in_world_coord(points)
             gui.plot_unzoomed_world_coord(lg)
             gui.viz_krm(krm)  # TODO: make the KRM independent of the agent
             gui.draw_agent(agent.pos, rec_len=cfg.lg_length_scale * 2)
