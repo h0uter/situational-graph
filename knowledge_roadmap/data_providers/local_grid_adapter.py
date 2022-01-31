@@ -27,9 +27,6 @@ class LocalGridAdapter:
         if self.mode == "spoof":
             agent_pos = self.debug_container["agent"].pos
             img_world = ManualGraphWorld()
-            #  (1686, 2026, 4)
-            # print(f"img_world.map_img.shape = {img_world.map_img.shape}")
-
             local_grid_img = self.sim_observe_local_grid_from_img_world(
                 agent_pos, img_world
             )
@@ -50,9 +47,8 @@ class LocalGridAdapter:
         x, y = agent_pos  # world coords
         x, y = self.world_coord2global_pix_idx(world, x, y)
         half_size_in_pix = self.num_cells // 2
-        # BUG:: cannot sample near edge of the image world_img.
-        # local_grid_img = world.map_img[int(y-self.num_cells//2):int(y+self.num_cells//2), int(x-self.num_cells//2):int(x+self.num_cells//2)]
         
+        # BUG:: cannot sample near edge of the image world_img.
         # BUG: rounding error can create uneven shaped local grid.
         local_grid_img = world.map_img[
             int(y - half_size_in_pix) : int(y + half_size_in_pix),

@@ -20,16 +20,13 @@ class ExplorationUsecase:
         self.selected_frontier_idx = None
         self.init = False
         self.debug = debug
-        # self.sampler = sampler
-        self.N_samples = 12
         self.len_of_entire_map = len_of_map
-        # self.frontier_sample_radius = 180
         self.lg_num_cells = lg_num_cells
         self.lg_length_scale = lg_length_scale
-        # self.frontier_sample_radius_num_cells = self.lg_num_cells / 2.2
+
+        # Hyper parameters
+        self.N_samples = 12
         self.frontier_sample_radius_num_cells = self.lg_num_cells / 2
-        # self.prune_radius = 2.2
-        # self.prune_radius = self.lg_length_scale * 0.4
         self.prune_radius = self.lg_length_scale * 0.45
         # self.shortcut_radius = 5
 
@@ -85,10 +82,7 @@ class ExplorationUsecase:
         return path
 
     def real_sample_step(
-        self,
-        agent: Agent,
-        krm: KnowledgeRoadmap,
-        lg: LocalGrid,
+        self, agent: Agent, krm: KnowledgeRoadmap, lg: LocalGrid,
     ):
 
         frontiers = lg.sample_frontier_on_cellmap(
@@ -102,13 +96,11 @@ class ExplorationUsecase:
             # FIXME: what the hell conversiion is this, len of entire map has to be gone.
             x_global = (
                 agent.pos[0]
-                + (x_local - lg.length_num_cells // 2)
-                / self.len_of_entire_map[0]
+                + (x_local - lg.length_num_cells // 2) / self.len_of_entire_map[0]
             )
             y_global = (
                 agent.pos[1]
-                + (y_local - lg.length_num_cells // 2)
-                / self.len_of_entire_map[1]
+                + (y_local - lg.length_num_cells // 2) / self.len_of_entire_map[1]
             )
             frontier_pos_global = (x_global, y_global)
             krm.add_frontier(frontier_pos_global, agent.at_wp)
@@ -158,28 +150,31 @@ class ExplorationUsecase:
             for frontier in close_frontiers:
                 krm.remove_frontier(frontier)
 
-    def find_shortcuts(self, lg:LocalGrid, krm:KnowledgeRoadmap, agent:Agent):
-            close_nodes = krm.get_nodes_of_type_in_margin(lg.world_pos, self.lg_length_scale, "waypoint")
-            points = []
-            for node in close_nodes:
-                if node != agent.at_wp:
-                    points.append(krm.get_node_data_by_idx(node)['pos'])
+    def find_shortcuts(self, lg: LocalGrid, krm: KnowledgeRoadmap, agent: Agent):
+        close_nodes = krm.get_nodes_of_type_in_margin(
+            lg.world_pos, self.lg_length_scale, "waypoint"
+        )
+        points = []
+        for node in close_nodes:
+            if node != agent.at_wp:
+                points.append(krm.get_node_data_by_idx(node)["pos"])
 
-            if points:
-                for point in points:
-                    at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
-                    to_cell = lg.world_coords2cell_idxs(point)
-                    is_collision_free, _ = lg.is_collision_free_straight_line_between_cells(at_cell, to_cell)
-                    if is_collision_free:
-                        from_wp = agent.at_wp
-                        to_wp = krm.get_node_by_pos(point)
-                        krm.graph.add_edge(from_wp, to_wp, type="waypoint_edge", id=uuid.uuid4())
+        if points:
+            for point in points:
+                at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
+                to_cell = lg.world_coords2cell_idxs(point)
+                is_collision_free, _ = lg.is_collision_free_straight_line_between_cells(
+                    at_cell, to_cell
+                )
+                if is_collision_free:
+                    from_wp = agent.at_wp
+                    to_wp = krm.get_node_by_pos(point)
+                    krm.graph.add_edge(
+                        from_wp, to_wp, type="waypoint_edge", id=uuid.uuid4()
+                    )
 
     def run_exploration_step(
-        self,
-        agent: Agent,
-        krm: KnowledgeRoadmap,
-        lg: LocalGrid,
+        self, agent: Agent, krm: KnowledgeRoadmap, lg: LocalGrid,
     ) -> None or bool:
         if not self.init:
             self.real_sample_step(agent, krm, lg)
