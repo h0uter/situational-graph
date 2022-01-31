@@ -7,8 +7,7 @@ class LocalGridImageSpoofer():
     def __init__(self) -> None:
         pass
 
-
-        def sim_calc_total_img_length_in_m(
+    def sim_calc_total_img_length_in_m(
         self, whole_damn_img, cell_size_in_m: float
     ) -> tuple:
         total_img_length_in_m_x = whole_damn_img.shape[0] * cell_size_in_m
@@ -50,8 +49,7 @@ class LocalGridImageSpoofer():
         cell_length_y = total_img_length_in_m[1] / Ny_cells
 
         return cell_length_x, cell_length_y
-
-
+        
     def world_coord2global_pix_idx(self, map_img:list, x_pos:float, y_pos:float, spoof_img_length_in_m: tuple) -> tuple:
         Nx_pix = map_img.shape[1]
         Ny_pix = map_img.shape[0]
@@ -85,4 +83,5 @@ class LocalGridImageSpoofer():
             print(f"mismatch in localgrid shape {local_grid_img.shape=}, lg num cells {num_cells =}")
 
         return local_grid_img
+
 
