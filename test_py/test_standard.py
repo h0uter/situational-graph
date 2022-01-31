@@ -1,8 +1,5 @@
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap  
 
-from thesis_demos import exploration_with_sampling_viz
-
-import pickle
 
 def hello_world():
     return "Hello World!"
