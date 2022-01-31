@@ -13,12 +13,6 @@ matplotlib.use("Qt5agg")
 
 class GUI:
 
-    """ 
-    The goal of this class is to 
-    - hanlle all visualizations, so that the logic can be tested headless.
-    - take user input later on
-    """
-
     def __init__(self, origin_x_offset, origin_y_offset, map_img=None,) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
@@ -107,13 +101,12 @@ class GUI:
         )
 
     def draw_local_grid(self, lg: LocalGrid) -> None:
-        """
-        Draw the local grid in the right axes.
+        '''
+        Draw the local grid on the right side of the figure
         
-        :param local_grid_img: the local grid image
-        :return: None
-        """
-
+        :param lg: LocalGrid
+        :type lg: LocalGrid
+        '''
         if not self.initialized:
             self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
             self.initialized = True
@@ -131,13 +124,13 @@ class GUI:
         self.ax2.set_title("local grid")
 
     def viz_krm(self, krm: KnowledgeRoadmap) -> None:
-        """
-        Draws the current Knowledge Roadmap Graph.
+        '''
+        It visualizes the knowledge roadmap.
         
-        :param agent: the agent object
-        :param krm: the Knowledge Roadmap object
-        :return: None
-        """
+        :param krm: KnowledgeRoadmap
+        :type krm: KnowledgeRoadmap
+        '''
+
         if not self.initialized:
             self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
             self.initialized = True
@@ -183,7 +176,7 @@ class GUI:
             for n, d in krm.graph.nodes().items()
             if d["type"] == "world_object"
         )
-        
+
         world_object_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
@@ -254,6 +247,12 @@ class GUI:
         self.ax1.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 
     def plot_unzoomed_world_coord(self, lg: LocalGrid) -> None:
+        '''
+        It plots the local grid on the world map.
+        
+        :param lg: LocalGrid
+        :type lg: LocalGrid
+        '''
         # TODO: emulate the local grid with this cmap alpha yada yada
         # my_cmap = cm.jet
         # my_cmap.set_under('k', alpha=0)
@@ -276,16 +275,15 @@ class GUI:
         self.ax1.set_ylim([-self.origin_y_offset, self.origin_y_offset])
 
     # FIXME: move this to gui
-    def viz_collision_line_to_points_in_world_coord(self, points: list, lg:LocalGrid) -> None:
-        
+    def viz_collision_line_to_points_in_world_coord(self, points: list, lg:LocalGrid) -> None:        
         if not self.initialized:
             self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
             self.initialized = True
 
-
         plt.cla()
         plt.ion()
 
+        self.ax2.set_title("local grid sampling of shortcuts")
         plt.imshow(
             lg.data,
             origin="lower",
@@ -300,11 +298,7 @@ class GUI:
             at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
             to_cell = lg.world_coords2cell_idxs(point)
 
-            # rr, cc = lg.get_cells_under_line(at_cell, to_cell)
-            # xx, yy = lg.cell_idxs2world_coords((cc, rr))
-            # plt.plot(xx, yy, "g")
 
-            # ax2.plot([lg.world_pos[0],point[0]], [lg.world_pos[1],point[1]], "g")
             plt.plot([lg.world_pos[0],point[0]], [lg.world_pos[1],point[1]], color="orange")
             plt.plot(
                 point[0],
@@ -325,11 +319,6 @@ class GUI:
             markersize=10,
             color="blue",
         )
-
-        self.ax2.set_title("local grid sampling of shortcuts")
-
-        # plt.show()
-        # plt.pause(0.001)
 
     def debug_logger(self, krm: KnowledgeRoadmap, agent: Agent) -> None:
         """
