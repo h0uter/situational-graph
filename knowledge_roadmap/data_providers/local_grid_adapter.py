@@ -58,7 +58,8 @@ class LocalGridAdapter:
             int(y - half_size_in_pix) : int(y + half_size_in_pix),
             int(x - half_size_in_pix) : int(x + half_size_in_pix),
         ]
-        assert local_grid_img.shape[0:2] == (self.num_cells, self.num_cells)
+        if not local_grid_img.shape[0:2] == (self.num_cells, self.num_cells):
+            print(f"mismatch in localgrid shape {local_grid_img.shape=}, lg num cells {self.num_cells=}")
 
         return local_grid_img
 

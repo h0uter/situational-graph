@@ -13,6 +13,7 @@ class LocalGrid:
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
 
         self.pixel_occupied_treshold = 220
+        self.sample_ring_width = 0.6
 
         try:
             assert self.data.shape[0:2] == (
@@ -145,3 +146,66 @@ class LocalGrid:
                 plt.plot(x, y, marker='X', color='red', markersize=20)
                 return False
         return True
+
+
+
+    def sample_cell_around_other_cell(self, x: int, y: int, radius: float, img_data: list) -> tuple:
+        '''
+        Given a point and a radius, sample a point in the circle around the point.
+
+        :param x: the x coordinate of the point to sample around
+        :param y: the y-coordinate of the point to sample around
+        :param radius: The radius of the circle around the point to sample
+        :param data: the data that we're sampling from
+        :param local_grid_adapter: This is the local grid adapter that is used to check for collisions
+        :return: The x and y coordinates of the sampled point.
+        '''
+        valid_sample = False
+
+        while not valid_sample:
+            r = radius * np.sqrt(np.random.uniform(low=1 -
+                                                   self.sample_ring_width, high=1))
+            theta = np.random.random() * 2 * np.pi
+
+            x_sample = int(x + r * np.cos(theta))
+            y_sample = int(y + r * np.sin(theta))
+
+            valid_sample = self.is_collision_free_straight_line_between_cells(
+                # img_data=img_data,
+                at=(x, y),
+                to=(x_sample, y_sample),
+            )
+            # valid_sample = self.collision_check_line_between_cells(
+            #     img_data=img_data,
+            #     at=(x, y),
+            #     to=(x_sample, y_sample),
+            # )
+
+        return x_sample, y_sample
+
+
+
+    def sample_frontier_on_cellmap(self, radius: float, num_frontiers_to_sample: int) -> list:
+        '''
+        Given a local grid, sample N points around a given point, and return the sampled points.
+        '''
+        candidate_frontiers = []
+        while len(candidate_frontiers) < num_frontiers_to_sample:
+            x_center = self.length_num_cells // 2
+            y_center = self.length_num_cells // 2
+
+            x_sample, y_sample = self.sample_cell_around_other_cell(
+                x_center,
+                y_center,
+                radius=radius,
+                img_data=self.data,
+            )
+
+            # BUG: why the hell is this y,x ....
+            # x_sample, y_sample = y_sample, x_sample
+
+            candidate_frontiers.append((x_sample, y_sample))
+
+        candidate_frontiers = np.array(candidate_frontiers).astype(np.int)
+
+        return candidate_frontiers

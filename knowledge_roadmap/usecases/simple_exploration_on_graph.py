@@ -1,6 +1,6 @@
    
 from knowledge_roadmap.entities.agent import Agent
-from knowledge_roadmap.entities.frontier_sampler import FrontierSampler
+from knowledge_roadmap.entities.archive.frontier_sampler import FrontierSampler
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 
 import networkx as nx

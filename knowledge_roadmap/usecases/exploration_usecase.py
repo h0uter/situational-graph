@@ -3,7 +3,6 @@ import uuid
 
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.agent import Agent
-from knowledge_roadmap.entities.frontier_sampler import FrontierSampler
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
 
@@ -14,7 +13,7 @@ class ExplorationUsecase:
         agent: Agent,
         len_of_map: float,
         lg_num_cells: int,
-        sampler: FrontierSampler,
+        # sampler: FrontierSampler,
         lg_length_scale,
         debug=False,
     ) -> None:
@@ -23,7 +22,7 @@ class ExplorationUsecase:
         self.selected_frontier_idx = None
         self.init = False
         self.debug = debug
-        self.sampler = sampler
+        # self.sampler = sampler
         self.N_samples = 12
         self.len_of_entire_map = len_of_map
         # self.frontier_sample_radius = 180
@@ -94,12 +93,18 @@ class ExplorationUsecase:
         krm: KnowledgeRoadmap,
         lg: LocalGrid,
     ):
-        frontiers = self.sampler.sample_frontier_on_cellmap(
+        # frontiers = self.sampler.sample_frontier_on_cellmap(
+        #     radius=self.frontier_sample_radius_num_cells,
+        #     num_frontiers_to_sample=self.N_samples,
+        #     lg=lg
+
+        # )
+        frontiers = lg.sample_frontier_on_cellmap(
             radius=self.frontier_sample_radius_num_cells,
             num_frontiers_to_sample=self.N_samples,
-            lg=lg
-
+            # lg=lg
         )
+
         for frontier in frontiers:
             # translate the above to the global map
             x_local, y_local = frontier[0], frontier[1]
