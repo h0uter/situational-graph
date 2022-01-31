@@ -1,0 +1,7 @@
+networkx
+keyboard
+pillow
+scikit-image
+pytest
+matplotlib
+PyQt5
