@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import draw
 
-from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.local_grid import LocalGrid
 
 EMPTY_CELL = 0
@@ -48,7 +47,7 @@ class FrontierSampler():
         plt.figure(1)
 
     # TODO: add robot size as parameter to the collision check.
-    def collision_check_line_between_cells(self, data: list, at: tuple, to: tuple) -> bool:
+    def collision_check_line_between_cells(self, img_data: list, at: tuple, to: tuple) -> bool:
         '''
         If the path goes through an obstacle, report collision.
 
@@ -62,15 +61,15 @@ class FrontierSampler():
 
         # for cell in path, if one of them is an obstacle, resample
         for r, c in zip(rr, cc):
-            if np.less(data[r, c], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
+            if np.less(img_data[r, c], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
                 if self.debug:
                     print(f"Collision at {r}, {c}")
-                    self.plot_collision_cell_map(data, r, c, to, at)
+                    self.plot_collision_cell_map(img_data, r, c, to, at)
 
                 return False
         return True
 
-    def sample_cell_around_other_cell(self, x: int, y: int, radius: float, data: list) -> tuple:
+    def sample_cell_around_other_cell(self, x: int, y: int, radius: float, img_data: list) -> tuple:
         '''
         Given a point and a radius, sample a point in the circle around the point.
 
@@ -92,14 +91,14 @@ class FrontierSampler():
             y_sample = int(y + r * np.sin(theta))
 
             valid_sample = self.collision_check_line_between_cells(
-                data=data,
+                img_data=img_data,
                 at=(x, y),
                 to=(x_sample, y_sample),
             )
 
         return x_sample, y_sample
 
-    def sample_frontier_on_cellmap(self, local_grid_img: list, local_grid_adapter: LocalGridAdapter, radius: float, num_frontiers_to_sample: int, lg:LocalGrid) -> list:
+    def sample_frontier_on_cellmap(self, radius: float, num_frontiers_to_sample: int, lg:LocalGrid) -> list:
         '''
         Given a local grid, sample N points around a given point, and return the sampled points.
 
@@ -112,14 +111,14 @@ class FrontierSampler():
         '''
         candidate_frontiers = []
         while len(candidate_frontiers) < num_frontiers_to_sample:
-            x_center = local_grid_adapter.num_cells // 2
-            y_center = local_grid_adapter.num_cells // 2
+            x_center = lg.length_num_cells // 2
+            y_center = lg.length_num_cells // 2
 
             x_sample, y_sample = self.sample_cell_around_other_cell(
                 x_center,
                 y_center,
                 radius=radius,
-                data=local_grid_img,
+                img_data=lg.data,
             )
 
             # BUG: why the hell is this y,x ....

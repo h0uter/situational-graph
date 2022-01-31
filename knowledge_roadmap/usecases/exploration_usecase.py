@@ -91,14 +91,10 @@ class ExplorationUsecase:
     def real_sample_step(
         self,
         agent: Agent,
-        local_grid_img: list,
-        local_grid_adapter: LocalGridAdapter,
         krm: KnowledgeRoadmap,
         lg: LocalGrid,
     ):
         frontiers = self.sampler.sample_frontier_on_cellmap(
-            local_grid_img,
-            local_grid_adapter,
             radius=self.frontier_sample_radius_num_cells,
             num_frontiers_to_sample=self.N_samples,
             lg=lg
@@ -110,12 +106,12 @@ class ExplorationUsecase:
             # FIXME: what the hell conversiion is this, len of entire map has to be gone.
             x_global = (
                 agent.pos[0]
-                + (x_local - local_grid_adapter.num_cells // 2)
+                + (x_local - lg.length_num_cells // 2)
                 / self.len_of_entire_map[0]
             )
             y_global = (
                 agent.pos[1]
-                + (y_local - local_grid_adapter.num_cells // 2)
+                + (y_local - lg.length_num_cells // 2)
                 / self.len_of_entire_map[1]
             )
             frontier_pos_global = (x_global, y_global)
@@ -188,13 +184,11 @@ class ExplorationUsecase:
     def run_exploration_step(
         self,
         agent: Agent,
-        local_grid_img: list,
-        local_grid_adapter: LocalGridAdapter,
         krm: KnowledgeRoadmap,
         lg: LocalGrid,
     ) -> None or bool:
         if not self.init:
-            self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm, lg)
+            self.real_sample_step(agent, krm, lg)
             self.init = True
 
         elif krm.graph.nodes[krm.get_node_by_pos(self.agent.pos)]["type"] == "frontier":
@@ -203,7 +197,7 @@ class ExplorationUsecase:
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             krm.remove_frontier(self.selected_frontier_idx)
             self.sample_waypoint(agent, krm)
-            self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm, lg)
+            self.real_sample_step(agent, krm, lg)
             self.prune_frontiers(krm)
 
             self.find_shortcuts(lg, krm, agent)
@@ -226,8 +220,6 @@ class ExplorationUsecase:
 
             if self.debug:
                 print(f"3. step: select target frontier and find path")
-            # self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
-            # self.prune_frontiers(krm)
             self.consumable_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
             )
