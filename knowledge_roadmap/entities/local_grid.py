@@ -138,39 +138,10 @@ class LocalGrid:
 
     # TODO: add robot size as parameter to the collision check.
     def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> bool:
-        '''
-        If the path goes through an obstacle, report collision.
-
-        :param data: the occupancy grid
-        :param at: the starting point of the line segment
-        :param to: the goal location
-        :param local_grid_adapter: a LocalGridAdapter object
-        :return: A boolean value.
-        '''
-        # # ax2 = plt.figure(1).subplot(1,2,2)
-        # ax2 = plt.subplot(1,2,2)
-        # plt.ion()
-
-
         rr, cc = self.get_cells_under_line(at, to)
-        # print("rrcc",rr,cc)
-        # for cell in path, if one of them is an obstacle, resample
-        # plt.figure(12)
-        # plt.imshow(self.data, origin="lower")
-        # plt.figure(10)
         for r, c in zip(rr, cc):
-            # if np.less(self.data[r, c], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
             if np.less(self.data[c, r], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
-                # print(f" self.data[r, c] = {self.data[r, c]}")
-                # x = c
-                # x = self.world_pos[0] + c
-                # y = r
-                # y = self.world_pos[1] + y
-                # self.plot_collision_cell_map(data, r, c, to, at)
-                # plt.plot(r, c, marker='s', color='red', markersize=10)
                 x, y = self.cell_idx2world_coords((c, r))
-                # print(f"Collision at x:{x}, y:{y}")
-                # print(f"Collision at r:{r}, c:{c}")
                 plt.plot(x, y, marker='X', color='red', markersize=20)
                 return False
         return True

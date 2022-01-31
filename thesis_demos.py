@@ -4,11 +4,10 @@ from PIL import Image
 
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.data_providers.manual_graph_world import *
+from knowledge_roadmap.entities.frontier_sampler import FrontierSampler
 from knowledge_roadmap.entrypoints.GUI import GUI
 from knowledge_roadmap.usecases.exploration_usecase import ExplorationUsecase
-from knowledge_roadmap.data_providers.world_graph_generator import GraphGenerator
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
-from knowledge_roadmap.entities.frontier_sampler import FrontierSampler
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
 
@@ -74,12 +73,14 @@ def exploration_with_sampling_viz(result_only):
         cell_size_m=cfg.lg_cell_size_m,
         debug_container=debug_container,
     )
+    sampler = FrontierSampler()
 
     exploration_use_case = ExplorationUsecase(
         agent,
         debug=False,
         len_of_map=cfg.total_map_len_m,
         lg_num_cells=cfg.lg_num_cells,
+        sampler=sampler,
         lg_length_scale=cfg.lg_length_scale,
     )
 

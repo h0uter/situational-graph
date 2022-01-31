@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from skimage import draw
 
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
+from knowledge_roadmap.entities.local_grid import LocalGrid
 
 EMPTY_CELL = 0
 OBSTACLE_CELL = 1
@@ -98,7 +99,7 @@ class FrontierSampler():
 
         return x_sample, y_sample
 
-    def sample_frontier_on_cellmap(self, local_grid: list, local_grid_adapter: LocalGridAdapter, radius: float, num_frontiers_to_sample: int) -> list:
+    def sample_frontier_on_cellmap(self, local_grid_img: list, local_grid_adapter: LocalGridAdapter, radius: float, num_frontiers_to_sample: int, lg:LocalGrid) -> list:
         '''
         Given a local grid, sample N points around a given point, and return the sampled points.
 
@@ -118,11 +119,10 @@ class FrontierSampler():
                 x_center,
                 y_center,
                 radius=radius,
-                data=local_grid,
+                data=local_grid_img,
             )
 
             # BUG: why the hell is this y,x ....
-            # x_sample, y_sample = local_grid_adapter.local_pix_idx2world_coord(local_grid, y_sample, x_sample)
             x_sample, y_sample = y_sample, x_sample
 
             candidate_frontiers.append((x_sample, y_sample))
@@ -130,6 +130,10 @@ class FrontierSampler():
         candidate_frontiers = np.array(candidate_frontiers).astype(np.int)
 
         return candidate_frontiers
+
+
+
+
 
     # def init_plot(self, data) -> None:
     #     fig = plt.figure()

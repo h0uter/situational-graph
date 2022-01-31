@@ -14,6 +14,7 @@ class ExplorationUsecase:
         agent: Agent,
         len_of_map: float,
         lg_num_cells: int,
+        sampler: FrontierSampler,
         lg_length_scale,
         debug=False,
     ) -> None:
@@ -22,7 +23,7 @@ class ExplorationUsecase:
         self.selected_frontier_idx = None
         self.init = False
         self.debug = debug
-        self.sampler = FrontierSampler(debug_mode=False)
+        self.sampler = sampler
         self.N_samples = 12
         self.len_of_entire_map = len_of_map
         # self.frontier_sample_radius = 180
@@ -93,12 +94,15 @@ class ExplorationUsecase:
         local_grid_img: list,
         local_grid_adapter: LocalGridAdapter,
         krm: KnowledgeRoadmap,
+        lg: LocalGrid,
     ):
         frontiers = self.sampler.sample_frontier_on_cellmap(
             local_grid_img,
             local_grid_adapter,
             radius=self.frontier_sample_radius_num_cells,
             num_frontiers_to_sample=self.N_samples,
+            lg=lg
+
         )
         for frontier in frontiers:
             # translate the above to the global map
@@ -190,7 +194,7 @@ class ExplorationUsecase:
         lg: LocalGrid,
     ) -> None or bool:
         if not self.init:
-            self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
+            self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm, lg)
             self.init = True
 
         elif krm.graph.nodes[krm.get_node_by_pos(self.agent.pos)]["type"] == "frontier":
@@ -199,7 +203,7 @@ class ExplorationUsecase:
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             krm.remove_frontier(self.selected_frontier_idx)
             self.sample_waypoint(agent, krm)
-            self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
+            self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm, lg)
             self.prune_frontiers(krm)
 
             self.find_shortcuts(lg, krm, agent)
