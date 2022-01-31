@@ -23,15 +23,17 @@ class ExplorationUsecase:
         self.init = False
         self.debug = debug
         self.sampler = FrontierSampler(debug_mode=False)
-        self.N_samples = 5
+        self.N_samples = 12
         self.len_of_entire_map = len_of_map
         # self.frontier_sample_radius = 180
         self.lg_num_cells = lg_num_cells
         self.lg_length_scale = lg_length_scale
-        self.frontier_sample_radius_num_cells = self.lg_num_cells / 2.2
+        # self.frontier_sample_radius_num_cells = self.lg_num_cells / 2.2
+        self.frontier_sample_radius_num_cells = self.lg_num_cells / 2
         # print(f"self.frontier_sample_radius: {self.frontier_sample_radius_num_cells}")
         # self.prune_radius = 2.2
-        self.prune_radius = self.lg_length_scale * 0.4
+        # self.prune_radius = self.lg_length_scale * 0.4
+        self.prune_radius = self.lg_length_scale * 0.45
         # self.shortcut_radius = 5
 
     ############################################################################################
@@ -70,7 +72,7 @@ class ExplorationUsecase:
 
             return target_frontier
         else:
-            self.no_more_frontiers = True
+            agent.no_more_frontiers = True
             return None, None
 
     def find_path_to_selected_frontier(
@@ -161,66 +163,6 @@ class ExplorationUsecase:
             for frontier in close_frontiers:
                 krm.remove_frontier(frontier)
 
-    # def look_for_shortcuts(
-    #     self,
-    #     new_wp,
-    #     agent,
-    #     local_grid_img,
-    #     local_grid_adapter: LocalGridAdapter,
-    #     world,
-    #     krm,
-    # ):
-    #     # get new_wp pos,
-    #     new_wp_pos = krm.get_node_data_by_idx(new_wp)["pos"]
-
-    #     # get all the waypoints in a radius around it
-    #     existing_nearby_wps = self.get_nodes_of_type_in_radius(
-    #         new_wp_pos, self.shortcut_radius, "waypoint"
-    #     )
-    #     print(f"--nearby wps: {existing_nearby_wps}")
-    #     if len(existing_nearby_wps) > 0:
-    #         for existing_wp in existing_nearby_wps:
-    #             # if there is a waypoint in the radius, add a new edge between the two waypoints
-    #             if existing_wp != new_wp:
-    #                 # BUG: do collision check here
-    #                 existing_wp_pos = krm.get_node_data_by_idx(existing_wp)["pos"]
-    #                 # new_wp_x_pix, new_wp_y_pix = local_grid_adapter.world_coord2pix_idx(world, new_wp_pos[0], new_wp_pos[1])
-    #                 new_wp_pix = local_grid_adapter.world_coord2global_pix_idx(
-    #                     world, new_wp_pos[0], new_wp_pos[1]
-    #                 )
-    #                 # new_wp_pix = local_grid_adapter.world_coord2global_pix_idx(world, new_wp_pos[1], new_wp_pos[0])
-    #                 existing_wp_pix = local_grid_adapter.world_coord2global_pix_idx(
-    #                     world, existing_wp_pos[0], existing_wp_pos[1]
-    #                 )
-    #                 # existing_wp_pix = local_grid_adapter.world_coord2global_pix_idx(world, existing_wp_pos[1], existing_wp_pos[0])
-
-    #                 # existing_wp_pix = (abs(new_wp_pix[0]) - abs(existing_wp_pix[0]), abs(new_wp_pix[1]) - abs(existing_wp_pix[1]))
-    #                 existing_wp_pix = (
-    #                     local_grid_adapter.size_pix
-    #                     + abs(existing_wp_pix[0])
-    #                     - abs(new_wp_pix[0]),
-    #                     local_grid_adapter.size_pix
-    #                     + abs(existing_wp_pix[1])
-    #                     - abs(new_wp_pix[1]),
-    #                 )
-
-    #                 print(f"--existing wp pix : {existing_wp_pix}")
-    #                 new_wp_pix = (
-    #                     local_grid_adapter.size_pix,
-    #                     local_grid_adapter.size_pix,
-    #                 )
-    #                 new_edge_not_in_collision = self.sampler.collision_check(
-    #                     local_grid_img, new_wp_pix, existing_wp_pix, local_grid_adapter
-    #                 )
-    #                 if new_edge_not_in_collision:
-    #                     krm.graph.add_edge(
-    #                         new_wp, existing_wp, type="waypoint_edge", id=uuid.uuid4()
-    #                     )
-    #                 else:
-    #                     print(
-    #                         f"existing_wp {existing_wp} is in collision with new_wp {new_wp}"
-    #                     )
-
     def find_shortcuts(self, lg:LocalGrid, krm:KnowledgeRoadmap, agent:Agent):
             close_nodes = krm.get_nodes_of_type_in_margin(lg.world_pos, self.lg_length_scale, "waypoint")
             points = []
@@ -259,7 +201,6 @@ class ExplorationUsecase:
             self.sample_waypoint(agent, krm)
             self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
             self.prune_frontiers(krm)
-            # self.look_for_shortcuts(self.agent.at_wp, agent, local_grid_img, local_grid_adapter, world)
 
             self.find_shortcuts(lg, krm, agent)
             self.selected_frontier_idx = None
@@ -281,8 +222,8 @@ class ExplorationUsecase:
 
             if self.debug:
                 print(f"3. step: select target frontier and find path")
-            self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
-            self.prune_frontiers(krm)
+            # self.real_sample_step(agent, local_grid_img, local_grid_adapter, krm)
+            # self.prune_frontiers(krm)
             self.consumable_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
             )

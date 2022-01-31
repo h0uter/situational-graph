@@ -32,7 +32,7 @@ class CFG:
             self.total_map_len_m_x / 2026
         ) * 1686  # zo klopt het met de foto verhoudingen (square cells)
         self.total_map_len_m = (self.total_map_len_m_x, self.total_map_len_m_y)
-        self.lg_num_cells = 400  # max:400 due to img border margins
+        self.lg_num_cells = 420  # max:400 due to img border margins
         # self.lg_num_cells = 50
         self.lg_cell_size_m = self.total_map_len_m_x / 2026
         self.lg_length_scale = self.lg_num_cells * self.lg_cell_size_m / 2
@@ -114,9 +114,9 @@ def exploration_with_sampling_viz(result_only):
 
             if points:
                 lg.viz_collision_line_to_points_in_world_coord(points)
-            gui.plot_unzoomed_world_coord(lg)
             gui.viz_krm(krm)  # TODO: make the KRM independent of the agent
             gui.draw_agent(agent.pos, rec_len=cfg.lg_length_scale * 2)
+            gui.plot_unzoomed_world_coord(lg)
             plt.pause(0.001)
 
     plt.ioff()

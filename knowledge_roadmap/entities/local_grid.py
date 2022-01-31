@@ -81,7 +81,9 @@ class LocalGrid:
         return x_coords, y_coords
 
     def viz_collision_line_to_points_in_world_coord(self, points: list ) -> None:
-        plt.figure(10)
+        
+        # ax2 = plt.subplot(1,2,2)
+
         plt.cla()
         plt.ion()
 
@@ -98,18 +100,36 @@ class LocalGrid:
         for point in points:            
             at_cell = self.length_num_cells / 2, self.length_num_cells / 2
             to_cell = self.world_coords2cell_idxs(point)
-            self.is_collision_free_straight_line_between_cells(at_cell, to_cell)
 
             # rr, cc = self.get_cells_under_line(at_cell, to_cell)
             # xx, yy = self.cell_idxs2world_coords((cc, rr))
             # plt.plot(xx, yy, "g")
 
-            plt.plot([self.world_pos[0],point[0]], [self.world_pos[1],point[1]], "g")
-            # self.collision_check_line_between_cells(self.world_pos, point)
+            # ax2.plot([self.world_pos[0],point[0]], [self.world_pos[1],point[1]], "g")
+            plt.plot([self.world_pos[0],point[0]], [self.world_pos[1],point[1]], color="orange")
+            plt.plot(
+                point[0],
+                point[1],
+                marker="o",
+                markersize=10,
+                color="red",
+            )
+            self.is_collision_free_straight_line_between_cells(at_cell, to_cell)
+        
+        plt.plot(
+            self.world_pos[0],
+            self.world_pos[1],
+            marker="o",
+            markersize=10,
+            color="blue",
+        )
+
+        fig = plt.gcf()
+        fig.axes[1].set_title("local grid sampling of shortcuts")
 
         plt.show()
         plt.pause(0.001)
-        plt.figure(1)
+        # plt.figure(1)
 
     def get_cells_under_line(self, a: tuple, b: tuple) -> tuple:
         rr, cc = draw.line(int(a[0]), int(a[1]), int(b[0]), int(b[1]))
@@ -127,6 +147,11 @@ class LocalGrid:
         :param local_grid_adapter: a LocalGridAdapter object
         :return: A boolean value.
         '''
+        # # ax2 = plt.figure(1).subplot(1,2,2)
+        # ax2 = plt.subplot(1,2,2)
+        # plt.ion()
+
+
         rr, cc = self.get_cells_under_line(at, to)
         # print("rrcc",rr,cc)
         # for cell in path, if one of them is an obstacle, resample
@@ -146,6 +171,6 @@ class LocalGrid:
                 x, y = self.cell_idx2world_coords((c, r))
                 # print(f"Collision at x:{x}, y:{y}")
                 # print(f"Collision at r:{r}, c:{c}")
-                plt.plot(x, y, marker='s', color='red', markersize=10)
+                plt.plot(x, y, marker='X', color='red', markersize=20)
                 return False
         return True

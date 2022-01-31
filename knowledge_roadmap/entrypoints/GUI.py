@@ -72,15 +72,15 @@ class GUI:
             self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
             self.initialized = True
 
-        self.ax2.cla()
+        # self.ax2.cla()
         self.ax2.imshow(lg.data, origin="lower")
-        plt.plot(
-            lg.data.shape[1] / 2,
-            lg.data.shape[0] / 2,
-            marker="o",
-            markersize=10,
-            color="red",
-        )
+        # plt.plot(
+        #     lg.data.shape[1] / 2,
+        #     lg.data.shape[0] / 2,
+        #     marker="o",
+        #     markersize=10,
+        #     color="red",
+        # )
         self.ax2.set_aspect("equal", "box")  # set the aspect ratio of the plot
         self.ax2.set_title("local grid")
 
@@ -144,9 +144,11 @@ class GUI:
         if not self.initialized:
             self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
             self.initialized = True
+        
+        self.fig.tight_layout()
 
         self.ax1.cla()  # XXX: plt1.cla is the bottleneck in my performance.
-
+    
         self.ax1.set_title("Online Construction of Knowledge Roadmap")
         self.ax1.set_xlabel("x", size=10)
         self.ax1.set_ylabel("y", size=10)
@@ -161,7 +163,7 @@ class GUI:
                     self.origin_y_offset,
                 ],
                 origin="lower",
-                alpha=0.5,
+                alpha=0.25,
             )
         else:
             self.ax1.set_xlim([-70, 70])
@@ -216,7 +218,7 @@ class GUI:
             nodelist=frontier_nodes.keys(),
             ax=self.ax1,
             node_color="green",
-            node_size=350,
+            node_size=250,
         )
         nx.draw_networkx_nodes(
             krm.graph,
@@ -224,7 +226,7 @@ class GUI:
             nodelist=waypoint_nodes.keys(),
             ax=self.ax1,
             node_color="red",
-            node_size=140,
+            node_size=100,
         )
         nx.draw_networkx_edges(
             krm.graph,

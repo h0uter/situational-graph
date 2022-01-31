@@ -81,7 +81,7 @@ class FrontierSampler():
         :return: The x and y coordinates of the sampled point.
         '''
         valid_sample = False
-        sample_ring_width = 0.4
+        sample_ring_width = 0.6
         while not valid_sample:
             r = radius * np.sqrt(np.random.uniform(low=1 -
                                                    sample_ring_width, high=1))
