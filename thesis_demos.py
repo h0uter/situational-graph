@@ -86,7 +86,7 @@ def exploration_with_sampling_viz(result_only):
 
     while agent.no_more_frontiers == False:
 
-        local_grid_img = lga.get_local_grid()
+        local_grid_img = lga.get_local_grid(mode="spoof")
 
         lg = LocalGrid(
             world_pos=agent.pos,
