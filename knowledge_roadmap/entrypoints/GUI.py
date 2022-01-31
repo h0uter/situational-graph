@@ -22,67 +22,11 @@ class GUI:
     def __init__(self, origin_x_offset, origin_y_offset, map_img=None,) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
-        self.map_img = map_img
         self.initialized = False
 
-        # FIXME: this has to be linked to the x_map_length_scale and y offset in the gui
         self.origin_x_offset = origin_x_offset
-        # self.origin_x_offset = 17/2
         self.origin_y_offset = origin_y_offset
-        # self.origin_y_offset = 13/2
-
-    def draw_agent(self, pos: tuple, rec_len=7) -> None:
-        """
-        Draw the agent on the world.
-        
-        :param pos: the position of the agent
-        :param rec_len: the length of the rectangle that will be drawn around the agent, defaults to 7
-        (optional)
-        :return: None
-        """
-        if self.agent_drawing != None:
-            self.agent_drawing.remove()
-        if self.local_grid_drawing != None:
-            self.local_grid_drawing.remove()
-        # self.agent_drawing = plt1.arrow(
-        #     pos[0], pos[1], 0.3, 0.3, width=0.4, color='blue') # One day the agent will have direction
-        self.agent_drawing = self.ax1.add_patch(
-            plt.Circle((pos[0], pos[1]), 1.2, fc="blue")
-        )
-
-        self.local_grid_drawing = self.ax1.add_patch(
-            plt.Rectangle(
-                (pos[0] - 0.5 * rec_len, pos[1] - 0.5 * rec_len),
-                rec_len,
-                rec_len,
-                alpha=0.2,
-                fc="blue",
-            )
-        )
-
-    def draw_local_grid(self, lg: LocalGrid) -> None:
-        """
-        Draw the local grid in the right axes.
-        
-        :param local_grid_img: the local grid image
-        :return: None
-        """
-
-        if not self.initialized:
-            self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
-            self.initialized = True
-
-        # self.ax2.cla()
-        self.ax2.imshow(lg.data, origin="lower")
-        # plt.plot(
-        #     lg.data.shape[1] / 2,
-        #     lg.data.shape[0] / 2,
-        #     marker="o",
-        #     markersize=10,
-        #     color="red",
-        # )
-        self.ax2.set_aspect("equal", "box")  # set the aspect ratio of the plot
-        self.ax2.set_title("local grid")
+        self.map_img = map_img
 
     def preview_graph_world(self, world: object) -> None:
         """This function is used to preview the underlying graph used as a simplified world to sample from."""
@@ -133,6 +77,59 @@ class GUI:
         ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
         plt.show()
 
+    def draw_agent(self, pos: tuple, rec_len=7) -> None:
+        """
+        Draw the agent on the world.
+        
+        :param pos: the position of the agent
+        :param rec_len: the length of the rectangle that will be drawn around the agent, defaults to 7
+        (optional)
+        :return: None
+        """
+        if self.agent_drawing != None:
+            self.agent_drawing.remove()
+        if self.local_grid_drawing != None:
+            self.local_grid_drawing.remove()
+        # self.agent_drawing = plt1.arrow(
+        #     pos[0], pos[1], 0.3, 0.3, width=0.4, color='blue') # One day the agent will have direction
+        self.agent_drawing = self.ax1.add_patch(
+            plt.Circle((pos[0], pos[1]), 1.2, fc="blue")
+        )
+
+        self.local_grid_drawing = self.ax1.add_patch(
+            plt.Rectangle(
+                (pos[0] - 0.5 * rec_len, pos[1] - 0.5 * rec_len),
+                rec_len,
+                rec_len,
+                alpha=0.2,
+                fc="blue",
+            )
+        )
+
+    def draw_local_grid(self, lg: LocalGrid) -> None:
+        """
+        Draw the local grid in the right axes.
+        
+        :param local_grid_img: the local grid image
+        :return: None
+        """
+
+        if not self.initialized:
+            self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
+            self.initialized = True
+
+        # self.ax2.cla()
+        self.ax2.imshow(lg.data, origin="lower")
+        plt.plot(
+            lg.data.shape[1] / 2,
+            lg.data.shape[0] / 2,
+            marker="o",
+            markersize=10,
+            color="red",
+        )
+        self.ax2.set_aspect("equal", "box")  # set the aspect ratio of the plot
+        self.ax2.set_title("local grid")
+
     def viz_krm(self, krm: KnowledgeRoadmap) -> None:
         """
         Draws the current Knowledge Roadmap Graph.
@@ -169,7 +166,7 @@ class GUI:
             self.ax1.set_xlim([-70, 70])
             self.ax1.set_ylim([-70, 70])
 
-        pos = nx.get_node_attributes(krm.graph, "pos")  # TODO: unclear variable name
+        positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos") 
         # filter the nodes and edges based on their type
         waypoint_nodes = dict(
             (n, d["type"])
@@ -186,7 +183,7 @@ class GUI:
             for n, d in krm.graph.nodes().items()
             if d["type"] == "world_object"
         )
-
+        
         world_object_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
@@ -206,7 +203,7 @@ class GUI:
         """draw the nodes, edges and labels separately"""
         nx.draw_networkx_nodes(
             krm.graph,
-            pos,
+            positions_of_all_nodes,
             nodelist=world_object_nodes.keys(),
             ax=self.ax1,
             node_color="violet",
@@ -214,7 +211,7 @@ class GUI:
         )
         nx.draw_networkx_nodes(
             krm.graph,
-            pos,
+            positions_of_all_nodes,
             nodelist=frontier_nodes.keys(),
             ax=self.ax1,
             node_color="green",
@@ -222,7 +219,7 @@ class GUI:
         )
         nx.draw_networkx_nodes(
             krm.graph,
-            pos,
+            positions_of_all_nodes,
             nodelist=waypoint_nodes.keys(),
             ax=self.ax1,
             node_color="red",
@@ -230,28 +227,28 @@ class GUI:
         )
         nx.draw_networkx_edges(
             krm.graph,
-            pos,
+            positions_of_all_nodes,
             ax=self.ax1,
             edgelist=waypoint_edges.keys(),
             edge_color="red",
         )
         nx.draw_networkx_edges(
             krm.graph,
-            pos,
+            positions_of_all_nodes,
             ax=self.ax1,
             edgelist=world_object_edges.keys(),
             edge_color="purple",
         )
         nx.draw_networkx_edges(
             krm.graph,
-            pos,
+            positions_of_all_nodes,
             ax=self.ax1,
             edgelist=frontier_edges.keys(),
             edge_color="green",
             width=4,
         )
 
-        nx.draw_networkx_labels(krm.graph, pos, ax=self.ax1, font_size=6)
+        nx.draw_networkx_labels(krm.graph, positions_of_all_nodes, ax=self.ax1, font_size=6)
         self.ax1.axis("on")  # turns on axis
         self.ax1.set_aspect("equal", "box")  # set the aspect ratio of the plot
         self.ax1.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
@@ -277,6 +274,62 @@ class GUI:
 
         self.ax1.set_xlim([-self.origin_x_offset, self.origin_x_offset])
         self.ax1.set_ylim([-self.origin_y_offset, self.origin_y_offset])
+
+    # FIXME: move this to gui
+    def viz_collision_line_to_points_in_world_coord(self, points: list, lg:LocalGrid) -> None:
+        
+        if not self.initialized:
+            self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
+            self.initialized = True
+
+
+        plt.cla()
+        plt.ion()
+
+        plt.imshow(
+            lg.data,
+            origin="lower",
+            extent=[
+                lg.world_pos[0] - lg.length_in_m / 2,
+                lg.world_pos[0] + lg.length_in_m / 2,
+                lg.world_pos[1] - lg.length_in_m / 2,
+                lg.world_pos[1] + lg.length_in_m / 2,
+            ],
+        )
+        for point in points:            
+            at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
+            to_cell = lg.world_coords2cell_idxs(point)
+
+            # rr, cc = lg.get_cells_under_line(at_cell, to_cell)
+            # xx, yy = lg.cell_idxs2world_coords((cc, rr))
+            # plt.plot(xx, yy, "g")
+
+            # ax2.plot([lg.world_pos[0],point[0]], [lg.world_pos[1],point[1]], "g")
+            plt.plot([lg.world_pos[0],point[0]], [lg.world_pos[1],point[1]], color="orange")
+            plt.plot(
+                point[0],
+                point[1],
+                marker="o",
+                markersize=10,
+                color="red",
+            )
+
+            _, collision_point = lg.is_collision_free_straight_line_between_cells(at_cell, to_cell)
+            if collision_point:
+                plt.plot(collision_point[0], collision_point[1], marker='X', color='red', markersize=20)
+        
+        plt.plot(
+            lg.world_pos[0],
+            lg.world_pos[1],
+            marker="o",
+            markersize=10,
+            color="blue",
+        )
+
+        self.ax2.set_title("local grid sampling of shortcuts")
+
+        # plt.show()
+        # plt.pause(0.001)
 
     def debug_logger(self, krm: KnowledgeRoadmap, agent: Agent) -> None:
         """

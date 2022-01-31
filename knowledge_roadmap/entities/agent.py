@@ -29,7 +29,7 @@ class Agent():
         self.pos = pos
         self.steps_taken += 1
 
-
+    # FIXME: remove KRM dependency
     def perform_path_step(self, path:list, krm:KnowledgeRoadmap) -> list or None:
         '''
         Execute a single step of the path.

@@ -26,14 +26,17 @@ class CFG:
         # self.total_map_len_m_x = 17 # BUG: completely broken on different length scales
         # self.total_map_len_m_y = 13
         # self.total_map_len_m_y = 40
+        self.img_total_x_pix = 2026
+        self.img_total_y_pix = 1686
         self.total_map_len_m_y = (
-            self.total_map_len_m_x / 2026
-        ) * 1686  # zo klopt het met de foto verhoudingen (square cells)
+            self.total_map_len_m_x /  self.img_total_x_pix
+        ) * self.img_total_y_pix  # zo klopt het met de foto verhoudingen (square cells)
         self.total_map_len_m = (self.total_map_len_m_x, self.total_map_len_m_y)
         self.lg_num_cells = 420  # max:400 due to img border margins
         # self.lg_num_cells = 50
-        self.lg_cell_size_m = self.total_map_len_m_x / 2026
+        self.lg_cell_size_m = self.total_map_len_m_x /  self.img_total_x_pix
         self.lg_length_scale = self.lg_num_cells * self.lg_cell_size_m / 2
+        self.lg_length_in_m = self.lg_num_cells * self.lg_cell_size_m
         # self.agent_start_pos = (0, 0)
         self.agent_start_pos = (-9, 13)
 
@@ -45,7 +48,6 @@ def exploration_with_sampling_viz(result_only):
 
     full_path = os.path.join("resource", "villa_holes_closed.png")
     upside_down_map_img = Image.open(full_path)
-    # print(upside_down_map_img.size)
     map_img = img_axes2world_axes(upside_down_map_img)
     world = ManualGraphWorld()
     gui = GUI(
@@ -61,7 +63,6 @@ def exploration_with_sampling_viz(result_only):
     debug_container = {
         "world": world,
         "agent": agent,
-        # 'exploration_use_case': exploration_use_case,
         "gui": gui,
     }
 
@@ -72,18 +73,15 @@ def exploration_with_sampling_viz(result_only):
         cell_size_m=cfg.lg_cell_size_m,
         debug_container=debug_container,
     )
-    # sampler = FrontierSampler()
 
     exploration_use_case = ExplorationUsecase(
         agent,
         debug=False,
         len_of_map=cfg.total_map_len_m,
         lg_num_cells=cfg.lg_num_cells,
-        # sampler=sampler,
         lg_length_scale=cfg.lg_length_scale,
     )
 
-    # sampler = FrontierSampler()
     exploration_completed = False
 
     while agent.no_more_frontiers == False:
@@ -93,12 +91,9 @@ def exploration_with_sampling_viz(result_only):
         lg = LocalGrid(
             world_pos=agent.pos,
             data=local_grid_img,
-            length_in_m=lga.lg_length_in_m,
-            cell_size_in_m=lga.cell_size_m,
+            length_in_m=cfg.lg_length_in_m,
+            cell_size_in_m=cfg.lg_cell_size_m,
         )
-
-        # print(f"lga.num_cells: {lga.num_cells}, lg.num_cells: {lg.length_num_cells}, lg shape")
-        gui.draw_local_grid(lg)
 
         exploration_completed = exploration_use_case.run_exploration_step(
             agent, krm, lg
@@ -113,12 +108,13 @@ def exploration_with_sampling_viz(result_only):
                 points.append(krm.get_node_data_by_idx(node)['pos'])
 
             if points:
-                lg.viz_collision_line_to_points_in_world_coord(points)
-            gui.viz_krm(krm)  # TODO: make the KRM independent of the agent
+                gui.viz_collision_line_to_points_in_world_coord(points, lg)
+            gui.viz_krm(krm)  
             gui.draw_agent(agent.pos, rec_len=cfg.lg_length_scale * 2)
             gui.plot_unzoomed_world_coord(lg)
             plt.pause(0.001)
 
+    gui.viz_krm(krm) 
     plt.ioff()
     plt.show()
 

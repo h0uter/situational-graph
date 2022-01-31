@@ -1,7 +1,6 @@
 import networkx as nx
 import uuid
 
-from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
@@ -13,7 +12,6 @@ class ExplorationUsecase:
         agent: Agent,
         len_of_map: float,
         lg_num_cells: int,
-        # sampler: FrontierSampler,
         lg_length_scale,
         debug=False,
     ) -> None:
@@ -30,7 +28,6 @@ class ExplorationUsecase:
         self.lg_length_scale = lg_length_scale
         # self.frontier_sample_radius_num_cells = self.lg_num_cells / 2.2
         self.frontier_sample_radius_num_cells = self.lg_num_cells / 2
-        # print(f"self.frontier_sample_radius: {self.frontier_sample_radius_num_cells}")
         # self.prune_radius = 2.2
         # self.prune_radius = self.lg_length_scale * 0.4
         self.prune_radius = self.lg_length_scale * 0.45
@@ -93,16 +90,10 @@ class ExplorationUsecase:
         krm: KnowledgeRoadmap,
         lg: LocalGrid,
     ):
-        # frontiers = self.sampler.sample_frontier_on_cellmap(
-        #     radius=self.frontier_sample_radius_num_cells,
-        #     num_frontiers_to_sample=self.N_samples,
-        #     lg=lg
 
-        # )
         frontiers = lg.sample_frontier_on_cellmap(
             radius=self.frontier_sample_radius_num_cells,
             num_frontiers_to_sample=self.N_samples,
-            # lg=lg
         )
 
         for frontier in frontiers:
@@ -120,7 +111,6 @@ class ExplorationUsecase:
                 / self.len_of_entire_map[1]
             )
             frontier_pos_global = (x_global, y_global)
-            # gui.ax1.plot(x_global, y_global, 'ro')
             krm.add_frontier(frontier_pos_global, agent.at_wp)
 
     def sample_waypoint(self, agent: Agent, krm: KnowledgeRoadmap):
@@ -176,15 +166,14 @@ class ExplorationUsecase:
                     points.append(krm.get_node_data_by_idx(node)['pos'])
 
             if points:
-                # lg.viz_collision_line_to_points_in_world_coord(points)
                 for point in points:
                     at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
                     to_cell = lg.world_coords2cell_idxs(point)
-                    if lg.is_collision_free_straight_line_between_cells(at_cell, to_cell):
+                    is_collision_free, _ = lg.is_collision_free_straight_line_between_cells(at_cell, to_cell)
+                    if is_collision_free:
                         from_wp = agent.at_wp
                         to_wp = krm.get_node_by_pos(point)
                         krm.graph.add_edge(from_wp, to_wp, type="waypoint_edge", id=uuid.uuid4())
-
 
     def run_exploration_step(
         self,

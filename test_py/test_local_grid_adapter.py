@@ -9,7 +9,7 @@ import numpy as np
 
 def test_sim_calc_total_img_length_in_m():
     map_img = np.zeros((100, 100))
-    lga = LocalGridAdapter()
+    lga = LocalGridAdapter(50,420, 50/2026)
     assert (1, 1) == lga.sim_calc_total_img_length_in_m(map_img, 0.01)
 
 def test_sim_calc_total_img_length_in_m_real_map():
@@ -18,7 +18,7 @@ def test_sim_calc_total_img_length_in_m_real_map():
     upside_down_map_img = Image.open(full_path)
     map_img = img_axes2world_axes(upside_down_map_img)
     cell_size = 0.01
-    lga = LocalGridAdapter()
+    lga = LocalGridAdapter(50,420, 50/2026)
     Lx = map_img.shape[0] * cell_size
     Ly = map_img.shape[1] * cell_size
     assert (Lx, Ly) == lga.sim_calc_total_img_length_in_m(map_img, cell_size)
@@ -26,17 +26,17 @@ def test_sim_calc_total_img_length_in_m_real_map():
 
 def test_sim_calc_total_img_length_in_m2():
     map_img = np.zeros((500, 100))
-    lga = LocalGridAdapter()
+    lga = LocalGridAdapter(50,420, 50/2026)
     assert (5, 1) == lga.sim_calc_total_img_length_in_m(map_img, 0.01)
 
 def test_calc_cells_per_m():
     map_img = np.zeros((100, 100))
-    lga = LocalGridAdapter()
-    assert (50, 50) == lga.sim_calc_cells_per_m(map_img, 2)
+    lga = LocalGridAdapter(50,420, 50/2026)
+    assert (50, 50) == lga.sim_calc_cells_per_m(map_img, (2, 2))
 
 def test_sim_calc_cell_size_in_m():
     map_img = np.zeros((400, 300))
-    lga = LocalGridAdapter()
+    lga = LocalGridAdapter(50,420, 50/2026)
     assert (0.1, 0.1) == lga.sim_calc_cell_size_in_m(map_img, (40,30))
 
 ### testing with the actual img

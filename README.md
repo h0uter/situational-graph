@@ -30,7 +30,7 @@ Data objects can be retrieved with get methods.
 
 ### TODO
 
-#### general
+#### General
 - [X] Code a generator for large graph world as a baseline for exploration and for testing.
 - [ ] Exploration on metric world instead of graph world.
 - [ ] Emulate spot robot API one-on-one, run a test on the physical robot.
@@ -38,7 +38,7 @@ Data objects can be retrieved with get methods.
 - [ ] Use the height of the local grid to calculate a risk for each frontier edge and sample multiple frontiers in the same region.
 - [ ] Interface world-object classes with the knowledge base. If the world object class is correlated with the search target class, then it should influence how the surrounding region is valued for the search.
 
-#### usecases
+#### Usecases
 - [X] Frontier Based Exploration
 - [ ] Semantic Information Gain Exploration
 - [ ] Victim Assessment Action Mapping
