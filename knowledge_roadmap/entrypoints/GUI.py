@@ -274,7 +274,6 @@ class GUI:
         self.ax1.set_xlim([-self.origin_x_offset, self.origin_x_offset])
         self.ax1.set_ylim([-self.origin_y_offset, self.origin_y_offset])
 
-    # FIXME: move this to gui
     def viz_collision_line_to_points_in_world_coord(self, points: list, lg:LocalGrid) -> None:        
         if not self.initialized:
             self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)

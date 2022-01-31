@@ -27,7 +27,10 @@ class ExplorationUsecase:
         # Hyper parameters
         self.N_samples = 12
         self.frontier_sample_radius_num_cells = self.lg_num_cells / 2
+
+        # TODO: fix scaling
         self.prune_radius = self.lg_length_scale * 0.45
+        # self.prune_radius = self.lg_length_scale * 0.25
         # self.shortcut_radius = 5
 
     ############################################################################################
@@ -83,29 +86,16 @@ class ExplorationUsecase:
 
     def real_sample_step(
         self, agent: Agent, krm: KnowledgeRoadmap, lg: LocalGrid,
-    ):
-
-        frontiers = lg.sample_frontier_on_cellmap(
+    ) -> None:
+        frontiers_cells = lg.sample_frontier_on_cellmap(
             radius=self.frontier_sample_radius_num_cells,
             num_frontiers_to_sample=self.N_samples,
         )
-
-        for frontier in frontiers:
-            # translate the above to the global map
-            x_local, y_local = frontier[0], frontier[1]
-            # FIXME: what the hell conversiion is this, len of entire map has to be gone.
-            x_global = (
-                agent.pos[0]
-                + (x_local - lg.length_num_cells // 2) / self.len_of_entire_map[0]
-            )
-            y_global = (
-                agent.pos[1]
-                + (y_local - lg.length_num_cells // 2) / self.len_of_entire_map[1]
-            )
-            frontier_pos_global = (x_global, y_global)
+        for frontier_cell in frontiers_cells:
+            frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             krm.add_frontier(frontier_pos_global, agent.at_wp)
 
-    def sample_waypoint(self, agent: Agent, krm: KnowledgeRoadmap):
+    def sample_waypoint(self, agent: Agent, krm: KnowledgeRoadmap) -> None:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         this should be sampled from the pose graph eventually
@@ -173,6 +163,27 @@ class ExplorationUsecase:
                         from_wp, to_wp, type="waypoint_edge", id=uuid.uuid4()
                     )
 
+    def perform_path_step(self, agent: Agent, path:list, krm:KnowledgeRoadmap) -> list or None:
+        '''
+        Execute a single step of the path.
+        '''
+        if agent.debug:
+            print(f"the path {path} length is {len(path)}")
+        if len(path) > 1:
+            node_data = krm.get_node_data_by_idx(path[0])
+            agent.teleport_to_pos(node_data['pos'])
+            path.pop(0)
+            return path
+
+        elif len(path) == 1:
+            selected_frontier_data = krm.get_node_data_by_idx(
+                path[0])
+            agent.teleport_to_pos(selected_frontier_data['pos'])
+            if self.debug:
+                print(f"SELECTED FRONTIER POS {selected_frontier_data['pos']}")
+            return None
+
+
     def run_exploration_step(
         self, agent: Agent, krm: KnowledgeRoadmap, lg: LocalGrid,
     ) -> None or bool:
@@ -194,8 +205,8 @@ class ExplorationUsecase:
         elif self.consumable_path:
             if self.debug:
                 print(f"2. step: execute consumable path")
-            self.consumable_path = self.agent.perform_path_step(
-                self.consumable_path, krm
+            self.consumable_path = self.perform_path_step( 
+                agent, self.consumable_path, krm
             )
         elif not self.selected_frontier_idx:
             """if there are no more frontiers, exploration is done"""

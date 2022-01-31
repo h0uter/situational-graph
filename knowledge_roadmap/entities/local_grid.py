@@ -123,7 +123,8 @@ class LocalGrid:
                 radius=radius,
             )
 
-            candidate_frontiers.append((x_sample, y_sample))
+            candidate_frontiers.append((y_sample, x_sample))
+            # candidate_frontiers.append((x_sample, y_sample))
 
         candidate_frontiers = np.array(candidate_frontiers).astype(np.int)
 

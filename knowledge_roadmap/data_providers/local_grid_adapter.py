@@ -1,5 +1,11 @@
+import os
+from PIL import Image
+
+from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
+
 from knowledge_roadmap.data_providers.local_grid_image_spoofer import LocalGridImageSpoofer
 from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
+
 
 
 class LocalGridAdapter:
@@ -24,15 +30,36 @@ class LocalGridAdapter:
         
         :return: The local grid.
         """
-
+        world_name = 'villa'
+        # world_name = 'simple_maze'
         if mode == "spoof":
-            agent_pos = self.debug_container["agent"].pos
-            world_img = ManualGraphWorld().map_img
-        
+            if world_name == "villa":
+                agent_pos = self.debug_container["agent"].pos
+                world_img = ManualGraphWorld().map_img
+                full_path = os.path.join('resource', 'villa_holes_closed.png')
+                # full_path = os.path.join('resource', 'output-onlinepngtools.png')
+                
+                upside_down_map_img = Image.open(full_path)
+                self.map_img = img_axes2world_axes(upside_down_map_img)
 
-            lgs = LocalGridImageSpoofer()
+                lgs = LocalGridImageSpoofer()
 
-            return lgs.sim_spoof_local_grid_from_img_world(agent_pos, world_img, self.num_cells, self.spoof_img_length_in_m)
+                return lgs.sim_spoof_local_grid_from_img_world(agent_pos, world_img, self.num_cells, self.spoof_img_length_in_m)
+            
+            elif world_name == 'simple_maze':
+                agent_pos = self.debug_container["agent"].pos
+
+                full_path = os.path.join('resource', 'simple_maze2.png')
+                # full_path = os.path.join('resource', 'output-onlinepngtools.png')
+                
+                upside_down_map_img = Image.open(full_path)
+                # world_img = Image.open(full_path)
+                world_img = img_axes2world_axes(upside_down_map_img)
+                # print(f"{world_img.shape=}")
+
+                lgs = LocalGridImageSpoofer()
+
+                return lgs.sim_spoof_local_grid_from_img_world(agent_pos, world_img, self.num_cells, self.spoof_img_length_in_m)
         else:
             # here comes calls to the spot API
             raise NotImplementedError
