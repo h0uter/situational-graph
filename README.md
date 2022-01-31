@@ -32,7 +32,7 @@ Data objects can be retrieved with get methods.
 
 #### General
 - [X] Code a generator for large graph world as a baseline for exploration and for testing.
-- [ ] Exploration on metric world instead of graph world.
+- [X] Exploration on metric world instead of graph world.
 - [ ] Emulate spot robot API one-on-one, run a test on the physical robot.
 - [ ] Incorporate semantic information in exploration 
 - [ ] Use the height of the local grid to calculate a risk for each frontier edge and sample multiple frontiers in the same region.
