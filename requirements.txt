@@ -5,3 +5,4 @@ scikit-image
 pytest
 matplotlib
 PyQt5
+numpy
