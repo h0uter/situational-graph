@@ -20,6 +20,7 @@ This is where robot dogs enter the picture, an increasing number of legged robot
 In turn, the interest to benchmark their capabilities hands-on in real-world unstructured intense environments has never been higher.
 
 Further research towards approaches to rapidly map, navigate, search and exploit disaster environments will ensure that first-responders are equipped with the technologies and capabilities necessary to effectively execute their future missions.
+
 <img src="documentation/dog.jpg" alt="alt text" width="500" height="whatever">
 
 ## The General Picture
