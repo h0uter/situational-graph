@@ -46,6 +46,7 @@ def exploration_with_sampling_viz(result_only):
     # this is the prior image of the villa we can include for visualization purposes
     # It is different from the map we use to emulate the local grid.
     cfg = CFG()
+    step = 0
 
     full_path = os.path.join("resource", "villa_holes_closed.png")
     # full_path = os.path.join('resource', 'simple_maze2.png')
@@ -86,7 +87,6 @@ def exploration_with_sampling_viz(result_only):
     )
 
     exploration_completed = False
-
     while agent.no_more_frontiers == False:
 
         local_grid_img = lga.get_local_grid(mode="spoof")
@@ -102,7 +102,7 @@ def exploration_with_sampling_viz(result_only):
             agent, krm, lg
         )
         if exploration_completed:
-            return exploration_completed
+            continue
         if not result_only:
             close_nodes = krm.get_nodes_of_type_in_margin(
                 lg.world_pos, cfg.lg_length_in_m / 2, "waypoint"
@@ -110,18 +110,21 @@ def exploration_with_sampling_viz(result_only):
             points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
             if points:
                 gui.viz_collision_line_to_points_in_world_coord(points, lg)
-                
+
             gui.viz_krm(krm)
             gui.draw_agent(agent.pos, rec_len=cfg.lg_length_in_m)
             gui.plot_unzoomed_world_coord(lg)
             plt.pause(0.001)
+
+        print(f"{step = }")
+        step += 1
 
     # gui.viz_krm(krm)
     plt.figure(1)
     plt.pause(0.001)
     plt.ioff()
     plt.show()
-
+    return exploration_completed
 
 if __name__ == "__main__":
 

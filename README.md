@@ -1,4 +1,4 @@
-# Knowledge Roadmaps for Search and Rescue Missions
+# 🤖Knowledge Roadmaps for Search and Rescue Missions 🐕‍🦺
 ![](https://github.com/h0uter/knowledge-roadmap/workflows/Project%20Tests/badge.svg)
 
 ## General Picture
@@ -6,7 +6,7 @@ It is expected of robots to interact more richly with the world. Which is why us
 In robotics and related research fields, the study of understanding is often referred to as semantics, which dictates what does the world _‘mean'_ to a robot, this is strongly tied to the question of _how to represent that meaning._ Part of this twofold challenge is **semantic mapping**, which lies at the intersection of computer vision, task & motion planning, and simultaneous localization & mapping. 
 My goal is to advance the design principles of semantic mapping to generalize its integration across task domains.
 
-<img src="documentation/villa%20frontier%20exploration.gif" alt="alt text" width="500" height="whatever">
+<img src="documentation/2022-02-01 sampling exploration.gif" alt="alt text" width="500" height="whatever">
 
 
 ## Quick start
@@ -19,7 +19,7 @@ This will enable spatial reasoning and provide a high level overview of the miss
 
 ## Assumptions/Simplifications
 - Currently the exploration algorithms is _frontier based lowest cost-to-go (shortest path)_.
-- currently the sampling of frontiers is simplified to sampling from a partially observable world graph. This should be expanded to sampling from the local-grid of the robot.
+- ~~Currently, the sampling of frontiers is simplified to sampling from a partially observable world graph. This should be expanded to sampling from the local-grid of the robot.~~
 - The presented high level layer relies on robust local planners and controllers to deal with uncertainties at runtime.
   
 # Dev
