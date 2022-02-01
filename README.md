@@ -7,7 +7,7 @@ This will enable spatial reasoning and provide a high level overview of the miss
 <img src="documentation/2022-02-01 sampling exploration.gif" alt="alt text" width="700" height="whatever">
 
 ## Quick start
-- pip install `requirements.txt`
+- `pip install requirements.txt`
 - select a demo in `thesis_demos.py` and run it.
 
 # Background
