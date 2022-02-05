@@ -80,7 +80,7 @@ class LocalGridImageSpoofer():
             int(x - half_size_in_pix) : int(x + half_size_in_pix),
         ]
         if not local_grid_img.shape[0:2] == (num_cells, num_cells):
-            print(f"mismatch in localgrid shape {local_grid_img.shape=}, lg num cells {num_cells =}")
+            print(f"mismatch in localgrid shape {local_grid_img.shape}, lg num cells {num_cells }")
 
         return local_grid_img
 

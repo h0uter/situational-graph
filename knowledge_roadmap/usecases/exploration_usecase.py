@@ -140,7 +140,7 @@ class ExplorationUsecase:
             for frontier in close_frontiers:
                 krm.remove_frontier(frontier)
 
-    def find_shortcuts(self, lg: LocalGrid, krm: KnowledgeRoadmap, agent: Agent):
+    def find_shortcuts_between_wps(self, lg: LocalGrid, krm: KnowledgeRoadmap, agent: Agent):
         close_nodes = krm.get_nodes_of_type_in_margin(
             lg.world_pos, self.lg_length_scale, "waypoint"
         )
@@ -196,12 +196,13 @@ class ExplorationUsecase:
                 print(f"1. step: frontier processing")
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             krm.remove_frontier(self.selected_frontier_idx)
+            self.selected_frontier_idx = None
+
             self.sample_waypoint(agent, krm)
             self.real_sample_step(agent, krm, lg)
             self.prune_frontiers(krm)
+            self.find_shortcuts_between_wps(lg, krm, agent)
 
-            self.find_shortcuts(lg, krm, agent)
-            self.selected_frontier_idx = None
         elif self.consumable_path:
             if self.debug:
                 print(f"2. step: execute consumable path")

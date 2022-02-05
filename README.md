@@ -21,7 +21,7 @@ In turn, the interest to benchmark their capabilities hands-on in real-world uns
 
 Further research towards approaches to rapidly map, navigate, search and exploit disaster environments will ensure that first-responders are equipped with the technologies and capabilities necessary to effectively execute their future missions.
 
-<img src="documentation/dog.jpg" alt="alt text" width="500" height="whatever">
+<img src="documentation/dog.jpg" alt="alt text" width="700" height="whatever">
 
 ## The General Picture
 More generally is expected of robots to interact more richly with the world. Which is why us roboticists are no longer content with simply detecting and recognizing objects in images. Instead, what is desired is higher-level understanding and reasoning about complete dynamic 3D scenes. 

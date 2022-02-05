@@ -1,10 +1,11 @@
 from skimage import draw
 import numpy as np
-import numpy.typing as npt
+# import numpy.typing as npt
 
 class LocalGrid:
     def __init__(
-        self, world_pos: tuple, data: npt.ArrayLike, length_in_m: float, cell_size_in_m: float
+        self, world_pos: tuple, data: list, length_in_m: float, cell_size_in_m: float
+        # self, world_pos: tuple, data: npt.ArrayLike, length_in_m: float, cell_size_in_m: float
     ):
         self.world_pos = world_pos
         self.data = data
