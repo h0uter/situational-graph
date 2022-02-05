@@ -9,7 +9,7 @@ from knowledge_roadmap.usecases.exploration_usecase import ExplorationUsecase
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
-from config import CFG
+from config import Configuration
 
 import matplotlib
 
@@ -22,16 +22,14 @@ matplotlib.use("Tkagg")
 # DEMONSTRATIONS
 ############################################################################################
 
-def exploration_with_sampling_viz(result_only):
+def exploration_with_sampling_viz(plotting="none") -> bool:
     # this is the prior image of the villa we can include for visualization purposes
     # It is different from the map we use to emulate the local grid.
-    cfg = CFG()
+    cfg = Configuration()
     step = 0
 
-    full_path = os.path.join("resource", "villa_holes_closed.png")
-    # full_path = os.path.join('resource', 'simple_maze2.png')
 
-    upside_down_map_img = Image.open(full_path)
+    upside_down_map_img = Image.open(cfg.full_path)
     map_img = img_axes2world_axes(upside_down_map_img)
     world = ManualGraphWorld()
     gui = GUI(
@@ -83,7 +81,7 @@ def exploration_with_sampling_viz(result_only):
         )
         if exploration_completed:
             continue
-        if not result_only:
+        if plotting == "all":
             close_nodes = krm.get_nodes_of_type_in_margin(
                 lg.world_pos, cfg.lg_length_in_m / 2, "waypoint"
             )
@@ -97,14 +95,22 @@ def exploration_with_sampling_viz(result_only):
 
         print(f"step= {step}")
         step += 1
+    if plotting == "result only" or plotting == "all":
+        plt.figure(1)
+        gui.viz_krm(krm)
+        gui.draw_agent(agent.pos, rec_len=cfg.lg_length_in_m)
 
-    # gui.viz_krm(krm)
-    plt.figure(1)
-    plt.pause(0.001)
-    plt.ioff()
-    plt.show()
-    return exploration_completed
+        plt.pause(0.001)
+        plt.ioff()
+        plt.show()
+        return exploration_completed
+
+
 
 if __name__ == "__main__":
 
-    exploration_with_sampling_viz(False)
+    # exploration_with_sampling_viz("result only")
+    # exploration_with_sampling_viz("none")
+    exploration_with_sampling_viz("all")
+
+

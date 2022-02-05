@@ -1,5 +1,6 @@
 import os
 from PIL import Image
+from config import Configuration
 
 from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
 
@@ -18,11 +19,26 @@ class LocalGridAdapter:
         debug_container=None,
     ):
         self.mode = mode
+        self.is_spoof_setup = False
         self.num_cells = num_cells
         self.cell_size_m = cell_size_m
         self.lg_length_in_m = num_cells * cell_size_m
         self.spoof_img_length_in_m = img_length_in_m
         self.debug_container = debug_container
+
+    def setup_spoofer(self):
+        # agent_pos = self.debug_container["agent"].pos
+        # world_img = ManualGraphWorld().map_img
+        cfg = Configuration()
+        # full_path = os.path.join('resource', 'villa_holes_closed.png')
+        # full_path = os.path.join('resource', 'output-onlinepngtools.png')
+        
+        upside_down_map_img = Image.open(cfg.full_path)
+        self.map_img = img_axes2world_axes(upside_down_map_img)
+
+        self.lgs = LocalGridImageSpoofer()
+        print("im ran")
+        self.is_spoof_setup = True
 
     def get_local_grid(self, mode:str) -> list:
         """
@@ -35,31 +51,37 @@ class LocalGridAdapter:
         if mode == "spoof":
             if world_name == "villa":
                 agent_pos = self.debug_container["agent"].pos
-                world_img = ManualGraphWorld().map_img
-                full_path = os.path.join('resource', 'villa_holes_closed.png')
-                # full_path = os.path.join('resource', 'output-onlinepngtools.png')
+                # world_img = ManualGraphWorld().map_img
+                # cfg = Configuration()
+                # # full_path = os.path.join('resource', 'villa_holes_closed.png')
+                # # full_path = os.path.join('resource', 'output-onlinepngtools.png')
                 
-                upside_down_map_img = Image.open(full_path)
-                self.map_img = img_axes2world_axes(upside_down_map_img)
+                # upside_down_map_img = Image.open(cfg.full_path)
+                # self.map_img = img_axes2world_axes(upside_down_map_img)
 
-                lgs = LocalGridImageSpoofer()
+                # lgs = LocalGridImageSpoofer()
+                if not self.is_spoof_setup:
+                    self.setup_spoofer()
 
-                return lgs.sim_spoof_local_grid_from_img_world(agent_pos, world_img, self.num_cells, self.spoof_img_length_in_m)
+                # return self.lgs.sim_spoof_local_grid_from_img_world(agent_pos, world_img, self.num_cells, self.spoof_img_length_in_m)
+                return self.lgs.sim_spoof_local_grid_from_img_world(agent_pos, self.map_img, self.num_cells, self.spoof_img_length_in_m)
             
             elif world_name == 'simple_maze':
                 agent_pos = self.debug_container["agent"].pos
 
-                full_path = os.path.join('resource', 'simple_maze2.png')
-                # full_path = os.path.join('resource', 'output-onlinepngtools.png')
+                # full_path = os.path.join('resource', 'simple_maze2.png')
+                # # full_path = os.path.join('resource', 'output-onlinepngtools.png')
                 
-                upside_down_map_img = Image.open(full_path)
-                # world_img = Image.open(full_path)
-                world_img = img_axes2world_axes(upside_down_map_img)
-                # print(f"{world_img.shape=}")
+                # upside_down_map_img = Image.open(full_path)
+                # # world_img = Image.open(full_path)
+                # world_img = img_axes2world_axes(upside_down_map_img)
+                # # print(f"{world_img.shape=}")
 
-                lgs = LocalGridImageSpoofer()
+                # lgs = LocalGridImageSpoofer()
+                if not self.is_spoof_setup:
+                    self.setup_spoofer()
 
-                return lgs.sim_spoof_local_grid_from_img_world(agent_pos, world_img, self.num_cells, self.spoof_img_length_in_m)
+                return self.lgs.sim_spoof_local_grid_from_img_world(agent_pos, self.map_img, self.num_cells, self.spoof_img_length_in_m)
         else:
             # here comes calls to the spot API
             raise NotImplementedError
