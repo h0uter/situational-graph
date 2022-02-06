@@ -37,7 +37,6 @@ class LocalGridAdapter:
         self.map_img = img_axes2world_axes(upside_down_map_img)
 
         self.lgs = LocalGridImageSpoofer()
-        print("im ran")
         self.is_spoof_setup = True
 
     def get_local_grid(self, mode:str) -> list:

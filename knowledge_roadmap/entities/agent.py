@@ -28,3 +28,14 @@ class Agent():
         self.pos = pos
         self.steps_taken += 1
 
+    def move_to_pos(self, pos:tuple) -> None:
+        '''
+        Move the agent to a new position.
+        
+        :param pos: the position of the agent
+        :return: None
+        '''
+
+        print(f"im moving to {pos}")
+        
+

@@ -4,7 +4,7 @@ import uuid
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
-
+from config import Configuration
 
 class ExplorationUsecase:
     def __init__(
@@ -12,7 +12,7 @@ class ExplorationUsecase:
         agent: Agent,
         len_of_map: float,
         lg_num_cells: int,
-        lg_length_scale,
+        lg_length_in_m,
         debug=False,
     ) -> None:
         self.agent = agent
@@ -22,14 +22,14 @@ class ExplorationUsecase:
         self.debug = debug
         self.len_of_entire_map = len_of_map
         self.lg_num_cells = lg_num_cells
-        self.lg_length_scale = lg_length_scale
+        self.lg_length_in_m = lg_length_in_m
 
         # Hyper parameters
-        self.N_samples = 12
+        self.N_samples = Configuration().N_samples
         self.frontier_sample_radius_num_cells = self.lg_num_cells / 2
 
         # TODO: fix scaling
-        self.prune_radius = self.lg_length_scale * 0.45
+        self.prune_radius = Configuration().prune_radius
         # self.prune_radius = self.lg_length_scale * 0.25
         # self.shortcut_radius = 5
 
@@ -142,7 +142,7 @@ class ExplorationUsecase:
 
     def find_shortcuts_between_wps(self, lg: LocalGrid, krm: KnowledgeRoadmap, agent: Agent):
         close_nodes = krm.get_nodes_of_type_in_margin(
-            lg.world_pos, self.lg_length_scale, "waypoint"
+            lg.world_pos, self.lg_length_in_m / 2, "waypoint"
         )
         points = []
         for node in close_nodes:

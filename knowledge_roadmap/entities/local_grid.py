@@ -2,11 +2,15 @@ from skimage import draw
 import numpy as np
 # import numpy.typing as npt
 
+from config import Configuration
+
 class LocalGrid:
+
     def __init__(
         self, world_pos: tuple, data: list, length_in_m: float, cell_size_in_m: float
         # self, world_pos: tuple, data: npt.ArrayLike, length_in_m: float, cell_size_in_m: float
     ):
+
         self.world_pos = world_pos
         self.data = data
         self.length_in_m = length_in_m
@@ -14,7 +18,7 @@ class LocalGrid:
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
 
         self.pixel_occupied_treshold = 220
-        self.sample_ring_width = 0.6
+        self.sample_ring_width = Configuration().sample_ring_width
 
         if not self.data.shape[0:2] == (self.length_num_cells, self.length_num_cells):
             print(
