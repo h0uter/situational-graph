@@ -30,7 +30,7 @@ def basic_profiler_test():
     import cProfile
     import pstats
 
-    pr = cProfile.run('exploration_with_sampling_viz("none")', sort='tottime', filename="3.profile")
+    pr = cProfile.run('exploration_with_sampling_viz("intermediate only")', sort='tottime', filename="with_plotting.profile")
     stats = pstats.Stats(pr)
     stats.sort_stats(pstats.SortKey.TIME)
     stats.print_stats()

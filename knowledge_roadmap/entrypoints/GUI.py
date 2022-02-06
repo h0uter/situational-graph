@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import networkx as nx
 
-from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
+from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.local_grid import LocalGrid
 

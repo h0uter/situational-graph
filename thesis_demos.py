@@ -7,16 +7,13 @@ from knowledge_roadmap.data_providers.manual_graph_world import *
 from knowledge_roadmap.entrypoints.GUI import GUI
 from knowledge_roadmap.usecases.exploration_usecase import ExplorationUsecase
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
-from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap
+from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
 from config import Configuration
 
 import matplotlib
 
 matplotlib.use("Tkagg")
-
-
-
 
 ############################################################################################
 # DEMONSTRATIONS
@@ -81,7 +78,7 @@ def exploration_with_sampling_viz(plotting="none") -> bool:
         )
         if exploration_completed:
             continue
-        if plotting == "all":
+        if plotting == "all" or plotting == "intermediate only":
             close_nodes = krm.get_nodes_of_type_in_margin(
                 lg.world_pos, cfg.lg_length_in_m / 2, "waypoint"
             )

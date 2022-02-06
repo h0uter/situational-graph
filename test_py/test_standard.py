@@ -1,4 +1,4 @@
-from knowledge_roadmap.entities.knowledge_road_map import KnowledgeRoadmap  
+from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap  
 
 
 def hello_world():
