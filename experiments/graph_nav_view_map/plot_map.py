@@ -65,6 +65,9 @@ def main():
     queue.append((current_graph.waypoints[0], np.eye(4)))
     visited = {}
 
+    xx = []
+    yy = []
+
     while len(queue) > 0:
         # Visit a waypoint.
         curr_element = queue[0]
@@ -76,7 +79,9 @@ def main():
         world_tform_current_waypoint = curr_element[1]
         x, y, z = world_tform_current_waypoint[:3, 3]
         # print(f"xyz {x}, {y}, {z}")
-        plt.plot(x, y, 'ro')
+        # plt.plot(x, y, 'ro')
+        xx.append(x)
+        yy.append(y)
 
         for edge in current_graph.edges:
             # If the edge is directed away from us...
@@ -103,6 +108,7 @@ def main():
                 queue.append((current_waypoints[edge.id.from_waypoint], world_tform_from_wp))
                 # avg_pos += world_tform_from_wp[:3, 3]
 
+    plt.plot(xx, yy, 'ro')
     plt.show()
 
 

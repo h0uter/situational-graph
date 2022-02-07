@@ -309,6 +309,7 @@ def create_graph_objects(current_graph, current_waypoint_snapshots, current_wayp
         if (curr_waypoint.snapshot_id in current_waypoint_snapshots):
             snapshot = current_waypoint_snapshots[curr_waypoint.snapshot_id]
             for fiducial in snapshot.objects:
+                print(fiducial)
                 if fiducial.HasField("apriltag_properties"):
                     (fiducial_object,
                      curr_wp_tform_fiducial) = create_fiducial_object(fiducial, curr_waypoint,
