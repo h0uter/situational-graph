@@ -6,3 +6,6 @@ pytest
 matplotlib
 PyQt5
 numpy
+bosdyn-client 
+bosdyn-mission 
+bosdyn-choreography-client
