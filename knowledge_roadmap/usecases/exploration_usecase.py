@@ -167,8 +167,8 @@ class ExplorationUsecase:
         '''
         Execute a single step of the path.
         '''
-        if agent.debug:
-            print(f"the path {path} length is {len(path)}")
+        # if agent.debug:
+        #     print(f"the path {path} length is {len(path)}")
         if len(path) > 1:
             node_data = krm.get_node_data_by_idx(path[0])
             agent.teleport_to_pos(node_data['pos'])
@@ -225,5 +225,5 @@ class ExplorationUsecase:
                 agent, self.selected_frontier_idx, krm
             )
 
-        if self.agent.debug:
-            self.agent.debug_logger()
+        # if self.agent.debug:
+        #     self.agent.debug_logger()

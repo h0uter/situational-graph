@@ -36,7 +36,7 @@ def exploration_with_sampling_viz(plotting="none") -> bool:
     )
 
     # gui.preview_graph_world(world)
-    agent = Agent(debug=False, start_pos=cfg.agent_start_pos)
+    agent = Agent(start_pos=cfg.agent_start_pos)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
 
     debug_container = {

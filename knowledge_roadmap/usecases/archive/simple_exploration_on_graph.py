@@ -122,8 +122,8 @@ class graphExplorationUseCase():
             self.consumable_path = self.find_path_to_selected_frontier(agent, self.selected_frontier_idx, krm)
             
 
-        if self.agent.debug:
-            self.agent.debug_logger()  
+        # if self.agent.debug:
+        #     self.agent.debug_logger()  
    
 
     # def sample_frontiers(self, world):
