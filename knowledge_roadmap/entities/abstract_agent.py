@@ -22,3 +22,7 @@ class AbstractAgent(ABC):
         :return: None
         '''
         pass
+
+    @abstractmethod
+    def get_localization(self) -> tuple:
+        pass

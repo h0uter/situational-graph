@@ -33,6 +33,10 @@ class Agent(AbstractAgent):
     
     def move_to_pos(self, pos:tuple) -> None:
         self.teleport_to_pos(pos)
+
+    def get_localization(self) -> tuple:
+        return self.pos
+
         
 
 
