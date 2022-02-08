@@ -1,0 +1,6 @@
+{
+    "wifi_hostname": "ip", 
+    "lan_hostname": "ip",
+    "username": "user",
+    "password": "PASSWORD"
+}
