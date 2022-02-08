@@ -294,7 +294,6 @@ class SpotWrapper():
             self._rates = rates
         if callbacks is not None:
             self._callbacks = callbacks
-
         # Blocking until connection is made
         if offline:
             self._robot = None
@@ -316,7 +315,7 @@ class SpotWrapper():
         creating_sdk = True
         while creating_sdk:
             try:
-                self._sdk = create_standard_sdk('ros_spot')
+                self._sdk = create_standard_sdk('wouter_spot')
                 creating_sdk = False
             except Exception as e:
                 self._logger.error(f'Error creating SDK object: {e}')

@@ -26,7 +26,7 @@ class SpotRobot(AbstractAgent):
 
         self._logger = logging.getLogger(__name__)
         # self._logger = logging
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.INFO)
 
 
 
@@ -40,6 +40,11 @@ class SpotRobot(AbstractAgent):
             'side_image': 1,
             'rear_image': 1,
         }  # [Hz]
+
+        self.auto_claim = True
+        self.auto_power_on = True
+        self.auto_stand = True
+        self.timer_period = 0.1  # [second]
 
         print("what up")
         
@@ -71,9 +76,9 @@ class SpotRobot(AbstractAgent):
                         stand_status = self.spot_wrapper.stand()
                         self._logger.info(f'stand_status: {stand_status}')
 
-            self.timer = self.create_timer(
-                timer_period_sec=self.timer_period,
-                callback=self._timer_callback)
+            # self.timer = self.create_timer(
+            #     timer_period_sec=self.timer_period,
+            #     callback=self._timer_callback)
         else:
             self._logger.warning("Spot wrapper is not valid!")
 
