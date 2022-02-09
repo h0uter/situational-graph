@@ -4,7 +4,10 @@
 During exploration, the **Knowledge Roadmap** should ground the knowledge about mission critical entities spatially in a sparse graph structure which can be directly used for robot navigation.
 This will enable spatial reasoning and especially for search and rescue scenarios this can provide a state graph like overview of the mission.
 
+ 
 <img src="documentation/2022-02-01 sampling exploration.gif" alt="alt text" width="700" height="whatever">
+
+Here you can see WIP exploration in simulation to build the skeleton of the **Knowledge Roadmap**.
 
 ## Quick start
 - `pip install requirements.txt`
@@ -17,7 +20,9 @@ They provide us with companionship and they assist us in some very intense and i
 Time-sensitive Search-and-rescue missions are such an intense scenario and the environments where they take place typically present significant challenges including difficult terrain, unstable structures, degraded environmental conditions, and expansive areas of operation.
 This is where robot dogs can contribute! Further research towards approaches to rapidly map, navigate, search and exploit disaster environments will ensure that first-responders are equipped with the technologies and capabilities necessary to effectively execute their future missions.
 
+
 <!-- <img src="documentation/dog.jpg" alt="alt text" width="700" height="whatever"> -->
+
 
 ## The General Picture
 More generally is expected of robots to interact more richly with the world. Which is why us roboticists are no longer content with simply detecting and recognizing objects in images. Instead, what is desired is higher-level understanding and reasoning about complete dynamic 3D scenes. 
@@ -25,6 +30,7 @@ In robotics and related research fields, the study of understanding is often ref
 My goal is to advance the design principles of semantic mapping to generalize its integration across task domains, by first analyzing the specific search-and-rescue domain.
 
 <img src="documentation/thesis.scenario.all.png" alt="alt text" width="700" height="whatever">
+
 
 
 # Dev
