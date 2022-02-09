@@ -2,7 +2,7 @@
 ![](https://github.com/h0uter/knowledge-roadmap/workflows/Project%20Tests/badge.svg)
 ## Goal
 During exploration, the **Knowledge Roadmap** should ground the knowledge about mission critical entities spatially in a sparse graph structure which can be directly used for robot navigation.
-This will enable spatial reasoning and provide a high level overview of the mission progress.
+This will enable spatial reasoning and especially for search and rescue scenarios this can provide a state graph like overview of the mission.
 
 <img src="documentation/2022-02-01 sampling exploration.gif" alt="alt text" width="700" height="whatever">
 
@@ -16,10 +16,7 @@ Dogs have been man's best friend for 35,000 years.
 They provide us with companionship and they assist us in some very intense and important work scenarios.
 Time-sensitive Search-and-rescue missions are such an intense scenario and the environments where they take place typically present significant challenges including difficult terrain, unstable structures, degraded environmental conditions, and expansive areas of operation.
 
-This is where robot dogs enter the picture, an increasing number of legged robot platforms have reached an unprecedented level of commercial maturity in recent years. 
-In turn, the interest to benchmark their capabilities hands-on in real-world unstructured intense environments has never been higher.
-
-Further research towards approaches to rapidly map, navigate, search and exploit disaster environments will ensure that first-responders are equipped with the technologies and capabilities necessary to effectively execute their future missions.
+This is where robot dogs can join the team! Further research towards approaches to rapidly map, navigate, search and exploit disaster environments will ensure that first-responders are equipped with the technologies and capabilities necessary to effectively execute their future missions.
 
 <img src="documentation/dog.jpg" alt="alt text" width="700" height="whatever">
 

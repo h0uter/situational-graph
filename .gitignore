@@ -9,3 +9,4 @@ knowledge_roadmap.egg-info/
 .pytest_cache/
 
 workspace.code-workspace
+knowledge_roadmap/data_providers/login.json
