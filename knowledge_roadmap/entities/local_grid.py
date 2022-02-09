@@ -88,7 +88,8 @@ class LocalGrid:
     # TODO: add robot size as parameter to the collision check.
     def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> bool:
 
-        type_of_img = "spot_obstacle_map"
+        
+        type_of_img = Configuration().type_of_img
 
         if type_of_img == "spot_obstacle_map":
             # FIXME: spot obstacle map has rr and cc flipped somehow

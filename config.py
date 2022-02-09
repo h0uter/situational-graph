@@ -34,6 +34,7 @@ class Configuration:
         self.lg_num_cells = 128  # max:400 due to img border margins
         self.lg_cell_size_m = self.total_map_len_m_x / self.img_total_x_pix
         self.lg_length_in_m = self.lg_num_cells * self.lg_cell_size_m
+        self.type_of_img = "spot_obstacle_map"
 
         # exploration hyperparameters
         self.N_samples = 25

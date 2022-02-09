@@ -95,8 +95,11 @@ class SpotRobot(AbstractAgent):
         state = self.spot_wrapper._clients['robot_graph_nav'].get_localization_state()
         # print(f"loc state = {state.localization}")
         odom_tform_body = get_odom_tform_body(state.robot_kinematics.transforms_snapshot)
-        
         print('Got robot state in kinematic odometry frame: \n%s' % str(odom_tform_body))
+        
+        print(f"odom_tform_body.position = {odom_tform_body.position}")
+        return odom_tform_body.position.x, odom_tform_body.position.y, odom_tform_body.position.z
+        
 
     def _try_grpc(self, desc, thunk):
         try:
@@ -119,9 +122,24 @@ class SpotRobot(AbstractAgent):
             pos[0],
             pos[1],
             heading,
-            frame_name=VISION_FRAME_NAME
+            frame_name=VISION_FRAME_NAME,
+            cmd_duration=30
             # frame_name=BODY_FRAME_NAME
         )
+
+        
+    # def move_vision_frame2(self, pos, heading = 0.0):
+    #     while not response
+    #     response = self.spot_wrapper._robot_command(
+    #         RobotCommandBuilder.synchro_se2_trajectory_point_command(
+    #             goal_x=goal_x,
+    #             goal_y=goal_y,
+    #             goal_heading=goal_heading,
+    #             frame_name=frame_name,
+    #             params=self._mobility_params,
+    #         ),
+    #         end_time_secs=end_time,
+    #     )
 
     def move_body_frame(self, pos:tuple, heading=0.0):
         frame_tree = self.spot_wrapper._robot.get_frame_tree_snapshot()
@@ -269,7 +287,6 @@ def get_local_grid(spot: SpotRobot) -> list:
 
     return fixed_pts
 
- 
 
 def plot_local_grid(grid_img:list):
     # plt.ion()
@@ -285,6 +302,8 @@ if __name__ == "__main__":
     time.sleep(7)
     plt.ion()
     plt.show()
+
+    spot.get_localization()
     while True:
 
         plt.clf()
@@ -303,7 +322,15 @@ if __name__ == "__main__":
         plt.plot(frontiers[:,0], frontiers[:,1], 'X')
         # plt.show()
         plt.pause(5)
-        # time.sleep(5)
+
+        x, y, z = spot.get_localization()
+
+        x_goal = x + (frontiers[0,0] - 64) * 0.03
+        y_goal = y + (frontiers[0,1] - 64) * 0.03
+        print(f"ima at {x}, {y}, moving to: {x_goal}, {y_goal}")
+
+        spot.move_vision_frame((x_goal,y_goal))
+        time.sleep(5)
 
 
 
