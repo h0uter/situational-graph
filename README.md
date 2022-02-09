@@ -10,7 +10,12 @@ This will enable spatial reasoning and especially for search and rescue scenario
 Here you can see WIP exploration in simulation to build the skeleton of the **Knowledge Roadmap**.
 
 ## Quick start
-- `pip install requirements.txt`
+- `pip install -r requirements.txt`
+- install the tkinter package:
+```
+sudo pacman -S tk          # on Arch based distros
+sudo apt-get install tk    # on Debian based distros
+```
 - select a demo in `thesis_demos.py` and run it.
 
 # Background
