@@ -15,15 +15,16 @@ This will enable spatial reasoning and especially for search and rescue scenario
 Dogs have been man's best friend for 35,000 years.
 They provide us with companionship and they assist us in some very intense and important work scenarios.
 Time-sensitive Search-and-rescue missions are such an intense scenario and the environments where they take place typically present significant challenges including difficult terrain, unstable structures, degraded environmental conditions, and expansive areas of operation.
+This is where robot dogs can contribute! Further research towards approaches to rapidly map, navigate, search and exploit disaster environments will ensure that first-responders are equipped with the technologies and capabilities necessary to effectively execute their future missions.
 
-This is where robot dogs can join the team! Further research towards approaches to rapidly map, navigate, search and exploit disaster environments will ensure that first-responders are equipped with the technologies and capabilities necessary to effectively execute their future missions.
-
-<img src="documentation/dog.jpg" alt="alt text" width="700" height="whatever">
+<!-- <img src="documentation/dog.jpg" alt="alt text" width="700" height="whatever"> -->
 
 ## The General Picture
 More generally is expected of robots to interact more richly with the world. Which is why us roboticists are no longer content with simply detecting and recognizing objects in images. Instead, what is desired is higher-level understanding and reasoning about complete dynamic 3D scenes. 
 In robotics and related research fields, the study of understanding is often referred to as semantics, which dictates what does the world _‘mean'_ to a robot, this is strongly tied to the question of _how to represent that meaning._ Part of this twofold challenge is **semantic mapping**, which lies at the intersection of computer vision, task & motion planning, and simultaneous localization & mapping. 
-My goal is to advance the design principles of semantic mapping to generalize its integration across task domains.
+My goal is to advance the design principles of semantic mapping to generalize its integration across task domains, by first analyzing the specific search-and-rescue domain.
+
+<img src="documentation/thesis.scenario.all.png" alt="alt text" width="700" height="whatever">
 
 
 # Dev
