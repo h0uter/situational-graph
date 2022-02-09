@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 from skimage import draw
 import numpy as np
 # import numpy.typing as npt
@@ -86,16 +87,37 @@ class LocalGrid:
 
     # TODO: add robot size as parameter to the collision check.
     def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> bool:
-        rr, cc = self.get_cells_under_line(at, to)
-        for r, c in zip(rr, cc):
-            if np.less(self.data[c, r], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
-                x, y = self.cell_idx2world_coords((c, r))
-                collision_point = (x, y)
 
-                return False, collision_point
-        return True, None
+        type_of_img = "spot_obstacle_map"
 
-    def sample_cell_around_other_cell(self, x: int, y: int, radius: float) -> tuple:
+        if type_of_img == "spot_obstacle_map":
+            # FIXME: spot obstacle map has rr and cc flipped somehow
+            rr, cc = self.get_cells_under_line(at, to)
+            # print(f"rr: {rr}")
+            # print(f"cc: {cc}")
+            for r, c in zip(rr, cc):
+                # if np.less(self.data[c, r][0:2], [self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
+                # if np.greater(self.data[c, r][0:2], [self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
+                if np.greater(self.data[r, c][0:2], [self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
+                    x, y = self.cell_idx2world_coords((c, r))
+                    collision_point = (x, y)
+                    print(f"collision at : {collision_point}")
+                    # collision at : (0.0, 0.0)
+
+                    return False, collision_point
+            return True, None
+        else:
+            rr, cc = self.get_cells_under_line(at, to)
+            for r, c in zip(rr, cc):
+                if np.less(self.data[c, r], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
+                    x, y = self.cell_idx2world_coords((c, r))
+                    collision_point = (x, y)
+
+                    return False, collision_point
+            return True, None
+
+
+    def sample_cell_around_other_cell(self, x: int, y: int, radius: int) -> tuple:
         sample_valid = False
 
         while not sample_valid:
@@ -105,6 +127,10 @@ class LocalGrid:
 
             x_sample = int(x + r * np.cos(theta))
             y_sample = int(y + r * np.sin(theta))
+            # print("samples taken")
+            # plt.plot(x, y, "ro")
+            # plt.plot(x_sample, y_sample, 'go')
+            # plt.show()
 
             sample_valid, _ = self.is_collision_free_straight_line_between_cells(
                 at=(x, y),
@@ -113,7 +139,7 @@ class LocalGrid:
 
         return x_sample, y_sample
 
-    def sample_frontier_on_cellmap(self, radius: float, num_frontiers_to_sample: int) -> list:
+    def sample_frontiers_on_cellmap(self, radius: int, num_frontiers_to_sample: int) -> list:
         '''
         Given a local grid, sample N points around a given point, and return the sampled points.
         '''
@@ -121,6 +147,9 @@ class LocalGrid:
         while len(candidate_frontiers) < num_frontiers_to_sample:
             x_center = self.length_num_cells // 2
             y_center = self.length_num_cells // 2
+
+            #debugs
+            # plt.plot(x_center, y_center)
 
             x_sample, y_sample = self.sample_cell_around_other_cell(
                 x_center,

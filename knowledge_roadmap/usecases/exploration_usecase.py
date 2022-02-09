@@ -87,7 +87,7 @@ class ExplorationUsecase:
     def real_sample_step(
         self, agent: Agent, krm: KnowledgeRoadmap, lg: LocalGrid,
     ) -> None:
-        frontiers_cells = lg.sample_frontier_on_cellmap(
+        frontiers_cells = lg.sample_frontiers_on_cellmap(
             radius=self.frontier_sample_radius_num_cells,
             num_frontiers_to_sample=self.N_samples,
         )

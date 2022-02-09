@@ -19,6 +19,7 @@ from bosdyn.client.frame_helpers import *
 
 from knowledge_roadmap.data_providers.spot_wrapper import SpotWrapper
 from knowledge_roadmap.entities.abstract_agent import AbstractAgent
+from knowledge_roadmap.entities.local_grid import LocalGrid
 from knowledge_roadmap.utils.get_login_config import get_login_config
 
 import logging
@@ -222,77 +223,90 @@ def compute_ground_height_in_vision_frame(robot_state_client):
     return vision_tform_ground_plane.position.x
 
 
+def get_local_grid(spot: SpotRobot) -> list:
+    robot_state_client = spot.spot_wrapper._clients['robot_state']
+
+    proto = spot.spot_wrapper._clients['robot_local_grid'].get_local_grids(
+            ['terrain', 'terrain_valid', 'intensity', 'no_step', 'obstacle_distance'])
+
+    for local_grid_found in proto:
+        if local_grid_found.local_grid_type_name == "obstacle_distance":
+            local_grid_proto = local_grid_found
+            cell_size = local_grid_found.local_grid.extent.cell_size
+    # print(local_grid_found)
+    # Unpack the data field for the local grid.
+    cells_obstacle_dist = unpack_grid(local_grid_proto).astype(np.float32)
+    # Populate the x,y values with a complete combination of all possible pairs for the dimensions in the grid extent.
+    ys, xs = np.mgrid[0:local_grid_proto.local_grid.extent.num_cells_x,
+                    0:local_grid_proto.local_grid.extent.num_cells_y]
+
+    # Get the estimated height (z value) of the ground in the vision frame.
+    transforms_snapshot = local_grid_proto.local_grid.transforms_snapshot
+    vision_tform_body = get_a_tform_b(transforms_snapshot, VISION_FRAME_NAME, BODY_FRAME_NAME)
+    z_ground_in_vision_frame = compute_ground_height_in_vision_frame(robot_state_client)
+    # Numpy vstack makes it so that each column is (x,y,z) for a single no step grid point. The height values come
+    # from the estimated height of the ground plane as if the robot was standing.
+    cell_count = local_grid_proto.local_grid.extent.num_cells_x * local_grid_proto.local_grid.extent.num_cells_y
+    z = np.ones(cell_count, dtype=np.float32)
+    z *= z_ground_in_vision_frame
+    pts = np.vstack([np.ravel(xs).astype(np.float32), np.ravel(ys).astype(np.float32), z]).T
+    pts[:, [0, 1]] *= (local_grid_proto.local_grid.extent.cell_size,
+                    local_grid_proto.local_grid.extent.cell_size)
+    # # Determine the coloration of the obstacle grid. Set the inside of the obstacle as a red hue, the outside of the obstacle
+    # # as a blue hue, and the border of an obstacle as a green hue. Note that the inside of an obstacle is determined by a
+    # # negative distance value in a grid cell, and the outside of an obstacle is determined by a positive distance value in a
+    # # grid cell. The border of an obstacle is considered a distance of [0,.33] meters for a grid cell value.
+
+    colored_pts = np.ones([cell_count, 3], dtype=np.uint8)
+    colored_pts[:,0] = (cells_obstacle_dist <= 0.0)
+    colored_pts[:,1] = np.logical_and(0.0 < cells_obstacle_dist, cells_obstacle_dist < 0.33)
+    colored_pts[:,2] = (cells_obstacle_dist >= 0.33)
+    colored_pts *= 255
+
+    # so depending on which channel we look at means whether it can be sampled or not.
+    
+    fixed_pts = np.reshape(colored_pts, (128,128,3))
+
+    return fixed_pts
+
+ 
+
+def plot_local_grid(grid_img:list):
+    # plt.ion()
+    plt.imshow(grid_img, origin='lower')
+    # plt.pause(0.001)
+
+    plt.show()
 
 
 if __name__ == "__main__":
 
     spot = SpotRobot()
-
-    robot_state_client =spot.spot_wrapper._clients['robot_state']
+    time.sleep(7)
     plt.ion()
     plt.show()
     while True:
-        proto = spot.spot_wrapper._clients['robot_local_grid'].get_local_grids(
-                ['terrain', 'terrain_valid', 'intensity', 'no_step', 'obstacle_distance'])
 
-        for local_grid_found in proto:
-            if local_grid_found.local_grid_type_name == "obstacle_distance":
-                local_grid_proto = local_grid_found
-                cell_size = local_grid_found.local_grid.extent.cell_size
-        # print(local_grid_found)
-        # Unpack the data field for the local grid.
-        cells_obstacle_dist = unpack_grid(local_grid_proto).astype(np.float32)
-        # Populate the x,y values with a complete combination of all possible pairs for the dimensions in the grid extent.
-        ys, xs = np.mgrid[0:local_grid_proto.local_grid.extent.num_cells_x,
-                        0:local_grid_proto.local_grid.extent.num_cells_y]
+        plt.clf()
+        grid_img = get_local_grid(spot)
+        # plot_local_grid(grid_img)
+        plt.imshow(grid_img, origin='lower')
+        time.sleep(1)
 
-        # Get the estimated height (z value) of the ground in the vision frame.
-        transforms_snapshot = local_grid_proto.local_grid.transforms_snapshot
-        vision_tform_body = get_a_tform_b(transforms_snapshot, VISION_FRAME_NAME, BODY_FRAME_NAME)
-        z_ground_in_vision_frame = compute_ground_height_in_vision_frame(robot_state_client)
-        # Numpy vstack makes it so that each column is (x,y,z) for a single no step grid point. The height values come
-        # from the estimated height of the ground plane as if the robot was standing.
-        cell_count = local_grid_proto.local_grid.extent.num_cells_x * local_grid_proto.local_grid.extent.num_cells_y
-        z = np.ones(cell_count, dtype=np.float32)
-        z *= z_ground_in_vision_frame
-        pts = np.vstack([np.ravel(xs).astype(np.float32), np.ravel(ys).astype(np.float32), z]).T
-        pts[:, [0, 1]] *= (local_grid_proto.local_grid.extent.cell_size,
-                        local_grid_proto.local_grid.extent.cell_size)
-        # # Determine the coloration of the obstacle grid. Set the inside of the obstacle as a red hue, the outside of the obstacle
-        # # as a blue hue, and the border of an obstacle as a green hue. Note that the inside of an obstacle is determined by a
-        # # negative distance value in a grid cell, and the outside of an obstacle is determined by a positive distance value in a
-        # # grid cell. The border of an obstacle is considered a distance of [0,.33] meters for a grid cell value.
-        color = np.ones([cell_count, 3], dtype=np.uint8)
-        color[:, 0] = (cells_obstacle_dist <= 0.0)
-        color[:, 1] = np.logical_and(0.0 < cells_obstacle_dist, cells_obstacle_dist < 0.33)
-        color[:, 2] = (cells_obstacle_dist >= 0.33)
-        color *= 255
+        lg = LocalGrid((0,0), grid_img, 3.84, 0.03)
+        print(lg)
+        frontiers = lg.sample_frontiers_on_cellmap(60, 50)
+        print(frontiers)
 
-        colored_pts = np.ones([cell_count, 3], dtype=np.uint8)
-        colored_pts[:,0] = (cells_obstacle_dist <= 0.0)
-        colored_pts[:,1] = np.logical_and(0.0 < cells_obstacle_dist, cells_obstacle_dist < 0.33)
-        colored_pts[:,2] = (cells_obstacle_dist >= 0.33)
-        colored_pts *= 255
+        plt.imshow(grid_img, origin='lower')
+        # plt.imshow(grid_img)
+        plt.plot(frontiers[:,0], frontiers[:,1], 'X')
+        # plt.show()
+        plt.pause(5)
+        # time.sleep(5)
 
 
-        
 
-        # print(f"before {pts.shape}")
-        # print(f" example: {pts[10, 2]}")
-        # print(f"min = {np.min(pts)} and max = {np.max(pts)}")
-        # print(f"before {pts}")
 
-        # fixed_pts = np.reshape(pts, (-1,128,3))
-        fixed_pts = np.reshape(colored_pts, (128,128,3))
-        # print(f"after: {fixed_pts.shape}")
-        # print(f"after whole: {fixed_pts}")
-        
-        # print(f"example after: {fixed_pts[10, 10, 2]}")
 
-        # print()
-  
-        plt.imshow(fixed_pts, origin='lower')
 
-        # plt.plot(xs, ys)
-        plt.pause(0.001)
-        # time.sleep(1)
