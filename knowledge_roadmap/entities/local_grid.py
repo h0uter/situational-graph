@@ -1,30 +1,28 @@
 from matplotlib import pyplot as plt
 from skimage import draw
 import numpy as np
-# import numpy.typing as npt
+import numpy.typing as npt
+import logging
 
-from config import Configuration
+from knowledge_roadmap.utils.config import Configuration
 
 class LocalGrid:
 
-    def __init__(
-        self, world_pos: tuple, data: list, length_in_m: float, cell_size_in_m: float
-        # self, world_pos: tuple, data: npt.ArrayLike, length_in_m: float, cell_size_in_m: float
-    ):
+    def __init__(self, world_pos: tuple, img_data: npt.ArrayLike):
+        self._logger = logging.getLogger(__name__)
 
         self.world_pos = world_pos
-        self.data = data
-        self.length_in_m = length_in_m
-        self.cell_size_in_m = cell_size_in_m
+        self.data = img_data
+        self.length_in_m = Configuration().LG_LENGTH_IN_M
+        self.cell_size_in_m = Configuration().LG_CELL_SIZE_M
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
 
         self.pixel_occupied_treshold = 220
-        self.sample_ring_width = Configuration().sample_ring_width
+        self.sample_ring_width = Configuration().SAMPLE_RING_WIDTH
+
 
         if not self.data.shape[0:2] == (self.length_num_cells, self.length_num_cells):
-            print(
-                f"ERROR: data.shape = {self.data.shape[0:2]}, length_num_cells = {self.length_num_cells}"
-            )
+            self._logger.warning(f"ERROR: data.shape = {self.data.shape[0:2]}, length_num_cells = {self.length_num_cells}")
 
     def is_inside(self, world_pos: tuple) -> bool:
         """
@@ -86,24 +84,16 @@ class LocalGrid:
         return rr, cc
 
     # TODO: add robot size as parameter to the collision check.
-    def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> bool:
-
-        
-        type_of_img = Configuration().type_of_img
-
-        if type_of_img == "spot_obstacle_map":
+    def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> tuple:
+        # FIXME: make my loaded images consistent with the spot local grid somehow
+        if Configuration().case == "spot":
             # FIXME: spot obstacle map has rr and cc flipped somehow
             rr, cc = self.get_cells_under_line(at, to)
-            # print(f"rr: {rr}")
-            # print(f"cc: {cc}")
             for r, c in zip(rr, cc):
-                # if np.less(self.data[c, r][0:2], [self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
-                # if np.greater(self.data[c, r][0:2], [self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
                 if np.greater(self.data[r, c][0:2], [self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
                     x, y = self.cell_idx2world_coords((c, r))
                     collision_point = (x, y)
                     print(f"collision at : {collision_point}")
-                    # collision at : (0.0, 0.0)
 
                     return False, collision_point
             return True, None
@@ -117,10 +107,8 @@ class LocalGrid:
                     return False, collision_point
             return True, None
 
-
     def sample_cell_around_other_cell(self, x: int, y: int, radius: int) -> tuple:
         sample_valid = False
-
         while not sample_valid:
             r = radius * np.sqrt(np.random.uniform(low=1 -
                                                    self.sample_ring_width, high=1))
@@ -128,10 +116,7 @@ class LocalGrid:
 
             x_sample = int(x + r * np.cos(theta))
             y_sample = int(y + r * np.sin(theta))
-            # print("samples taken")
-            # plt.plot(x, y, "ro")
-            # plt.plot(x_sample, y_sample, 'go')
-            # plt.show()
+
 
             sample_valid, _ = self.is_collision_free_straight_line_between_cells(
                 at=(x, y),
@@ -144,13 +129,10 @@ class LocalGrid:
         '''
         Given a local grid, sample N points around a given point, and return the sampled points.
         '''
-        candidate_frontiers = []
+        candidate_frontiers: list = []
         while len(candidate_frontiers) < num_frontiers_to_sample:
             x_center = self.length_num_cells // 2
             y_center = self.length_num_cells // 2
-
-            #debugs
-            # plt.plot(x_center, y_center)
 
             x_sample, y_sample = self.sample_cell_around_other_cell(
                 x_center,
@@ -161,6 +143,7 @@ class LocalGrid:
             candidate_frontiers.append((y_sample, x_sample))
             # candidate_frontiers.append((x_sample, y_sample))
 
+        # FIXME: this is hella random
         candidate_frontiers = np.array(candidate_frontiers).astype(np.int)
 
         return candidate_frontiers

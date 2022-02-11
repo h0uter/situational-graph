@@ -1,37 +1,36 @@
-import networkx as nx
+import logging
 import uuid
+
+import networkx as nx
 
 from knowledge_roadmap.entities.abstract_agent import AbstractAgent
 from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
-from config import Configuration
+from knowledge_roadmap.utils.config import Configuration
+
 
 class ExplorationUsecase:
     def __init__(
         self,
         agent: AbstractAgent,
-        len_of_map: float,
-        lg_num_cells: int,
-        lg_length_in_m,
-        debug=False,
     ) -> None:
+        self._logger = logging.getLogger(__name__)
+        
         self.agent = agent
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False
-        self.debug = debug
-        self.len_of_entire_map = len_of_map
-        self.lg_num_cells = lg_num_cells
-        self.lg_length_in_m = lg_length_in_m
+
+        cfg = Configuration()
+        self.total_map_len_m = cfg.TOTAL_MAP_LEN_M
+        self.lg_num_cells = cfg.LG_NUM_CELLS
+        self.lg_length_in_m = cfg.LG_LENGTH_IN_M
 
         # Hyper parameters
-        self.N_samples = Configuration().N_samples
-        self.frontier_sample_radius_num_cells = self.lg_num_cells / 2 - 10
+        self.N_samples = cfg.N_SAMPLES
+        self.frontier_sample_radius_num_cells = self.lg_num_cells / 2
 
-        # TODO: fix scaling
-        self.prune_radius = Configuration().prune_radius
-        # self.prune_radius = self.lg_length_scale * 0.25
-        # self.shortcut_radius = 5
+        self.prune_radius = cfg.PRUNE_RADIUS
 
     ############################################################################################
     ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
@@ -167,8 +166,6 @@ class ExplorationUsecase:
         '''
         Execute a single step of the path.
         '''
-        # if agent.debug:
-        #     print(f"the path {path} length is {len(path)}")
         if len(path) > 1:
             node_data = krm.get_node_data_by_idx(path[0])
             agent.teleport_to_pos(node_data['pos'])
@@ -179,21 +176,18 @@ class ExplorationUsecase:
             selected_frontier_data = krm.get_node_data_by_idx(
                 path[0])
             agent.teleport_to_pos(selected_frontier_data['pos'])
-            if self.debug:
-                print(f"SELECTED FRONTIER POS {selected_frontier_data['pos']}")
+            self._logger.debug(f"the selected frontier pos is {selected_frontier_data['pos']}")
             return None
-
 
     def run_exploration_step(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
-    ) -> None or bool:
+    ) -> bool:
         if not self.init:
             self.real_sample_step(agent, krm, lg)
             self.init = True
 
         elif krm.graph.nodes[krm.get_node_by_pos(self.agent.pos)]["type"] == "frontier":
-            if self.debug:
-                print(f"1. step: frontier processing")
+            logging.debug(f"1. step: frontier processing")
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             krm.remove_frontier(self.selected_frontier_idx)
             self.selected_frontier_idx = None
@@ -204,26 +198,22 @@ class ExplorationUsecase:
             self.find_shortcuts_between_wps(lg, krm, agent)
 
         elif self.consumable_path:
-            if self.debug:
-                print(f"2. step: execute consumable path")
+            logging.debug(f"2. step: execute consumable path")
             self.consumable_path = self.perform_path_step( 
                 agent, self.consumable_path, krm
             )
+
         elif not self.selected_frontier_idx:
             """if there are no more frontiers, exploration is done"""
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
             if agent.no_more_frontiers:
-                print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
-                print(
-                    f"It took {self.agent.steps_taken} steps to complete the exploration."
-                )
+                logging.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
+                logging.info(f"It took {self.agent.steps_taken} steps to complete the exploration.")
                 return True
 
-            if self.debug:
-                print(f"3. step: select target frontier and find path")
+
+            logging.debug(f"3. step: select target frontier and find path")
             self.consumable_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
             )
 
-        # if self.agent.debug:
-        #     self.agent.debug_logger()

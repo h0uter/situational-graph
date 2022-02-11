@@ -29,9 +29,9 @@ import logging
 
 import time
 
-class SpotRobot(AbstractAgent):
+class SpotAgent(AbstractAgent):
 
-    def __init__(self, parameter_overrides=None, offline=False):
+    def __init__(self):
         """
         Main function for the SpotROS class.
         Gets config from ROS and initializes the wrapper.
@@ -50,16 +50,16 @@ class SpotRobot(AbstractAgent):
             'gait': spot_command_pb2.HINT_AUTO,
         }
 
-        rates = {
-            'graph_nav': 5,
-            'local_grid': 2,
-            'robot_state': 5,
-            'metrics': 1,
-            'lease': 1,
-            'front_image': 1,
-            'side_image': 1,
-            'rear_image': 1,
-        }  # [Hz]
+        # rates = {
+        #     'graph_nav': 5,
+        #     'local_grid': 2,
+        #     'robot_state': 5,
+        #     'metrics': 1,
+        #     'lease': 1,
+        #     'front_image': 1,
+        #     'side_image': 1,
+        #     'rear_image': 1,
+        # }  # [Hz]
 
         self.auto_claim = True
         self.auto_power_on = True
@@ -272,7 +272,7 @@ def compute_ground_height_in_vision_frame(robot_state_client):
     return vision_tform_ground_plane.position.x
 
 
-def get_local_grid(spot: SpotRobot) -> list:
+def get_local_grid(spot: SpotAgent) -> list:
     robot_state_client = spot.spot_wrapper._clients['robot_state']
 
     proto = spot.spot_wrapper._clients['robot_local_grid'].get_local_grids(
@@ -330,7 +330,7 @@ def plot_local_grid(grid_img:list):
 
 
 def move_demo_usecase():
-    spot = SpotRobot()
+    spot = SpotAgent()
 
     spot.get_localization()
     time.sleep(5)
@@ -351,7 +351,7 @@ def move_demo_usecase():
 
 
 def move_vision_demo_usecase():
-    spot = SpotRobot()
+    spot = SpotAgent()
 
     spot.get_localization()
     time.sleep(5)
@@ -373,7 +373,7 @@ def move_vision_demo_usecase():
     time.sleep(15)
 
 def move_to_sampled_point_usecase():
-    spot = SpotRobot()
+    spot = SpotAgent()
     time.sleep(7)
     plt.ion()
     plt.show()
