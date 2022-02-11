@@ -7,11 +7,11 @@ class Configuration:
 
         self.type_of_img = None
 
-        # case ="maze"
-        case ="villa"
-        # case ="spot"
+        # self.case ="maze"
+        self.case ="villa"
+        # self.case ="spot"
 
-        if case == "villa":
+        if self.case == "villa":
             self.FULL_PATH = os.path.join("resource", "villa_holes_closed.png")
             self.TOTAL_MAP_LEN_M_X = 50
             self.IMG_TOTAL_X_PIX = 2026
@@ -24,7 +24,7 @@ class Configuration:
             self.TOTAL_MAP_LEN_M = (self.TOTAL_MAP_LEN_M_X, self.TOTAL_MAP_LEN_M_Y)
             self.LG_CELL_SIZE_M = self.TOTAL_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
 
-        elif case == "maze":
+        elif self.case == "maze":
             self.FULL_PATH = os.path.join('resource', 'simple_maze2_border_closed.png')
             self.TOTAL_MAP_LEN_M_X = 73
             self.IMG_TOTAL_X_PIX = 2000
@@ -37,7 +37,7 @@ class Configuration:
             self.TOTAL_MAP_LEN_M = (self.TOTAL_MAP_LEN_M_X, self.TOTAL_MAP_LEN_M_Y)
             self.LG_CELL_SIZE_M = self.TOTAL_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
 
-        elif case == "spot":
+        elif self.case == "spot":
             self.type_of_img = "spot_obstacle_map" # FIXME: this is a hack to get the spot agent working
             self.LG_NUM_CELLS = 128  # max:400 due to img border margins
             self.LG_CELL_SIZE_M = 0.03

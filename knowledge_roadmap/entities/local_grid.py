@@ -87,23 +87,15 @@ class LocalGrid:
 
     # TODO: add robot size as parameter to the collision check.
     def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> tuple:
-
-        
-        type_of_img = Configuration().type_of_img
-
-        if type_of_img == "spot_obstacle_map":
+        # FIXME: make my loaded images consistent with the spot local grid somehow
+        if Configuration().case == "spot":
             # FIXME: spot obstacle map has rr and cc flipped somehow
             rr, cc = self.get_cells_under_line(at, to)
-            # print(f"rr: {rr}")
-            # print(f"cc: {cc}")
             for r, c in zip(rr, cc):
-                # if np.less(self.data[c, r][0:2], [self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
-                # if np.greater(self.data[c, r][0:2], [self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
                 if np.greater(self.data[r, c][0:2], [self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
                     x, y = self.cell_idx2world_coords((c, r))
                     collision_point = (x, y)
                     print(f"collision at : {collision_point}")
-                    # collision at : (0.0, 0.0)
 
                     return False, collision_point
             return True, None

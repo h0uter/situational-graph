@@ -27,10 +27,10 @@ class ExplorationUsecase:
         self.lg_length_in_m = cfg.LG_LENGTH_IN_M
 
         # Hyper parameters
-        self.N_samples = Configuration().N_SAMPLES
+        self.N_samples = cfg.N_SAMPLES
         self.frontier_sample_radius_num_cells = self.lg_num_cells / 2
 
-        self.prune_radius = Configuration().PRUNE_RADIUS
+        self.prune_radius = cfg.PRUNE_RADIUS
 
     ############################################################################################
     ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
