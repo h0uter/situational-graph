@@ -12,10 +12,13 @@ from bosdyn.client.frame_helpers import (
 from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder
 from bosdyn.client import create_standard_sdk, ResponseError, RpcError
 from bosdyn.client.lease import Error as LeaseBaseError
+from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
+from bosdyn.api.geometry_pb2 import Quaternion
 
 # local grid stuff
 from bosdyn.api import local_grid_pb2
 from bosdyn.client.frame_helpers import *
+
 
 from knowledge_roadmap.data_providers.spot_wrapper import SpotWrapper
 from knowledge_roadmap.entities.abstract_agent import AbstractAgent
@@ -35,6 +38,17 @@ class SpotRobot(AbstractAgent):
 
         self._logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
+
+
+
+        self.mobility_parameters = {
+            'obstacle_padding': 0.1,  # [m]
+            'speed_limit_x': 0.7,  # [m/s]
+            'speed_limit_y': 0.7,  # [m/s]
+            'speed_limit_angular': 0.8,  # [rad/s]
+            'body_height': 0.0,  # [m]
+            'gait': spot_command_pb2.HINT_AUTO,
+        }
 
         rates = {
             'graph_nav': 5,
@@ -68,7 +82,7 @@ class SpotRobot(AbstractAgent):
         if self.spot_wrapper.is_valid:
             self._logger.info("Spot wrapper is valid")
 
-            # self._apply_mobility_parameters()
+            self._apply_mobility_parameters()
 
             if self.auto_claim:
                 claim_status = self.spot_wrapper.claim()
@@ -89,6 +103,25 @@ class SpotRobot(AbstractAgent):
     # def __init__(self, debug=False, start_pos=None):
     #     # super().__init__(debug=debug, start_pos=start_pos)
 
+    def _apply_mobility_parameters(self, quaternion=None):
+        if quaternion is None:
+            # Unit Quaternion
+            quaternion = Quaternion()
+            quaternion.x = 0.0
+            quaternion.y = 0.0
+            quaternion.z = 0.0
+            quaternion.w = 1.0
+
+        footprint_R_body = quaternion.to_euler_zxy()
+        self.spot_wrapper.set_mobility_params(
+            body_height=self.mobility_parameters['body_height'],
+            footprint_R_body=footprint_R_body,
+            obstacle_padding=self.mobility_parameters['obstacle_padding'],
+            speed_limit_x=self.mobility_parameters['speed_limit_x'],
+            speed_limit_y=self.mobility_parameters['speed_limit_y'],
+            speed_limit_angular=self.mobility_parameters['speed_limit_angular'],
+            locomotion_hint=self.mobility_parameters['gait'],
+        )
 
     def get_localization(self) -> tuple:
         # print("state: ", self.spot_wrapper._clients['robot_state'].get_robot_state())
@@ -118,14 +151,25 @@ class SpotRobot(AbstractAgent):
         self._try_grpc(desc, _start_command)
 
     def move_vision_frame(self, pos:tuple, heading=0.0):
-        self.spot_wrapper.trajectory_cmd(
-            pos[0],
-            pos[1],
-            heading,
-            frame_name=VISION_FRAME_NAME,
-            cmd_duration=30
-            # frame_name=BODY_FRAME_NAME
+        """ROS service handler"""
+        self._logger.info('Executing move_vision action')
+
+        try:
+            self.spot_wrapper.trajectory_cmd(
+                pos[0],
+                pos[1],
+                heading,
+                frame_name=VISION_FRAME_NAME,
+                cmd_duration=30
+                # frame_name=BODY_FRAME_NAME
         )
+        except Exception as e:
+            self._logger.error(f'Move vision frame action error: {e}')
+            # goal_handle.abort()
+            # return result
+
+        
+        # TODO: make it await completion 
 
         
     # def move_vision_frame2(self, pos, heading = 0.0):
@@ -160,23 +204,6 @@ class SpotRobot(AbstractAgent):
         self.move_vision_frame(pos)
 
 
-def move_demo():
-    spot = SpotRobot()
-
-    spot.get_localization()
-    time.sleep(5)
-    x = 2
-    y = 0
-    heading = 0.0
-    print("I m going to walk")
-    spot.move_body_frame((x, y), heading)
-    time.sleep(15)
-    spot.get_localization()
-    print("I have arrived")
-    spot.move_body_frame((-x, -y), heading)
-    print("Returning")
-    spot.get_localization()
-    time.sleep(15)
 
 
 ### Local Grid stuff
@@ -275,10 +302,12 @@ def get_local_grid(spot: SpotRobot) -> list:
     # # negative distance value in a grid cell, and the outside of an obstacle is determined by a positive distance value in a
     # # grid cell. The border of an obstacle is considered a distance of [0,.33] meters for a grid cell value.
 
+    OBSTACLE_DISTANCE_TRESHOLD = 0.2
+
     colored_pts = np.ones([cell_count, 3], dtype=np.uint8)
     colored_pts[:,0] = (cells_obstacle_dist <= 0.0)
-    colored_pts[:,1] = np.logical_and(0.0 < cells_obstacle_dist, cells_obstacle_dist < 0.33)
-    colored_pts[:,2] = (cells_obstacle_dist >= 0.33)
+    colored_pts[:,1] = np.logical_and(0.0 < cells_obstacle_dist, cells_obstacle_dist < OBSTACLE_DISTANCE_TRESHOLD)
+    colored_pts[:,2] = (cells_obstacle_dist >= OBSTACLE_DISTANCE_TRESHOLD)
     colored_pts *= 255
 
     # so depending on which channel we look at means whether it can be sampled or not.
@@ -296,8 +325,50 @@ def plot_local_grid(grid_img:list):
     plt.show()
 
 
-if __name__ == "__main__":
+def move_demo_usecase():
+    spot = SpotRobot()
 
+    spot.get_localization()
+    time.sleep(5)
+    x = 2
+    y = 0
+    heading = 0.0
+    print("I m going to walk")
+
+    spot.move_body_frame((x, y), heading)
+    time.sleep(15)
+    spot.get_localization()
+    print("I have arrived")
+    spot.move_body_frame((-x, -y), heading)
+    print("Returning")
+    spot.get_localization()
+    time.sleep(15)
+
+
+
+def move_vision_demo_usecase():
+    spot = SpotRobot()
+
+    spot.get_localization()
+    time.sleep(5)
+    x_goal = 0
+    y_goal = 0
+    heading = 0.0
+    print("I m going to walk")
+    # spot.move_vision_frame((x_goal,y_goal))
+    spot.move_vision_frame((4,0), np.pi/2)
+    time.sleep(10)
+    spot.move_vision_frame((3,4))
+
+    time.sleep(25)
+    spot.get_localization()
+    print("I have arrived")
+    spot.move_vision_frame((-x_goal,y_goal), 0.0)
+    print("Returning")
+    spot.get_localization()
+    time.sleep(15)
+
+def move_to_sampled_point_usecase():
     spot = SpotRobot()
     time.sleep(7)
     plt.ion()
@@ -332,8 +403,7 @@ if __name__ == "__main__":
         spot.move_vision_frame((x_goal,y_goal))
         time.sleep(5)
 
-
-
-
-
-
+if __name__ == "__main__":
+    # move_demo_usecase()
+    # move_vision_demo_usecase()
+    move_to_sampled_point_usecase()
