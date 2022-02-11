@@ -179,7 +179,6 @@ class ExplorationUsecase:
             self._logger.debug(f"the selected frontier pos is {selected_frontier_data['pos']}")
             return None
 
-
     def run_exploration_step(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
     ) -> bool:
@@ -209,7 +208,7 @@ class ExplorationUsecase:
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
             if agent.no_more_frontiers:
                 logging.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
-                logging.info("It took {self.agent.steps_taken} steps to complete the exploration.")
+                logging.info(f"It took {self.agent.steps_taken} steps to complete the exploration.")
                 return True
 
 
