@@ -10,7 +10,7 @@ class ExplorationUsecase:
     def __init__(
         self,
         agent: AbstractAgent,
-        len_of_map: float,
+        total_map_len_m: float,
         lg_num_cells: int,
         lg_length_in_m,
         debug=False,
@@ -20,7 +20,7 @@ class ExplorationUsecase:
         self.selected_frontier_idx = None
         self.init = False
         self.debug = debug
-        self.len_of_entire_map = len_of_map
+        self.len_of_entire_map = total_map_len_m
         self.lg_num_cells = lg_num_cells
         self.lg_length_in_m = lg_length_in_m
 

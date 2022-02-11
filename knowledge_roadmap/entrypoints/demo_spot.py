@@ -64,7 +64,7 @@ def exploration_spot(plotting="none"):
     exploration_use_case = ExplorationUsecase(
         agent,
         debug=False,
-        len_of_map=cfg.total_map_len_m,
+        total_map_len_m=cfg.total_map_len_m,
         lg_num_cells=cfg.lg_num_cells,
         lg_length_in_m=cfg.lg_length_in_m,
     )

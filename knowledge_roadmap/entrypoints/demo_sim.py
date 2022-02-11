@@ -40,7 +40,7 @@ def init_entities():
     exploration_use_case = ExplorationUsecase(
         agent,
         debug=False,
-        len_of_map=cfg.total_map_len_m,
+        total_map_len_m=cfg.total_map_len_m,
         lg_num_cells=cfg.lg_num_cells,
         lg_length_in_m=cfg.lg_length_in_m,
     )
@@ -54,7 +54,6 @@ def exploration_with_sampling_viz(plotting="none"):
     step = 0
 
     gui, agent, krm, lga, exploration_use_case = init_entities()
-
 
     exploration_completed = False
     while agent.no_more_frontiers == False:
