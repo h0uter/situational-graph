@@ -4,7 +4,7 @@ class Configuration:
     def __init__(self):
 
         self.type_of_img = None
-        case ="villa"
+        case ="maze"
         # case ="spot"
         if case == "villa":
             self.full_path = os.path.join("resource", "villa_holes_closed.png")

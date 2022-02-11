@@ -1,15 +1,15 @@
 from matplotlib import pyplot as plt
 from skimage import draw
 import numpy as np
-# import numpy.typing as npt
+import numpy.typing as npt
 
 from knowledge_roadmap.utils.config import Configuration
 
 class LocalGrid:
 
     def __init__(
-        self, world_pos: tuple, data: list, length_in_m: float, cell_size_in_m: float
-        # self, world_pos: tuple, data: npt.ArrayLike, length_in_m: float, cell_size_in_m: float
+        # self, world_pos: tuple, data: list, length_in_m: float, cell_size_in_m: float
+        self, world_pos: tuple, data: npt.ArrayLike, length_in_m: float, cell_size_in_m: float
     ):
 
         self.world_pos = world_pos
@@ -86,7 +86,7 @@ class LocalGrid:
         return rr, cc
 
     # TODO: add robot size as parameter to the collision check.
-    def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> bool:
+    def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> tuple:
 
         
         type_of_img = Configuration().type_of_img

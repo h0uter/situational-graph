@@ -31,7 +31,7 @@ import time
 
 class SpotAgent(AbstractAgent):
 
-    def __init__(self, parameter_overrides=None, offline=False):
+    def __init__(self):
         """
         Main function for the SpotROS class.
         Gets config from ROS and initializes the wrapper.
@@ -50,16 +50,16 @@ class SpotAgent(AbstractAgent):
             'gait': spot_command_pb2.HINT_AUTO,
         }
 
-        rates = {
-            'graph_nav': 5,
-            'local_grid': 2,
-            'robot_state': 5,
-            'metrics': 1,
-            'lease': 1,
-            'front_image': 1,
-            'side_image': 1,
-            'rear_image': 1,
-        }  # [Hz]
+        # rates = {
+        #     'graph_nav': 5,
+        #     'local_grid': 2,
+        #     'robot_state': 5,
+        #     'metrics': 1,
+        #     'lease': 1,
+        #     'front_image': 1,
+        #     'side_image': 1,
+        #     'rear_image': 1,
+        # }  # [Hz]
 
         self.auto_claim = True
         self.auto_power_on = True
