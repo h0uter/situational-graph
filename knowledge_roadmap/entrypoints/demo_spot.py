@@ -7,7 +7,7 @@ from knowledge_roadmap.data_providers.spot_agent import SpotAgent
 
 
 from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
-from knowledge_roadmap.entrypoints.vizualisation import GUI
+from knowledge_roadmap.entrypoints.vizualizer import Vizualizer
 from knowledge_roadmap.usecases.exploration_usecase import ExplorationUsecase
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
@@ -34,7 +34,7 @@ def exploration_spot(plotting="none"):
         upside_down_map_img = Image.open(cfg.full_path)
         map_img = img_axes2world_axes(upside_down_map_img)
     world = ManualGraphWorld()
-    gui = GUI(
+    gui = Vizualizer(
         origin_x_offset=cfg.total_map_len_m_x / 2,
         origin_y_offset=cfg.total_map_len_m_y / 2,
     )

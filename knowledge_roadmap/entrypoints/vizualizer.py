@@ -2,24 +2,32 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib
 import networkx as nx
+from PIL import Image
+
 
 from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.local_grid import LocalGrid
 from knowledge_roadmap.utils.config import Configuration
+from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
+
 
 matplotlib.use("Qt5agg")
 
-class GUI:
-    def __init__(self, origin_x_offset=0, origin_y_offset=0, map_img=None) -> None:
+class Vizualizer:
+    def __init__(self) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
         self.initialized = False
 
-        self.origin_x_offset = origin_x_offset
-        self.origin_y_offset = origin_y_offset
-        self.map_img = map_img
         self.cfg = Configuration()
+        self.origin_x_offset = self.cfg.total_map_len_m_x / 2
+        self.origin_y_offset = self.cfg.total_map_len_m_y / 2
+
+        self.map_img = None
+        if self.cfg.full_path:
+            upside_down_map_img = Image.open(self.cfg.full_path)
+            self.map_img = img_axes2world_axes(upside_down_map_img)
 
     def preview_graph_world(self, world) -> None:
         """This function is used to preview the underlying graph used as a simplified world to sample from."""
@@ -123,29 +131,6 @@ class GUI:
         self.ax2.set_aspect("equal", "box")  # set the aspect ratio of the plot
         self.ax2.set_title("local grid")
 
-    def viz_krm_no_floorplan(self, krm: KnowledgeRoadmap, agent: Agent) -> None:
-        """
-        Draw the agent's perspective on the world, like RViz.
-        
-        :param krm: KnowledgeRoadmap
-        :param agent: Agent
-        :return: None
-        """
-        if not self.initialized:
-            self.init_fig()
-
-        self.ax1.cla()  # XXX: plt1.cla is the bottleneck in my performance.
-
-        self.ax1.set_title("Online Construction of Knowledge Roadmap (RViz)")
-        self.ax1.set_xlabel("x", size=10)
-        self.ax1.set_ylabel("y", size=10)
-
-        self.draw_krm_graph(krm, self.ax1)
-
-        self.ax1.axis("on")  # turns on axis
-        self.ax1.set_aspect("equal", "box")  # set the aspect ratio of the plot
-        self.ax1.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
-
     def draw_krm_graph(self, krm, ax):
         positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
         # filter the nodes and edges based on their type
@@ -229,6 +214,29 @@ class GUI:
         )
 
         nx.draw_networkx_labels(krm.graph, positions_of_all_nodes, ax=ax, font_size=6)
+
+    def viz_krm_no_floorplan(self, krm: KnowledgeRoadmap, agent: Agent) -> None:
+        """
+        Draw the agent's perspective on the world, like RViz.
+        
+        :param krm: KnowledgeRoadmap
+        :param agent: Agent
+        :return: None
+        """
+        if not self.initialized:
+            self.init_fig()
+
+        self.ax1.cla()  # XXX: plt1.cla is the bottleneck in my performance.
+
+        self.ax1.set_title("Online Construction of Knowledge Roadmap (RViz)")
+        self.ax1.set_xlabel("x", size=10)
+        self.ax1.set_ylabel("y", size=10)
+
+        self.draw_krm_graph(krm, self.ax1)
+
+        self.ax1.axis("on")  # turns on axis
+        self.ax1.set_aspect("equal", "box")  # set the aspect ratio of the plot
+        self.ax1.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 
     def viz_krm_on_floorplan(self, krm: KnowledgeRoadmap) -> None:
         """ Like Gazebo """

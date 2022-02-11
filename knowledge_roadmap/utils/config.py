@@ -6,8 +6,11 @@ class Configuration:
     def __init__(self):
 
         self.type_of_img = None
-        case ="maze"
+
+        # case ="maze"
+        case ="villa"
         # case ="spot"
+
         if case == "villa":
             self.full_path = os.path.join("resource", "villa_holes_closed.png")
             self.total_map_len_m_x = 50
@@ -20,6 +23,7 @@ class Configuration:
                 ) * self.img_total_y_pix  # zo klopt het met de foto verhoudingen (square cells)
             self.total_map_len_m = (self.total_map_len_m_x, self.total_map_len_m_y)
             self.lg_cell_size_m = self.total_map_len_m_x / self.img_total_x_pix
+
         elif case == "maze":
             self.full_path = os.path.join('resource', 'simple_maze2_border_closed.png')
             self.total_map_len_m_x = 73
@@ -32,16 +36,13 @@ class Configuration:
                 ) * self.img_total_y_pix  # zo klopt het met de foto verhoudingen (square cells)
             self.total_map_len_m = (self.total_map_len_m_x, self.total_map_len_m_y)
             self.lg_cell_size_m = self.total_map_len_m_x / self.img_total_x_pix
+
         elif case == "spot":
-            self.type_of_img = "spot_obstacle_map"
+            self.type_of_img = "spot_obstacle_map" # FIXME: this is a hack to get the spot agent working
             self.lg_num_cells = 128  # max:400 due to img border margins
             self.lg_cell_size_m = 0.03
             self.full_path = None
 
-        # self.total_map_len_m_x = 73
-        # self.total_map_len_m_x = 17 # BUG: completely broken on different length scales
-        # self.total_map_len_m_y = 13
-        # self.total_map_len_m_y = 40
  
         self.lg_length_in_m = self.lg_num_cells * self.lg_cell_size_m
 
@@ -51,4 +52,7 @@ class Configuration:
         self.sample_ring_width = 0.9
 
         # logging
+        my_logger = logging.getLogger(__name__)
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+        logging.getLogger("matplotlib").setLevel(logging.WARNING)
+        logging.getLogger("PIL").setLevel(logging.WARNING)
