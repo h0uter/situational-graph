@@ -6,6 +6,9 @@ from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.local_grid import LocalGrid
 
+from config import Configuration
+
+
 import matplotlib
 
 matplotlib.use("Qt5agg")
@@ -20,8 +23,9 @@ class GUI:
         self.origin_x_offset = origin_x_offset
         self.origin_y_offset = origin_y_offset
         self.map_img = map_img
+        self.cfg = Configuration()
 
-    def preview_graph_world(self, world: object) -> None:
+    def preview_graph_world(self, world) -> None:
         """This function is used to preview the underlying graph used as a simplified world to sample from."""
         fig, ax = plt.subplots(figsize=(10, 10))
 
@@ -124,7 +128,7 @@ class GUI:
             markersize=10,
             color="red",
         )
-        self.ax2.set_aspect("equal", "box")  # set the aspect ratio of the plot
+        # self.ax2.set_aspect("equal", "box")  # set the aspect ratio of the plot
         self.ax2.set_title("local grid")
 
     def draw_rviz(self, krm: KnowledgeRoadmap, agent: Agent) -> None:
@@ -140,7 +144,7 @@ class GUI:
 
         self.ax1.cla()  # XXX: plt1.cla is the bottleneck in my performance.
 
-        self.ax1.set_title("RViz: Online Construction of Knowledge Roadmap")
+        self.ax1.set_title("Online Construction of Knowledge Roadmap (RViz)")
         self.ax1.set_xlabel("x", size=10)
         self.ax1.set_ylabel("y", size=10)
 
@@ -246,7 +250,7 @@ class GUI:
 
         self.ax2.cla()  # XXX: plt1.cla is the bottleneck in my performance.
 
-        self.ax2.set_title("Gazebo: Online Construction of Knowledge Roadmap")
+        self.ax2.set_title("Groundtruth Knowledge Roadmap construction (Gazebo)") 
         self.ax2.set_xlabel("x", size=10)
         self.ax2.set_ylabel("y", size=10)
 
@@ -307,7 +311,7 @@ class GUI:
 
         self.ax4.cla()
 
-        self.ax4.set_title("local grid sampling of shortcuts")
+        self.ax4.set_title("RVIZ: local grid sampling of shortcuts")
         plt.imshow(
             lg.data,
             origin="lower",
@@ -345,8 +349,17 @@ class GUI:
             lg.world_pos[0], lg.world_pos[1], marker="o", markersize=10, color="blue",
         )
 
-    # def draw_update(self):
-    #     self.draw_rviz()
+    def draw_update(self, krm, agent, lg):
+        self.viz_godmode(krm)
+        self.plot_lg_unzoomed_in_world_coord(lg)
+        self.draw_agent(agent.pos, self.ax2, rec_len=self.cfg.lg_length_in_m)
+        
+
+        self.draw_rviz(krm, agent)
+        self.draw_agent(agent.pos, self.ax1, rec_len=self.cfg.lg_length_in_m)
+
+        plt.pause(0.001)
+
 
     def debug_logger(self, krm: KnowledgeRoadmap, agent: Agent) -> None:
         """

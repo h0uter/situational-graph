@@ -5,13 +5,15 @@ from PIL import Image
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.data_providers.spot_robot import SpotRobot
 
-from knowledge_roadmap.data_providers.manual_graph_world import *
+
+from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
 from knowledge_roadmap.entrypoints.GUI import GUI
 from knowledge_roadmap.usecases.exploration_usecase import ExplorationUsecase
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
 from config import Configuration
+from knowledge_roadmap.utils.coodinate_transforms import img_axes2world_axes
 
 import matplotlib
 
@@ -21,7 +23,7 @@ matplotlib.use("Tkagg")
 # DEMONSTRATIONS
 ############################################################################################
 
-def exploration_with_sampling_viz(plotting="none") -> bool:
+def exploration_with_sampling_viz(plotting="none"):
     # this is the prior image of the villa we can include for visualization purposes
     # It is different from the map we use to emulate the local grid.
     cfg = Configuration()
@@ -88,33 +90,36 @@ def exploration_with_sampling_viz(plotting="none") -> bool:
             if points:
                 gui.viz_collision_line_to_points_in_world_coord(points, lg)
             
+            gui.draw_update(krm, agent, lg)
+
+            # gui.viz_godmode(krm)
+            # gui.plot_lg_unzoomed_in_world_coord(lg)
             # gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
-            gui.viz_godmode(krm)
-            # gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
-            gui.plot_lg_unzoomed_in_world_coord(lg)
-            gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
             
 
-            gui.draw_rviz(krm, agent)
-            gui.draw_agent(agent.pos, gui.ax1, rec_len=cfg.lg_length_in_m)
+            # gui.draw_rviz(krm, agent)
+            # gui.draw_agent(agent.pos, gui.ax1, rec_len=cfg.lg_length_in_m)
 
-            plt.pause(0.001)
+            # plt.pause(0.001)
 
         print(f"step= {step}")
         step += 1
     if plotting == "result only" or plotting == "all":
         plt.figure(1)
-        gui.viz_godmode(krm)
-        gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
-        gui.draw_rviz(krm, agent)
-        gui.draw_agent(agent.pos, gui.ax1, rec_len=cfg.lg_length_in_m)
 
-        plt.pause(0.001)
+        gui.draw_update(krm, agent, lg)
+
+        # gui.viz_godmode(krm)
+        # gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
+        # gui.draw_rviz(krm, agent)
+        # gui.draw_agent(agent.pos, gui.ax1, rec_len=cfg.lg_length_in_m)
+
+        # plt.pause(0.001)
         plt.ioff()
         plt.show()
         return exploration_completed
 
-def exploration_spot(plotting="none") -> bool:
+def exploration_spot(plotting="none"):
     # this is the prior image of the villa we can include for visualization purposes
     # It is different from the map we use to emulate the local grid.
     cfg = Configuration()
