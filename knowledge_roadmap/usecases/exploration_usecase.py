@@ -4,7 +4,7 @@ import uuid
 from knowledge_roadmap.entities.abstract_agent import AbstractAgent
 from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
-from config import Configuration
+from knowledge_roadmap.utils.config import Configuration
 
 class ExplorationUsecase:
     def __init__(

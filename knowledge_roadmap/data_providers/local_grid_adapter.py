@@ -1,6 +1,6 @@
 import os
 from PIL import Image
-from config import Configuration
+from knowledge_roadmap.utils.config import Configuration
 
 from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
 
@@ -9,7 +9,7 @@ from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
 
 from knowledge_roadmap.entities.abstract_agent import AbstractAgent
 
-from knowledge_roadmap.data_providers.spot_robot import SpotRobot, get_local_grid
+from knowledge_roadmap.data_providers.spot_agent import SpotAgent, get_local_grid
 
 class LocalGridAdapter:
     def __init__(
@@ -53,7 +53,7 @@ class LocalGridAdapter:
         # return get_local_grid(agent)
 
 
-        if isinstance(agent, SpotRobot):
+        if isinstance(agent, SpotAgent):
             # here comes calls to the spot API
             # raise NotImplementedError
 

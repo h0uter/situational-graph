@@ -3,7 +3,7 @@ import os
 from PIL import Image
 
 from knowledge_roadmap.entities.agent import Agent
-from knowledge_roadmap.data_providers.spot_robot import SpotRobot
+from knowledge_roadmap.data_providers.spot_agent import SpotAgent
 
 
 from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
@@ -12,7 +12,7 @@ from knowledge_roadmap.usecases.exploration_usecase import ExplorationUsecase
 from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
-from config import Configuration
+from knowledge_roadmap.utils.config import Configuration
 from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
 
 import matplotlib
@@ -119,7 +119,7 @@ def exploration_spot(plotting="none"):
     # gui.preview_graph_world(world)
     # agent = Agent(start_pos=cfg.agent_start_pos)
     # agent = SpotRobot(start_pos=cfg.agent_start_pos)
-    agent = SpotRobot()
+    agent = SpotAgent()
     krm = KnowledgeRoadmap(start_pos=agent.pos)
 
     debug_container = {

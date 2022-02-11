@@ -6,13 +6,11 @@ from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.local_grid import LocalGrid
 
-from config import Configuration
-
+from knowledge_roadmap.utils.config import Configuration
 
 import matplotlib
 
 matplotlib.use("Qt5agg")
-
 
 class GUI:
     def __init__(self, origin_x_offset=0, origin_y_offset=0, map_img=None) -> None:
@@ -303,7 +301,7 @@ class GUI:
 
         self.ax4.cla()
 
-        self.ax4.set_title("RVIZ: local grid sampling of shortcuts")
+        self.ax4.set_title("Local grid sampling of shortcuts")
         plt.imshow(
             lg.data,
             origin="lower",

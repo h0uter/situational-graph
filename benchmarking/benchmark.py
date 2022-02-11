@@ -1,5 +1,5 @@
 
-from thesis_demos import exploration_with_sampling_viz
+from knowledge_roadmap.entrypoints.thesis_demos import exploration_with_sampling_viz
 
 def test():
     print("hi")
@@ -38,7 +38,7 @@ def basic_profiler_test():
 def main():
     import cProfile
     import pstats
-    from thesis_demos import exploration_with_sampling_viz
+    from knowledge_roadmap.entrypoints.thesis_demos import exploration_with_sampling_viz
 
     with cProfile.Profile() as pr:
         # cProfile.run("run_benchmark()", sort="cumulative")

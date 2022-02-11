@@ -3,7 +3,7 @@ from skimage import draw
 import numpy as np
 # import numpy.typing as npt
 
-from config import Configuration
+from knowledge_roadmap.utils.config import Configuration
 
 class LocalGrid:
 
@@ -144,7 +144,7 @@ class LocalGrid:
         '''
         Given a local grid, sample N points around a given point, and return the sampled points.
         '''
-        candidate_frontiers = []
+        candidate_frontiers: list = []
         while len(candidate_frontiers) < num_frontiers_to_sample:
             x_center = self.length_num_cells // 2
             y_center = self.length_num_cells // 2
