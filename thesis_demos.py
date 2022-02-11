@@ -13,7 +13,7 @@ from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
 from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
 from config import Configuration
-from knowledge_roadmap.utils.coodinate_transforms import img_axes2world_axes
+from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
 
 import matplotlib
 
@@ -28,7 +28,6 @@ def exploration_with_sampling_viz(plotting="none"):
     # It is different from the map we use to emulate the local grid.
     cfg = Configuration()
     step = 0
-
 
     upside_down_map_img = Image.open(cfg.full_path)
     map_img = img_axes2world_axes(upside_down_map_img)
@@ -88,33 +87,16 @@ def exploration_with_sampling_viz(plotting="none"):
             )
             points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
             if points:
-                gui.viz_collision_line_to_points_in_world_coord(points, lg)
+                gui.draw_collision_line_to_points_in_world_coord(points, lg)
             
-            gui.draw_update(krm, agent, lg)
-
-            # gui.viz_godmode(krm)
-            # gui.plot_lg_unzoomed_in_world_coord(lg)
-            # gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
-            
-
-            # gui.draw_rviz(krm, agent)
-            # gui.draw_agent(agent.pos, gui.ax1, rec_len=cfg.lg_length_in_m)
-
-            # plt.pause(0.001)
+            gui.figure_update(krm, agent, lg)
 
         print(f"step= {step}")
         step += 1
     if plotting == "result only" or plotting == "all":
-        plt.figure(1)
 
-        gui.draw_update(krm, agent, lg)
+        gui.figure_update(krm, agent, lg)
 
-        # gui.viz_godmode(krm)
-        # gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
-        # gui.draw_rviz(krm, agent)
-        # gui.draw_agent(agent.pos, gui.ax1, rec_len=cfg.lg_length_in_m)
-
-        # plt.pause(0.001)
         plt.ioff()
         plt.show()
         return exploration_completed
@@ -185,20 +167,16 @@ def exploration_spot(plotting="none"):
             )
             points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
             if points:
-                gui.viz_collision_line_to_points_in_world_coord(points, lg)
-            gui.viz_godmode(krm)
-            gui.draw_agent(agent.pos, rec_len=cfg.lg_length_in_m)
-            gui.plot_lg_unzoomed_in_world_coord(lg)
-            plt.pause(0.001)
+                gui.draw_collision_line_to_points_in_world_coord(points, lg)
+            
+            gui.figure_update(krm, agent, lg)
+
 
         print(f"step= {step}")
         step += 1
     if plotting == "result only" or plotting == "all":
-        plt.figure(1)
-        gui.viz_godmode(krm)
-        gui.draw_agent(agent.pos, rec_len=cfg.lg_length_in_m)
+        gui.figure_update(krm, agent, lg)
 
-        plt.pause(0.001)
         plt.ioff()
         plt.show()
         return exploration_completed
@@ -212,5 +190,3 @@ if __name__ == "__main__":
     # exploration_with_sampling_viz("none")
     exploration_with_sampling_viz("all")
     # exploration_spot("all")
-
-
