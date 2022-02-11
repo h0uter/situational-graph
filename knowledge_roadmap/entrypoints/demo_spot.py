@@ -30,13 +30,13 @@ def exploration_spot(plotting="none"):
     step = 0
 
     # FIXME: full path is irrelavant for spot case 
-    if cfg.full_path:
-        upside_down_map_img = Image.open(cfg.full_path)
+    if cfg.FULL_PATH:
+        upside_down_map_img = Image.open(cfg.FULL_PATH)
         map_img = img_axes2world_axes(upside_down_map_img)
     world = ManualGraphWorld()
     gui = Vizualizer(
-        origin_x_offset=cfg.total_map_len_m_x / 2,
-        origin_y_offset=cfg.total_map_len_m_y / 2,
+        origin_x_offset=cfg.TOTAL_MAP_LEN_M_X / 2,
+        origin_y_offset=cfg.TOTAL_MAP_LEN_M_Y / 2,
     )
 
     # gui.preview_graph_world(world)
@@ -54,19 +54,19 @@ def exploration_spot(plotting="none"):
     }
 
     lga = LocalGridAdapter(
-        total_map_len_m=cfg.total_map_len_m,
+        total_map_len_m=cfg.TOTAL_MAP_LEN_M,
         mode="spoof",
-        lg_num_cells=cfg.lg_num_cells,
-        lg_cell_size_m=cfg.lg_cell_size_m,
+        lg_num_cells=cfg.LG_NUM_CELLS,
+        lg_cell_size_m=cfg.LG_CELL_SIZE_M,
         debug_container=debug_container,
     )
 
     exploration_use_case = ExplorationUsecase(
         agent,
         debug=False,
-        total_map_len_m=cfg.total_map_len_m,
-        lg_num_cells=cfg.lg_num_cells,
-        lg_length_in_m=cfg.lg_length_in_m,
+        total_map_len_m=cfg.TOTAL_MAP_LEN_M,
+        lg_num_cells=cfg.LG_NUM_CELLS,
+        lg_length_in_m=cfg.LG_LENGTH_IN_M,
     )
 
     exploration_completed = False
@@ -77,8 +77,8 @@ def exploration_spot(plotting="none"):
         lg = LocalGrid(
             world_pos=agent.pos,
             data=local_grid_img,
-            length_in_m=cfg.lg_length_in_m,
-            cell_size_in_m=cfg.lg_cell_size_m,
+            length_in_m=cfg.LG_LENGTH_IN_M,
+            cell_size_in_m=cfg.LG_CELL_SIZE_M,
         )
 
         exploration_completed = exploration_use_case.run_exploration_step(
@@ -88,7 +88,7 @@ def exploration_spot(plotting="none"):
             continue
         if plotting == "all" or plotting == "intermediate only":
             close_nodes = krm.get_nodes_of_type_in_margin(
-                lg.world_pos, cfg.lg_length_in_m / 2, "waypoint"
+                lg.world_pos, cfg.LG_LENGTH_IN_M / 2, "waypoint"
             )
             points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
             if points:

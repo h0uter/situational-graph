@@ -27,7 +27,7 @@ matplotlib.use("Tkagg")
 
 def init_sim_entities():
     gui = Vizualizer()
-    agent = Agent(start_pos=cfg.agent_start_pos)
+    agent = Agent(start_pos=cfg.AGENT_START_POS)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
     lga = LocalGridAdapter()
     exploration_usecase = ExplorationUsecase(agent)
@@ -51,8 +51,8 @@ def exploration_with_sampling_viz(plotting="none"):
         lg = LocalGrid(
             world_pos=agent.pos,
             data=local_grid_img,
-            length_in_m=cfg.lg_length_in_m,
-            cell_size_in_m=cfg.lg_cell_size_m,
+            length_in_m=cfg.LG_LENGTH_IN_M,
+            cell_size_in_m=cfg.LG_CELL_SIZE_M,
         )
 
         exploration_completed = exploration_usecase.run_exploration_step(agent, krm, lg)

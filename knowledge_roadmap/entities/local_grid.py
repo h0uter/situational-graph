@@ -19,7 +19,7 @@ class LocalGrid:
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
 
         self.pixel_occupied_treshold = 220
-        self.sample_ring_width = Configuration().sample_ring_width
+        self.sample_ring_width = Configuration().SAMPLE_RING_WIDTH
 
         if not self.data.shape[0:2] == (self.length_num_cells, self.length_num_cells):
             print(

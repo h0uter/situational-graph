@@ -22,15 +22,15 @@ class ExplorationUsecase:
         self.init = False
 
         cfg = Configuration()
-        self.total_map_len_m = cfg.total_map_len_m
-        self.lg_num_cells = cfg.lg_num_cells
-        self.lg_length_in_m = cfg.lg_length_in_m
+        self.total_map_len_m = cfg.TOTAL_MAP_LEN_M
+        self.lg_num_cells = cfg.LG_NUM_CELLS
+        self.lg_length_in_m = cfg.LG_LENGTH_IN_M
 
         # Hyper parameters
-        self.N_samples = Configuration().N_samples
+        self.N_samples = Configuration().N_SAMPLES
         self.frontier_sample_radius_num_cells = self.lg_num_cells / 2
 
-        self.prune_radius = Configuration().prune_radius
+        self.prune_radius = Configuration().PRUNE_RADIUS
 
     ############################################################################################
     ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###

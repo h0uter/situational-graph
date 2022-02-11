@@ -7,11 +7,11 @@ class LocalGridImageSpoofer():
     def __init__(self) -> None:
         cfg = Configuration()
 
-        self.lg_num_cells = cfg.lg_num_cells
-        self.lg_cell_size_m = cfg.lg_cell_size_m
-        self.total_map_len_in_m = cfg.total_map_len_m
+        self.lg_num_cells = cfg.LG_NUM_CELLS
+        self.lg_cell_size_m = cfg.LG_CELL_SIZE_M
+        self.total_map_len_in_m = cfg.TOTAL_MAP_LEN_M
 
-        upside_down_map_img = Image.open(cfg.full_path)
+        upside_down_map_img = Image.open(cfg.FULL_PATH)
         self.map_img = img_axes2world_axes(upside_down_map_img)
 
 

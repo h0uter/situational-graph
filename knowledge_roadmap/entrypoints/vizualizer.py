@@ -22,12 +22,12 @@ class Vizualizer:
         self.initialized = False
 
         self.cfg = Configuration()
-        self.origin_x_offset = self.cfg.total_map_len_m_x / 2
-        self.origin_y_offset = self.cfg.total_map_len_m_y / 2
+        self.origin_x_offset = self.cfg.TOTAL_MAP_LEN_M_X / 2
+        self.origin_y_offset = self.cfg.TOTAL_MAP_LEN_M_Y / 2
 
         self.map_img = None
-        if self.cfg.full_path:
-            upside_down_map_img = Image.open(self.cfg.full_path)
+        if self.cfg.FULL_PATH:
+            upside_down_map_img = Image.open(self.cfg.FULL_PATH)
             self.map_img = img_axes2world_axes(upside_down_map_img)
 
     def init_fig(self):
@@ -259,7 +259,7 @@ class Vizualizer:
             self.init_fig()
 
         close_nodes = krm.get_nodes_of_type_in_margin(
-            lg.world_pos, self.cfg.lg_length_in_m / 2, "waypoint"
+            lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, "waypoint"
         )
         points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
 
@@ -316,12 +316,12 @@ class Vizualizer:
         self.viz_krm_on_floorplan(krm)
         self.draw_lg_unzoomed_in_world_coord(lg)
         self.draw_agent_and_sensor_range(
-            agent.pos, self.ax2, rec_len=self.cfg.lg_length_in_m
+            agent.pos, self.ax2, rec_len=self.cfg.LG_LENGTH_IN_M
         )
 
         self.viz_krm_no_floorplan(krm, agent)
         self.draw_agent_and_sensor_range(
-            agent.pos, self.ax1, rec_len=self.cfg.lg_length_in_m
+            agent.pos, self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M
         )
 
         plt.pause(0.001)
