@@ -1,14 +1,12 @@
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib
 import networkx as nx
 
 from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.agent import Agent
 from knowledge_roadmap.entities.local_grid import LocalGrid
-
 from knowledge_roadmap.utils.config import Configuration
-
-import matplotlib
 
 matplotlib.use("Qt5agg")
 

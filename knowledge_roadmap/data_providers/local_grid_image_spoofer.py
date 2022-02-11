@@ -1,11 +1,18 @@
-
-
-from multiprocessing.context import SpawnProcess
+from knowledge_roadmap.utils.config import Configuration
+from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
+from PIL import Image
 
 
 class LocalGridImageSpoofer():
     def __init__(self) -> None:
-        pass
+        cfg = Configuration()
+
+        self.lg_num_cells = cfg.lg_num_cells
+        self.lg_cell_size_m = cfg.lg_cell_size_m
+        self.total_map_len_in_m = cfg.total_map_len_m
+
+        upside_down_map_img = Image.open(cfg.full_path)
+        self.map_img = img_axes2world_axes(upside_down_map_img)
 
     def sim_calc_total_img_length_in_m(
         self, whole_damn_img, cell_size_in_m: float
@@ -51,8 +58,8 @@ class LocalGridImageSpoofer():
         return cell_length_x, cell_length_y
         
     def world_coord2global_pix_idx(self, map_img:list, x_pos:float, y_pos:float, spoof_img_length_in_m: tuple) -> tuple:
-        Nx_pix = map_img.shape[1]
-        Ny_pix = map_img.shape[0]
+        Nx_pix = self.map_img.shape[1]
+        Ny_pix = self.map_img.shape[0]
 
         x_map_length_scale = spoof_img_length_in_m[0]
         y_map_length_scale = spoof_img_length_in_m[1]
@@ -68,19 +75,19 @@ class LocalGridImageSpoofer():
 
         return x_pix, y_pix
 
-    def sim_spoof_local_grid_from_img_world(self, agent_pos: tuple, img: list, num_cells: int, spoof_img_length_in_m: tuple) -> list:
+    def sim_spoof_local_grid_from_img_world(self, agent_pos: tuple) -> list:
         x, y = agent_pos  # world coords
-        x, y = self.world_coord2global_pix_idx(img, x, y, spoof_img_length_in_m)
-        half_size_in_pix = num_cells // 2
+        x, y = self.world_coord2global_pix_idx(self.map_img, x, y, self.total_map_len_in_m)
+        half_size_in_pix = self.lg_num_cells // 2
         
         # BUG:: cannot sample near edge of the image world_img.
         # BUG: rounding error can create uneven shaped local grid.
-        local_grid_img = img[
+        local_grid_img = self.map_img[
             int(y - half_size_in_pix) : int(y + half_size_in_pix),
             int(x - half_size_in_pix) : int(x + half_size_in_pix),
         ]
-        if not local_grid_img.shape[0:2] == (num_cells, num_cells):
-            print(f"mismatch in localgrid shape {local_grid_img.shape}, lg num cells {num_cells }")
+        if not local_grid_img.shape[0:2] == (self.lg_num_cells, self.lg_num_cells):
+            print(f"mismatch in localgrid shape {local_grid_img.shape}, lg num cells {self.lg_num_cells }")
 
         return local_grid_img
 

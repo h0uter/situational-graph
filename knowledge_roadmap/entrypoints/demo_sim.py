@@ -27,23 +27,15 @@ matplotlib.use("Tkagg")
 def init_entities():
     upside_down_map_img = Image.open(cfg.full_path)
     map_img = img_axes2world_axes(upside_down_map_img)
-    # world = ManualGraphWorld()
     gui = GUI(
         map_img=map_img,
         origin_x_offset=cfg.total_map_len_m_x / 2,
         origin_y_offset=cfg.total_map_len_m_y / 2,
     )
 
-    # gui.preview_graph_world(world)
     agent = Agent(start_pos=cfg.agent_start_pos)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
-
-    lga = LocalGridAdapter(
-        img_length_in_m=cfg.total_map_len_m,
-        mode="spoof",
-        num_cells=cfg.lg_num_cells,
-        cell_size_m=cfg.lg_cell_size_m,
-    )
+    lga = LocalGridAdapter()
 
     exploration_use_case = ExplorationUsecase(
         agent,

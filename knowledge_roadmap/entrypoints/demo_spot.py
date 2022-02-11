@@ -54,10 +54,10 @@ def exploration_spot(plotting="none"):
     }
 
     lga = LocalGridAdapter(
-        img_length_in_m=cfg.total_map_len_m,
+        total_map_len_m=cfg.total_map_len_m,
         mode="spoof",
-        num_cells=cfg.lg_num_cells,
-        cell_size_m=cfg.lg_cell_size_m,
+        lg_num_cells=cfg.lg_num_cells,
+        lg_cell_size_m=cfg.lg_cell_size_m,
         debug_container=debug_container,
     )
 
