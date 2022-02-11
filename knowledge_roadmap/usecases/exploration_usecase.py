@@ -1,7 +1,7 @@
 import networkx as nx
 import uuid
 
-from knowledge_roadmap.entities.agent import Agent
+from knowledge_roadmap.entities.abstract_agent import AbstractAgent
 from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
 from knowledge_roadmap.entities.local_grid import LocalGrid
 from config import Configuration
@@ -9,7 +9,7 @@ from config import Configuration
 class ExplorationUsecase:
     def __init__(
         self,
-        agent: Agent,
+        agent: AbstractAgent,
         len_of_map: float,
         lg_num_cells: int,
         lg_length_in_m,
@@ -37,7 +37,7 @@ class ExplorationUsecase:
     ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
     #############################################################################################
     def evaluate_frontiers(
-        self, agent: Agent, frontier_idxs: list, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, frontier_idxs: list, krm: KnowledgeRoadmap
     ) -> int:
         """ 
         Evaluate the frontiers and return the best one.
@@ -61,7 +61,7 @@ class ExplorationUsecase:
 
     #############################################################################################
 
-    def select_target_frontier(self, agent: Agent, krm: KnowledgeRoadmap) -> int:
+    def select_target_frontier(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> int:
         """ using the KRM, obtain the optimal frontier to visit next"""
         frontier_idxs = krm.get_all_frontiers_idxs()
         if len(frontier_idxs) > 0:
@@ -73,7 +73,7 @@ class ExplorationUsecase:
             return None, None
 
     def find_path_to_selected_frontier(
-        self, agent: Agent, target_frontier: int, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, target_frontier: int, krm: KnowledgeRoadmap
     ) -> list:
         """
         Find the shortest path from the current waypoint to the target frontier.
@@ -85,7 +85,7 @@ class ExplorationUsecase:
         return path
 
     def real_sample_step(
-        self, agent: Agent, krm: KnowledgeRoadmap, lg: LocalGrid,
+        self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
     ) -> None:
         frontiers_cells = lg.sample_frontiers_on_cellmap(
             radius=self.frontier_sample_radius_num_cells,
@@ -95,7 +95,7 @@ class ExplorationUsecase:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             krm.add_frontier(frontier_pos_global, agent.at_wp)
 
-    def sample_waypoint(self, agent: Agent, krm: KnowledgeRoadmap) -> None:
+    def sample_waypoint(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         this should be sampled from the pose graph eventually
@@ -140,7 +140,7 @@ class ExplorationUsecase:
             for frontier in close_frontiers:
                 krm.remove_frontier(frontier)
 
-    def find_shortcuts_between_wps(self, lg: LocalGrid, krm: KnowledgeRoadmap, agent: Agent):
+    def find_shortcuts_between_wps(self, lg: LocalGrid, krm: KnowledgeRoadmap, agent: AbstractAgent):
         close_nodes = krm.get_nodes_of_type_in_margin(
             lg.world_pos, self.lg_length_in_m / 2, "waypoint"
         )
@@ -163,7 +163,7 @@ class ExplorationUsecase:
                         from_wp, to_wp, type="waypoint_edge", id=uuid.uuid4()
                     )
 
-    def perform_path_step(self, agent: Agent, path:list, krm:KnowledgeRoadmap) -> list or None:
+    def perform_path_step(self, agent: AbstractAgent, path:list, krm:KnowledgeRoadmap) -> list or None:
         '''
         Execute a single step of the path.
         '''
@@ -185,7 +185,7 @@ class ExplorationUsecase:
 
 
     def run_exploration_step(
-        self, agent: Agent, krm: KnowledgeRoadmap, lg: LocalGrid,
+        self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
     ) -> None or bool:
         if not self.init:
             self.real_sample_step(agent, krm, lg)
