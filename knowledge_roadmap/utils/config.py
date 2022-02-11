@@ -1,4 +1,6 @@
 import os
+import logging
+import sys
 
 class Configuration:
     def __init__(self):
@@ -47,3 +49,6 @@ class Configuration:
         self.N_samples = 25
         self.prune_radius = self.lg_length_in_m * 0.25
         self.sample_ring_width = 0.9
+
+        # logging
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
