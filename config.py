@@ -4,8 +4,8 @@ class Configuration:
     def __init__(self):
 
         self.type_of_img = None
-        # case ="villa"
-        case ="maze"
+        case ="villa"
+        # case ="spot"
         if case == "villa":
             self.full_path = os.path.join("resource", "villa_holes_closed.png")
             self.total_map_len_m_x = 50
@@ -34,7 +34,7 @@ class Configuration:
             self.type_of_img = "spot_obstacle_map"
             self.lg_num_cells = 128  # max:400 due to img border margins
             self.lg_cell_size_m = 0.03
-
+            self.full_path = None
 
         # self.total_map_len_m_x = 73
         # self.total_map_len_m_x = 17 # BUG: completely broken on different length scales

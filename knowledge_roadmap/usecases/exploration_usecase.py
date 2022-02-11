@@ -26,7 +26,7 @@ class ExplorationUsecase:
 
         # Hyper parameters
         self.N_samples = Configuration().N_samples
-        self.frontier_sample_radius_num_cells = self.lg_num_cells / 2
+        self.frontier_sample_radius_num_cells = self.lg_num_cells / 2 - 10
 
         # TODO: fix scaling
         self.prune_radius = Configuration().prune_radius

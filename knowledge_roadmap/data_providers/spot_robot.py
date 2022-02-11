@@ -27,6 +27,8 @@ from knowledge_roadmap.utils.get_login_config import get_login_config
 
 import logging
 
+import time
+
 class SpotRobot(AbstractAgent):
 
     def __init__(self, parameter_overrides=None, offline=False):
@@ -35,11 +37,9 @@ class SpotRobot(AbstractAgent):
         Gets config from ROS and initializes the wrapper.
         Holds lease from wrapper and updates all async tasks at the ROS rate
         """
-
+        super().__init__((0,0))
         self._logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
-
-
 
         self.mobility_parameters = {
             'obstacle_padding': 0.1,  # [m]
@@ -100,6 +100,7 @@ class SpotRobot(AbstractAgent):
         else:
             self._logger.warning("Spot wrapper is not valid!")
 
+        time.sleep(5)
     # def __init__(self, debug=False, start_pos=None):
     #     # super().__init__(debug=debug, start_pos=start_pos)
 
@@ -131,7 +132,8 @@ class SpotRobot(AbstractAgent):
         print('Got robot state in kinematic odometry frame: \n%s' % str(odom_tform_body))
         
         print(f"odom_tform_body.position = {odom_tform_body.position}")
-        return odom_tform_body.position.x, odom_tform_body.position.y, odom_tform_body.position.z
+        # return odom_tform_body.position.x, odom_tform_body.position.y, odom_tform_body.position.z
+        return odom_tform_body.position.x, odom_tform_body.position.y
         
 
     def _try_grpc(self, desc, thunk):
@@ -202,6 +204,8 @@ class SpotRobot(AbstractAgent):
     def move_to_pos(self, pos:tuple):
         # self.spot_move_to_pos(pos)
         self.move_vision_frame(pos)
+        time.sleep(5)
+        self.pos = self.get_localization()
 
 
 
