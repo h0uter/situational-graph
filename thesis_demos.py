@@ -87,17 +87,27 @@ def exploration_with_sampling_viz(plotting="none") -> bool:
             points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
             if points:
                 gui.viz_collision_line_to_points_in_world_coord(points, lg)
-            gui.viz_krm(krm)
-            gui.draw_agent(agent.pos, rec_len=cfg.lg_length_in_m)
-            gui.plot_unzoomed_world_coord(lg)
+            
+            # gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
+            gui.viz_godmode(krm)
+            # gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
+            gui.plot_lg_unzoomed_in_world_coord(lg)
+            gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
+            
+
+            gui.draw_rviz(krm, agent)
+            gui.draw_agent(agent.pos, gui.ax1, rec_len=cfg.lg_length_in_m)
+
             plt.pause(0.001)
 
         print(f"step= {step}")
         step += 1
     if plotting == "result only" or plotting == "all":
         plt.figure(1)
-        gui.viz_krm(krm)
-        gui.draw_agent(agent.pos, rec_len=cfg.lg_length_in_m)
+        gui.viz_godmode(krm)
+        gui.draw_agent(agent.pos, gui.ax2, rec_len=cfg.lg_length_in_m)
+        gui.draw_rviz(krm, agent)
+        gui.draw_agent(agent.pos, gui.ax1, rec_len=cfg.lg_length_in_m)
 
         plt.pause(0.001)
         plt.ioff()
@@ -171,16 +181,16 @@ def exploration_spot(plotting="none") -> bool:
             points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
             if points:
                 gui.viz_collision_line_to_points_in_world_coord(points, lg)
-            gui.viz_krm(krm)
+            gui.viz_godmode(krm)
             gui.draw_agent(agent.pos, rec_len=cfg.lg_length_in_m)
-            gui.plot_unzoomed_world_coord(lg)
+            gui.plot_lg_unzoomed_in_world_coord(lg)
             plt.pause(0.001)
 
         print(f"step= {step}")
         step += 1
     if plotting == "result only" or plotting == "all":
         plt.figure(1)
-        gui.viz_krm(krm)
+        gui.viz_godmode(krm)
         gui.draw_agent(agent.pos, rec_len=cfg.lg_length_in_m)
 
         plt.pause(0.001)

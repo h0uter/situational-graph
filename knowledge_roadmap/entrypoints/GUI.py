@@ -12,8 +12,7 @@ matplotlib.use("Qt5agg")
 
 
 class GUI:
-
-    def __init__(self, origin_x_offset, origin_y_offset, map_img=None,) -> None:
+    def __init__(self, origin_x_offset=0, origin_y_offset=0, map_img=None,) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
         self.initialized = False
@@ -71,7 +70,13 @@ class GUI:
         ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
         plt.show()
 
-    def draw_agent(self, pos: tuple, rec_len=7) -> None:
+    def init_fig(self):
+        self.fig, ((self.ax1, self.ax2), (self.ax3, self.ax4)) = plt.subplots(2, 2, figsize=(15, 10), num=1)
+        plt.ion()
+        self.fig.tight_layout()
+        self.initialized = True
+
+    def draw_agent(self, pos: tuple, ax, rec_len=7) -> None:
         """
         Draw the agent on the world.
         
@@ -80,17 +85,17 @@ class GUI:
         (optional)
         :return: None
         """
-        if self.agent_drawing != None:
-            self.agent_drawing.remove()
-        if self.local_grid_drawing != None:
-            self.local_grid_drawing.remove()
+        # if self.agent_drawing != None:
+        #     self.agent_drawing.remove()
+        # if self.local_grid_drawing != None:
+        #     self.local_grid_drawing.remove()
         # self.agent_drawing = plt1.arrow(
         #     pos[0], pos[1], 0.3, 0.3, width=0.4, color='blue') # One day the agent will have direction
-        self.agent_drawing = self.ax1.add_patch(
+        self.agent_drawing = ax.add_patch(
             plt.Circle((pos[0], pos[1]), 1.2, fc="blue")
         )
 
-        self.local_grid_drawing = self.ax1.add_patch(
+        self.local_grid_drawing = ax.add_patch(
             plt.Rectangle(
                 (pos[0] - 0.5 * rec_len, pos[1] - 0.5 * rec_len),
                 rec_len,
@@ -101,15 +106,14 @@ class GUI:
         )
 
     def draw_local_grid(self, lg: LocalGrid) -> None:
-        '''
+        """
         Draw the local grid on the right side of the figure
         
         :param lg: LocalGrid
         :type lg: LocalGrid
-        '''
+        """
         if not self.initialized:
-            self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
-            self.initialized = True
+            self.init_fig()
 
         # self.ax2.cla()
         self.ax2.imshow(lg.data, origin="lower")
@@ -123,43 +127,32 @@ class GUI:
         self.ax2.set_aspect("equal", "box")  # set the aspect ratio of the plot
         self.ax2.set_title("local grid")
 
-    def viz_krm(self, krm: KnowledgeRoadmap) -> None:
-        '''
-        It visualizes the knowledge roadmap.
+    def draw_rviz(self, krm: KnowledgeRoadmap, agent: Agent) -> None:
+        """
+        Draw the agent's perspective on the world, like RViz.
         
         :param krm: KnowledgeRoadmap
-        :type krm: KnowledgeRoadmap
-        '''
-
+        :param agent: Agent
+        :return: None
+        """
         if not self.initialized:
-            self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
-            self.initialized = True
-        
-        self.fig.tight_layout()
+            self.init_fig()
 
         self.ax1.cla()  # XXX: plt1.cla is the bottleneck in my performance.
-    
-        self.ax1.set_title("Online Construction of Knowledge Roadmap")
+
+        self.ax1.set_title("RViz: Online Construction of Knowledge Roadmap")
         self.ax1.set_xlabel("x", size=10)
         self.ax1.set_ylabel("y", size=10)
 
-        if self.map_img is not None:
-            self.ax1.imshow(
-                self.map_img,
-                extent=[
-                    -self.origin_x_offset,
-                    self.origin_x_offset,
-                    -self.origin_y_offset,
-                    self.origin_y_offset,
-                ],
-                origin="lower",
-                alpha=0.25,
-            )
-        else:
-            self.ax1.set_xlim([-70, 70])
-            self.ax1.set_ylim([-70, 70])
+        self.draw_krm(krm, self.ax1)
 
-        positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos") 
+        self.ax1.axis("on")  # turns on axis
+        self.ax1.set_aspect("equal", "box")  # set the aspect ratio of the plot
+        self.ax1.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
+
+
+    def draw_krm(self, krm, ax):
+        positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
         # filter the nodes and edges based on their type
         waypoint_nodes = dict(
             (n, d["type"])
@@ -198,7 +191,7 @@ class GUI:
             krm.graph,
             positions_of_all_nodes,
             nodelist=world_object_nodes.keys(),
-            ax=self.ax1,
+            ax=ax,
             node_color="violet",
             node_size=575,
         )
@@ -206,7 +199,7 @@ class GUI:
             krm.graph,
             positions_of_all_nodes,
             nodelist=frontier_nodes.keys(),
-            ax=self.ax1,
+            ax=ax,
             node_color="green",
             node_size=250,
         )
@@ -214,50 +207,82 @@ class GUI:
             krm.graph,
             positions_of_all_nodes,
             nodelist=waypoint_nodes.keys(),
-            ax=self.ax1,
+            ax=ax,
             node_color="red",
             node_size=100,
         )
         nx.draw_networkx_edges(
             krm.graph,
             positions_of_all_nodes,
-            ax=self.ax1,
+            ax=ax,
             edgelist=waypoint_edges.keys(),
             edge_color="red",
         )
         nx.draw_networkx_edges(
             krm.graph,
             positions_of_all_nodes,
-            ax=self.ax1,
+            ax=ax,
             edgelist=world_object_edges.keys(),
             edge_color="purple",
         )
         nx.draw_networkx_edges(
             krm.graph,
             positions_of_all_nodes,
-            ax=self.ax1,
+            ax=ax,
             edgelist=frontier_edges.keys(),
             edge_color="green",
             width=4,
         )
 
-        nx.draw_networkx_labels(krm.graph, positions_of_all_nodes, ax=self.ax1, font_size=6)
-        self.ax1.axis("on")  # turns on axis
-        self.ax1.set_aspect("equal", "box")  # set the aspect ratio of the plot
-        self.ax1.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
+        nx.draw_networkx_labels(
+            krm.graph, positions_of_all_nodes, ax=ax, font_size=6
+        )
 
-    def plot_unzoomed_world_coord(self, lg: LocalGrid) -> None:
-        '''
+    def viz_godmode(self, krm: KnowledgeRoadmap) -> None:
+        """ Like Gazebo """
+
+        if not self.initialized:
+            self.init_fig()
+
+        self.ax2.cla()  # XXX: plt1.cla is the bottleneck in my performance.
+
+        self.ax2.set_title("Gazebo: Online Construction of Knowledge Roadmap")
+        self.ax2.set_xlabel("x", size=10)
+        self.ax2.set_ylabel("y", size=10)
+
+        if self.map_img is not None:
+            self.ax2.imshow(
+                self.map_img,
+                extent=[
+                    -self.origin_x_offset,
+                    self.origin_x_offset,
+                    -self.origin_y_offset,
+                    self.origin_y_offset,
+                ],
+                origin="lower",
+                alpha=0.25,
+            )
+        else:
+            self.ax2.set_xlim([-70, 70])
+            self.ax2.set_ylim([-70, 70])
+
+        self.draw_krm(krm, self.ax2)
+        self.ax2.axis("on")  # turns on axis
+        self.ax2.set_aspect("equal", "box")  # set the aspect ratio of the plot
+        self.ax2.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
+
+    def plot_lg_unzoomed_in_world_coord(self, lg: LocalGrid) -> None:
+        """
         It plots the local grid on the world map.
         
         :param lg: LocalGrid
         :type lg: LocalGrid
-        '''
+        """
         # TODO: emulate the local grid with this cmap alpha yada yada
         # my_cmap = cm.jet
         # my_cmap.set_under('k', alpha=0)
 
-        self.ax1.imshow(
+        self.ax2.imshow(
             lg.data,
             origin="lower",
             extent=[
@@ -271,18 +296,18 @@ class GUI:
             clim=[0, 0.5],
         )
 
-        self.ax1.set_xlim([-self.origin_x_offset, self.origin_x_offset])
-        self.ax1.set_ylim([-self.origin_y_offset, self.origin_y_offset])
+        self.ax2.set_xlim([-self.origin_x_offset, self.origin_x_offset])
+        self.ax2.set_ylim([-self.origin_y_offset, self.origin_y_offset])
 
-    def viz_collision_line_to_points_in_world_coord(self, points: list, lg:LocalGrid) -> None:        
+    def viz_collision_line_to_points_in_world_coord(
+        self, points: list, lg: LocalGrid
+    ) -> None:
         if not self.initialized:
-            self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(15, 10), num=1)
-            self.initialized = True
+            self.init_fig()
 
-        plt.cla()
-        plt.ion()
+        self.ax4.cla()
 
-        self.ax2.set_title("local grid sampling of shortcuts")
+        self.ax4.set_title("local grid sampling of shortcuts")
         plt.imshow(
             lg.data,
             origin="lower",
@@ -293,31 +318,35 @@ class GUI:
                 lg.world_pos[1] + lg.length_in_m / 2,
             ],
         )
-        for point in points:            
+        for point in points:
             at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
             to_cell = lg.world_coords2cell_idxs(point)
 
-
-            plt.plot([lg.world_pos[0],point[0]], [lg.world_pos[1],point[1]], color="orange")
             plt.plot(
-                point[0],
-                point[1],
-                marker="o",
-                markersize=10,
-                color="red",
+                [lg.world_pos[0], point[0]], [lg.world_pos[1], point[1]], color="orange"
+            )
+            plt.plot(
+                point[0], point[1], marker="o", markersize=10, color="red",
             )
 
-            _, collision_point = lg.is_collision_free_straight_line_between_cells(at_cell, to_cell)
+            _, collision_point = lg.is_collision_free_straight_line_between_cells(
+                at_cell, to_cell
+            )
             if collision_point:
-                plt.plot(collision_point[0], collision_point[1], marker='X', color='red', markersize=20)
-        
+                plt.plot(
+                    collision_point[0],
+                    collision_point[1],
+                    marker="X",
+                    color="red",
+                    markersize=20,
+                )
+
         plt.plot(
-            lg.world_pos[0],
-            lg.world_pos[1],
-            marker="o",
-            markersize=10,
-            color="blue",
+            lg.world_pos[0], lg.world_pos[1], marker="o", markersize=10, color="blue",
         )
+
+    # def draw_update(self):
+    #     self.draw_rviz()
 
     def debug_logger(self, krm: KnowledgeRoadmap, agent: Agent) -> None:
         """
