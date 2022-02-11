@@ -14,6 +14,7 @@ from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
 
 matplotlib.use("Qt5agg")
 
+
 class Vizualizer:
     def __init__(self) -> None:
         self.agent_drawing = None
@@ -29,58 +30,9 @@ class Vizualizer:
             upside_down_map_img = Image.open(self.cfg.full_path)
             self.map_img = img_axes2world_axes(upside_down_map_img)
 
-    def preview_graph_world(self, world) -> None:
-        """This function is used to preview the underlying graph used as a simplified world to sample from."""
-        fig, ax = plt.subplots(figsize=(10, 10))
-
-        if self.map_img is not None:
-            ax.imshow(
-                self.map_img,
-                extent=[
-                    -self.origin_x_offset,
-                    self.origin_x_offset,
-                    -self.origin_y_offset,
-                    self.origin_y_offset,
-                ],
-                origin="lower",
-            )
-            ax.set_xlim([-self.origin_x_offset, self.origin_x_offset])
-            ax.set_ylim([-self.origin_y_offset, self.origin_y_offset])
-        else:
-            ax.set_xlim([-100, 100])
-            ax.set_ylim([-100, 100])
-
-        ax.set_xlabel("x", size=10)
-        ax.set_ylabel("y", size=10)
-
-        nx.draw_networkx_nodes(
-            world.graph,
-            pos=nx.get_node_attributes(world.graph, "pos"),
-            ax=ax,
-            node_color="grey",
-            node_size=100,
-        )
-        nx.draw_networkx_edges(
-            world.graph,
-            pos=nx.get_node_attributes(world.graph, "pos"),
-            ax=ax,
-            edge_color="grey",
-        )
-
-        nx.draw_networkx_labels(
-            world.graph,
-            pos=nx.get_node_attributes(world.graph, "pos"),
-            ax=ax,
-            font_size=7,
-        )
-
-        plt.axis("on")
-        ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
-        plt.show()
-
     def init_fig(self):
         self.fig, ((self.ax1, self.ax2), (self.ax3, self.ax4)) = plt.subplots(
-            2, 2, figsize=(15, 10), num=1
+            2, 2, figsize=(10, 10), num=1
         )
         plt.ion()
         self.fig.tight_layout()
@@ -299,59 +251,78 @@ class Vizualizer:
         self.ax2.set_xlim([-self.origin_x_offset, self.origin_x_offset])
         self.ax2.set_ylim([-self.origin_y_offset, self.origin_y_offset])
 
-    def draw_collision_line_to_points_in_world_coord(
-        self, points: list, lg: LocalGrid
+    def draw_shortcut_collision_lines(
+        self, lg: LocalGrid, krm: KnowledgeRoadmap
     ) -> None:
+
         if not self.initialized:
             self.init_fig()
 
-        self.ax4.cla()
-
-        self.ax4.set_title("Local grid sampling of shortcuts")
-        plt.imshow(
-            lg.data,
-            origin="lower",
-            extent=[
-                lg.world_pos[0] - lg.length_in_m / 2,
-                lg.world_pos[0] + lg.length_in_m / 2,
-                lg.world_pos[1] - lg.length_in_m / 2,
-                lg.world_pos[1] + lg.length_in_m / 2,
-            ],
+        close_nodes = krm.get_nodes_of_type_in_margin(
+            lg.world_pos, self.cfg.lg_length_in_m / 2, "waypoint"
         )
-        for point in points:
-            at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
-            to_cell = lg.world_coords2cell_idxs(point)
+        points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
 
-            plt.plot(
-                [lg.world_pos[0], point[0]], [lg.world_pos[1], point[1]], color="orange"
-            )
-            plt.plot(
-                point[0], point[1], marker="o", markersize=10, color="red",
-            )
+        if points:
+            self.ax4.cla()
 
-            _, collision_point = lg.is_collision_free_straight_line_between_cells(
-                at_cell, to_cell
+            self.ax4.set_title("Local grid sampling of shortcuts")
+            self.ax4.imshow(
+                lg.data,
+                origin="lower",
+                extent=[
+                    lg.world_pos[0] - lg.length_in_m / 2,
+                    lg.world_pos[0] + lg.length_in_m / 2,
+                    lg.world_pos[1] - lg.length_in_m / 2,
+                    lg.world_pos[1] + lg.length_in_m / 2,
+                ],
             )
-            if collision_point:
-                plt.plot(
-                    collision_point[0],
-                    collision_point[1],
-                    marker="X",
-                    color="red",
-                    markersize=20,
+            for point in points:
+                at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
+                to_cell = lg.world_coords2cell_idxs(point)
+
+                self.ax4.plot(
+                    [lg.world_pos[0], point[0]],
+                    [lg.world_pos[1], point[1]],
+                    color="orange",
+                )
+                self.ax4.plot(
+                    point[0], point[1], marker="o", markersize=10, color="red",
                 )
 
-        plt.plot(
-            lg.world_pos[0], lg.world_pos[1], marker="o", markersize=10, color="blue",
-        )
+                _, collision_point = lg.is_collision_free_straight_line_between_cells(
+                    at_cell, to_cell
+                )
+                if collision_point:
+                    self.ax4.plot(
+                        collision_point[0],
+                        collision_point[1],
+                        marker="X",
+                        color="red",
+                        markersize=20,
+                    )
+
+            self.ax4.plot(
+                lg.world_pos[0],
+                lg.world_pos[1],
+                marker="o",
+                markersize=10,
+                color="blue",
+            )
 
     def figure_update(self, krm, agent, lg):
+        self.draw_shortcut_collision_lines(lg, krm)
+
         self.viz_krm_on_floorplan(krm)
         self.draw_lg_unzoomed_in_world_coord(lg)
-        self.draw_agent_and_sensor_range(agent.pos, self.ax2, rec_len=self.cfg.lg_length_in_m)
+        self.draw_agent_and_sensor_range(
+            agent.pos, self.ax2, rec_len=self.cfg.lg_length_in_m
+        )
 
         self.viz_krm_no_floorplan(krm, agent)
-        self.draw_agent_and_sensor_range(agent.pos, self.ax1, rec_len=self.cfg.lg_length_in_m)
+        self.draw_agent_and_sensor_range(
+            agent.pos, self.ax1, rec_len=self.cfg.lg_length_in_m
+        )
 
         plt.pause(0.001)
 
@@ -367,3 +338,52 @@ class Vizualizer:
         print(f">>> movement: {agent.previous_pos} >>>>>> {agent.pos}")
         print(f">>> frontiers: {krm.get_all_frontiers_idxs()}")
         print("==============================")
+
+    def preview_graph_world(self, world) -> None:
+        """This function is used to preview the underlying graph used as a simplified world to sample from."""
+        fig, ax = plt.subplots(figsize=(10, 10))
+
+        if self.map_img is not None:
+            ax.imshow(
+                self.map_img,
+                extent=[
+                    -self.origin_x_offset,
+                    self.origin_x_offset,
+                    -self.origin_y_offset,
+                    self.origin_y_offset,
+                ],
+                origin="lower",
+            )
+            ax.set_xlim([-self.origin_x_offset, self.origin_x_offset])
+            ax.set_ylim([-self.origin_y_offset, self.origin_y_offset])
+        else:
+            ax.set_xlim([-100, 100])
+            ax.set_ylim([-100, 100])
+
+        ax.set_xlabel("x", size=10)
+        ax.set_ylabel("y", size=10)
+
+        nx.draw_networkx_nodes(
+            world.graph,
+            pos=nx.get_node_attributes(world.graph, "pos"),
+            ax=ax,
+            node_color="grey",
+            node_size=100,
+        )
+        nx.draw_networkx_edges(
+            world.graph,
+            pos=nx.get_node_attributes(world.graph, "pos"),
+            ax=ax,
+            edge_color="grey",
+        )
+
+        nx.draw_networkx_labels(
+            world.graph,
+            pos=nx.get_node_attributes(world.graph, "pos"),
+            ax=ax,
+            font_size=7,
+        )
+
+        plt.axis("on")
+        ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
+        plt.show()

@@ -92,7 +92,7 @@ def exploration_spot(plotting="none"):
             )
             points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
             if points:
-                gui.draw_collision_line_to_points_in_world_coord(points, lg)
+                gui.draw_shortcut_collision_lines(points, lg)
             
             gui.figure_update(krm, agent, lg)
 
