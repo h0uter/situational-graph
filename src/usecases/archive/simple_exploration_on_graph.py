@@ -1,7 +1,7 @@
    
-from knowledge_roadmap.entities.agent import Agent
-from knowledge_roadmap.entities.archive.frontier_sampler import FrontierSampler
-from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
+from src.entities.simulated_agent import SimulatedAgent
+from src.entities.archive.frontier_sampler import FrontierSampler
+from src.data_providers.local_grid_adapter import LocalGridAdapter
 
 import networkx as nx
 
@@ -9,7 +9,7 @@ import uuid
    
 class graphExplorationUseCase():
 
-    def __init__(self, agent:Agent, debug=True):
+    def __init__(self, agent:SimulatedAgent, debug=True):
         self.agent  = agent
         self.consumable_path = None
         self.selected_frontier_idx = None
@@ -109,7 +109,7 @@ class graphExplorationUseCase():
         elif not self.selected_frontier_idx:
             '''if there are no more frontiers, exploration is done'''
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
-            if self.agent.no_more_frontiers:
+            if self.no_more_frontiers:
                 print("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
                 print(f"It took {self.agent.steps_taken} steps to complete the exploration.")
                 return True

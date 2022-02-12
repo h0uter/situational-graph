@@ -3,10 +3,10 @@ import uuid
 
 import networkx as nx
 
-from knowledge_roadmap.entities.abstract_agent import AbstractAgent
-from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
-from knowledge_roadmap.entities.local_grid import LocalGrid
-from knowledge_roadmap.utils.config import Configuration
+from src.entities.abstract_agent import AbstractAgent
+from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.local_grid import LocalGrid
+from src.utils.configuration import Configuration
 
 
 class ExplorationUsecase:
@@ -20,6 +20,7 @@ class ExplorationUsecase:
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False
+        self.no_more_frontiers = False
 
         cfg = Configuration()
         self.total_map_len_m = cfg.TOTAL_MAP_LEN_M
@@ -68,7 +69,7 @@ class ExplorationUsecase:
 
             return target_frontier
         else:
-            agent.no_more_frontiers = True
+            self.no_more_frontiers = True
             return None, None
 
     def find_path_to_selected_frontier(
@@ -206,7 +207,7 @@ class ExplorationUsecase:
         elif not self.selected_frontier_idx:
             """if there are no more frontiers, exploration is done"""
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
-            if agent.no_more_frontiers:
+            if self.no_more_frontiers:
                 logging.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
                 logging.info(f"It took {self.agent.steps_taken} steps to complete the exploration.")
                 return True

@@ -5,11 +5,11 @@ import networkx as nx
 from PIL import Image
 
 
-from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
-from knowledge_roadmap.entities.agent import Agent
-from knowledge_roadmap.entities.local_grid import LocalGrid
-from knowledge_roadmap.utils.config import Configuration
-from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
+from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.simulated_agent import SimulatedAgent
+from src.entities.local_grid import LocalGrid
+from src.utils.configuration import Configuration
+from src.utils.coordinate_transforms import img_axes2world_axes
 
 
 matplotlib.use("Qt5agg")
@@ -167,7 +167,7 @@ class Vizualizer:
 
         nx.draw_networkx_labels(krm.graph, positions_of_all_nodes, ax=ax, font_size=6)
 
-    def viz_krm_no_floorplan(self, krm: KnowledgeRoadmap, agent: Agent) -> None:
+    def viz_krm_no_floorplan(self, krm: KnowledgeRoadmap, agent: SimulatedAgent) -> None:
         """
         Draw the agent's perspective on the world, like RViz.
         
@@ -326,7 +326,7 @@ class Vizualizer:
 
         plt.pause(0.001)
 
-    def debug_logger(self, krm: KnowledgeRoadmap, agent: Agent) -> None:
+    def debug_logger(self, krm: KnowledgeRoadmap, agent: SimulatedAgent) -> None:
         """
         Prints debug statements.
         

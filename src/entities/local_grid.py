@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 import logging
 
-from knowledge_roadmap.utils.config import Configuration
+from src.utils.configuration import Configuration
 
 class LocalGrid:
 

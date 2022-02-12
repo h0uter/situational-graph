@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import draw
 
-from knowledge_roadmap.entities.local_grid import LocalGrid
+from src.entities.local_grid import LocalGrid
 
 EMPTY_CELL = 0
 OBSTACLE_CELL = 1

@@ -2,14 +2,13 @@ from abc import ABC, abstractmethod
 
 class AbstractAgent(ABC):
 
-    def __init__(self, start_pos:tuple) -> None:
+    @abstractmethod
+    def __init__(self, start_pos:tuple[float, float]) -> None:
         # TODO: remove as much as possible
         self.at_wp = 0
-        self.pos = start_pos
+        self.pos :tuple[float,float] = start_pos
         self.previous_pos = self.pos
 
-        # FIXME: this should not be in the agent
-        self.no_more_frontiers = False
         # FIXME: this should not be in the agent
         self.steps_taken = 0
 
@@ -20,6 +19,15 @@ class AbstractAgent(ABC):
         
         :param pos: the position of the agent
         :return: None
+        '''
+        pass
+
+    @abstractmethod
+    def get_local_grid_img(self) -> list[list]:
+        '''
+        Return the local grid image around the agent.
+        
+        :return: The local grid image.
         '''
         pass
 

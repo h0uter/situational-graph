@@ -1,18 +1,18 @@
 import matplotlib.pyplot as plt
 import logging
 
-from knowledge_roadmap.entities.agent import Agent
-from knowledge_roadmap.data_providers.spot_agent import SpotAgent
+from src.entities.simulated_agent import SimulatedAgent
+from src.data_providers.spot_agent import SpotAgent
 
 
-from knowledge_roadmap.data_providers.manual_graph_world import ManualGraphWorld
-from knowledge_roadmap.entrypoints.vizualizer import Vizualizer
-from knowledge_roadmap.usecases.exploration_usecase import ExplorationUsecase
-from knowledge_roadmap.data_providers.local_grid_adapter import LocalGridAdapter
-from knowledge_roadmap.entities.knowledge_roadmap import KnowledgeRoadmap
-from knowledge_roadmap.entities.local_grid import LocalGrid
-from knowledge_roadmap.utils.config import Configuration
-from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
+from src.data_providers.manual_graph_world import ManualGraphWorld
+from src.entrypoints.vizualizer import Vizualizer
+from src.usecases.exploration_usecase import ExplorationUsecase
+from src.data_providers.local_grid_adapter import LocalGridAdapter
+from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.local_grid import LocalGrid
+from src.utils.configuration import Configuration
+from src.utils.coordinate_transforms import img_axes2world_axes
 
 import matplotlib
 
@@ -36,7 +36,7 @@ def init_spot_entities():
 
 def init_sim_entities():
     gui = Vizualizer()
-    agent = Agent(start_pos=cfg.AGENT_START_POS)
+    agent = SimulatedAgent(start_pos=cfg.AGENT_START_POS)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
     lga = LocalGridAdapter()
     exploration_usecase = ExplorationUsecase(agent)
@@ -53,7 +53,7 @@ def exploration_with_sampling_viz(plotting="none"):
     gui, agent, krm, lga, exploration_usecase = init_sim_entities()
 
     exploration_completed = False
-    while agent.no_more_frontiers == False: # TODO: no more frontiers should be exploration atttribute
+    while exploration_usecase.no_more_frontiers == False: # TODO: no more frontiers should be exploration atttribute
 
         lg_img = lga.get_local_grid(agent)
 
