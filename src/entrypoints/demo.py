@@ -11,9 +11,6 @@ from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.utils.configuration import Configuration
 
-import matplotlib
-
-# matplotlib.use("Tkagg")
 
 ############################################################################################
 # DEMONSTRATIONS

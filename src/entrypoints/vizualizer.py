@@ -4,17 +4,17 @@ import matplotlib
 import networkx as nx
 from PIL import Image
 import streamlit as st
-from abstract_agent import AbstractAgent
 
 
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.simulated_agent import SimulatedAgent
+from src.entities.abstract_agent import AbstractAgent
 from src.entities.local_grid import LocalGrid
 from src.utils.configuration import Configuration
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 
-# matplotlib.use("Qt5agg")
+matplotlib.use("Qt5agg")
 
 
 class Vizualizer:
