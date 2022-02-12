@@ -39,7 +39,8 @@ class SpotAgent(AbstractAgent):
         Gets config from ROS and initializes the wrapper.
         Holds lease from wrapper and updates all async tasks at the ROS rate
         """
-        super().__init__(start_pos)
+        # super().__init__(start_pos)
+        super().__init__(self.get_localization())
 
         self._logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
@@ -93,6 +94,8 @@ class SpotAgent(AbstractAgent):
         self.move_vision_frame(pos)
         time.sleep(5)
         self.pos = self.get_localization()
+        self.steps_taken += 1
+
 
     def get_local_grid_img(self) -> list[list]:
         return get_local_grid(self)
@@ -131,8 +134,6 @@ class SpotAgent(AbstractAgent):
             speed_limit_angular=self.mobility_parameters['speed_limit_angular'],
             locomotion_hint=self.mobility_parameters['gait'],
         )
-
- 
 
     def _try_grpc(self, desc, thunk):
         try:
@@ -198,8 +199,6 @@ class SpotAgent(AbstractAgent):
             ),
             end_time_secs=time.time() + 30
         )
-
-
 
 
 ### Local Grid stuff
@@ -304,8 +303,10 @@ def get_local_grid(spot: SpotAgent):
     colored_pts[:,0] = (cells_obstacle_dist <= 0.0)
     colored_pts[:,1] = np.logical_and(0.0 < cells_obstacle_dist, cells_obstacle_dist < OBSTACLE_DISTANCE_TRESHOLD)
     colored_pts[:,2] = (cells_obstacle_dist >= OBSTACLE_DISTANCE_TRESHOLD)
-    twofivefive = 255
-    colored_pts *= twofivefive.astype(np.uint8)
+    # twofivefive = np.array(255)
+    # colored_pts *= twofivefive.astype(np.uint8)
+    colored_pts *= np.uint8(255)
+    # colored_pts *= 255 # removed this because of mypy type error
 
     # so depending on which channel we look at means whether it can be sampled or not.
     
