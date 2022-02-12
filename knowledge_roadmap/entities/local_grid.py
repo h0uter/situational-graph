@@ -20,7 +20,6 @@ class LocalGrid:
         self.pixel_occupied_treshold = 220
         self.sample_ring_width = Configuration().SAMPLE_RING_WIDTH
 
-
         if not self.data.shape[0:2] == (self.length_num_cells, self.length_num_cells):
             self._logger.warning(f"ERROR: data.shape = {self.data.shape[0:2]}, length_num_cells = {self.length_num_cells}")
 

@@ -187,7 +187,7 @@ class ExplorationUsecase:
             self.init = True
 
         elif krm.graph.nodes[krm.get_node_by_pos(self.agent.pos)]["type"] == "frontier":
-            logging.debug(f"1. step: frontier processing")
+            logging.debug(f"Step 1: frontier processing")
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             krm.remove_frontier(self.selected_frontier_idx)
             self.selected_frontier_idx = None
@@ -198,7 +198,7 @@ class ExplorationUsecase:
             self.find_shortcuts_between_wps(lg, krm, agent)
 
         elif self.consumable_path:
-            logging.debug(f"2. step: execute consumable path")
+            logging.debug(f"Step 2: execute consumable path")
             self.consumable_path = self.perform_path_step( 
                 agent, self.consumable_path, krm
             )
@@ -211,8 +211,7 @@ class ExplorationUsecase:
                 logging.info(f"It took {self.agent.steps_taken} steps to complete the exploration.")
                 return True
 
-
-            logging.debug(f"3. step: select target frontier and find path")
+            logging.debug(f"Step 3: select target frontier and find path")
             self.consumable_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
             )
