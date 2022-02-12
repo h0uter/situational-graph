@@ -39,8 +39,7 @@ class SpotAgent(AbstractAgent):
         Gets config from ROS and initializes the wrapper.
         Holds lease from wrapper and updates all async tasks at the ROS rate
         """
-        # super().__init__(start_pos)
-        super().__init__(self.get_localization())
+        super().__init__(start_pos)
 
         self._logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
@@ -88,6 +87,8 @@ class SpotAgent(AbstractAgent):
             self._logger.warning("Spot wrapper is not valid!")
 
         time.sleep(5)
+        
+        self.pos = self.get_localization()
 
     def move_to_pos(self, pos:tuple):
         # self.spot_move_to_pos(pos)
@@ -95,7 +96,6 @@ class SpotAgent(AbstractAgent):
         time.sleep(5)
         self.pos = self.get_localization()
         self.steps_taken += 1
-
 
     def get_local_grid_img(self) -> list[list]:
         return get_local_grid(self)
@@ -168,7 +168,6 @@ class SpotAgent(AbstractAgent):
             self._logger.error(f'Move vision frame action error: {e}')
             # goal_handle.abort()
             # return result
-
         
         # TODO: make it await completion 
 
@@ -255,6 +254,7 @@ def unpack_grid(local_grid_proto):
     full_grid_float += local_grid_proto.local_grid.cell_value_offset
     return full_grid_float
 
+
 def compute_ground_height_in_vision_frame(robot_state_client):
     """Get the z-height of the ground plane in vision frame from the current robot state."""
     robot_state = robot_state_client.get_robot_state()
@@ -315,6 +315,7 @@ def get_local_grid(spot: SpotAgent):
     return fixed_pts
 
 
+### Test functions
 def plot_local_grid(grid_img:list):
     # plt.ion()
     plt.imshow(grid_img, origin='lower')
@@ -343,7 +344,6 @@ def move_demo_usecase():
     time.sleep(15)
 
 
-
 def move_vision_demo_usecase():
     spot = SpotAgent()
 
@@ -365,6 +365,7 @@ def move_vision_demo_usecase():
     print("Returning")
     spot.get_localization()
     time.sleep(15)
+
 
 def move_to_sampled_point_usecase():
     spot = SpotAgent()
@@ -400,6 +401,7 @@ def move_to_sampled_point_usecase():
 
         spot.move_vision_frame((x_goal,y_goal))
         time.sleep(5)
+
 
 if __name__ == "__main__":
     # move_demo_usecase()
