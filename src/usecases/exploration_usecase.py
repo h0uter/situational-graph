@@ -9,14 +9,11 @@ from src.entities.local_grid import LocalGrid
 from src.utils.configuration import Configuration
 
 
+# TODO: refactor with a bunch of list comprehensions
 class ExplorationUsecase:
-    def __init__(
-        self,
-        agent: AbstractAgent,
-    ) -> None:
+    def __init__(self) -> None:
         self._logger = logging.getLogger(__name__)
         
-        self.agent = agent
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False
@@ -180,20 +177,33 @@ class ExplorationUsecase:
             self._logger.debug(f"the selected frontier pos is {selected_frontier_data['pos']}")
             return None
 
+    # def get_lg(self, agent: AbstractAgent) -> LocalGrid:
+    #     lg_img = agent.get_local_grid_img()
+        
+    #     return LocalGrid(
+    #         world_pos=agent.pos,
+    #         img_data=lg_img,
+    #     )
+            
     def run_exploration_step(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
+        self, agent: AbstractAgent, 
+        krm: KnowledgeRoadmap, 
+        lg: LocalGrid,
     ) -> bool:
+
         if not self.init:
+            # lg = self.get_lg(agent)
             self.real_sample_step(agent, krm, lg)
             self.init = True
 
-        elif krm.graph.nodes[krm.get_node_by_pos(self.agent.pos)]["type"] == "frontier":
+        elif krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
             logging.debug(f"Step 1: frontier processing")
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             krm.remove_frontier(self.selected_frontier_idx)
             self.selected_frontier_idx = None
 
             self.sample_waypoint(agent, krm)
+            # lg = self.get_lg(agent)
             self.real_sample_step(agent, krm, lg)
             self.prune_frontiers(krm)
             self.find_shortcuts_between_wps(lg, krm, agent)
@@ -209,7 +219,7 @@ class ExplorationUsecase:
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
             if self.no_more_frontiers:
                 logging.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
-                logging.info(f"It took {self.agent.steps_taken} steps to complete the exploration.")
+                logging.info(f"It took {agent.steps_taken} steps to complete the exploration.")
                 return True
 
             logging.debug(f"Step 3: select target frontier and find path")

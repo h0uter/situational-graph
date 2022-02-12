@@ -31,7 +31,7 @@ def init_sim_entities():
     gui = Vizualizer()
     agent = SimulatedAgent(start_pos=cfg.AGENT_START_POS)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
-    exploration_usecase = ExplorationUsecase(agent)
+    exploration_usecase = ExplorationUsecase()
 
     return gui, agent, krm, exploration_usecase
 
@@ -45,14 +45,10 @@ def exploration_with_sampling_viz(plotting="none"):
     gui, agent, krm, exploration_usecase = init_sim_entities()
 
     exploration_completed = False
-    while exploration_usecase.no_more_frontiers == False: # TODO: no more frontiers should be exploration atttribute
+    while exploration_usecase.no_more_frontiers == False: 
 
         lg_img = agent.get_local_grid_img()
-
-        lg = LocalGrid(
-            world_pos=agent.pos,
-            img_data=lg_img,
-        )
+        lg = LocalGrid(world_pos=agent.pos, img_data=lg_img)
 
         exploration_completed = exploration_usecase.run_exploration_step(agent, krm, lg)
         
