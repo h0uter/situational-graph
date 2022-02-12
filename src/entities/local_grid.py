@@ -1,10 +1,10 @@
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 from skimage import draw
 import numpy as np
 import numpy.typing as npt
 import logging
 
-from src.utils.configuration import Configuration
+from src.utils.configuration import Case, Configuration
 
 class LocalGrid:
 
@@ -85,7 +85,7 @@ class LocalGrid:
     # TODO: add robot size as parameter to the collision check.
     def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> tuple:
         # FIXME: make my loaded images consistent with the spot local grid somehow
-        if Configuration().case == "spot":
+        if Configuration().case == Case.REAL:
             # FIXME: spot obstacle map has rr and cc flipped somehow
             rr, cc = self.get_cells_under_line(at, to)
             for r, c in zip(rr, cc):

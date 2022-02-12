@@ -26,8 +26,7 @@ class ExplorationUsecase:
 
         # Hyper parameters
         self.N_samples = cfg.N_SAMPLES
-        self.frontier_sample_radius_num_cells = self.lg_num_cells / 2
-
+        self.frontier_sample_radius_num_cells = cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS
         self.prune_radius = cfg.PRUNE_RADIUS
 
     ############################################################################################
@@ -55,7 +54,6 @@ class ExplorationUsecase:
                 selected_frontier_idx = candidate_path[-1]
 
         return selected_frontier_idx
-
     #############################################################################################
 
     def select_target_frontier(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> int:
@@ -79,6 +77,7 @@ class ExplorationUsecase:
         :return: The path to the selected frontier.
         """
         path = nx.shortest_path(krm.graph, source=agent.at_wp, target=target_frontier)
+        
         return path
 
     def real_sample_step(
@@ -219,7 +218,7 @@ class ExplorationUsecase:
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
             if self.no_more_frontiers:
                 logging.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
-                logging.info(f"It took {agent.steps_taken} steps to complete the exploration.")
+                logging.info(f"It took {agent.steps_taken} move actions to complete the exploration.")
                 return True
 
             logging.debug(f"Step 3: select target frontier and find path")
