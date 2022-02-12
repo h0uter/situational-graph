@@ -2,7 +2,7 @@ import networkx as nx
 from PIL import Image
 import os
 
-from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
+from src.utils.coordinate_transforms import img_axes2world_axes
 
 
 class ManualGraphWorld():

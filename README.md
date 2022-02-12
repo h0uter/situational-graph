@@ -63,3 +63,6 @@ Data objects can be retrieved with get methods.
 - [X] Frontier Based Exploration
 - [ ] Semantic Information Gain Exploration
 - [ ] Victim Assessment Action Mapping
+
+
+`streamlit run c:\LOCAL_Deckard\1_Projects\_thesis\src\entrypoints\demo.py`

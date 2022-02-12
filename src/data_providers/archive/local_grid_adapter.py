@@ -1,9 +1,9 @@
-from knowledge_roadmap.data_providers.local_grid_image_spoofer import (
+from src.data_providers.local_grid_image_spoofer import (
     LocalGridImageSpoofer,
 )
-from knowledge_roadmap.entities.abstract_agent import AbstractAgent
-from knowledge_roadmap.entities.agent import Agent
-from knowledge_roadmap.data_providers.spot_agent import SpotAgent, get_local_grid
+from src.entities.abstract_agent import AbstractAgent
+from src.entities.simulated_agent import SimulatedAgent
+from src.data_providers.spot_agent import SpotAgent, get_local_grid
 
 
 class LocalGridAdapter:
@@ -22,7 +22,7 @@ class LocalGridAdapter:
             # here comes calls to the spot API
             return get_local_grid(agent)
 
-        elif isinstance(agent, Agent):
+        elif isinstance(agent, SimulatedAgent):
 
             return self.lgs.sim_spoof_local_grid_from_img_world(agent.pos)
 

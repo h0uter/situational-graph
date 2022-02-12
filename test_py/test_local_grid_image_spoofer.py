@@ -1,7 +1,7 @@
-from knowledge_roadmap.data_providers.local_grid_image_spoofer import LocalGridImageSpoofer
+from src.data_providers.local_grid_image_spoofer import LocalGridImageSpoofer
 
 import os
-from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
+from src.utils.coordinate_transforms import img_axes2world_axes
 from PIL import Image
 import numpy as np
 

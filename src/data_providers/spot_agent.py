@@ -7,8 +7,10 @@ from bosdyn.client.frame_helpers import (
     VISION_FRAME_NAME,
     ODOM_FRAME_NAME,
     get_odom_tform_body,
-    
+    get_a_tform_b,
+    get_vision_tform_body
 )
+
 from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder
 from bosdyn.client import create_standard_sdk, ResponseError, RpcError
 from bosdyn.client.lease import Error as LeaseBaseError
@@ -20,10 +22,10 @@ from bosdyn.api import local_grid_pb2
 from bosdyn.client.frame_helpers import *
 
 
-from knowledge_roadmap.data_providers.spot_wrapper import SpotWrapper
-from knowledge_roadmap.entities.abstract_agent import AbstractAgent
-from knowledge_roadmap.entities.local_grid import LocalGrid
-from knowledge_roadmap.utils.get_login_config import get_login_config
+from src.data_providers.spot_wrapper import SpotWrapper
+from src.entities.abstract_agent import AbstractAgent
+from src.entities.local_grid import LocalGrid
+from src.utils.get_login_config import get_login_config
 
 import logging
 
@@ -31,13 +33,14 @@ import time
 
 class SpotAgent(AbstractAgent):
 
-    def __init__(self):
+    def __init__(self, start_pos:tuple=(0,0)):
         """
         Main function for the SpotROS class.
         Gets config from ROS and initializes the wrapper.
         Holds lease from wrapper and updates all async tasks at the ROS rate
         """
-        super().__init__((0,0))
+        super().__init__(start_pos)
+
         self._logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
 
@@ -49,17 +52,6 @@ class SpotAgent(AbstractAgent):
             'body_height': 0.0,  # [m]
             'gait': spot_command_pb2.HINT_AUTO,
         }
-
-        # rates = {
-        #     'graph_nav': 5,
-        #     'local_grid': 2,
-        #     'robot_state': 5,
-        #     'metrics': 1,
-        #     'lease': 1,
-        #     'front_image': 1,
-        #     'side_image': 1,
-        #     'rear_image': 1,
-        # }  # [Hz]
 
         self.auto_claim = True
         self.auto_power_on = True
@@ -73,9 +65,6 @@ class SpotAgent(AbstractAgent):
             password=cfg.password,
             hostname=cfg.wifi_hostname,
             logger=self._logger,
-            # rates=rates,
-            # callbacks=self.callbacks,
-            # offline=offline,
         )
 
 
@@ -94,15 +83,37 @@ class SpotAgent(AbstractAgent):
                         stand_status = self.spot_wrapper.stand()
                         self._logger.info(f'stand_status: {stand_status}')
 
-            # self.timer = self.create_timer(
-            #     timer_period_sec=self.timer_period,
-            #     callback=self._timer_callback)
         else:
             self._logger.warning("Spot wrapper is not valid!")
 
         time.sleep(5)
-    # def __init__(self, debug=False, start_pos=None):
-    #     # super().__init__(debug=debug, start_pos=start_pos)
+        
+        self.pos = self.get_localization()
+
+    def move_to_pos(self, pos:tuple):
+        # self.spot_move_to_pos(pos)
+        self.move_vision_frame(pos)
+        time.sleep(5)
+        self.pos = self.get_localization()
+        self.steps_taken += 1
+
+    def get_local_grid_img(self) -> list[list]:
+        return get_local_grid(self)
+
+    def get_localization(self) -> tuple:
+        # print("state: ", self.spot_wrapper._clients['robot_state'].get_robot_state())
+        state = self.spot_wrapper._clients['robot_graph_nav'].get_localization_state()
+        # print(f"loc state = {state.localization}")
+        # tform_body = get_odom_tform_body(state.robot_kinematics.transforms_snapshot)
+        tform_body = get_vision_tform_body(state.robot_kinematics.transforms_snapshot)
+        # print('Got robot state in kinematic odometry frame: \n%s' % str(odom_tform_body))
+        
+        # return odom_tform_body.position.x, odom_tform_body.position.y, odom_tform_body.position.z
+        pos = tform_body.position.x, tform_body.position.y
+        print(f"tform_body.position = {pos}")
+        
+        return pos
+       
 
     def _apply_mobility_parameters(self, quaternion=None):
         if quaternion is None:
@@ -123,18 +134,6 @@ class SpotAgent(AbstractAgent):
             speed_limit_angular=self.mobility_parameters['speed_limit_angular'],
             locomotion_hint=self.mobility_parameters['gait'],
         )
-
-    def get_localization(self) -> tuple:
-        # print("state: ", self.spot_wrapper._clients['robot_state'].get_robot_state())
-        state = self.spot_wrapper._clients['robot_graph_nav'].get_localization_state()
-        # print(f"loc state = {state.localization}")
-        odom_tform_body = get_odom_tform_body(state.robot_kinematics.transforms_snapshot)
-        print('Got robot state in kinematic odometry frame: \n%s' % str(odom_tform_body))
-        
-        print(f"odom_tform_body.position = {odom_tform_body.position}")
-        # return odom_tform_body.position.x, odom_tform_body.position.y, odom_tform_body.position.z
-        return odom_tform_body.position.x, odom_tform_body.position.y
-        
 
     def _try_grpc(self, desc, thunk):
         try:
@@ -169,7 +168,6 @@ class SpotAgent(AbstractAgent):
             self._logger.error(f'Move vision frame action error: {e}')
             # goal_handle.abort()
             # return result
-
         
         # TODO: make it await completion 
 
@@ -200,14 +198,6 @@ class SpotAgent(AbstractAgent):
             ),
             end_time_secs=time.time() + 30
         )
-
-    def move_to_pos(self, pos:tuple):
-        # self.spot_move_to_pos(pos)
-        self.move_vision_frame(pos)
-        time.sleep(5)
-        self.pos = self.get_localization()
-
-
 
 
 ### Local Grid stuff
@@ -264,6 +254,7 @@ def unpack_grid(local_grid_proto):
     full_grid_float += local_grid_proto.local_grid.cell_value_offset
     return full_grid_float
 
+
 def compute_ground_height_in_vision_frame(robot_state_client):
     """Get the z-height of the ground plane in vision frame from the current robot state."""
     robot_state = robot_state_client.get_robot_state()
@@ -272,7 +263,7 @@ def compute_ground_height_in_vision_frame(robot_state_client):
     return vision_tform_ground_plane.position.x
 
 
-def get_local_grid(spot: SpotAgent) -> list:
+def get_local_grid(spot: SpotAgent):
     robot_state_client = spot.spot_wrapper._clients['robot_state']
 
     proto = spot.spot_wrapper._clients['robot_local_grid'].get_local_grids(
@@ -312,7 +303,10 @@ def get_local_grid(spot: SpotAgent) -> list:
     colored_pts[:,0] = (cells_obstacle_dist <= 0.0)
     colored_pts[:,1] = np.logical_and(0.0 < cells_obstacle_dist, cells_obstacle_dist < OBSTACLE_DISTANCE_TRESHOLD)
     colored_pts[:,2] = (cells_obstacle_dist >= OBSTACLE_DISTANCE_TRESHOLD)
-    colored_pts *= 255
+    # twofivefive = np.array(255)
+    # colored_pts *= twofivefive.astype(np.uint8)
+    colored_pts *= np.uint8(255)
+    # colored_pts *= 255 # removed this because of mypy type error
 
     # so depending on which channel we look at means whether it can be sampled or not.
     
@@ -321,6 +315,7 @@ def get_local_grid(spot: SpotAgent) -> list:
     return fixed_pts
 
 
+### Test functions
 def plot_local_grid(grid_img:list):
     # plt.ion()
     plt.imshow(grid_img, origin='lower')
@@ -349,7 +344,6 @@ def move_demo_usecase():
     time.sleep(15)
 
 
-
 def move_vision_demo_usecase():
     spot = SpotAgent()
 
@@ -371,6 +365,7 @@ def move_vision_demo_usecase():
     print("Returning")
     spot.get_localization()
     time.sleep(15)
+
 
 def move_to_sampled_point_usecase():
     spot = SpotAgent()
@@ -406,6 +401,7 @@ def move_to_sampled_point_usecase():
 
         spot.move_vision_frame((x_goal,y_goal))
         time.sleep(5)
+
 
 if __name__ == "__main__":
     # move_demo_usecase()

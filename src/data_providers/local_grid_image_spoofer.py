@@ -1,5 +1,5 @@
-from knowledge_roadmap.utils.config import Configuration
-from knowledge_roadmap.utils.coordinate_transforms import img_axes2world_axes
+from src.utils.configuration import Configuration
+from src.utils.coordinate_transforms import img_axes2world_axes
 from PIL import Image
 
 
