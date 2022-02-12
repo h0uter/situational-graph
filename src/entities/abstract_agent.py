@@ -6,7 +6,7 @@ class AbstractAgent(ABC):
     def __init__(self, start_pos:tuple[float, float]) -> None:
         # TODO: remove as much as possible
         self.at_wp = 0
-        self.pos :tuple[float,float] = start_pos
+        self.pos = start_pos
         self.previous_pos = self.pos
 
         # FIXME: this should not be in the agent

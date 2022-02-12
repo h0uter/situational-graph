@@ -5,18 +5,15 @@ from src.entities.simulated_agent import SimulatedAgent
 from src.data_providers.spot_agent import SpotAgent
 
 
-from src.data_providers.manual_graph_world import ManualGraphWorld
 from src.entrypoints.vizualizer import Vizualizer
 from src.usecases.exploration_usecase import ExplorationUsecase
-from src.data_providers.local_grid_adapter import LocalGridAdapter
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.utils.configuration import Configuration
-from src.utils.coordinate_transforms import img_axes2world_axes
 
 import matplotlib
 
-matplotlib.use("Tkagg")
+# matplotlib.use("Tkagg")
 
 ############################################################################################
 # DEMONSTRATIONS
@@ -26,22 +23,20 @@ matplotlib.use("Tkagg")
 def init_spot_entities():
     gui = Vizualizer()
     # agent = Agent(start_pos=cfg.AGENT_START_POS)
-    agent = SpotAgent()
+    agent = SpotAgent(start_pos=cfg.AGENT_START_POS)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
-    lga = LocalGridAdapter()
     exploration_usecase = ExplorationUsecase(agent)
 
-    return gui, agent, krm, lga, exploration_usecase
+    return gui, agent, krm, exploration_usecase
 
 
 def init_sim_entities():
     gui = Vizualizer()
     agent = SimulatedAgent(start_pos=cfg.AGENT_START_POS)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
-    lga = LocalGridAdapter()
     exploration_usecase = ExplorationUsecase(agent)
 
-    return gui, agent, krm, lga, exploration_usecase
+    return gui, agent, krm, exploration_usecase
 
 
 def exploration_with_sampling_viz(plotting="none"):
@@ -50,12 +45,12 @@ def exploration_with_sampling_viz(plotting="none"):
     step = 0
     my_logger = logging.getLogger(__name__)
 
-    gui, agent, krm, lga, exploration_usecase = init_sim_entities()
+    gui, agent, krm, exploration_usecase = init_sim_entities()
 
     exploration_completed = False
     while exploration_usecase.no_more_frontiers == False: # TODO: no more frontiers should be exploration atttribute
 
-        lg_img = lga.get_local_grid(agent)
+        lg_img = agent.get_local_grid_img()
 
         lg = LocalGrid(
             world_pos=agent.pos,

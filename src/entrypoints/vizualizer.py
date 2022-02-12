@@ -3,6 +3,8 @@ import matplotlib.cm as cm
 import matplotlib
 import networkx as nx
 from PIL import Image
+import streamlit as st
+from abstract_agent import AbstractAgent
 
 
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
@@ -12,7 +14,7 @@ from src.utils.configuration import Configuration
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 
-matplotlib.use("Qt5agg")
+# matplotlib.use("Qt5agg")
 
 
 class Vizualizer:
@@ -29,6 +31,8 @@ class Vizualizer:
         if self.cfg.FULL_PATH:
             upside_down_map_img = Image.open(self.cfg.FULL_PATH)
             self.map_img = img_axes2world_axes(upside_down_map_img)
+
+        self.streamlit_unit = None
 
     def init_fig(self):
         self.fig, ((self.ax1, self.ax2), (self.ax3, self.ax4)) = plt.subplots(
@@ -167,7 +171,7 @@ class Vizualizer:
 
         nx.draw_networkx_labels(krm.graph, positions_of_all_nodes, ax=ax, font_size=6)
 
-    def viz_krm_no_floorplan(self, krm: KnowledgeRoadmap, agent: SimulatedAgent) -> None:
+    def viz_krm_no_floorplan(self, krm: KnowledgeRoadmap, agent: AbstractAgent) -> None:
         """
         Draw the agent's perspective on the world, like RViz.
         
@@ -326,7 +330,7 @@ class Vizualizer:
 
         plt.pause(0.001)
 
-    def debug_logger(self, krm: KnowledgeRoadmap, agent: SimulatedAgent) -> None:
+    def debug_logger(self, krm: KnowledgeRoadmap, agent: AbstractAgent) -> None:
         """
         Prints debug statements.
         
