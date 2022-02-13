@@ -6,7 +6,7 @@ import networkx as nx
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
-from src.utils.configuration import Configuration
+from src.utils.config import Config
 
 
 # TODO: refactor with a bunch of list comprehensions
@@ -17,9 +17,9 @@ class ExplorationUsecase:
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False
-        self.no_more_frontiers = False
+        self.no_frontiers = False
 
-        cfg = Configuration()
+        cfg = Config()
         self.total_map_len_m = cfg.TOTAL_MAP_LEN_M
         self.lg_num_cells = cfg.LG_NUM_CELLS
         self.lg_length_in_m = cfg.LG_LENGTH_IN_M
@@ -34,7 +34,7 @@ class ExplorationUsecase:
     #############################################################################################
     def evaluate_frontiers(
         self, agent: AbstractAgent, frontier_idxs: list, krm: KnowledgeRoadmap
-    ) -> int:
+    ):
         """ 
         Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics        
@@ -52,8 +52,11 @@ class ExplorationUsecase:
             if len(candidate_path) < shortest_path_by_node_count:
                 shortest_path_by_node_count = len(candidate_path)
                 selected_frontier_idx = candidate_path[-1]
-
-        return selected_frontier_idx
+        if selected_frontier_idx:
+            return selected_frontier_idx
+        else:
+            self._logger.error("No frontier can be selected")
+            return None
     #############################################################################################
 
     def select_target_frontier(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> int:
@@ -64,8 +67,8 @@ class ExplorationUsecase:
 
             return target_frontier
         else:
-            self.no_more_frontiers = True
-            return None, None
+            self.no_frontiers = True
+            return None
 
     def find_path_to_selected_frontier(
         self, agent: AbstractAgent, target_frontier: int, krm: KnowledgeRoadmap
@@ -190,14 +193,16 @@ class ExplorationUsecase:
         lg: LocalGrid,
     ) -> bool:
 
+        #  performing the first ever step.
         if not self.init:
             # lg = self.get_lg(agent)
             self.real_sample_step(agent, krm, lg)
             self.init = True
 
+        # updating the KRM when arrived at the frontier
         elif krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
-            logging.debug(f"Step 1: frontier processing")
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
+            logging.debug(f"Step 1: frontier processing")
             krm.remove_frontier(self.selected_frontier_idx)
             self.selected_frontier_idx = None
 
@@ -207,16 +212,18 @@ class ExplorationUsecase:
             self.prune_frontiers(krm)
             self.find_shortcuts_between_wps(lg, krm, agent)
 
+        # executing path
         elif self.consumable_path:
             logging.debug(f"Step 2: execute consumable path")
             self.consumable_path = self.perform_path_step( 
                 agent, self.consumable_path, krm
             )
 
+        # selecting a target frontier
         elif not self.selected_frontier_idx:
             """if there are no more frontiers, exploration is done"""
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
-            if self.no_more_frontiers:
+            if self.no_frontiers:
                 logging.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
                 logging.info(f"It took {agent.steps_taken} move actions to complete the exploration.")
                 return True
@@ -225,4 +232,54 @@ class ExplorationUsecase:
             self.consumable_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
             )
+
+    def run_exploration_step2(
+        self, agent: AbstractAgent, 
+        krm: KnowledgeRoadmap, 
+        lg: LocalGrid,
+    ):
+
+        # sampling for the first time
+        if not self.init:
+            self.real_sample_step(agent, krm, lg)
+            self.init = True
+            return
+
+        # selecting a target frontier
+        if not self.selected_frontier_idx:
+            """if there are no more frontiers, exploration is done"""
+            self.selected_frontier_idx = self.select_target_frontier(agent, krm)
+            if self.no_frontiers:
+                logging.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
+                logging.info(f"It took {agent.steps_taken} move actions to complete the exploration.")
+
+            logging.debug(f"Step 3: select target frontier and find path")
+            self.consumable_path = self.find_path_to_selected_frontier(
+                agent, self.selected_frontier_idx, krm
+            )
+
+            return
+
+        # executing path
+        if self.consumable_path:
+            logging.debug(f"Step 2: execute consumable path")
+            self.consumable_path = self.perform_path_step( 
+                agent, self.consumable_path, krm
+            )
+            return
+
+        # updating the KRM when arrived at the frontier
+        if krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
+            """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
+            logging.debug(f"Step 1: frontier processing")
+            krm.remove_frontier(self.selected_frontier_idx)
+            self.selected_frontier_idx = None
+
+            self.sample_waypoint(agent, krm)
+            # lg = self.get_lg(agent)
+            self.real_sample_step(agent, krm, lg)
+            self.prune_frontiers(krm)
+            self.find_shortcuts_between_wps(lg, krm, agent)
+
+            return
 

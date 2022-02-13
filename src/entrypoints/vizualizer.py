@@ -7,10 +7,10 @@ import streamlit as st
 
 
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
-from src.entities.simulated_agent import SimulatedAgent
+from src.data_providers.simulated_agent import SimulatedAgent
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.local_grid import LocalGrid
-from src.utils.configuration import Configuration
+from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 
@@ -23,7 +23,7 @@ class Vizualizer:
         self.local_grid_drawing = None
         self.initialized = False
 
-        self.cfg = Configuration()
+        self.cfg = Config()
         self.origin_x_offset = self.cfg.TOTAL_MAP_LEN_M_X / 2
         self.origin_y_offset = self.cfg.TOTAL_MAP_LEN_M_Y / 2
 
@@ -42,7 +42,7 @@ class Vizualizer:
         self.fig.tight_layout()
         self.initialized = True
 
-    def draw_agent_and_sensor_range(self, pos: tuple, ax, rec_len=7) -> None:
+    def draw_agent_and_sensor_range(self, pos: tuple, ax, rec_len=7, circle_size=1.2) -> None:
         """
         Draw the agent on the world.
         
@@ -53,7 +53,6 @@ class Vizualizer:
         """
         # self.agent_drawing = plt1.arrow(
         #     pos[0], pos[1], 0.3, 0.3, width=0.4, color='blue') # One day the agent will have direction
-        self.agent_drawing = ax.add_patch(plt.Circle((pos[0], pos[1]), 1.2, fc="blue"))
 
         self.local_grid_drawing = ax.add_patch(
             plt.Rectangle(
@@ -64,6 +63,11 @@ class Vizualizer:
                 fc="blue",
             )
         )
+        self.agent_drawing = ax.add_patch(plt.Circle(
+            (pos[0], pos[1]), 
+            circle_size, 
+            fc="blue",
+            zorder=2))
 
     def vizualize_lg(self, lg: LocalGrid) -> None:
         """
@@ -320,12 +324,12 @@ class Vizualizer:
         self.viz_krm_on_floorplan(krm)
         self.draw_lg_unzoomed_in_world_coord(lg)
         self.draw_agent_and_sensor_range(
-            agent.pos, self.ax2, rec_len=self.cfg.LG_LENGTH_IN_M
+            agent.pos, self.ax2, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.8
         )
 
         self.viz_krm_no_floorplan(krm, agent)
         self.draw_agent_and_sensor_range(
-            agent.pos, self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M
+            agent.pos, self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.8
         )
 
         plt.pause(0.001)

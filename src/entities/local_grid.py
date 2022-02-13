@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 import logging
 
-from src.utils.configuration import Case, Configuration
+from src.utils.config import Scenario, Config
 
 class LocalGrid:
 
@@ -13,12 +13,12 @@ class LocalGrid:
 
         self.world_pos = world_pos
         self.data = img_data
-        self.length_in_m = Configuration().LG_LENGTH_IN_M
-        self.cell_size_in_m = Configuration().LG_CELL_SIZE_M
+        self.length_in_m = Config().LG_LENGTH_IN_M
+        self.cell_size_in_m = Config().LG_CELL_SIZE_M
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
 
         self.pixel_occupied_treshold = 220
-        self.sample_ring_width = Configuration().SAMPLE_RING_WIDTH
+        self.sample_ring_width = Config().SAMPLE_RING_WIDTH
 
         if not self.data.shape[0:2] == (self.length_num_cells, self.length_num_cells):
             self._logger.warning(f"ERROR: data.shape = {self.data.shape[0:2]}, length_num_cells = {self.length_num_cells}")
@@ -85,7 +85,7 @@ class LocalGrid:
     # TODO: add robot size as parameter to the collision check.
     def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> tuple:
         # FIXME: make my loaded images consistent with the spot local grid somehow
-        if Configuration().case == Case.REAL:
+        if Config().scenario == Scenario.REAL:
             # FIXME: spot obstacle map has rr and cc flipped somehow
             rr, cc = self.get_cells_under_line(at, to)
             for r, c in zip(rr, cc):

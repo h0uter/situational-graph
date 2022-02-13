@@ -1,11 +1,11 @@
-from src.utils.configuration import Configuration
+from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
 from PIL import Image
 
 
 class LocalGridImageSpoofer():
     def __init__(self) -> None:
-        cfg = Configuration()
+        cfg = Config()
 
         self.lg_num_cells = cfg.LG_NUM_CELLS
         self.lg_cell_size_m = cfg.LG_CELL_SIZE_M
