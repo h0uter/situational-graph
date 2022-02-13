@@ -42,7 +42,7 @@ def main(cfg: Config):
         lg_img = agent.get_local_grid_img()
         lg = LocalGrid(world_pos=agent.pos, img_data=lg_img)
         # exploration_usecase.run_exploration_step(agent, krm, lg)
-        exploration_usecase.run_exploration_step2(agent, krm, lg)
+        exploration_usecase.run_exploration_step(agent, krm, lg)
 
         if cfg.plot_lvl == PlotLvl.ALL or cfg.plot_lvl == PlotLvl.INTERMEDIATE_ONLY:
             gui.figure_update(krm, agent, lg)

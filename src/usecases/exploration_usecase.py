@@ -37,7 +37,7 @@ class ExplorationUsecase:
     ):
         """
         Evaluate the frontiers and return the best one.
-        this is the entrypoint for exploiting semantics        
+        this is the entrypoint for exploiting semantics
         """
         shortest_path_by_node_count = float("inf")
         selected_frontier_idx = None
@@ -66,12 +66,11 @@ class ExplorationUsecase:
         """ using the KRM, obtain the optimal frontier to visit next"""
         frontier_idxs = krm.get_all_frontiers_idxs()
         if len(frontier_idxs) > 0:
-            target_frontier = self.evaluate_frontiers(agent, frontier_idxs, krm)
+            return self.evaluate_frontiers(agent, frontier_idxs, krm)
 
-            return target_frontier
         else:
             self.no_frontiers = True
-            return None
+            return
 
     def find_path_to_selected_frontier(
         self, agent: AbstractAgent, target_frontier: int, krm: KnowledgeRoadmap
@@ -170,89 +169,51 @@ class ExplorationUsecase:
     # FIXME: make this work with abstract agent method names
     def perform_path_step(
         self, agent: AbstractAgent, path: list, krm: KnowledgeRoadmap
-    ) -> list or None:
+    ) -> list:
         """
         Execute a single step of the path.
         """
         if len(path) > 1:
             node_data = krm.get_node_data_by_idx(path[0])
-            agent.teleport_to_pos(node_data["pos"])
+            agent.move_to_pos(node_data["pos"])
             path.pop(0)
             return path
 
         elif len(path) == 1:
             selected_frontier_data = krm.get_node_data_by_idx(path[0])
-            agent.teleport_to_pos(selected_frontier_data["pos"])
+            agent.move_to_pos(selected_frontier_data["pos"])
             self._logger.debug(
                 f"the selected frontier pos is {selected_frontier_data['pos']}"
             )
-            return None
+            return []
 
-    # def get_lg(self, agent: AbstractAgent) -> LocalGrid:
-    #     lg_img = agent.get_local_grid_img()
+        else:
+            # self._logger.warning(
+            #     f"trying to perform path step with empty path {path}"
+            # )
+            raise Exception(f"trying to perform path step with empty path {path}")
 
-    #     return LocalGrid(
-    #         world_pos=agent.pos,
-    #         img_data=lg_img,
-    #     )
+    def get_lg(self, agent: AbstractAgent) -> LocalGrid:
+        lg_img = agent.get_local_grid_img()
+
+        return LocalGrid(
+            world_pos=agent.pos,
+            img_data=lg_img,
+        )
 
     def run_exploration_step(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
-    ) -> bool:
-
-        #  performing the first ever step.
-        if not self.init:
-            # lg = self.get_lg(agent)
-            self.real_sample_step(agent, krm, lg)
-            self.init = True
-
-        # updating the KRM when arrived at the frontier
-        elif krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
-            """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
-            logging.debug(f"Step 1: frontier processing")
-            krm.remove_frontier(self.selected_frontier_idx)
-            self.selected_frontier_idx = None
-
-            self.sample_waypoint(agent, krm)
-            # lg = self.get_lg(agent)
-            self.real_sample_step(agent, krm, lg)
-            self.prune_frontiers(krm)
-            self.find_shortcuts_between_wps(lg, krm, agent)
-
-        # executing path
-        elif self.consumable_path:
-            logging.debug(f"Step 2: execute consumable path")
-            self.consumable_path = self.perform_path_step(
-                agent, self.consumable_path, krm
-            )
-
-        # selecting a target frontier
-        elif not self.selected_frontier_idx:
-            """if there are no more frontiers, exploration is done"""
-            self.selected_frontier_idx = self.select_target_frontier(agent, krm)
-            if self.no_frontiers:
-                logging.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
-                logging.info(
-                    f"It took {agent.steps_taken} move actions to complete the exploration."
-                )
-                return True
-
-            logging.debug(f"Step 3: select target frontier and find path")
-            self.consumable_path = self.find_path_to_selected_frontier(
-                agent, self.selected_frontier_idx, krm
-            )
-
-    def run_exploration_step2(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
     ):
 
         # sampling for the first time
+        # redraw, can just plot new samples only
         if not self.init:
             self.real_sample_step(agent, krm, lg)
             self.init = True
             return
 
         # selecting a target frontier
+        # no redraw
         if not self.selected_frontier_idx:
             """if there are no more frontiers, exploration is done"""
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
@@ -262,7 +223,7 @@ class ExplorationUsecase:
                     f"It took {agent.steps_taken} move actions to complete the exploration."
                 )
 
-            logging.debug(f"Step 3: select target frontier and find path")
+            logging.debug("Step 3: select target frontier and find path")
             self.consumable_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
             )
@@ -270,25 +231,26 @@ class ExplorationUsecase:
             return
 
         # executing path
+        # redraw, maybe not necc, can remove agent instead of cla()
         if self.consumable_path:
-            logging.debug(f"Step 2: execute consumable path")
+            logging.debug("Step 2: execute consumable path")
             self.consumable_path = self.perform_path_step(
                 agent, self.consumable_path, krm
             )
             return
 
         # updating the KRM when arrived at the frontier
+        # redraw necc for sampling ste
         if krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
-            logging.debug(f"Step 1: frontier processing")
+            logging.debug("Step 1: frontier processing")
             krm.remove_frontier(self.selected_frontier_idx)
             self.selected_frontier_idx = None
 
             self.sample_waypoint(agent, krm)
-            # lg = self.get_lg(agent)
+            lg = self.get_lg(agent)
             self.real_sample_step(agent, krm, lg)
             self.prune_frontiers(krm)
             self.find_shortcuts_between_wps(lg, krm, agent)
 
             return
-
