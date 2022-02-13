@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def img_axes2world_axes(upside_down_map_img):
     # this function appently takes up most of the compute
     map_img_rotated = np.rot90(upside_down_map_img, axes=(1, 0))
