@@ -1,6 +1,7 @@
 import time
 from matplotlib import pyplot as plt
 import numpy as np
+
 # import all the boston shite
 from bosdyn.client.frame_helpers import (
     BODY_FRAME_NAME,
@@ -8,7 +9,7 @@ from bosdyn.client.frame_helpers import (
     ODOM_FRAME_NAME,
     get_odom_tform_body,
     get_a_tform_b,
-    get_vision_tform_body
+    get_vision_tform_body,
 )
 
 from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder
@@ -28,12 +29,11 @@ from src.entities.local_grid import LocalGrid
 from src.utils.get_login_config import get_login_config
 
 import logging
+import numpy.typing as npt
 
-import time
 
 class SpotAgent(AbstractAgent):
-
-    def __init__(self, start_pos:tuple=(0,0)):
+    def __init__(self, start_pos: tuple = (0, 0)):
         """
         Main function for the SpotROS class.
         Gets config from ROS and initializes the wrapper.
@@ -45,19 +45,19 @@ class SpotAgent(AbstractAgent):
         logging.basicConfig(level=logging.INFO)
 
         self.mobility_parameters = {
-            'obstacle_padding': 0.1,  # [m]
-            'speed_limit_x': 0.7,  # [m/s]
-            'speed_limit_y': 0.7,  # [m/s]
-            'speed_limit_angular': 0.8,  # [rad/s]
-            'body_height': 0.0,  # [m]
-            'gait': spot_command_pb2.HINT_AUTO,
+            "obstacle_padding": 0.1,  # [m]
+            "speed_limit_x": 0.7,  # [m/s]
+            "speed_limit_y": 0.7,  # [m/s]
+            "speed_limit_angular": 0.8,  # [rad/s]
+            "body_height": 0.0,  # [m]
+            "gait": spot_command_pb2.HINT_AUTO,
         }
 
         self.auto_claim = True
         self.auto_power_on = True
         self.auto_stand = True
         self.timer_period = 0.1  # [second]
-        
+
         cfg = get_login_config()
 
         self.spot_wrapper = SpotWrapper(
@@ -67,7 +67,6 @@ class SpotAgent(AbstractAgent):
             logger=self._logger,
         )
 
-
         if self.spot_wrapper.is_valid:
             self._logger.info("Spot wrapper is valid")
 
@@ -75,45 +74,44 @@ class SpotAgent(AbstractAgent):
 
             if self.auto_claim:
                 claim_status = self.spot_wrapper.claim()
-                self._logger.info(f'claim_status: {claim_status}')
+                self._logger.info(f"claim_status: {claim_status}")
                 if self.auto_power_on:
                     power_on_status = self.spot_wrapper.power_on()
-                    self._logger.info(f'power_on_status: {power_on_status}')
+                    self._logger.info(f"power_on_status: {power_on_status}")
                     if self.auto_stand:
                         stand_status = self.spot_wrapper.stand()
-                        self._logger.info(f'stand_status: {stand_status}')
+                        self._logger.info(f"stand_status: {stand_status}")
 
         else:
             self._logger.warning("Spot wrapper is not valid!")
 
         time.sleep(5)
-        
+
         self.pos = self.get_localization()
 
-    def move_to_pos(self, pos:tuple):
+    def move_to_pos(self, pos: tuple):
         # self.spot_move_to_pos(pos)
         self.move_vision_frame(pos)
         time.sleep(5)
         self.pos = self.get_localization()
         self.steps_taken += 1
 
-    def get_local_grid_img(self) -> list[list]:
+    def get_local_grid_img(self) -> npt.NDArray:
         return get_local_grid(self)
 
     def get_localization(self) -> tuple:
         # print("state: ", self.spot_wrapper._clients['robot_state'].get_robot_state())
-        state = self.spot_wrapper._clients['robot_graph_nav'].get_localization_state()
+        state = self.spot_wrapper._clients["robot_graph_nav"].get_localization_state()
         # print(f"loc state = {state.localization}")
         # tform_body = get_odom_tform_body(state.robot_kinematics.transforms_snapshot)
         tform_body = get_vision_tform_body(state.robot_kinematics.transforms_snapshot)
         # print('Got robot state in kinematic odometry frame: \n%s' % str(odom_tform_body))
-        
+
         # return odom_tform_body.position.x, odom_tform_body.position.y, odom_tform_body.position.z
         pos = tform_body.position.x, tform_body.position.y
         print(f"tform_body.position = {pos}")
-        
+
         return pos
-       
 
     def _apply_mobility_parameters(self, quaternion=None):
         if quaternion is None:
@@ -126,13 +124,13 @@ class SpotAgent(AbstractAgent):
 
         footprint_R_body = quaternion.to_euler_zxy()
         self.spot_wrapper.set_mobility_params(
-            body_height=self.mobility_parameters['body_height'],
+            body_height=self.mobility_parameters["body_height"],
             footprint_R_body=footprint_R_body,
-            obstacle_padding=self.mobility_parameters['obstacle_padding'],
-            speed_limit_x=self.mobility_parameters['speed_limit_x'],
-            speed_limit_y=self.mobility_parameters['speed_limit_y'],
-            speed_limit_angular=self.mobility_parameters['speed_limit_angular'],
-            locomotion_hint=self.mobility_parameters['gait'],
+            obstacle_padding=self.mobility_parameters["obstacle_padding"],
+            speed_limit_x=self.mobility_parameters["speed_limit_x"],
+            speed_limit_y=self.mobility_parameters["speed_limit_y"],
+            speed_limit_angular=self.mobility_parameters["speed_limit_angular"],
+            locomotion_hint=self.mobility_parameters["gait"],
         )
 
     def _try_grpc(self, desc, thunk):
@@ -143,17 +141,17 @@ class SpotAgent(AbstractAgent):
             return None
 
     def _start_robot_command(self, desc, command_proto, end_time_secs=None):
-
         def _start_command():
             # self._robot_command_client.robot_command(lease=None, command=command_proto,
-            self.spot_wrapper._clients['robot_command'].robot_command(lease=None, command=command_proto,
-                                                     end_time_secs=end_time_secs)
+            self.spot_wrapper._clients["robot_command"].robot_command(
+                lease=None, command=command_proto, end_time_secs=end_time_secs
+            )
 
         self._try_grpc(desc, _start_command)
 
-    def move_vision_frame(self, pos:tuple, heading=0.0):
+    def move_vision_frame(self, pos: tuple, heading=0.0):
         """ROS service handler"""
-        self._logger.info('Executing move_vision action')
+        self._logger.info("Executing move_vision action")
 
         try:
             self.spot_wrapper.trajectory_cmd(
@@ -163,15 +161,14 @@ class SpotAgent(AbstractAgent):
                 frame_name=VISION_FRAME_NAME,
                 cmd_duration=30
                 # frame_name=BODY_FRAME_NAME
-        )
+            )
         except Exception as e:
-            self._logger.error(f'Move vision frame action error: {e}')
+            self._logger.error(f"Move vision frame action error: {e}")
             # goal_handle.abort()
             # return result
-        
-        # TODO: make it await completion 
 
-        
+        # TODO: make it await completion
+
     # def move_vision_frame2(self, pos, heading = 0.0):
     #     while not response
     #     response = self.spot_wrapper._robot_command(
@@ -185,7 +182,7 @@ class SpotAgent(AbstractAgent):
     #         end_time_secs=end_time,
     #     )
 
-    def move_body_frame(self, pos:tuple, heading=0.0):
+    def move_body_frame(self, pos: tuple, heading=0.0):
         frame_tree = self.spot_wrapper._robot.get_frame_tree_snapshot()
         # print("FRAMETREE: ", frame_tree)
         self._start_robot_command(
@@ -194,13 +191,13 @@ class SpotAgent(AbstractAgent):
                 pos[0],
                 pos[1],
                 heading,
-                self.spot_wrapper._robot.get_frame_tree_snapshot()
+                self.spot_wrapper._robot.get_frame_tree_snapshot(),
             ),
-            end_time_secs=time.time() + 30
+            end_time_secs=time.time() + 30,
         )
 
 
-### Local Grid stuff
+# Local Grid stuff
 def get_numpy_data_type(local_grid_proto):
     """Convert the cell format of the local grid proto to a numpy data type."""
     if local_grid_proto.cell_format == local_grid_pb2.LocalGrid.CELL_FORMAT_UINT16:
@@ -258,16 +255,20 @@ def unpack_grid(local_grid_proto):
 def compute_ground_height_in_vision_frame(robot_state_client):
     """Get the z-height of the ground plane in vision frame from the current robot state."""
     robot_state = robot_state_client.get_robot_state()
-    vision_tform_ground_plane = get_a_tform_b(robot_state.kinematic_state.transforms_snapshot,
-                                              VISION_FRAME_NAME, GROUND_PLANE_FRAME_NAME)
+    vision_tform_ground_plane = get_a_tform_b(
+        robot_state.kinematic_state.transforms_snapshot,
+        VISION_FRAME_NAME,
+        GROUND_PLANE_FRAME_NAME,
+    )
     return vision_tform_ground_plane.position.x
 
 
 def get_local_grid(spot: SpotAgent):
-    robot_state_client = spot.spot_wrapper._clients['robot_state']
+    robot_state_client = spot.spot_wrapper._clients["robot_state"]
 
-    proto = spot.spot_wrapper._clients['robot_local_grid'].get_local_grids(
-            ['terrain', 'terrain_valid', 'intensity', 'no_step', 'obstacle_distance'])
+    proto = spot.spot_wrapper._clients["robot_local_grid"].get_local_grids(
+        ["terrain", "terrain_valid", "intensity", "no_step", "obstacle_distance"]
+    )
 
     for local_grid_found in proto:
         if local_grid_found.local_grid_type_name == "obstacle_distance":
@@ -277,21 +278,32 @@ def get_local_grid(spot: SpotAgent):
     # Unpack the data field for the local grid.
     cells_obstacle_dist = unpack_grid(local_grid_proto).astype(np.float32)
     # Populate the x,y values with a complete combination of all possible pairs for the dimensions in the grid extent.
-    ys, xs = np.mgrid[0:local_grid_proto.local_grid.extent.num_cells_x,
-                    0:local_grid_proto.local_grid.extent.num_cells_y]
+    ys, xs = np.mgrid[
+        0 : local_grid_proto.local_grid.extent.num_cells_x,
+        0 : local_grid_proto.local_grid.extent.num_cells_y,
+    ]
 
     # Get the estimated height (z value) of the ground in the vision frame.
     transforms_snapshot = local_grid_proto.local_grid.transforms_snapshot
-    vision_tform_body = get_a_tform_b(transforms_snapshot, VISION_FRAME_NAME, BODY_FRAME_NAME)
+    vision_tform_body = get_a_tform_b(
+        transforms_snapshot, VISION_FRAME_NAME, BODY_FRAME_NAME
+    )
     z_ground_in_vision_frame = compute_ground_height_in_vision_frame(robot_state_client)
     # Numpy vstack makes it so that each column is (x,y,z) for a single no step grid point. The height values come
     # from the estimated height of the ground plane as if the robot was standing.
-    cell_count = local_grid_proto.local_grid.extent.num_cells_x * local_grid_proto.local_grid.extent.num_cells_y
+    cell_count = (
+        local_grid_proto.local_grid.extent.num_cells_x
+        * local_grid_proto.local_grid.extent.num_cells_y
+    )
     z = np.ones(cell_count, dtype=np.float32)
     z *= z_ground_in_vision_frame
-    pts = np.vstack([np.ravel(xs).astype(np.float32), np.ravel(ys).astype(np.float32), z]).T
-    pts[:, [0, 1]] *= (local_grid_proto.local_grid.extent.cell_size,
-                    local_grid_proto.local_grid.extent.cell_size)
+    pts = np.vstack(
+        [np.ravel(xs).astype(np.float32), np.ravel(ys).astype(np.float32), z]
+    ).T
+    pts[:, [0, 1]] *= (
+        local_grid_proto.local_grid.extent.cell_size,
+        local_grid_proto.local_grid.extent.cell_size,
+    )
     # # Determine the coloration of the obstacle grid. Set the inside of the obstacle as a red hue, the outside of the obstacle
     # # as a blue hue, and the border of an obstacle as a green hue. Note that the inside of an obstacle is determined by a
     # # negative distance value in a grid cell, and the outside of an obstacle is determined by a positive distance value in a
@@ -300,25 +312,27 @@ def get_local_grid(spot: SpotAgent):
     OBSTACLE_DISTANCE_TRESHOLD = 0.2
 
     colored_pts = np.ones([cell_count, 3], dtype=np.uint8)
-    colored_pts[:,0] = (cells_obstacle_dist <= 0.0)
-    colored_pts[:,1] = np.logical_and(0.0 < cells_obstacle_dist, cells_obstacle_dist < OBSTACLE_DISTANCE_TRESHOLD)
-    colored_pts[:,2] = (cells_obstacle_dist >= OBSTACLE_DISTANCE_TRESHOLD)
+    colored_pts[:, 0] = cells_obstacle_dist <= 0.0
+    colored_pts[:, 1] = np.logical_and(
+        0.0 < cells_obstacle_dist, cells_obstacle_dist < OBSTACLE_DISTANCE_TRESHOLD
+    )
+    colored_pts[:, 2] = cells_obstacle_dist >= OBSTACLE_DISTANCE_TRESHOLD
     # twofivefive = np.array(255)
     # colored_pts *= twofivefive.astype(np.uint8)
     colored_pts *= np.uint8(255)
     # colored_pts *= 255 # removed this because of mypy type error
 
     # so depending on which channel we look at means whether it can be sampled or not.
-    
-    fixed_pts = np.reshape(colored_pts, (128,128,3))
+
+    fixed_pts = np.reshape(colored_pts, (128, 128, 3))
 
     return fixed_pts
 
 
 ### Test functions
-def plot_local_grid(grid_img:list):
+def plot_local_grid(grid_img: list):
     # plt.ion()
-    plt.imshow(grid_img, origin='lower')
+    plt.imshow(grid_img, origin="lower")
     # plt.pause(0.001)
 
     plt.show()
@@ -354,14 +368,14 @@ def move_vision_demo_usecase():
     heading = 0.0
     print("I m going to walk")
     # spot.move_vision_frame((x_goal,y_goal))
-    spot.move_vision_frame((4,0), np.pi/2)
+    spot.move_vision_frame((4, 0), np.pi / 2)
     time.sleep(10)
-    spot.move_vision_frame((3,4))
+    spot.move_vision_frame((3, 4))
 
     time.sleep(25)
     spot.get_localization()
     print("I have arrived")
-    spot.move_vision_frame((-x_goal,y_goal), 0.0)
+    spot.move_vision_frame((-x_goal, y_goal), 0.0)
     print("Returning")
     spot.get_localization()
     time.sleep(15)
@@ -379,27 +393,28 @@ def move_to_sampled_point_usecase():
         plt.clf()
         grid_img = get_local_grid(spot)
         # plot_local_grid(grid_img)
-        plt.imshow(grid_img, origin='lower')
+        plt.imshow(grid_img, origin="lower")
         time.sleep(1)
 
-        lg = LocalGrid((0,0), grid_img, 3.84, 0.03)
+        lg = LocalGrid((0, 0), grid_img, 3.84, 0.03)
         print(lg)
         frontiers = lg.sample_frontiers_on_cellmap(60, 50)
         print(frontiers)
 
-        plt.imshow(grid_img, origin='lower')
+        plt.imshow(grid_img, origin="lower")
         # plt.imshow(grid_img)
-        plt.plot(frontiers[:,0], frontiers[:,1], 'X')
+        plt.plot(frontiers[:, 0], frontiers[:, 1], "X")
         # plt.show()
         plt.pause(5)
 
         x, y, z = spot.get_localization()
 
-        x_goal = x + (frontiers[0,0] - 64) * 0.03
-        y_goal = y + (frontiers[0,1] - 64) * 0.03
+        # TODO: integrate this 
+        x_goal = x + (frontiers[0, 0] - 64) * 0.03
+        y_goal = y + (frontiers[0, 1] - 64) * 0.03
         print(f"ima at {x}, {y}, moving to: {x_goal}, {y_goal}")
 
-        spot.move_vision_frame((x_goal,y_goal))
+        spot.move_vision_frame((x_goal, y_goal))
         time.sleep(5)
 
 

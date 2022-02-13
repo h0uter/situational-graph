@@ -64,7 +64,7 @@ class Config:
         self.N_SAMPLES = 25
         self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * 0.25
         self.SAMPLE_RING_WIDTH = 0.9
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS / 2
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
 
         # logging
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

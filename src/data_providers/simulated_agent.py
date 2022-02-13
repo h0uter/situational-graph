@@ -1,6 +1,8 @@
 from src.data_providers.local_grid_image_spoofer import LocalGridImageSpoofer
 from src.entities.abstract_agent import AbstractAgent
 
+import numpy.typing as npt
+
 
 class SimulatedAgent(AbstractAgent):
     """
@@ -16,7 +18,7 @@ class SimulatedAgent(AbstractAgent):
     def move_to_pos(self, pos: tuple[float, float]) -> None:
         self.teleport_to_pos(pos)
 
-    def get_local_grid_img(self) -> list[list]:
+    def get_local_grid_img(self) -> npt.NDArray:
         return self.lgs.sim_spoof_local_grid_from_img_world(self.pos)
 
     def get_localization(self) -> tuple[float, float]:

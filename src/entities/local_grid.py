@@ -127,7 +127,9 @@ class LocalGrid:
 
     def sample_cell_around_other_cell(self, x: int, y: int, radius: int) -> tuple:
         sample_valid = False
-        while not sample_valid:
+        attempts = 0
+        x_sample, y_sample = None, None
+        while not sample_valid and attempts < 100:
             r = radius * np.sqrt(
                 np.random.uniform(low=1 - self.sample_ring_width, high=1)
             )
@@ -139,16 +141,20 @@ class LocalGrid:
             sample_valid, _ = self.is_collision_free_straight_line_between_cells(
                 at=(x, y), to=(x_sample, y_sample),
             )
+            attempts += 1
 
-        return x_sample, y_sample
+        if sample_valid:
+            return x_sample, y_sample
+        else:
+            raise Exception("Could not sample a valid cell")
 
     def sample_frontiers_on_cellmap(
         self, radius: int, num_frontiers_to_sample: int
-    ) -> list:
+    ) -> npt.NDArray:
         """
         Given a local grid, sample N points around a given point, and return the sampled points.
         """
-        candidate_frontiers: list = []
+        candidate_frontiers = []
         while len(candidate_frontiers) < num_frontiers_to_sample:
             x_center = self.length_num_cells // 2
             y_center = self.length_num_cells // 2
@@ -161,6 +167,6 @@ class LocalGrid:
             # candidate_frontiers.append((x_sample, y_sample))
 
         # FIXME: this is hella random
-        candidate_frontiers = np.array(candidate_frontiers).astype(np.int)
+        candidate_frontiers = np.array(candidate_frontiers).astype(int)
 
         return candidate_frontiers

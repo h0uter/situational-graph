@@ -1,5 +1,4 @@
 import logging
-from enum import Enum, auto
 
 import matplotlib.pyplot as plt
 from src.data_providers.simulated_agent import SimulatedAgent
@@ -36,7 +35,7 @@ def main(cfg: Config):
 
     gui, agent, krm, exploration_usecase = init_entities(cfg)
 
-    while exploration_usecase.no_frontiers == False:
+    while exploration_usecase.no_frontiers is False:
         my_logger.info(f"sim step = {step}")
         step += 1
 

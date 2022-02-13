@@ -5,7 +5,7 @@ import networkx as nx
 
 class KnowledgeRoadmap:
     """
-    An agent implements a Knowledge Roadmap to keep track of the 
+    An agent implements a Knowledge Roadmap to keep track of the
     world beliefs which are relevant for navigating during his mission.
     A KRM is a graph with 3 distinct node and corresponding edge types.
     - Waypoint Nodes:: correspond to places the robot has been and can go to.
