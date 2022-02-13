@@ -10,3 +10,5 @@ knowledge_roadmap.egg-info/
 
 workspace.code-workspace
 knowledge_roadmap/data_providers/login.json
+
+afile.vtk

@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 
+
 class AbstractAgent(ABC):
 
     @abstractmethod
-    def __init__(self, start_pos:tuple[float, float]) -> None:
+    def __init__(self, start_pos: tuple[float, float]) -> None:
         # TODO: remove as much as possible
         self.at_wp = 0
         self.pos = start_pos
@@ -13,10 +14,10 @@ class AbstractAgent(ABC):
         self.steps_taken = 0
 
     @abstractmethod
-    def move_to_pos(self, pos:tuple) -> None:
+    def move_to_pos(self, pos: tuple) -> None:
         '''
         Move the agent to a new position.
-        
+
         :param pos: the position of the agent
         :return: None
         '''
@@ -26,7 +27,7 @@ class AbstractAgent(ABC):
     def get_local_grid_img(self) -> list[list]:
         '''
         Return the local grid image around the agent.
-        
+
         :return: The local grid image.
         '''
         pass

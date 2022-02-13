@@ -1,5 +1,7 @@
 import uuid
+
 import networkx as nx
+
 
 class KnowledgeRoadmap:
     """
@@ -27,11 +29,6 @@ class KnowledgeRoadmap:
             self.next_wp_idx, prev_wp, type="waypoint_edge", id=uuid.uuid4()
         )
         self.next_wp_idx += 1
-
-    def add_waypoints(self, wp_array: list) -> None:
-        """ adds waypoints to the graph"""
-        for wp in wp_array:
-            self.add_waypoint(wp)
 
     def add_world_object(self, pos: tuple, label: str) -> None:
         """ adds a world object to the graph"""
