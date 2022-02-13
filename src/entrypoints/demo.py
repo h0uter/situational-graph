@@ -39,7 +39,7 @@ def main(cfg: Config):
 
     gui, agent, krm, exploration_usecase = init_entities(cfg)
    
-    # PLT = vedo_krm(krm)
+    PLT = vedo_krm(krm)
 
 
     while exploration_usecase.no_frontiers is False:
@@ -62,6 +62,7 @@ def main(cfg: Config):
     if cfg.plot_lvl == PlotLvl.RESULT_ONLY or cfg.plot_lvl == PlotLvl.ALL:
         plt.ioff()
         plt.show()
+        PLT.show(interactive=True)
 
     # save_something(krm, 'krm_1302.p')
 
@@ -71,9 +72,9 @@ def main(cfg: Config):
 if __name__ == "__main__":
     matplotlib.use("Qt5agg")
 
-    # cfg = Config()
+    cfg = Config()
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(world=World.SIM_VILLA_ROOM)
-    cfg = Config(world=World.SIM_MAZE)
+    # cfg = Config(world=World.SIM_MAZE)
 
     main(cfg)
