@@ -37,15 +37,38 @@ def vedo_krm(krm):
         raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
 
         raw_edg = vedo.Lines(raw_lines).lw(2)
-    raw_pts = vedo.Points(list(pos_dict.values()), r=12)
+    waypoint_nodes = list(dict(
+            (n, d["type"])
+            for n, d in krm.graph.nodes().items()
+            if d["type"] == "waypoint"
+        ).keys())
 
+    # print(f"waypoint_nodes = {waypoint_nodes}")
+    frontier_nodes = list(dict(
+            (n, d["type"])
+            for n, d in krm.graph.nodes().items()
+            if d["type"] == "frontier"
+        ).keys())
+
+    wps = []
+    for wp in waypoint_nodes:
+        wps.append(pos_dict[wp])
+
+    fts = []
+    for f in frontier_nodes:
+        fts.append(pos_dict[f])
+
+    # print(f"frontier_nodes = {frontier_nodes}")
+    waypoints = vedo.Points(wps, r=12, c='r')
+    # waypoints = vedo.Points(list(waypoint_nodes), r=12, c='r')
+    frontiers = vedo.Points(fts, r=45, c='g', alpha=0.2)
     # vedo.clear()
     # plt.show(raw_pts, raw_pts.labels('id'))
     # plt = vedo.show(raw_pts, interactive=False)
     if len(ed_ls) > 1:
-        plt = vedo.show(raw_pts, raw_edg, interactive=False)
+        plt = vedo.show(waypoints, frontiers, raw_edg, interactive=False)
     else:
-        plt = vedo.show(raw_pts, interactive=False)
+        plt = vedo.show(waypoints, frontiers, interactive=False)
     # if plt.escaped: break  # if ESC is hit during loop
 
     # time.sleep(1)

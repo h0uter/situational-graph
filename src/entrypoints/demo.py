@@ -39,7 +39,7 @@ def main(cfg: Config):
 
     gui, agent, krm, exploration_usecase = init_entities(cfg)
    
-    PLT = vedo_krm(krm)
+    # PLT = vedo_krm(krm)
 
 
     while exploration_usecase.no_frontiers is False:
@@ -62,7 +62,7 @@ def main(cfg: Config):
     if cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or cfg.PLOT_LVL == PlotLvl.ALL:
         plt.ioff()
         plt.show()
-        PLT.show(interactive=True)
+        # PLT.show(interactive=True)
 
     # save_something(krm, 'krm_1302.p')
 
