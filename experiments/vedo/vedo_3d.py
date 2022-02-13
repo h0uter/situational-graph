@@ -31,4 +31,4 @@ nx_edg = Lines(nx_lines).lw(2)
 show(nx_pts, nx_edg, nx_pts.labels('id'),
      at=1, interactive=True)
 
-write(nx_edg, 'afile.vtk') # save the lines
+# write(nx_edg, 'afile.vtk') # save the lines
