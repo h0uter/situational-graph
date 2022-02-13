@@ -9,12 +9,13 @@ ed_ls = [(x, y) for x, y in zip(range(0, 5), range(1, 6))]
 G = nx.Graph()
 G.add_edges_from(ed_ls)
 nxpos = nx.spring_layout(G)
-print(nxpos)
+# print(nxpos)
 nxpts = [nxpos[pt] for pt in sorted(nxpos)]
 # nx.draw(G, with_labels=True, pos=nxpos)
 # plt.show()
 
 raw_lines = [(pos[x],pos[y]) for x, y in ed_ls]
+print(f"raw_lines = {raw_lines}")
 nx_lines = []
 for x, y in ed_ls:
     p1 = nxpos[x].tolist() + [0] # add z-coord
@@ -25,12 +26,11 @@ from vedo import *
 raw_pts = Points(pos, r=12)
 raw_edg = Lines(raw_lines).lw(2)
 show(raw_pts, raw_edg, raw_pts.labels('id'),
-    #  at=0, N=2, axes=True, sharecam=False)
-     at=0, N=2, axes=True, sharecam=False, interactive=True)
+     at=0, N=2, axes=True, sharecam=False)
 
-# nx_pts = Points(nxpts, r=12)
-# nx_edg = Lines(nx_lines).lw(2)
-# show(nx_pts, nx_edg, nx_pts.labels('id'),
-#      at=1, interactive=True)
+nx_pts = Points(nxpts, r=12)
+nx_edg = Lines(nx_lines).lw(2)
+show(nx_pts, nx_edg, nx_pts.labels('id'),
+     at=1, interactive=True)
 
-# # write(nx_edg, 'afile.vtk') # save the lines
+# write(nx_edg, 'afile.vtk') # save the lines
