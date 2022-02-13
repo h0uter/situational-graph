@@ -10,7 +10,6 @@ from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 
-matplotlib.use("Qt5agg")
 
 
 class MplVizualisation:
