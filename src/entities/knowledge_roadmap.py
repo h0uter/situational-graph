@@ -22,7 +22,7 @@ class KnowledgeRoadmap:
         self.next_frontier_idx = 1000
         self.next_wo_idx = 200
 
-    def add_waypoint(self, pos: tuple, prev_wp: int) -> None:
+    def add_waypoint(self, pos: tuple, prev_wp) -> None:
         """ adds new waypoints and increments wp the idx"""
         self.graph.add_node(self.next_wp_idx, pos=pos, type="waypoint", id=uuid.uuid4())
         self.graph.add_edge(
@@ -54,13 +54,13 @@ class KnowledgeRoadmap:
         if target_frontier["type"] == "frontier":
             self.graph.remove_node(target_frontier_idx)
 
-    def get_node_by_pos(self, pos: tuple) -> int:
+    def get_node_by_pos(self, pos: tuple):
         """ returns the node idx at the given position """
         for node in self.graph.nodes():
             if self.graph.nodes[node]["pos"] == pos:
                 return node
 
-    def get_node_by_UUID(self, UUID) -> int:
+    def get_node_by_UUID(self, UUID):
         """ returns the node idx with the given UUID """
         for node in self.graph.nodes():
             if self.graph.nodes[node]["id"] == UUID:
@@ -116,6 +116,6 @@ class KnowledgeRoadmap:
                 ):
                     close_nodes.append(node)
 
-        if len(close_nodes) == 0:
-            return None
+        # if len(close_nodes) == 0:
+        #     return []
         return close_nodes

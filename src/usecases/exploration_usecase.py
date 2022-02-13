@@ -105,7 +105,7 @@ class ExplorationUsecase:
         """
         wp_at_previous_pos = krm.get_node_by_pos(agent.previous_pos)
         krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
-        agent.at_wp = krm.get_node_by_pos(agent.get_localization())
+        agent.at_wp = krm.get_node_by_pos(agent.get_localization())  # type: ignore
 
     def get_nodes_of_type_in_radius(
         self, pos: tuple, radius: float, node_type: str, krm: KnowledgeRoadmap

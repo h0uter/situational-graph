@@ -361,7 +361,7 @@ class MplVizualisation:
                 f"draw_agent_and_sensor_range() took {time.perf_counter() - start:.4f}s"
             )
             start = time.perf_counter()
-        
+
         plt.pause(0.0000001)  # type: ignore
         print(
             f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s"
