@@ -55,12 +55,21 @@ class LocalGrid:
         """
         Convert the cell indices to the world coordinates.
         """
-        x_coord = (
-            self.world_pos[0] + idxs[1] * self.cell_size_in_m - self.length_in_m / 2
-        )
-        y_coord = (
-            self.world_pos[1] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
-        )
+        # somehow switched between spot grid and my own grid
+        if Config().world == World.REAL:
+            x_coord = (
+                self.world_pos[0] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
+            )
+            y_coord = (
+                self.world_pos[1] + idxs[1] * self.cell_size_in_m - self.length_in_m / 2
+            )
+        else:
+            x_coord = (
+                self.world_pos[0] + idxs[1] * self.cell_size_in_m - self.length_in_m / 2
+            )
+            y_coord = (
+                self.world_pos[1] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
+            )
         return x_coord, y_coord
 
     # TODO: optimize this function for speed

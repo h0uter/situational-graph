@@ -30,8 +30,8 @@ class ExplorationUsecase:
         self.prune_radius = cfg.PRUNE_RADIUS
 
     ############################################################################################
-    ### ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ###
-    #############################################################################################
+    # ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ########################################
+    ############################################################################################
     def evaluate_frontiers(
         self, agent: AbstractAgent, frontier_idxs: list, krm: KnowledgeRoadmap
     ):
@@ -62,7 +62,7 @@ class ExplorationUsecase:
 
     def select_target_frontier(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap
-    ) -> int:
+    ):
         """ using the KRM, obtain the optimal frontier to visit next"""
         frontier_idxs = krm.get_all_frontiers_idxs()
         if len(frontier_idxs) > 0:
@@ -70,11 +70,11 @@ class ExplorationUsecase:
 
         else:
             self.no_frontiers = True
-            return
+            return None
 
     def find_path_to_selected_frontier(
-        self, agent: AbstractAgent, target_frontier: int, krm: KnowledgeRoadmap
-    ) -> list:
+        self, agent: AbstractAgent, target_frontier, krm: KnowledgeRoadmap
+    ):
         """
         Find the shortest path from the current waypoint to the target frontier.
 
@@ -82,8 +82,10 @@ class ExplorationUsecase:
         :return: The path to the selected frontier.
         """
         path = nx.shortest_path(krm.graph, source=agent.at_wp, target=target_frontier)
-
-        return path
+        if len(path) > 1:
+            return path
+        else:
+            raise ValueError("No path found")
 
     def real_sample_step(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
@@ -102,8 +104,8 @@ class ExplorationUsecase:
         this should be sampled from the pose graph eventually
         """
         wp_at_previous_pos = krm.get_node_by_pos(agent.previous_pos)
-        krm.add_waypoint(agent.pos, wp_at_previous_pos)
-        agent.at_wp = krm.get_node_by_pos(agent.pos)
+        krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
+        agent.at_wp = krm.get_node_by_pos(agent.get_localization())
 
     def get_nodes_of_type_in_radius(
         self, pos: tuple, radius: float, node_type: str, krm: KnowledgeRoadmap
@@ -166,9 +168,8 @@ class ExplorationUsecase:
                         from_wp, to_wp, type="waypoint_edge", id=uuid.uuid4()
                     )
 
-    # FIXME: make this work with abstract agent method names
     def perform_path_step(
-        self, agent: AbstractAgent, path: list, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, path, krm: KnowledgeRoadmap
     ) -> list:
         """
         Execute a single step of the path.
@@ -197,20 +198,22 @@ class ExplorationUsecase:
         lg_img = agent.get_local_grid_img()
 
         return LocalGrid(
-            world_pos=agent.pos,
+            world_pos=agent.get_localization(),
             img_data=lg_img,
         )
 
     def run_exploration_step(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
+        self, agent: AbstractAgent, krm: KnowledgeRoadmap
     ):
 
         # sampling for the first time
         # redraw, can just plot new samples only
         if not self.init:
+            lg = self.get_lg(agent)
+
             self.real_sample_step(agent, krm, lg)
             self.init = True
-            return
+            return lg
 
         # selecting a target frontier
         # no redraw
@@ -241,7 +244,7 @@ class ExplorationUsecase:
 
         # updating the KRM when arrived at the frontier
         # redraw necc for sampling ste
-        if krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
+        if krm.graph.nodes[krm.get_node_by_pos(agent.get_localization())]["type"] == "frontier":
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             logging.debug("Step 1: frontier processing")
             krm.remove_frontier(self.selected_frontier_idx)
@@ -253,4 +256,4 @@ class ExplorationUsecase:
             self.prune_frontiers(krm)
             self.find_shortcuts_between_wps(lg, krm, agent)
 
-            return
+            return lg

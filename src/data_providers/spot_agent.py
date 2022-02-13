@@ -409,7 +409,7 @@ def move_to_sampled_point_usecase():
 
         x, y, z = spot.get_localization()
 
-        # TODO: integrate this 
+        # TODO: integrate this
         x_goal = x + (frontiers[0, 0] - 64) * 0.03
         y_goal = y + (frontiers[0, 1] - 64) * 0.03
         print(f"ima at {x}, {y}, moving to: {x_goal}, {y_goal}")

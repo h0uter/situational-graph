@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import numpy.typing as npt
 
 
 class AbstractAgent(ABC):
@@ -24,7 +25,7 @@ class AbstractAgent(ABC):
         pass
 
     @abstractmethod
-    def get_local_grid_img(self) -> list[list]:
+    def get_local_grid_img(self) -> npt.NDArray:
         '''
         Return the local grid image around the agent.
 

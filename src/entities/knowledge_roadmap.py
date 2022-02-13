@@ -48,7 +48,7 @@ class KnowledgeRoadmap:
         )
         self.next_frontier_idx += 1
 
-    def remove_frontier(self, target_frontier_idx: int) -> None:
+    def remove_frontier(self, target_frontier_idx) -> None:
         """ removes a frontier from the graph"""
         target_frontier = self.get_node_data_by_idx(target_frontier_idx)
         if target_frontier["type"] == "frontier":

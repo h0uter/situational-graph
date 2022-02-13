@@ -1,11 +1,11 @@
 import logging
+import time
 
 import matplotlib.pyplot as plt
 from src.data_providers.simulated_agent import SimulatedAgent
 from src.data_providers.spot_agent import SpotAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
-from src.entities.local_grid import LocalGrid
-from src.entrypoints.vizualizer import Vizualizer
+from src.entrypoints.mpl_vizualisation import MplVizualisation
 from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, World
 
@@ -21,7 +21,7 @@ def init_entities(cfg: Config):
     else:
         agent = SimulatedAgent(start_pos=cfg.AGENT_START_POS)
 
-    gui = Vizualizer()
+    gui = MplVizualisation()
     krm = KnowledgeRoadmap(start_pos=agent.pos)
     exploration_usecase = ExplorationUsecase()
 
@@ -29,23 +29,21 @@ def init_entities(cfg: Config):
 
 
 def main(cfg: Config):
-
     step = 0
     my_logger = logging.getLogger(__name__)
 
     gui, agent, krm, exploration_usecase = init_entities(cfg)
 
     while exploration_usecase.no_frontiers is False:
-        my_logger.info(f"sim step = {step}")
-        step += 1
+        start = time.perf_counter()
 
-        lg_img = agent.get_local_grid_img()
-        lg = LocalGrid(world_pos=agent.pos, img_data=lg_img)
-        # exploration_usecase.run_exploration_step(agent, krm, lg)
-        exploration_usecase.run_exploration_step(agent, krm, lg)
+        lg = exploration_usecase.run_exploration_step(agent, krm)
 
         if cfg.plot_lvl == PlotLvl.ALL or cfg.plot_lvl == PlotLvl.INTERMEDIATE_ONLY:
             gui.figure_update(krm, agent, lg)
+
+        my_logger.info(f"sim step = {step} took {time.perf_counter() - start:.4f}s")
+        step += 1
 
     if cfg.plot_lvl == PlotLvl.RESULT_ONLY or cfg.plot_lvl == PlotLvl.ALL:
         plt.ioff()
@@ -56,7 +54,6 @@ def main(cfg: Config):
 
 if __name__ == "__main__":
     cfg = Config()
+    # cfg = Config(plot_lvl=PlotLvl.NONE)
 
     main(cfg)
-    # main("none")
-    # main("all")

@@ -1,4 +1,5 @@
 import matplotlib
+import time
 import matplotlib.pyplot as plt
 import networkx as nx
 from PIL import Image
@@ -8,10 +9,11 @@ from src.entities.local_grid import LocalGrid
 from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
 
+
 matplotlib.use("Qt5agg")
 
 
-class Vizualizer:
+class MplVizualisation:
     def __init__(self) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
@@ -314,20 +316,56 @@ class Vizualizer:
             )
 
     def figure_update(self, krm, agent, lg):
-        self.draw_shortcut_collision_lines(lg, krm)
+        timer = False
+        start = time.perf_counter()
 
         self.viz_krm_on_floorplan(krm)
-        self.draw_lg_unzoomed_in_world_coord(lg)
+        if timer:
+            print(f"viz_krm_on_floorplan() took {time.perf_counter() - start:.4f}s")
+            start = time.perf_counter()
+
+        if lg:
+            self.draw_shortcut_collision_lines(lg, krm)
+            if timer:
+                print(
+                    f"draw_shortcut_collision_lines() took {time.perf_counter() - start:.4f}s"
+                )
+            start = time.perf_counter()
+
+            self.draw_lg_unzoomed_in_world_coord(lg)
+            if timer:
+                print(
+                    f"draw_lg_unzoomed_in_world_coord() took {time.perf_counter() - start:.4f}s"
+                )
+            start = time.perf_counter()
+
         self.draw_agent_and_sensor_range(
             agent.pos, self.ax2, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.8
         )
+        if timer:
+            print(
+                f"draw_agent_and_sensor_range() took {time.perf_counter() - start:.4f}s"
+            )
+            start = time.perf_counter()
 
         self.viz_krm_no_floorplan(krm, agent)
+        if timer:
+            print(f"viz_krm_no_floorplan() took {time.perf_counter() - start:.4f}s")
+            start = time.perf_counter()
+
         self.draw_agent_and_sensor_range(
             agent.pos, self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.8
         )
-
-        plt.pause(0.001)  # type: ignore
+        if timer:
+            print(
+                f"draw_agent_and_sensor_range() took {time.perf_counter() - start:.4f}s"
+            )
+            start = time.perf_counter()
+        
+        plt.pause(0.0000001)  # type: ignore
+        print(
+            f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s"
+        )
 
     def debug_logger(self, krm: KnowledgeRoadmap, agent: AbstractAgent) -> None:
         """
@@ -338,7 +376,7 @@ class Vizualizer:
         print("==============================")
         print(">>> " + nx.info(krm.graph))
         print(f">>> self.at_wp: {agent.at_wp}")
-        print(f">>> movement: {agent.previous_pos} >>>>>> {agent.pos}")
+        print(f">>> movement: {agent.previous_pos} >>>>>> {agent.get_localization()}")
         print(f">>> frontiers: {krm.get_all_frontiers_idxs()}")
         print("==============================")
 
