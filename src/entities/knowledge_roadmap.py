@@ -1,9 +1,11 @@
 import uuid
+
 import networkx as nx
+
 
 class KnowledgeRoadmap:
     """
-    An agent implements a Knowledge Roadmap to keep track of the 
+    An agent implements a Knowledge Roadmap to keep track of the
     world beliefs which are relevant for navigating during his mission.
     A KRM is a graph with 3 distinct node and corresponding edge types.
     - Waypoint Nodes:: correspond to places the robot has been and can go to.
@@ -20,18 +22,13 @@ class KnowledgeRoadmap:
         self.next_frontier_idx = 1000
         self.next_wo_idx = 200
 
-    def add_waypoint(self, pos: tuple, prev_wp: int) -> None:
+    def add_waypoint(self, pos: tuple, prev_wp) -> None:
         """ adds new waypoints and increments wp the idx"""
         self.graph.add_node(self.next_wp_idx, pos=pos, type="waypoint", id=uuid.uuid4())
         self.graph.add_edge(
             self.next_wp_idx, prev_wp, type="waypoint_edge", id=uuid.uuid4()
         )
         self.next_wp_idx += 1
-
-    def add_waypoints(self, wp_array: list) -> None:
-        """ adds waypoints to the graph"""
-        for wp in wp_array:
-            self.add_waypoint(wp)
 
     def add_world_object(self, pos: tuple, label: str) -> None:
         """ adds a world object to the graph"""
@@ -51,19 +48,19 @@ class KnowledgeRoadmap:
         )
         self.next_frontier_idx += 1
 
-    def remove_frontier(self, target_frontier_idx: int) -> None:
+    def remove_frontier(self, target_frontier_idx) -> None:
         """ removes a frontier from the graph"""
         target_frontier = self.get_node_data_by_idx(target_frontier_idx)
         if target_frontier["type"] == "frontier":
             self.graph.remove_node(target_frontier_idx)
 
-    def get_node_by_pos(self, pos: tuple) -> int:
+    def get_node_by_pos(self, pos: tuple):
         """ returns the node idx at the given position """
         for node in self.graph.nodes():
             if self.graph.nodes[node]["pos"] == pos:
                 return node
 
-    def get_node_by_UUID(self, UUID) -> int:
+    def get_node_by_UUID(self, UUID):
         """ returns the node idx with the given UUID """
         for node in self.graph.nodes():
             if self.graph.nodes[node]["id"] == UUID:
@@ -119,6 +116,6 @@ class KnowledgeRoadmap:
                 ):
                     close_nodes.append(node)
 
-        if len(close_nodes) == 0:
-            return None
+        # if len(close_nodes) == 0:
+        #     return []
         return close_nodes

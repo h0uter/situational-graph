@@ -1,14 +1,14 @@
 # from matplotlib import pyplot as plt
-from skimage import draw
-import numpy as np
-import numpy.typing as npt
 import logging
 
-from src.utils.config import Scenario, Config
+import numpy as np
+import numpy.typing as npt
+from skimage import draw
+from src.utils.config import Config, World
+
 
 class LocalGrid:
-
-    def __init__(self, world_pos: tuple, img_data: npt.ArrayLike):
+    def __init__(self, world_pos: tuple, img_data: npt.NDArray):
         self._logger = logging.getLogger(__name__)
 
         self.world_pos = world_pos
@@ -21,7 +21,9 @@ class LocalGrid:
         self.sample_ring_width = Config().SAMPLE_RING_WIDTH
 
         if not self.data.shape[0:2] == (self.length_num_cells, self.length_num_cells):
-            self._logger.warning(f"ERROR: data.shape = {self.data.shape[0:2]}, length_num_cells = {self.length_num_cells}")
+            self._logger.warning(
+                f"ERROR: data.shape = {self.data.shape[0:2]}, length_num_cells = {self.length_num_cells}"
+            )
 
     def is_inside(self, world_pos: tuple) -> bool:
         """
@@ -53,12 +55,21 @@ class LocalGrid:
         """
         Convert the cell indices to the world coordinates.
         """
-        x_coord = (
-            self.world_pos[0] + idxs[1] * self.cell_size_in_m - self.length_in_m / 2
-        )
-        y_coord = (
-            self.world_pos[1] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
-        )
+        # somehow switched between spot grid and my own grid
+        if Config().world == World.REAL:
+            x_coord = (
+                self.world_pos[0] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
+            )
+            y_coord = (
+                self.world_pos[1] + idxs[1] * self.cell_size_in_m - self.length_in_m / 2
+            )
+        else:
+            x_coord = (
+                self.world_pos[0] + idxs[1] * self.cell_size_in_m - self.length_in_m / 2
+            )
+            y_coord = (
+                self.world_pos[1] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
+            )
         return x_coord, y_coord
 
     # TODO: optimize this function for speed
@@ -70,10 +81,14 @@ class LocalGrid:
         y_coords = []
         for i in range(len(idxs[0])):
             x_coords.append(
-                self.world_pos[0] + idxs[1][i] * self.cell_size_in_m - self.length_in_m / 2
+                self.world_pos[0]
+                + idxs[1][i] * self.cell_size_in_m
+                - self.length_in_m / 2
             )
             y_coords.append(
-                self.world_pos[1] + idxs[0][i] * self.cell_size_in_m - self.length_in_m / 2
+                self.world_pos[1]
+                + idxs[0][i] * self.cell_size_in_m
+                - self.length_in_m / 2
             )
         return x_coords, y_coords
 
@@ -83,13 +98,18 @@ class LocalGrid:
         return rr, cc
 
     # TODO: add robot size as parameter to the collision check.
-    def is_collision_free_straight_line_between_cells(self, at: tuple, to: tuple) -> tuple:
+    def is_collision_free_straight_line_between_cells(
+        self, at: tuple, to: tuple
+    ) -> tuple:
         # FIXME: make my loaded images consistent with the spot local grid somehow
-        if Config().scenario == Scenario.REAL:
+        if Config().world == World.REAL:
             # FIXME: spot obstacle map has rr and cc flipped somehow
             rr, cc = self.get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
-                if np.greater(self.data[r, c][0:2], [self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
+                if np.greater(
+                    self.data[r, c][0:2],
+                    [self.pixel_occupied_treshold, self.pixel_occupied_treshold],
+                ).any():
                     x, y = self.cell_idx2world_coords((c, r))
                     collision_point = (x, y)
                     print(f"collision at : {collision_point}")
@@ -99,7 +119,15 @@ class LocalGrid:
         else:
             rr, cc = self.get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
-                if np.less(self.data[c, r], [self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold, self.pixel_occupied_treshold]).any():
+                if np.less(
+                    self.data[c, r],
+                    [
+                        self.pixel_occupied_treshold,
+                        self.pixel_occupied_treshold,
+                        self.pixel_occupied_treshold,
+                        self.pixel_occupied_treshold,
+                    ],
+                ).any():
                     x, y = self.cell_idx2world_coords((c, r))
                     collision_point = (x, y)
 
@@ -108,41 +136,46 @@ class LocalGrid:
 
     def sample_cell_around_other_cell(self, x: int, y: int, radius: int) -> tuple:
         sample_valid = False
-        while not sample_valid:
-            r = radius * np.sqrt(np.random.uniform(low=1 -
-                                                   self.sample_ring_width, high=1))
+        attempts = 0
+        x_sample, y_sample = None, None
+        while not sample_valid and attempts < 100:
+            r = radius * np.sqrt(
+                np.random.uniform(low=1 - self.sample_ring_width, high=1)
+            )
             theta = np.random.random() * 2 * np.pi
 
             x_sample = int(x + r * np.cos(theta))
             y_sample = int(y + r * np.sin(theta))
 
-
             sample_valid, _ = self.is_collision_free_straight_line_between_cells(
-                at=(x, y),
-                to=(x_sample, y_sample),
+                at=(x, y), to=(x_sample, y_sample),
             )
+            attempts += 1
 
-        return x_sample, y_sample
+        if sample_valid:
+            return x_sample, y_sample
+        else:
+            raise Exception("Could not sample a valid cell")
 
-    def sample_frontiers_on_cellmap(self, radius: int, num_frontiers_to_sample: int) -> list:
-        '''
+    def sample_frontiers_on_cellmap(
+        self, radius: int, num_frontiers_to_sample: int
+    ) -> npt.NDArray:
+        """
         Given a local grid, sample N points around a given point, and return the sampled points.
-        '''
-        candidate_frontiers: list = []
+        """
+        candidate_frontiers = []
         while len(candidate_frontiers) < num_frontiers_to_sample:
             x_center = self.length_num_cells // 2
             y_center = self.length_num_cells // 2
 
             x_sample, y_sample = self.sample_cell_around_other_cell(
-                x_center,
-                y_center,
-                radius=radius,
+                x_center, y_center, radius=radius,
             )
 
             candidate_frontiers.append((y_sample, x_sample))
             # candidate_frontiers.append((x_sample, y_sample))
 
         # FIXME: this is hella random
-        candidate_frontiers = np.array(candidate_frontiers).astype(np.int)
+        candidate_frontiers = np.array(candidate_frontiers).astype(int)
 
         return candidate_frontiers

@@ -1,9 +1,10 @@
 from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
 from PIL import Image
+import numpy.typing as npt
 
 
-class LocalGridImageSpoofer():
+class LocalGridImageSpoofer:
     def __init__(self) -> None:
         cfg = Config()
 
@@ -14,8 +15,9 @@ class LocalGridImageSpoofer():
         upside_down_map_img = Image.open(cfg.FULL_PATH)
         self.map_img = img_axes2world_axes(upside_down_map_img)
 
-
-    def world_coord2global_pix_idx(self, map_img:list, x_pos:float, y_pos:float, spoof_img_length_in_m: tuple) -> tuple:
+    def world_coord2global_pix_idx(
+        self, map_img: npt.NDArray, x_pos: float, y_pos: float, spoof_img_length_in_m: tuple
+    ) -> tuple:
         Nx_pix = self.map_img.shape[1]
         Ny_pix = self.map_img.shape[0]
 
@@ -33,11 +35,13 @@ class LocalGridImageSpoofer():
 
         return x_pix, y_pix
 
-    def sim_spoof_local_grid_from_img_world(self, agent_pos: tuple) -> list:
+    def sim_spoof_local_grid_from_img_world(self, agent_pos: tuple) -> npt.NDArray:
         x, y = agent_pos  # world coords
-        x, y = self.world_coord2global_pix_idx(self.map_img, x, y, self.total_map_len_in_m)
+        x, y = self.world_coord2global_pix_idx(
+            self.map_img, x, y, self.total_map_len_in_m
+        )
         half_size_in_pix = self.lg_num_cells // 2
-        
+
         # BUG:: cannot sample near edge of the image world_img.
         # BUG: rounding error can create uneven shaped local grid.
         local_grid_img = self.map_img[
@@ -45,12 +49,13 @@ class LocalGridImageSpoofer():
             int(x - half_size_in_pix) : int(x + half_size_in_pix),
         ]
         if not local_grid_img.shape[0:2] == (self.lg_num_cells, self.lg_num_cells):
-            print(f"mismatch in localgrid shape {local_grid_img.shape}, lg num cells {self.lg_num_cells }")
+            print(
+                f"mismatch in localgrid shape {local_grid_img.shape}, lg num cells {self.lg_num_cells }"
+            )
 
         return local_grid_img
 
-
-# these functions are not used in the code, only in tests...
+    # these functions are not used in the code, only in tests...
 
     def sim_calc_total_img_length_in_m(
         self, whole_damn_img, cell_size_in_m: float
@@ -64,7 +69,7 @@ class LocalGridImageSpoofer():
     ) -> tuple:
         """
         Given the total length of the image in meters, return the cell size in pixels.
-        
+
         :param whole_damn_img: the image
         :param total_img_length_in_m: the length of the image in meters
         :return: The cell size in pixels.
@@ -82,7 +87,7 @@ class LocalGridImageSpoofer():
     ) -> tuple:
         """
         Given the total length of the image in meters, return the cell size in meters.
-        
+
         :param whole_damn_img: the image
         :param total_img_length_in_m: the length of the image in meters
         :return: The cell size in meters.
@@ -94,4 +99,3 @@ class LocalGridImageSpoofer():
         cell_length_y = total_img_length_in_m[1] / Ny_cells
 
         return cell_length_x, cell_length_y
-        
