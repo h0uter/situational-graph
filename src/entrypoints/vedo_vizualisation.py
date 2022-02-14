@@ -9,6 +9,9 @@ import time
 
 vedo.settings.allowInteraction = True
 
+class VedoVisualisation:
+    def __init__(self) -> None:
+        pass
 
 def main():
     krm: KnowledgeRoadmap = load_something("krm_1302.p")
@@ -17,7 +20,7 @@ def main():
     vedo_krm(krm)
 
 
-def vedo_krm(krm):
+def vedo_krm(krm, agent):
 
     # plt = vedo.Plotter(bg2='lb', interactive=False)
     # plt = vedo.Plotter(interactive=True)
@@ -65,10 +68,12 @@ def vedo_krm(krm):
     # vedo.clear()
     # plt.show(raw_pts, raw_pts.labels('id'))
     # plt = vedo.show(raw_pts, interactive=False)
+    agent_sphere = vedo.Point([agent.pos[0], agent.pos[1], 0], r=25, c='b')
+
     if len(ed_ls) > 1:
-        plt = vedo.show(waypoints, frontiers, raw_edg, interactive=False)
+        plt = vedo.show(agent_sphere, waypoints, frontiers, raw_edg, interactive=False)
     else:
-        plt = vedo.show(waypoints, frontiers, interactive=False)
+        plt = vedo.show(agent_sphere, waypoints, frontiers, interactive=False)
     # if plt.escaped: break  # if ESC is hit during loop
 
     # time.sleep(1)
