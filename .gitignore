@@ -12,3 +12,7 @@ workspace.code-workspace
 knowledge_roadmap/data_providers/login.json
 
 afile.vtk
+
+src/data_providers/login.json
+*/login.json
+**/login.json

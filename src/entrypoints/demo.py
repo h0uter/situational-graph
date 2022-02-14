@@ -22,7 +22,7 @@ import vedo
 def init_entities(cfg: Config):
 
     if cfg.WORLD == World.REAL:
-        agent = SpotAgent(start_pos=cfg.AGENT_START_POS)
+        agent = SpotAgent()
     else:
         agent = SimulatedAgent(start_pos=cfg.AGENT_START_POS, cfg=cfg)
 
@@ -48,8 +48,8 @@ def main(cfg: Config):
         lg = exploration_usecase.run_exploration_step(agent, krm)
 
         if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
-            gui.figure_update(krm, agent, lg)
-            # vedo_krm(krm)
+            # gui.figure_update(krm, agent, lg)
+            vedo_krm(krm)
             # PLT.render()
             # PLT.show(interactive=False)
 
@@ -74,6 +74,6 @@ if __name__ == "__main__":
     cfg = Config()
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(world=World.SIM_VILLA_ROOM)
-    # cfg = Config(world=World.SIM_MAZE)
+    # cfg = Config(world=World.REAL)
 
     main(cfg)

@@ -10,8 +10,6 @@ from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 
-
-
 class MplVizualisation:
     def __init__(self, cfg: Config) -> None:
         self.agent_drawing = None
@@ -19,11 +17,13 @@ class MplVizualisation:
         self.initialized = False
 
         self.cfg = cfg
-        self.origin_x_offset = self.cfg.TOT_MAP_LEN_M_X / 2
-        self.origin_y_offset = self.cfg.TOT_MAP_LEN_M_Y / 2
+        self.origin_x_offset = 0
+        self.origin_y_offset = 0
 
         self.map_img = None
         if self.cfg.FULL_PATH:
+            self.origin_x_offset = self.cfg.TOT_MAP_LEN_M_X / 2
+            self.origin_y_offset = self.cfg.TOT_MAP_LEN_M_Y / 2
             upside_down_map_img = Image.open(self.cfg.FULL_PATH)
             self.map_img = img_axes2world_axes(upside_down_map_img)
 
@@ -218,9 +218,9 @@ class MplVizualisation:
                 origin="lower",
                 alpha=0.25,
             )
-        else:
-            self.ax2.set_xlim([-70, 70])
-            self.ax2.set_ylim([-70, 70])
+        # else:
+        #     self.ax2.set_xlim([-70, 70])
+        #     self.ax2.set_ylim([-70, 70])
 
         self.draw_krm_graph(krm, self.ax2)
         self.ax2.axis("on")  # turns on axis
@@ -353,7 +353,7 @@ class MplVizualisation:
             start = time.perf_counter()
 
         self.draw_agent_and_sensor_range(
-            agent.pos, self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.8
+            agent.pos, self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.2
         )
         if timer:
             print(
@@ -362,9 +362,7 @@ class MplVizualisation:
             start = time.perf_counter()
 
         plt.pause(0.001)  # type: ignore
-        print(
-            f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s"
-        )
+        if timer: print(f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s")
 
     def debug_logger(self, krm: KnowledgeRoadmap, agent: AbstractAgent) -> None:
         """

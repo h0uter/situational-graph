@@ -57,12 +57,15 @@ class LocalGrid:
         Convert the cell indices to the world coordinates.
         """
         # somehow switched between spot grid and my own grid
+        # FIXME: need to make sim equal to spot
         if self.cfg.WORLD == World.REAL:
             x_coord = (
-                self.world_pos[0] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
+                # self.world_pos[0] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
+                self.world_pos[0] + (idxs[0] - self.length_num_cells // 2) * self.cell_size_in_m
             )
             y_coord = (
-                self.world_pos[1] + idxs[1] * self.cell_size_in_m - self.length_in_m / 2
+                # self.world_pos[1] + idxs[1] * self.cell_size_in_m - self.length_in_m / 2
+                self.world_pos[1] + (idxs[1] - self.length_num_cells // 2) * self.cell_size_in_m
             )
         else:
             x_coord = (
@@ -113,7 +116,7 @@ class LocalGrid:
                 ).any():
                     x, y = self.cell_idx2world_coords((c, r))
                     collision_point = (x, y)
-                    print(f"collision at : {collision_point}")
+                    # print(f"collision at : {collision_point}")
 
                     return False, collision_point
             return True, None

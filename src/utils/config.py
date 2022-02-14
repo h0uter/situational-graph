@@ -25,6 +25,8 @@ class Config:
         self.PLOT_LVL = plot_lvl
         self.WORLD = world
 
+        self.PRUNE_RADIUS_FACTOR = 0.25
+
         if self.WORLD == World.SIM_VILLA or self.WORLD == World.SIM_VILLA_ROOM:
             self.FULL_PATH = os.path.join("resource", "villa_holes_closed.png")
             self.TOT_MAP_LEN_M_X = 50
@@ -57,18 +59,23 @@ class Config:
             self.LG_NUM_CELLS = 128  # max:400 due to img border margins
             self.LG_CELL_SIZE_M = 0.03
             self.FULL_PATH = ""
+            self.PRUNE_RADIUS_FACTOR = 0.15
+
 
         self.LG_LENGTH_IN_M = self.LG_NUM_CELLS * self.LG_CELL_SIZE_M
 
         # exploration hyperparameters
         self.N_SAMPLES = 25
-        self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * 0.25
-        self.SAMPLE_RING_WIDTH = 0.9
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
+        self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * self.PRUNE_RADIUS_FACTOR
+        self.SAMPLE_RING_WIDTH = 0.7
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2 - 20
 
         # logging
-        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+        LOG_LVL = logging.DEBUG
+        logging.basicConfig(stream=sys.stdout, level=LOG_LVL)
         logging.getLogger("matplotlib").setLevel(logging.WARNING)
         logging.getLogger("PIL").setLevel(logging.WARNING)
+        logging.getLogger("bosdyn").setLevel(logging.WARNING)
         mylogs = logging.getLogger(__name__)
-        coloredlogs.install(level=logging.INFO, logger=mylogs)
+        # coloredlogs.install(level=logging.INFO, logger=mylogs)
+        coloredlogs.install(level=LOG_LVL, logger=mylogs)

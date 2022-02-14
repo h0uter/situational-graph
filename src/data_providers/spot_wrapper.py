@@ -58,6 +58,7 @@ import bosdyn.api.payload_estimation_pb2 as payload_estimation_proto
 from bosdyn.util import now_timestamp
 
 from google.protobuf.timestamp_pb2 import Timestamp
+import logging
 
 """List of image sources for periodic query"""
 front_image_sources = [
@@ -290,6 +291,9 @@ class SpotWrapper():
         self._password = password
         self._hostname = hostname
         self._logger = logger
+        
+        self._logger.setLevel(logging.WARNING)
+
         if rates is not None:
             self._rates = rates
         if callbacks is not None:

@@ -20,8 +20,8 @@ class ExplorationUsecase:
         self.no_frontiers = False
 
         self.cfg = cfg
-        self.total_map_len_m = cfg.TOTAL_MAP_LEN_M
-        self.lg_num_cells = cfg.LG_NUM_CELLS
+        # self.total_map_len_m = cfg.TOTAL_MAP_LEN_M
+        # self.lg_num_cells = cfg.LG_NUM_CELLS
         self.lg_length_in_m = cfg.LG_LENGTH_IN_M
 
         # Hyper parameters
@@ -103,9 +103,16 @@ class ExplorationUsecase:
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         this should be sampled from the pose graph eventually
         """
-        wp_at_previous_pos = krm.get_node_by_pos(agent.previous_pos)
+        # wp_at_previous_pos = krm.get_node_by_pos(agent.previous_pos)
+        PREV_POS_MARGIN = 0.15
+        wp_at_previous_pos = krm.get_nodes_of_type_in_margin(agent.previous_pos, PREV_POS_MARGIN, "waypoint")[0]
         krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
-        agent.at_wp = krm.get_node_by_pos(agent.get_localization())  # type: ignore
+        # agent.at_wp = krm.get_node_by_pos(agent.get_localization())  # type: ignore
+        #FIXME: make cfg constant
+        AT_WP_MARGIN = 0.25
+        agent.at_wp = krm.get_nodes_of_type_in_margin(agent.get_localization(), AT_WP_MARGIN, "waypoint")[0]
+        
+        # agent.at_wp = krm.get_node_by_pos(agent.get_localization())  # type: ignore
 
     def get_nodes_of_type_in_radius(
         self, pos: tuple, radius: float, node_type: str, krm: KnowledgeRoadmap
@@ -222,12 +229,12 @@ class ExplorationUsecase:
             """if there are no more frontiers, exploration is done"""
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
             if self.no_frontiers:
-                logging.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
-                logging.info(
+                self._logger.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
+                self._logger.info(
                     f"It took {agent.steps_taken} move actions to complete the exploration."
                 )
 
-            logging.debug("Step 3: select target frontier and find path")
+            self._logger.debug("Step 3: select target frontier and find path")
             self.consumable_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
             )
@@ -237,7 +244,7 @@ class ExplorationUsecase:
         # executing path
         # redraw, maybe not necc, can remove agent instead of cla()
         if self.consumable_path:
-            logging.debug("Step 2: execute consumable path")
+            self._logger.debug("Step 2: execute consumable path")
             self.consumable_path = self.perform_path_step(
                 agent, self.consumable_path, krm
             )
@@ -245,9 +252,14 @@ class ExplorationUsecase:
 
         # updating the KRM when arrived at the frontier
         # redraw necc for sampling ste
-        if krm.graph.nodes[krm.get_node_by_pos(agent.get_localization())]["type"] == "frontier":
+        # FIXME: this pos no longer exactly matches, need to find some margin
+
+        # if krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
+        arrival_margin = 0.5
+        if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
+        # if krm.graph.nodes[krm.get_node_by_pos(agent.get_localization())]["type"] == "frontier":
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
-            logging.debug("Step 1: frontier processing")
+            self._logger.debug("Step 1: frontier processing")
             krm.remove_frontier(self.selected_frontier_idx)
             self.selected_frontier_idx = None
 
@@ -258,3 +270,5 @@ class ExplorationUsecase:
             self.find_shortcuts_between_wps(lg, krm, agent)
 
             return lg
+
+        self._logger.warning("no exploration condition triggered")
