@@ -39,21 +39,14 @@ def main(cfg: Config):
 
     gui, agent, krm, exploration_usecase = init_entities(cfg)
    
-    # PLT = vedo_krm(krm)
-
-
     while exploration_usecase.no_frontiers is False:
         start = time.perf_counter()
 
         lg = exploration_usecase.run_exploration_step(agent, krm)
 
         if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
-            # gui.figure_update(krm, agent, lg)
-            vedo_krm(krm)
-            # PLT.render()
-            # PLT.show(interactive=False)
-
-
+            gui.figure_update(krm, agent, lg)
+            # vedo_krm(krm)
 
         my_logger.info(f"sim step = {step} took {time.perf_counter() - start:.4f}s")
         step += 1

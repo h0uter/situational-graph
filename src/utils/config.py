@@ -72,11 +72,11 @@ class Config:
         self.PREV_POS_MARGIN = 0.15
 
         # logging
-        LOG_LVL = logging.DEBUG
+        # LOG_LVL = logging.DEBUG
+        LOG_LVL = logging.INFO
         logging.basicConfig(stream=sys.stdout, level=LOG_LVL)
         logging.getLogger("matplotlib").setLevel(logging.WARNING)
         logging.getLogger("PIL").setLevel(logging.WARNING)
         logging.getLogger("bosdyn").setLevel(logging.WARNING)
         mylogs = logging.getLogger(__name__)
-        # coloredlogs.install(level=logging.INFO, logger=mylogs)
         coloredlogs.install(level=LOG_LVL, logger=mylogs)

@@ -11,3 +11,4 @@ bosdyn-mission
 bosdyn-choreography-client
 coloredlogs
 opencv-python
+vedo

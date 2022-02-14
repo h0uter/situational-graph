@@ -43,7 +43,7 @@ class KnowledgeRoadmap:
         self.graph.add_node(
             self.next_frontier_idx, pos=pos, type="frontier", id=uuid.uuid4()
         )
-        print(f"agent_at_wp: {agent_at_wp}, next frt idx: {self.next_frontier_idx}, pos: {pos}")
+        # print(f"agent_at_wp: {agent_at_wp}, next frt idx: {self.next_frontier_idx}, pos: {pos}")
         self.graph.add_edge(
             agent_at_wp, self.next_frontier_idx, type="frontier_edge", id=uuid.uuid4()
         )
