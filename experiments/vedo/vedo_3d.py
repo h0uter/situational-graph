@@ -9,11 +9,13 @@ ed_ls = [(x, y) for x, y in zip(range(0, 5), range(1, 6))]
 G = nx.Graph()
 G.add_edges_from(ed_ls)
 nxpos = nx.spring_layout(G)
+# print(nxpos)
 nxpts = [nxpos[pt] for pt in sorted(nxpos)]
 # nx.draw(G, with_labels=True, pos=nxpos)
 # plt.show()
 
 raw_lines = [(pos[x],pos[y]) for x, y in ed_ls]
+print(f"raw_lines = {raw_lines}")
 nx_lines = []
 for x, y in ed_ls:
     p1 = nxpos[x].tolist() + [0] # add z-coord

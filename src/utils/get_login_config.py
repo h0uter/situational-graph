@@ -21,6 +21,6 @@ def get_login_config() -> LoginConfig:
     :type share_directory: str
     :return: A LoginConfig object.
     """
-    path = os.path.join("knowledge_roadmap", "data_providers")
+    path = os.path.join("src", "data_providers")
     with open(f"{path}/login.json", "r") as file:
         return LoginConfig(**json.load(file))

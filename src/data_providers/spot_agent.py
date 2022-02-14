@@ -17,6 +17,7 @@ from bosdyn.client import create_standard_sdk, ResponseError, RpcError
 from bosdyn.client.lease import Error as LeaseBaseError
 from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
 from bosdyn.api.geometry_pb2 import Quaternion
+from bosdyn.client import util
 
 # local grid stuff
 from bosdyn.api import local_grid_pb2
@@ -41,8 +42,11 @@ class SpotAgent(AbstractAgent):
         """
         super().__init__(start_pos)
 
-        self._logger = logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
+        # self._logger = logging.getLogger(__name__)
+        self._logger = util.get_logger()
+        # logging.basicConfig(level=logging.INFO)
+        
+        self._logger.setLevel(level=logging.WARNING)
 
         self.mobility_parameters = {
             "obstacle_padding": 0.1,  # [m]
@@ -88,11 +92,15 @@ class SpotAgent(AbstractAgent):
         time.sleep(5)
 
         self.pos = self.get_localization()
+        # self.pos = start_pos
 
     def move_to_pos(self, pos: tuple):
         # self.spot_move_to_pos(pos)
+
         self.move_vision_frame(pos)
         time.sleep(5)
+        self.previous_pos = self.pos
+        # self.pos = pos
         self.pos = self.get_localization()
         self.steps_taken += 1
 
@@ -108,6 +116,7 @@ class SpotAgent(AbstractAgent):
         # print('Got robot state in kinematic odometry frame: \n%s' % str(odom_tform_body))
 
         # return odom_tform_body.position.x, odom_tform_body.position.y, odom_tform_body.position.z
+        # pos = self.pos
         pos = tform_body.position.x, tform_body.position.y
         print(f"tform_body.position = {pos}")
 
@@ -309,7 +318,7 @@ def get_local_grid(spot: SpotAgent):
     # # negative distance value in a grid cell, and the outside of an obstacle is determined by a positive distance value in a
     # # grid cell. The border of an obstacle is considered a distance of [0,.33] meters for a grid cell value.
 
-    OBSTACLE_DISTANCE_TRESHOLD = 0.2
+    OBSTACLE_DISTANCE_TRESHOLD = 0.3
 
     colored_pts = np.ones([cell_count, 3], dtype=np.uint8)
     colored_pts[:, 0] = cells_obstacle_dist <= 0.0
