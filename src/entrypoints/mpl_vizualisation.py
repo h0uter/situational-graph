@@ -14,12 +14,12 @@ matplotlib.use("Qt5agg")
 
 
 class MplVizualisation:
-    def __init__(self) -> None:
+    def __init__(self, cfg: Config) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
         self.initialized = False
 
-        self.cfg = Config()
+        self.cfg = cfg
         self.origin_x_offset = self.cfg.TOT_MAP_LEN_M_X / 2
         self.origin_y_offset = self.cfg.TOT_MAP_LEN_M_Y / 2
 
@@ -362,7 +362,7 @@ class MplVizualisation:
             )
             start = time.perf_counter()
 
-        plt.pause(0.0000001)  # type: ignore
+        plt.pause(0.001)  # type: ignore
         print(
             f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s"
         )

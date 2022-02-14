@@ -22,10 +22,10 @@ class PlotLvl(Enum):
 
 class Config:
     def __init__(self, plot_lvl: PlotLvl = PlotLvl.ALL, world: World = World.SIM_VILLA):
-        self.plot_lvl = plot_lvl
-        self.world = world
+        self.PLOT_LVL = plot_lvl
+        self.WORLD = world
 
-        if self.world == World.SIM_VILLA or self.world == World.SIM_VILLA_ROOM:
+        if self.WORLD == World.SIM_VILLA or self.WORLD == World.SIM_VILLA_ROOM:
             self.FULL_PATH = os.path.join("resource", "villa_holes_closed.png")
             self.TOT_MAP_LEN_M_X = 50
             self.IMG_TOTAL_X_PIX = 2026
@@ -37,10 +37,10 @@ class Config:
             ) * self.IMG_TOTAL_Y_PIX
             self.TOTAL_MAP_LEN_M = (self.TOT_MAP_LEN_M_X, self.TOT_MAP_LEN_M_Y)
             self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
-            if self.world == World.SIM_VILLA_ROOM:
+            if self.WORLD == World.SIM_VILLA_ROOM:
                 self.AGENT_START_POS = (13, 14)
 
-        elif self.world == World.SIM_MAZE:
+        elif self.WORLD == World.SIM_MAZE:
             self.FULL_PATH = os.path.join("resource", "simple_maze2_border_closed.png")
             self.TOT_MAP_LEN_M_X = 73
             self.IMG_TOTAL_X_PIX = 2000
@@ -53,7 +53,7 @@ class Config:
             self.TOTAL_MAP_LEN_M = (self.TOT_MAP_LEN_M_X, self.TOT_MAP_LEN_M_Y)
             self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
 
-        elif self.world == World.REAL:
+        elif self.WORLD == World.REAL:
             self.LG_NUM_CELLS = 128  # max:400 due to img border margins
             self.LG_CELL_SIZE_M = 0.03
             self.FULL_PATH = ""

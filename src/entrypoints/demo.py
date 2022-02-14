@@ -16,14 +16,14 @@ from src.utils.config import Config, PlotLvl, World
 
 def init_entities(cfg: Config):
 
-    if cfg.world == World.REAL:
+    if cfg.WORLD == World.REAL:
         agent = SpotAgent(start_pos=cfg.AGENT_START_POS)
     else:
-        agent = SimulatedAgent(start_pos=cfg.AGENT_START_POS)
+        agent = SimulatedAgent(start_pos=cfg.AGENT_START_POS, cfg=cfg)
 
-    gui = MplVizualisation()
+    gui = MplVizualisation(cfg)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
-    exploration_usecase = ExplorationUsecase()
+    exploration_usecase = ExplorationUsecase(cfg)
 
     return gui, agent, krm, exploration_usecase
 
@@ -39,13 +39,13 @@ def main(cfg: Config):
 
         lg = exploration_usecase.run_exploration_step(agent, krm)
 
-        if cfg.plot_lvl == PlotLvl.ALL or cfg.plot_lvl == PlotLvl.INTERMEDIATE_ONLY:
+        if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
             gui.figure_update(krm, agent, lg)
 
         my_logger.info(f"sim step = {step} took {time.perf_counter() - start:.4f}s")
         step += 1
 
-    if cfg.plot_lvl == PlotLvl.RESULT_ONLY or cfg.plot_lvl == PlotLvl.ALL:
+    if cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or cfg.PLOT_LVL == PlotLvl.ALL:
         plt.ioff()
         plt.show()
 
@@ -53,7 +53,8 @@ def main(cfg: Config):
 
 
 if __name__ == "__main__":
-    cfg = Config()
+    # cfg = Config()
+    cfg = Config(world=World.SIM_MAZE)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
 
     main(cfg)

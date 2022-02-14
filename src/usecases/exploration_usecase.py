@@ -11,7 +11,7 @@ from src.utils.config import Config
 
 # TODO: refactor with a bunch of list comprehensions
 class ExplorationUsecase:
-    def __init__(self) -> None:
+    def __init__(self, cfg: Config) -> None:
         self._logger = logging.getLogger(__name__)
 
         self.consumable_path = None
@@ -19,7 +19,7 @@ class ExplorationUsecase:
         self.init = False
         self.no_frontiers = False
 
-        cfg = Config()
+        self.cfg = cfg
         self.total_map_len_m = cfg.TOTAL_MAP_LEN_M
         self.lg_num_cells = cfg.LG_NUM_CELLS
         self.lg_length_in_m = cfg.LG_LENGTH_IN_M
@@ -200,6 +200,7 @@ class ExplorationUsecase:
         return LocalGrid(
             world_pos=agent.get_localization(),
             img_data=lg_img,
+            cfg=self.cfg,
         )
 
     def run_exploration_step(

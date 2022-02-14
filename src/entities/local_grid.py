@@ -8,17 +8,18 @@ from src.utils.config import Config, World
 
 
 class LocalGrid:
-    def __init__(self, world_pos: tuple, img_data: npt.NDArray):
+    def __init__(self, world_pos: tuple, img_data: npt.NDArray, cfg: Config = Config()):
         self._logger = logging.getLogger(__name__)
 
         self.world_pos = world_pos
         self.data = img_data
-        self.length_in_m = Config().LG_LENGTH_IN_M
-        self.cell_size_in_m = Config().LG_CELL_SIZE_M
+        self.cfg = cfg
+        self.length_in_m = cfg.LG_LENGTH_IN_M
+        self.cell_size_in_m = cfg.LG_CELL_SIZE_M
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
 
         self.pixel_occupied_treshold = 220
-        self.sample_ring_width = Config().SAMPLE_RING_WIDTH
+        self.sample_ring_width = cfg.SAMPLE_RING_WIDTH
 
         if not self.data.shape[0:2] == (self.length_num_cells, self.length_num_cells):
             self._logger.warning(
@@ -56,7 +57,7 @@ class LocalGrid:
         Convert the cell indices to the world coordinates.
         """
         # somehow switched between spot grid and my own grid
-        if Config().world == World.REAL:
+        if self.cfg.WORLD == World.REAL:
             x_coord = (
                 self.world_pos[0] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
             )
@@ -102,7 +103,7 @@ class LocalGrid:
         self, at: tuple, to: tuple
     ) -> tuple:
         # FIXME: make my loaded images consistent with the spot local grid somehow
-        if Config().world == World.REAL:
+        if self.cfg.WORLD == World.REAL:
             # FIXME: spot obstacle map has rr and cc flipped somehow
             rr, cc = self.get_cells_under_line(at, to)
             for r, c in zip(rr, cc):

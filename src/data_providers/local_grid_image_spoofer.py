@@ -5,8 +5,9 @@ import numpy.typing as npt
 
 
 class LocalGridImageSpoofer:
-    def __init__(self) -> None:
-        cfg = Config()
+    def __init__(self, cfg: Config) -> None:
+        self.cfg = cfg
+        # cfg = Config()
 
         self.lg_num_cells = cfg.LG_NUM_CELLS
         self.lg_cell_size_m = cfg.LG_CELL_SIZE_M
