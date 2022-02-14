@@ -61,7 +61,6 @@ class Config:
             self.FULL_PATH = ""
             self.PRUNE_RADIUS_FACTOR = 0.15
 
-
         self.LG_LENGTH_IN_M = self.LG_NUM_CELLS * self.LG_CELL_SIZE_M
 
         # exploration hyperparameters
@@ -69,6 +68,8 @@ class Config:
         self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * self.PRUNE_RADIUS_FACTOR
         self.SAMPLE_RING_WIDTH = 0.7
         self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2 - 20
+        self.AT_WP_MARGIN = 0.25
+        self.PREV_POS_MARGIN = 0.15
 
         # logging
         LOG_LVL = logging.DEBUG

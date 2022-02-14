@@ -103,16 +103,10 @@ class ExplorationUsecase:
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         this should be sampled from the pose graph eventually
         """
-        # wp_at_previous_pos = krm.get_node_by_pos(agent.previous_pos)
-        PREV_POS_MARGIN = 0.15
-        wp_at_previous_pos = krm.get_nodes_of_type_in_margin(agent.previous_pos, PREV_POS_MARGIN, "waypoint")[0]
+        # HACK: just taking the first one from the list is not neccessarily the closest
+        wp_at_previous_pos = krm.get_nodes_of_type_in_margin(agent.previous_pos, self.cfg.PREV_POS_MARGIN, "waypoint")[0]
         krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
-        # agent.at_wp = krm.get_node_by_pos(agent.get_localization())  # type: ignore
-        #FIXME: make cfg constant
-        AT_WP_MARGIN = 0.25
-        agent.at_wp = krm.get_nodes_of_type_in_margin(agent.get_localization(), AT_WP_MARGIN, "waypoint")[0]
-        
-        # agent.at_wp = krm.get_node_by_pos(agent.get_localization())  # type: ignore
+        agent.at_wp = krm.get_nodes_of_type_in_margin(agent.get_localization(), self.cfg.AT_WP_MARGIN, "waypoint")[0]
 
     def get_nodes_of_type_in_radius(
         self, pos: tuple, radius: float, node_type: str, krm: KnowledgeRoadmap
@@ -257,7 +251,6 @@ class ExplorationUsecase:
         # if krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
         arrival_margin = 0.5
         if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
-        # if krm.graph.nodes[krm.get_node_by_pos(agent.get_localization())]["type"] == "frontier":
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             self._logger.debug("Step 1: frontier processing")
             krm.remove_frontier(self.selected_frontier_idx)
