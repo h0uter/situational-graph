@@ -249,6 +249,7 @@ class ExplorationUsecase:
 
         # if krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
         arrival_margin = 0.5
+        # FIXME: multi: when one agent removes the frontier of another one it breaks
         if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             self._logger.debug(f"{agent.name}: frontier processing")
