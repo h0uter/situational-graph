@@ -6,13 +6,12 @@ from src.data_providers.simulated_agent import SimulatedAgent
 from src.data_providers.spot_agent import SpotAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entrypoints.mpl_vizualisation import MplVizualisation
-from src.entrypoints.vedo_vizualisation import VedoVisualisation, vedo_krm
+from src.entrypoints.vedo_vizualisation import VedoVisualisation
 from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, World
 from src.utils.saving_objects import save_something
 
 import matplotlib
-import vedo
 
 ############################################################################################
 # DEMONSTRATIONS
@@ -34,12 +33,13 @@ def init_entities(cfg: Config):
     return gui, agent, krm, exploration_usecase
 
 
+# def main(cfg: Config):
 def main(cfg: Config):
     step = 0
     my_logger = logging.getLogger(__name__)
 
     gui, agent, krm, exploration_usecase = init_entities(cfg)
-   
+
     while exploration_usecase.no_frontiers is False:
         start = time.perf_counter()
 
@@ -65,10 +65,10 @@ def main(cfg: Config):
 if __name__ == "__main__":
     matplotlib.use("Qt5agg")
 
-    cfg = Config()
+    # cfg = Config()
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(world=World.SIM_VILLA_ROOM)
-    # cfg = Config(world=World.SIM_MAZE)
+    cfg = Config(world=World.SIM_MAZE)
     # cfg = Config(world=World.REAL)
 
     main(cfg)
