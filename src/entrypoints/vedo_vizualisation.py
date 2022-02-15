@@ -36,17 +36,17 @@ class VedoVisualisation(AbstractVizualisation):
         time.sleep(0.1)
 
     def figure_update(
-        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: list[AbstractAgent], lg: LocalGrid
     ) -> None:
-        self.viz_all(krm, agent)
+        self.viz_all(krm, agents)
 
     def figure_final_result(
-        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: list[AbstractAgent], lg: LocalGrid
     ) -> None:
-        self.figure_update(krm, agent, lg)
+        self.figure_update(krm, agents, lg)
         self.plt.show(interactive=True, resetcam=True)
 
-    def viz_all(self, krm, agent):
+    def viz_all(self, krm, agents):
         actors = []
 
         positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
@@ -89,12 +89,13 @@ class VedoVisualisation(AbstractVizualisation):
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
-        agent_pos = [self.factor * agent.pos[0], self.factor * agent.pos[1], 0]
-        grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
-        local_grid_viz = vedo.Grid(pos=agent_pos, sx=grid_len, sy=grid_len, lw=2)
-        actors.append(local_grid_viz)
-        agent_sphere = vedo.Point(agent_pos, r=25, c="b")
-        actors.append(agent_sphere)
+        for agent in agents:
+            agent_pos = [self.factor * agent.pos[0], self.factor * agent.pos[1], 0]
+            grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
+            local_grid_viz = vedo.Grid(pos=agent_pos, sx=grid_len, sy=grid_len, lw=2)
+            actors.append(local_grid_viz)
+            agent_sphere = vedo.Point(agent_pos, r=25, c="b")
+            actors.append(agent_sphere)
 
         self.plt.show(
             actors,

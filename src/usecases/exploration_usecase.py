@@ -14,6 +14,7 @@ class ExplorationUsecase:
     def __init__(self, cfg: Config) -> None:
         self._logger = logging.getLogger(__name__)
 
+        # FIXME: statefull exploration case is preventing multiagent exploration
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False
@@ -43,13 +44,17 @@ class ExplorationUsecase:
         selected_frontier_idx = None
 
         for frontier_idx in frontier_idxs:
-            candidate_path = nx.shortest_path(
-                krm.graph, source=agent.at_wp, target=frontier_idx
-            )
+            candidate_path = []
+            try:
+                candidate_path = nx.shortest_path(
+                    krm.graph, source=agent.at_wp, target=frontier_idx
+                )
+            except:
+                pass
             # choose the last shortest path among equals
             # if len(candidate_path) <= shortest_path_by_node_count:
             #  choose the first shortest path among equals
-            if len(candidate_path) < shortest_path_by_node_count:
+            if len(candidate_path) < shortest_path_by_node_count and len(candidate_path) > 0:
                 shortest_path_by_node_count = len(candidate_path)
                 selected_frontier_idx = candidate_path[-1]
         if selected_frontier_idx:
@@ -185,7 +190,7 @@ class ExplorationUsecase:
             selected_frontier_data = krm.get_node_data_by_idx(path[0])
             agent.move_to_pos(selected_frontier_data["pos"])
             self._logger.debug(
-                f"the selected frontier pos is {selected_frontier_data['pos']}"
+                f"{agent.name}: the selected frontier pos is {selected_frontier_data['pos']}"
             )
             return []
 
@@ -193,7 +198,7 @@ class ExplorationUsecase:
             # self._logger.warning(
             #     f"trying to perform path step with empty path {path}"
             # )
-            raise Exception(f"trying to perform path step with empty path {path}")
+            raise Exception(f"{agent.name}: trying to perform path step with empty path {path}")
 
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:
         lg_img = agent.get_local_grid_img()
@@ -221,7 +226,7 @@ class ExplorationUsecase:
         # no redraw
         if not self.selected_frontier_idx:
             """if there are no more frontiers, exploration is done"""
-            self._logger.debug("Step 3: select target frontier and find path")
+            self._logger.debug(f"{agent.name}: select target frontier and find path")
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
             self.consumable_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
@@ -232,7 +237,7 @@ class ExplorationUsecase:
         # executing path
         # redraw, maybe not necc, can remove agent instead of cla()
         if self.consumable_path:
-            self._logger.debug("Step 2: execute consumable path")
+            self._logger.debug(f"{agent.name}: execute consumable path")
             self.consumable_path = self.perform_path_step(
                 agent, self.consumable_path, krm
             )
@@ -246,7 +251,7 @@ class ExplorationUsecase:
         arrival_margin = 0.5
         if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
-            self._logger.debug("Step 1: frontier processing")
+            self._logger.debug(f"{agent.name}: frontier processing")
             krm.remove_frontier(self.selected_frontier_idx)
             self.selected_frontier_idx = None
 
@@ -258,4 +263,4 @@ class ExplorationUsecase:
 
             return lg
 
-        self._logger.warning("no exploration condition triggered")
+        self._logger.warning(f"{agent.name}:no exploration condition triggered")

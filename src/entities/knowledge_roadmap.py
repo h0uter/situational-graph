@@ -14,13 +14,20 @@ class KnowledgeRoadmap:
     """
 
     # TODO: adress local vs global KRM
-    def __init__(self, start_pos: tuple) -> None:
+    def __init__(self, start_poses: list[tuple]) -> None:
         self.graph = nx.Graph()  # Knowledge Road Map
-
-        self.graph.add_node(0, pos=start_pos, type="waypoint", id=uuid.uuid4())
-        self.next_wp_idx = 1
-        self.next_frontier_idx = 1000
+        self.next_wp_idx = 0
+        for start_pos in start_poses:
+            self.add_start_waypoints(start_pos)
+            # self.graph.add_node(0, pos=start_pos, type="waypoint", id=uuid.uuid4())
+        self.next_frontier_idx = 9000
         self.next_wo_idx = 200
+
+    # add startpoints function
+    def add_start_waypoints(self, pos: tuple) -> None:
+        """ adds start points to the graph"""
+        self.graph.add_node(self.next_wp_idx, pos=pos, type="waypoint", id=uuid.uuid4())
+        self.next_wp_idx += 1
 
     def add_waypoint(self, pos: tuple, prev_wp) -> None:
         """ adds new waypoints and increments wp the idx"""
