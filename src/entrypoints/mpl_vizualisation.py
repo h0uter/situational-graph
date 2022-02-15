@@ -363,7 +363,8 @@ class MplVizualisation(AbstractVizualisation):
             start = time.perf_counter()
 
         plt.pause(0.001)  # type: ignore
-        if timer: print(f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s")
+        if timer: 
+            print(f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s")
 
     def debug_logger(self, krm: KnowledgeRoadmap, agent: AbstractAgent) -> None:
         """

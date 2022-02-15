@@ -36,12 +36,13 @@ def init_entities(cfg: Config):
 # def main(cfg: Config):
 def main(cfg: Config):
     step = 0
+    start = time.perf_counter()
     my_logger = logging.getLogger(__name__)
 
     gui, agent, krm, exploration_usecase = init_entities(cfg)
 
     while exploration_usecase.no_frontiers is False:
-        start = time.perf_counter()
+        step_start = time.perf_counter()
 
         lg = exploration_usecase.run_exploration_step(agent, krm)
 
@@ -49,9 +50,14 @@ def main(cfg: Config):
             gui.figure_update(krm, agent, lg)
             # PLT = vedo_krm(krm, agent, cfg)
 
-        my_logger.info(f"sim step = {step} took {time.perf_counter() - start:.4f}s")
+        my_logger.info(f"sim step = {step} took {time.perf_counter() - step_start:.4f}s")
         step += 1
 
+    # if self.no_frontiers:
+    my_logger.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
+    my_logger.info(
+        f"It took {agent.steps_taken} move actions and {time.perf_counter()-start:.2f}s  to complete the exploration."
+    )
     if cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or cfg.PLOT_LVL == PlotLvl.ALL:
         plt.ioff()
         plt.show()
@@ -68,7 +74,9 @@ if __name__ == "__main__":
     # cfg = Config()
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(world=World.SIM_VILLA_ROOM)
-    cfg = Config(world=World.SIM_MAZE)
+    # cfg = Config(world=World.SIM_MAZE)
+    cfg = Config(world=World.SIM_MAZE_MEDIUM)
+    # cfg = Config(plot_lvl=PlotLvl.NONE, world=World.SIM_MAZE_MEDIUM)
     # cfg = Config(world=World.REAL)
 
     main(cfg)

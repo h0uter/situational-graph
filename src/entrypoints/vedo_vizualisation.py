@@ -63,7 +63,7 @@ class VedoVisualisation(AbstractVizualisation):
             
             # pos_dict[pos] = pos_dict[pos]*100
             pos_dict[pos] = tuple([self.factor*x for x in pos_dict[pos]])
-            print(pos_dict[pos])
+            # print(pos_dict[pos])
 
         ed_ls = list(krm.graph.edges)
 
