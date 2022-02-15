@@ -1,4 +1,3 @@
-import matplotlib
 import time
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -6,11 +5,12 @@ from PIL import Image
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
+from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 
-class MplVizualisation:
+class MplVizualisation(AbstractVizualisation):
     def __init__(self, cfg: Config) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
@@ -37,6 +37,13 @@ class MplVizualisation:
         plt.ion()
         self.fig.tight_layout()
         self.initialized = True
+
+    def figure_final_result(
+        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+    ) -> None:
+        self.figure_update(krm, agent, lg)
+        plt.ioff()
+        plt.show()
 
     def draw_agent_and_sensor_range(
         self, pos: tuple, ax, rec_len=7, circle_size=1.2
@@ -314,7 +321,9 @@ class MplVizualisation:
                 color="blue",
             )
 
-    def figure_update(self, krm, agent, lg):
+    def figure_update(
+        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+    ) -> None:
         timer = False
         start = time.perf_counter()
 
@@ -362,7 +371,8 @@ class MplVizualisation:
             start = time.perf_counter()
 
         plt.pause(0.001)  # type: ignore
-        if timer: print(f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s")
+        if timer:
+            print(f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s")
 
     def debug_logger(self, krm: KnowledgeRoadmap, agent: AbstractAgent) -> None:
         """

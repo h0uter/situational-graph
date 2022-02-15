@@ -1,4 +1,3 @@
-# from matplotlib import pyplot as plt
 import logging
 
 import numpy as np
@@ -61,11 +60,13 @@ class LocalGrid:
         if self.cfg.WORLD == World.REAL:
             x_coord = (
                 # self.world_pos[0] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
-                self.world_pos[0] + (idxs[0] - self.length_num_cells // 2) * self.cell_size_in_m
+                self.world_pos[0]
+                + (idxs[0] - self.length_num_cells // 2) * self.cell_size_in_m
             )
             y_coord = (
                 # self.world_pos[1] + idxs[1] * self.cell_size_in_m - self.length_in_m / 2
-                self.world_pos[1] + (idxs[1] - self.length_num_cells // 2) * self.cell_size_in_m
+                self.world_pos[1]
+                + (idxs[1] - self.length_num_cells // 2) * self.cell_size_in_m
             )
         else:
             x_coord = (
@@ -120,6 +121,19 @@ class LocalGrid:
 
                     return False, collision_point
             return True, None
+
+        if self.cfg.WORLD == World.SIM_MAZE_MEDIUM:
+            rr, cc = self.get_cells_under_line(at, to)
+            for r, c in zip(rr, cc):
+                if np.greater(
+                    self.data[c, r][3], [self.pixel_occupied_treshold],
+                ).any():
+                    x, y = self.cell_idx2world_coords((c, r))
+                    collision_point = (x, y)
+
+                    return False, collision_point
+            return True, None
+
         else:
             rr, cc = self.get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
@@ -159,7 +173,7 @@ class LocalGrid:
         if sample_valid:
             return x_sample, y_sample
         else:
-            raise Exception("Could not sample a valid cell")
+            raise Exception("Could not sample a valid cell around other cell")
 
     def sample_frontiers_on_cellmap(
         self, radius: int, num_frontiers_to_sample: int

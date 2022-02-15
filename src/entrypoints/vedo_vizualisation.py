@@ -1,80 +1,119 @@
-from src.utils.saving_objects import load_something
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+import os
+import time
 
 import networkx as nx
-
-# from vedo import Points, show
 import vedo
-import time
+from src.entities.abstract_agent import AbstractAgent
+from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.local_grid import LocalGrid
+from src.entrypoints.abstract_vizualisation import AbstractVizualisation
+from src.utils.config import Config, PlotLvl
+
+# from vedo.pyplot import plot
 
 vedo.settings.allowInteraction = True
 
 
-def main():
-    krm: KnowledgeRoadmap = load_something("krm_1302.p")
+class VedoVisualisation(AbstractVizualisation):
+    def __init__(self, cfg: Config) -> None:
+        self.cfg = cfg
+        self.factor = 1 / self.cfg.LG_CELL_SIZE_M
+        self.plt = vedo.Plotter(axes=13, sharecam=False, title="Knowledge Roadmap")
 
-    print(krm.graph)
-    vedo_krm(krm)
+        # NOTE: perhaps I just should not instantiate viz classes if we run headless
+        if self.cfg.PLOT_LVL is not PlotLvl.NONE:
+            map_pic = vedo.Picture(cfg.FULL_PATH)
+            map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
+            self.plt.show(map_pic, interactive=False)
 
+            logo_path = os.path.join("resource", "KRM.png")
+            logo = vedo.load(logo_path)
+            self.plt.addIcon(logo, pos=1, size=0.15)
 
-def vedo_krm(krm):
+        self.wp_counter = []
+        self.ft_counter = []
 
-    # plt = vedo.Plotter(bg2='lb', interactive=False)
-    # plt = vedo.Plotter(interactive=True)
-    # plt = vedo.Plotter(interactive=False)
-    positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
-    pos_dict = positions_of_all_nodes
-    # pos_arr = positions_of_all_nodes.values()
-    # pos_arr = list(positions_of_all_nodes.values())
-    # print(f"positions_of_all_nodes = {pos_dict}")
+        time.sleep(0.1)
 
-    # print(krm.graph.edges)
-    ed_ls = list(krm.graph.edges)
-    # print(f"len ed_ls = {len(ed_ls)}, len pos_arr = {len(pos_arr)}")
-    # print(f"ed_ls = {ed_ls}")
-    # print(f"pos_arr = {pos_arr}")
-    if len(ed_ls) > 1:
-        raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
+    def figure_update(
+        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+    ) -> None:
+        self.viz_all(krm, agent)
 
-        raw_edg = vedo.Lines(raw_lines).lw(2)
-    waypoint_nodes = list(dict(
-            (n, d["type"])
-            for n, d in krm.graph.nodes().items()
-            if d["type"] == "waypoint"
-        ).keys())
+    def figure_final_result(
+        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+    ) -> None:
+        self.figure_update(krm, agent, lg)
+        self.plt.show(interactive=True, resetcam=True)
 
-    # print(f"waypoint_nodes = {waypoint_nodes}")
-    frontier_nodes = list(dict(
-            (n, d["type"])
-            for n, d in krm.graph.nodes().items()
-            if d["type"] == "frontier"
-        ).keys())
+    def viz_all(self, krm, agent):
+        actors = []
 
-    wps = []
-    for wp in waypoint_nodes:
-        wps.append(pos_dict[wp])
+        positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
+        pos_dict = positions_of_all_nodes
+        for pos in pos_dict:
 
-    fts = []
-    for f in frontier_nodes:
-        fts.append(pos_dict[f])
+            pos_dict[pos] = tuple([self.factor * x for x in pos_dict[pos]])
 
-    # print(f"frontier_nodes = {frontier_nodes}")
-    waypoints = vedo.Points(wps, r=12, c='r')
-    # waypoints = vedo.Points(list(waypoint_nodes), r=12, c='r')
-    frontiers = vedo.Points(fts, r=45, c='g', alpha=0.2)
-    # vedo.clear()
-    # plt.show(raw_pts, raw_pts.labels('id'))
-    # plt = vedo.show(raw_pts, interactive=False)
-    if len(ed_ls) > 1:
-        plt = vedo.show(waypoints, frontiers, raw_edg, interactive=False)
-    else:
-        plt = vedo.show(waypoints, frontiers, interactive=False)
-    # if plt.escaped: break  # if ESC is hit during loop
+        ed_ls = list(krm.graph.edges)
 
-    # time.sleep(1)
-    # vedo.plotter.show(raw_pts, raw_pts.labels('id'), at=0, N=2, axes=True, sharecam=False, interactive=False, rate=1.0)
-    return plt
+        if len(ed_ls) > 1:
+            raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
 
+            raw_edg = vedo.Lines(raw_lines).lw(2)
+            actors.append(raw_edg)
 
-if __name__ == "__main__":
-    main()
+        waypoint_nodes = list(
+            dict(
+                (n, d["type"])
+                for n, d in krm.graph.nodes().items()
+                if d["type"] == "waypoint"
+            ).keys()
+        )
+
+        frontier_nodes = list(
+            dict(
+                (n, d["type"])
+                for n, d in krm.graph.nodes().items()
+                if d["type"] == "frontier"
+            ).keys()
+        )
+
+        wps = [pos_dict[wp] for wp in waypoint_nodes]
+        self.wp_counter.append(len(wps))
+        waypoints = vedo.Points(wps, r=8, c="r")
+        actors.append(waypoints)
+
+        fts = [pos_dict[f] for f in frontier_nodes]
+        self.ft_counter.append(len(fts))
+        frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
+        actors.append(frontiers)
+
+        agent_pos = [self.factor * agent.pos[0], self.factor * agent.pos[1], 0]
+        grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
+        local_grid_viz = vedo.Grid(pos=agent_pos, sx=grid_len, sy=grid_len, lw=2)
+        actors.append(local_grid_viz)
+        agent_sphere = vedo.Point(agent_pos, r=25, c="b")
+        actors.append(agent_sphere)
+
+        self.plt.show(
+            actors,
+            interactive=False,
+            # render=False,
+            # sharecam=False,
+            resetcam=False,
+            # at=0
+        )
+
+    # def plot_stats(self):
+    #     if len(self.wp_counter) > 1 and len(self.ft_counter) > 1:
+    #         self.plt.clear(at=1)
+    #         plot_wps = plot(self.wp_counter, "r")
+    #         plot_wps.overlayPlot(self.ft_counter, "b")
+    #         # plot(self.wp_counter, "r").plot(self.ft_counter, "bo-").show(at=1)
+    #         # plot(self.wp_counter, "r").plot(self.ft_counter, "bo-").show()
+    #         # plot_fts = plot(self.ft_counter)
+
+    #         # plot_wps.x(0.7 * self.cfg.IMG_TOTAL_X_PIX)
+    #         # plot_wps.show()
+    #         self.plt.add(plot_wps, at=1, render=False)
