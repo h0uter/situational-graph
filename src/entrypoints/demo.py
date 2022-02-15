@@ -50,7 +50,7 @@ def main(cfg: Config):
             gui.figure_update(krm, agent, lg)
             # PLT = vedo_krm(krm, agent, cfg)
 
-        my_logger.info(f"sim step = {step} took {time.perf_counter() - step_start:.4f}s")
+        if step % 10 == 0: my_logger.info(f"sim step = {step} took {time.perf_counter() - step_start:.4f}s")
         step += 1
 
     # if self.no_frontiers:
@@ -59,8 +59,9 @@ def main(cfg: Config):
         f"It took {agent.steps_taken} move actions and {time.perf_counter()-start:.2f}s  to complete the exploration."
     )
     if cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or cfg.PLOT_LVL == PlotLvl.ALL:
-        plt.ioff()
-        plt.show()
+        # plt.ioff()
+        # plt.show()
+        gui.figure_final_result()
         # PLT.show(interactive=True)
 
     # save_something(krm, 'krm_1302.p')

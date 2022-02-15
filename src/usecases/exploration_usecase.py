@@ -221,14 +221,8 @@ class ExplorationUsecase:
         # no redraw
         if not self.selected_frontier_idx:
             """if there are no more frontiers, exploration is done"""
-            self.selected_frontier_idx = self.select_target_frontier(agent, krm)
-            # if self.no_frontiers:
-            #     self._logger.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
-            #     self._logger.info(
-            #         f"It took {agent.steps_taken} move actions to complete the exploration."
-            #     )
-
             self._logger.debug("Step 3: select target frontier and find path")
+            self.selected_frontier_idx = self.select_target_frontier(agent, krm)
             self.consumable_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
             )

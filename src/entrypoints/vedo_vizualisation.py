@@ -7,6 +7,7 @@ import networkx as nx
 
 import vedo
 import time
+import os
 
 vedo.settings.allowInteraction = True
 
@@ -15,11 +16,20 @@ class VedoVisualisation(AbstractVizualisation):
     def __init__(self, cfg: Config) -> None:
         self.cfg = cfg
         self.factor = 1 / self.cfg.LG_CELL_SIZE_M
+        # self.plt = vedo.Plotter(axes=1, sharecam=True)
         self.plt = vedo.Plotter(axes=13, sharecam=True)
-        self.plt.addLegendBox()
+        # self.plt.addLegendBox()
         map_pic = vedo.Picture(cfg.FULL_PATH)
 
         map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
+
+        # logo_path = os.path.join("resource", "CR.png")
+        logo_path = os.path.join("resource", "KRM.png")
+        logo = vedo.load(logo_path)
+        # self.plt.addIcon(logo, pos=1, size=1)
+        self.plt.addIcon(logo, pos=1, size=0.15)
+        # self.plt.addIcon(logo)
+
         self.plt.show(map_pic, interactive=False)
         time.sleep(1)
 
@@ -27,6 +37,9 @@ class VedoVisualisation(AbstractVizualisation):
         self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
     ) -> None:
         self.plt = self.viz_all(krm, agent, self.cfg)
+
+    def figure_final_result(self) -> None:
+        self.plt.show(interactive=True)
 
     def viz_all(self, krm, agent, cfg):
 
@@ -68,8 +81,8 @@ class VedoVisualisation(AbstractVizualisation):
         for f in frontier_nodes:
             fts.append(pos_dict[f])
 
-        waypoints = vedo.Points(wps, r=12, c="r")
-        frontiers = vedo.Points(fts, r=45, c="g", alpha=0.2)
+        waypoints = vedo.Points(wps, r=8, c="r")
+        frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
 
         agent_pos = [self.factor * agent.pos[0], self.factor * agent.pos[1], 0]
         grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
@@ -77,6 +90,7 @@ class VedoVisualisation(AbstractVizualisation):
         agent_sphere = vedo.Point(
             agent_pos, r=25, c="b"
         )
+
 
         if len(ed_ls) > 1:
             plt = vedo.show(

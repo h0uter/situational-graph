@@ -15,3 +15,7 @@ class AbstractVizualisation(ABC):
     @abstractmethod
     def figure_update(self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid) -> None:
         pass
+
+    @abstractmethod
+    def figure_final_result():
+        pass

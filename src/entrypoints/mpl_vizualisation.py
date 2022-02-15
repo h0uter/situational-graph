@@ -39,6 +39,10 @@ class MplVizualisation(AbstractVizualisation):
         self.fig.tight_layout()
         self.initialized = True
 
+    def figure_final_result(self):
+        plt.ioff()
+        plt.show()
+
     def draw_agent_and_sensor_range(
         self, pos: tuple, ax, rec_len=7, circle_size=1.2
     ) -> None:
