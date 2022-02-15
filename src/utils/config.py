@@ -21,10 +21,16 @@ class PlotLvl(Enum):
     RESULT_ONLY = auto()
 
 
+class Vizualiser(Enum):
+    MATPLOTLIB = auto()
+    VEDO = auto()
+
+
 class Config:
-    def __init__(self, plot_lvl: PlotLvl = PlotLvl.ALL, world: World = World.SIM_VILLA):
+    def __init__(self, plot_lvl: PlotLvl = PlotLvl.ALL, world: World = World.SIM_VILLA, vizualiser: Vizualiser = Vizualiser.VEDO):
         self.PLOT_LVL = plot_lvl
         self.WORLD = world
+        self.VIZUALISER = vizualiser
 
         self.PRUNE_RADIUS_FACTOR = 0.25
 

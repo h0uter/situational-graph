@@ -1,4 +1,3 @@
-import matplotlib
 import time
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -39,7 +38,10 @@ class MplVizualisation(AbstractVizualisation):
         self.fig.tight_layout()
         self.initialized = True
 
-    def figure_final_result(self):
+    def figure_final_result(
+        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+    ) -> None:
+        self.figure_update(krm, agent, lg)
         plt.ioff()
         plt.show()
 
@@ -319,7 +321,9 @@ class MplVizualisation(AbstractVizualisation):
                 color="blue",
             )
 
-    def figure_update(self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid) -> None:
+    def figure_update(
+        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+    ) -> None:
         timer = False
         start = time.perf_counter()
 
@@ -367,7 +371,7 @@ class MplVizualisation(AbstractVizualisation):
             start = time.perf_counter()
 
         plt.pause(0.001)  # type: ignore
-        if timer: 
+        if timer:
             print(f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s")
 
     def debug_logger(self, krm: KnowledgeRoadmap, agent: AbstractAgent) -> None:
