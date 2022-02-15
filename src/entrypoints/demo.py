@@ -6,7 +6,7 @@ from src.data_providers.simulated_agent import SimulatedAgent
 from src.data_providers.spot_agent import SpotAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entrypoints.mpl_vizualisation import MplVizualisation
-from src.entrypoints.vedo_vizualisation import vedo_krm
+from src.entrypoints.vedo_vizualisation import VedoVisualisation, vedo_krm
 from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, World
 from src.utils.saving_objects import save_something
@@ -26,7 +26,8 @@ def init_entities(cfg: Config):
     else:
         agent = SimulatedAgent(start_pos=cfg.AGENT_START_POS, cfg=cfg)
 
-    gui = MplVizualisation(cfg)
+    # gui = MplVizualisation(cfg)
+    gui = VedoVisualisation(cfg)
     krm = KnowledgeRoadmap(start_pos=agent.pos)
     exploration_usecase = ExplorationUsecase(cfg)
 
@@ -45,8 +46,8 @@ def main(cfg: Config):
         lg = exploration_usecase.run_exploration_step(agent, krm)
 
         if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
-            # gui.figure_update(krm, agent, lg)
-            PLT = vedo_krm(krm, agent)
+            gui.figure_update(krm, agent, lg)
+            # PLT = vedo_krm(krm, agent, cfg)
 
         my_logger.info(f"sim step = {step} took {time.perf_counter() - start:.4f}s")
         step += 1
@@ -64,10 +65,10 @@ def main(cfg: Config):
 if __name__ == "__main__":
     matplotlib.use("Qt5agg")
 
-    # cfg = Config()
+    cfg = Config()
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(world=World.SIM_VILLA_ROOM)
-    cfg = Config(world=World.SIM_MAZE)
+    # cfg = Config(world=World.SIM_MAZE)
     # cfg = Config(world=World.REAL)
 
     main(cfg)

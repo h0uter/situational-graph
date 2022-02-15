@@ -61,11 +61,13 @@ class LocalGrid:
         if self.cfg.WORLD == World.REAL:
             x_coord = (
                 # self.world_pos[0] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
-                self.world_pos[0] + (idxs[0] - self.length_num_cells // 2) * self.cell_size_in_m
+                self.world_pos[0]
+                + (idxs[0] - self.length_num_cells // 2) * self.cell_size_in_m
             )
             y_coord = (
                 # self.world_pos[1] + idxs[1] * self.cell_size_in_m - self.length_in_m / 2
-                self.world_pos[1] + (idxs[1] - self.length_num_cells // 2) * self.cell_size_in_m
+                self.world_pos[1]
+                + (idxs[1] - self.length_num_cells // 2) * self.cell_size_in_m
             )
         else:
             x_coord = (
