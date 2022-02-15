@@ -92,7 +92,7 @@ class VedoVisualisation(AbstractVizualisation):
         for agent in agents:
             agent_pos = [self.factor * agent.pos[0], self.factor * agent.pos[1], 0]
             grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
-            local_grid_viz = vedo.Grid(pos=agent_pos, sx=grid_len, sy=grid_len, lw=2)
+            local_grid_viz = vedo.Grid(pos=agent_pos, sx=grid_len, sy=grid_len, lw=2, alpha=0.3)
             actors.append(local_grid_viz)
             agent_sphere = vedo.Point(agent_pos, r=25, c="b")
             actors.append(agent_sphere)

@@ -21,7 +21,7 @@ def init_entities(cfg: Config):
 
     agents = []
     exploration_usecases = []
-    num_agents = 3
+    num_agents = 10
     if cfg.WORLD == World.REAL:
         agents = [SpotAgent()]
     else:
@@ -72,7 +72,7 @@ def main(cfg: Config):
 
     # save_something(krm, 'krm_1302.p')
 
-    return exploration_usecase.no_frontiers
+    return exploration_usecase[0].no_frontiers
 
 
 if __name__ == "__main__":

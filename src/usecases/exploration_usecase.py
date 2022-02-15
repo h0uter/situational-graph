@@ -50,7 +50,7 @@ class ExplorationUsecase:
                     krm.graph, source=agent.at_wp, target=frontier_idx
                 )
             except:
-                pass
+                continue
             # choose the last shortest path among equals
             # if len(candidate_path) <= shortest_path_by_node_count:
             #  choose the first shortest path among equals
@@ -60,7 +60,7 @@ class ExplorationUsecase:
         if selected_frontier_idx:
             return selected_frontier_idx
         else:
-            self._logger.error("No frontier can be selected")
+            self._logger.error(f"{agent.name} at {agent.at_wp}: No frontier can be selected from {len(frontier_idxs)} frontiers")
             return None
 
     #############################################################################################
@@ -74,6 +74,7 @@ class ExplorationUsecase:
             return self.evaluate_frontiers(agent, frontier_idxs, krm)
 
         else:
+            self._logger.debug(f"{agent.name}: No frontiers to explore")
             self.no_frontiers = True
             return None
 
@@ -90,7 +91,9 @@ class ExplorationUsecase:
         if len(path) > 1:
             return path
         else:
-            raise ValueError("No path found")
+            # raise ValueError("No path found")
+            # raise ValueError("No path found")
+            self._logger.error(f"{agent.name}: No path found")
 
     def real_sample_step(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
@@ -228,10 +231,20 @@ class ExplorationUsecase:
             """if there are no more frontiers, exploration is done"""
             self._logger.debug(f"{agent.name}: select target frontier and find path")
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
-            self.consumable_path = self.find_path_to_selected_frontier(
+            possible_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
             )
+            if possible_path:
+                self.consumable_path = possible_path
 
+            return
+
+        try:
+            krm.get_node_data_by_idx(self.selected_frontier_idx)
+        except:
+            self._logger.debug(f"{agent.name}: my target frontier no longer exists")
+
+            self.selected_frontier_idx = None
             return
 
         # executing path
@@ -248,8 +261,11 @@ class ExplorationUsecase:
         # FIXME: this pos no longer exactly matches, need to find some margin
 
         # if krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
-        arrival_margin = 0.5
+        arrival_margin = 0.7 
         # FIXME: multi: when one agent removes the frontier of another one it breaks
+        # add a check if the selected frontier still exists, otherwise remove it
+
+
         if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             self._logger.debug(f"{agent.name}: frontier processing")
