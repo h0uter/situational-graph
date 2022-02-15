@@ -6,11 +6,12 @@ from PIL import Image
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
+from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 
-class MplVizualisation:
+class MplVizualisation(AbstractVizualisation):
     def __init__(self, cfg: Config) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
@@ -314,7 +315,7 @@ class MplVizualisation:
                 color="blue",
             )
 
-    def figure_update(self, krm, agent, lg):
+    def figure_update(self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid) -> None:
         timer = False
         start = time.perf_counter()
 
