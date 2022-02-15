@@ -89,7 +89,8 @@ class Config:
         # self.SAMPLE_RING_WIDTH = 0.7
         self.SAMPLE_RING_WIDTH = 0.9
         # FIXME: the minus is for spot only
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2 - 20
+        # self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2 - 20
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
         self.AT_WP_MARGIN = 0.25
         self.PREV_POS_MARGIN = 0.15
 

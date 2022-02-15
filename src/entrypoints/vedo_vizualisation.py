@@ -7,7 +7,7 @@ from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.utils.config import Config
+from src.utils.config import Config, PlotLvl
 
 # from vedo.pyplot import plot
 
@@ -20,13 +20,15 @@ class VedoVisualisation(AbstractVizualisation):
         self.factor = 1 / self.cfg.LG_CELL_SIZE_M
         self.plt = vedo.Plotter(axes=13, sharecam=False, title="Knowledge Roadmap")
 
-        map_pic = vedo.Picture(cfg.FULL_PATH)
-        map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
-        self.plt.show(map_pic, interactive=False)
+        # NOTE: perhaps I just should not instantiate viz classes if we run headless
+        if self.cfg.PLOT_LVL is not PlotLvl.NONE:
+            map_pic = vedo.Picture(cfg.FULL_PATH)
+            map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
+            self.plt.show(map_pic, interactive=False)
 
-        logo_path = os.path.join("resource", "KRM.png")
-        logo = vedo.load(logo_path)
-        self.plt.addIcon(logo, pos=1, size=0.15)
+            logo_path = os.path.join("resource", "KRM.png")
+            logo = vedo.load(logo_path)
+            self.plt.addIcon(logo, pos=1, size=0.15)
 
         self.wp_counter = []
         self.ft_counter = []
@@ -89,7 +91,7 @@ class VedoVisualisation(AbstractVizualisation):
 
         agent_pos = [self.factor * agent.pos[0], self.factor * agent.pos[1], 0]
         grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
-        local_grid_viz = vedo.Grid(pos=agent_pos, sx=grid_len, sy=grid_len)
+        local_grid_viz = vedo.Grid(pos=agent_pos, sx=grid_len, sy=grid_len, lw=2)
         actors.append(local_grid_viz)
         agent_sphere = vedo.Point(agent_pos, r=25, c="b")
         actors.append(agent_sphere)

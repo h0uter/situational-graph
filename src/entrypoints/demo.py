@@ -76,8 +76,8 @@ if __name__ == "__main__":
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(world=World.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
     # cfg = Config(world=World.SIM_MAZE)
-    # cfg = Config(world=World.SIM_MAZE_MEDIUM)
-    cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, world=World.SIM_MAZE_MEDIUM)
+    cfg = Config(world=World.SIM_MAZE_MEDIUM)
+    # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, world=World.SIM_MAZE_MEDIUM)
     # cfg = Config(world=World.REAL)
 
     main(cfg)
