@@ -21,7 +21,7 @@ def init_entities(cfg: Config):
 
     agents = []
     exploration_usecases = []
-    num_agents = 10
+    num_agents = 5
     if cfg.WORLD == World.REAL:
         agents = [SpotAgent()]
     else:

@@ -228,8 +228,8 @@ class ExplorationUsecase:
         # selecting a target frontier
         # no redraw
         if not self.selected_frontier_idx:
-            """if there are no more frontiers, exploration is done"""
             self._logger.debug(f"{agent.name}: select target frontier and find path")
+            """if there are no more frontiers, exploration is done"""
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
             possible_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
@@ -261,12 +261,13 @@ class ExplorationUsecase:
         # FIXME: this pos no longer exactly matches, need to find some margin
 
         # if krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
-        arrival_margin = 0.7 
+        arrival_margin = 0.5
         # FIXME: multi: when one agent removes the frontier of another one it breaks
         # add a check if the selected frontier still exists, otherwise remove it
 
 
-        if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
+        # if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
+        if len(self.consumable_path) == 0:
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             self._logger.debug(f"{agent.name}: frontier processing")
             krm.remove_frontier(self.selected_frontier_idx)
