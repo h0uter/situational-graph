@@ -21,7 +21,7 @@ def init_entities(cfg: Config):
 
     agents = []
     exploration_usecases = []
-    num_agents = 5
+    num_agents = 1
     if cfg.WORLD == World.REAL:
         agents = [SpotAgent()]
     else:
@@ -65,14 +65,14 @@ def main(cfg: Config):
 
     my_logger.info("!!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!")
     my_logger.info(
-        f"It took {agent.steps_taken} move actions and {time.perf_counter()-start:.2f}s  to complete the exploration."
+        f"It took {agents[0].steps_taken} move actions and {time.perf_counter()-start:.2f}s  to complete the exploration."
     )
     if cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or cfg.PLOT_LVL == PlotLvl.ALL:
-        gui.figure_final_result(krm, agent, lg)
+        gui.figure_final_result(krm, agents, lg)
 
     # save_something(krm, 'krm_1302.p')
 
-    return exploration_usecase[0].no_frontiers
+    return exploration_usecases[0].no_frontiers
 
 
 if __name__ == "__main__":

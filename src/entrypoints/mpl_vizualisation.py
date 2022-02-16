@@ -39,9 +39,9 @@ class MplVizualisation(AbstractVizualisation):
         self.initialized = True
 
     def figure_final_result(
-        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: list[AbstractAgent], lg: LocalGrid
     ) -> None:
-        self.figure_update(krm, agent, lg)
+        self.figure_update(krm, agents, lg)
         plt.ioff()
         plt.show()
 
