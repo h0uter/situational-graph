@@ -7,6 +7,7 @@ from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.utils.config import Config
+from src.utils.print_timing import print_timing
 
 
 # TODO: refactor with a bunch of list comprehensions
@@ -45,6 +46,7 @@ class ExplorationUsecase:
 
         for frontier_idx in frontier_idxs:
             candidate_path = []
+            # HACK: have to do this becaue  sometimes the paths are not possible
             try:
                 candidate_path = nx.shortest_path(
                     krm.graph, source=agent.at_wp, target=frontier_idx
@@ -92,7 +94,6 @@ class ExplorationUsecase:
             return path
         else:
             # raise ValueError("No path found")
-            # raise ValueError("No path found")
             self._logger.error(f"{agent.name}: No path found")
 
     def real_sample_step(
@@ -106,7 +107,7 @@ class ExplorationUsecase:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             krm.add_frontier(frontier_pos_global, agent.at_wp)
 
-    def sample_waypoint(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
+    def sample_waypoint_from_pose(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         this should be sampled from the pose graph eventually
@@ -178,7 +179,7 @@ class ExplorationUsecase:
                     )
 
     def perform_path_step(
-        self, agent: AbstractAgent, path, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, path: list, krm: KnowledgeRoadmap
     ) -> list:
         """
         Execute a single step of the path.
@@ -186,6 +187,7 @@ class ExplorationUsecase:
         if len(path) > 1:
             node_data = krm.get_node_data_by_idx(path[0])
             agent.move_to_pos(node_data["pos"])
+            agent.at_wp = krm.get_nodes_of_type_in_margin(agent.pos, self.cfg.AT_WP_MARGIN, "waypoint")[0]
             path.pop(0)
             return path
 
@@ -212,6 +214,7 @@ class ExplorationUsecase:
             cfg=self.cfg,
         )
 
+    # @print_timing
     def run_exploration_step(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap
     ):
@@ -258,22 +261,19 @@ class ExplorationUsecase:
 
         # updating the KRM when arrived at the frontier
         # redraw necc for sampling ste
-        # FIXME: this pos no longer exactly matches, need to find some margin
 
-        # if krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
-        arrival_margin = 0.5
         # FIXME: multi: when one agent removes the frontier of another one it breaks
         # add a check if the selected frontier still exists, otherwise remove it
 
-
-        # if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
-        if len(self.consumable_path) == 0:
+        arrival_margin = 0.5
+        if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
+        # if len(self.consumable_path) == 0:
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
             self._logger.debug(f"{agent.name}: frontier processing")
             krm.remove_frontier(self.selected_frontier_idx)
             self.selected_frontier_idx = None
 
-            self.sample_waypoint(agent, krm)
+            self.sample_waypoint_from_pose(agent, krm)
             lg = self.get_lg(agent)
             self.real_sample_step(agent, krm, lg)
             self.prune_frontiers(krm)

@@ -28,7 +28,7 @@ class AbstractAgent(ABC):
     def get_local_grid_img(self) -> npt.NDArray:
         """
         Return the local grid image around the agent.
- 
+
         :return: The local grid image.
         """
         pass

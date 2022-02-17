@@ -21,11 +21,12 @@ def init_entities(cfg: Config):
 
     agents = []
     exploration_usecases = []
-    num_agents = 1
+
     if cfg.WORLD == World.REAL:
         agents = [SpotAgent()]
     else:
-        for i in range(num_agents):
+        # TODO: make this a list comprehension
+        for i in range(cfg.NUM_AGENTS):
             agents.append(SimulatedAgent(start_pos=(-3, 0), cfg=cfg, name=i))
             exploration_usecases.append(ExplorationUsecase(cfg))
 

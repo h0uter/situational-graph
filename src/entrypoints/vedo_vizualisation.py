@@ -8,6 +8,7 @@ from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.utils.config import Config, PlotLvl
+from src.utils.print_timing import print_timing
 
 # from vedo.pyplot import plot
 
@@ -46,6 +47,7 @@ class VedoVisualisation(AbstractVizualisation):
         self.figure_update(krm, agents, lg)
         self.plt.show(interactive=True, resetcam=True)
 
+    # @print_timing
     def viz_all(self, krm, agents):
         actors = []
 

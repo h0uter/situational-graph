@@ -34,6 +34,7 @@ class Config:
 
         self.PRUNE_RADIUS_FACTOR = 0.25
 
+
         if self.WORLD == World.SIM_VILLA or self.WORLD == World.SIM_VILLA_ROOM:
             self.FULL_PATH = os.path.join("resource", "villa_holes_closed.png")
             self.TOT_MAP_LEN_M_X = 50
@@ -93,6 +94,10 @@ class Config:
         self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
         self.AT_WP_MARGIN = 0.25
         self.PREV_POS_MARGIN = 0.15
+
+        # SIM PARAMS
+        self.NUM_AGENTS = 5
+
 
         # logging
         # LOG_LVL = logging.DEBUG
