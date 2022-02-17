@@ -49,8 +49,11 @@ class ExplorationUsecase:
             # HACK: have to do this becaue  sometimes the paths are not possible
             try:
                 candidate_path = nx.shortest_path(
-                    krm.graph, source=agent.at_wp, target=frontier_idx
+                    krm.graph, source=agent.at_wp, target=frontier_idx, weight="cost"
                 )
+                # candidate_path = nx.shortest_path(
+                #     krm.graph, source=agent.at_wp, target=frontier_idx
+                # )
             except:
                 # no path can be found
                 continue
