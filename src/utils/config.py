@@ -100,7 +100,7 @@ class Config:
         self.PREV_POS_MARGIN = 0.15
 
         # SIM PARAMS
-        self.NUM_AGENTS = 5
+        self.NUM_AGENTS = 1
 
         # logging
         # LOG_LVL = logging.DEBUG

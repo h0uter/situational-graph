@@ -1,10 +1,11 @@
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
-from src.entrypoints.demo import main
+from src.entrypoints.multi_robot_demo import main
+# from src.entrypoints.demo import main
 from src.utils.config import Config, World, PlotLvl
 
 
 def test_get_node_by_pos():
-    KRM = KnowledgeRoadmap((55, 55))
+    KRM = KnowledgeRoadmap([(55, 55)])
     assert 0 == KRM.get_node_by_pos((55, 55))
 
 

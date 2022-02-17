@@ -30,7 +30,7 @@ def init_entities(cfg: Config):
     else:
         gui = VedoVisualisation(cfg)
 
-    #TODO: fixme this is ugly
+    # TODO: fixme this is ugly
     start_poses = [agent.pos for agent in agents]
     krm = KnowledgeRoadmap(start_poses=start_poses)
 
@@ -46,12 +46,15 @@ def main(cfg: Config):
 
     while exploration_usecases[0].no_frontiers is False:
         step_start = time.perf_counter()
+        lg = None
         for i in range(len(agents)):
 
-            lg = None
-            # FIXME: one exploration usecase should be enough
-            exploration_usecases[i].run_exploration_step(agents[i], krm)
-
+            # FIXME: this is to allow plotting the local grid with matplotlib
+            if i == 0:
+                # TODO: one exploration usecase should be enough, maybe not
+                lg = exploration_usecases[i].run_exploration_step(agents[i], krm)
+            else:
+                exploration_usecases[i].run_exploration_step(agents[i], krm)
         if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
             gui.figure_update(krm, agents, lg)
 
@@ -80,7 +83,7 @@ if __name__ == "__main__":
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(world=World.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
     # cfg = Config(world=World.SIM_MAZE)
-    cfg = Config(world=World.SIM_MAZE_MEDIUM)
+    cfg = Config(world=World.SIM_VILLA, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, world=World.SIM_MAZE_MEDIUM)
     # cfg = Config(world=World.REAL)
 

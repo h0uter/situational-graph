@@ -8,6 +8,7 @@ tested with Python33/34  by  vegaseat  17oct2014
 import time
 from functools import wraps
 
+
 def print_timing(func):
     '''
     create a timing decorator function

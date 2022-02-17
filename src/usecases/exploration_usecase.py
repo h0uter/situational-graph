@@ -52,6 +52,7 @@ class ExplorationUsecase:
                     krm.graph, source=agent.at_wp, target=frontier_idx
                 )
             except:
+                # no path can be found
                 continue
             # choose the last shortest path among equals
             # if len(candidate_path) <= shortest_path_by_node_count:

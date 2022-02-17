@@ -34,4 +34,3 @@ class SimulatedAgent(AbstractAgent):
         self.previous_pos = self.pos
         self.pos = pos
         self.steps_taken += 1
-        
