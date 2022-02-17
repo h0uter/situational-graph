@@ -7,6 +7,7 @@ from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.utils.config import Config
+from src.utils.print_timing import print_timing
 
 
 # TODO: refactor with a bunch of list comprehensions
@@ -14,6 +15,7 @@ class ExplorationUsecase:
     def __init__(self, cfg: Config) -> None:
         self._logger = logging.getLogger(__name__)
 
+        # FIXME: statefull exploration case is preventing multiagent exploration
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False
@@ -43,19 +45,25 @@ class ExplorationUsecase:
         selected_frontier_idx = None
 
         for frontier_idx in frontier_idxs:
-            candidate_path = nx.shortest_path(
-                krm.graph, source=agent.at_wp, target=frontier_idx
-            )
+            candidate_path = []
+            # HACK: have to do this becaue  sometimes the paths are not possible
+            try:
+                candidate_path = nx.shortest_path(
+                    krm.graph, source=agent.at_wp, target=frontier_idx
+                )
+            except:
+                # no path can be found
+                continue
             # choose the last shortest path among equals
             # if len(candidate_path) <= shortest_path_by_node_count:
             #  choose the first shortest path among equals
-            if len(candidate_path) < shortest_path_by_node_count:
+            if len(candidate_path) < shortest_path_by_node_count and len(candidate_path) > 0:
                 shortest_path_by_node_count = len(candidate_path)
                 selected_frontier_idx = candidate_path[-1]
         if selected_frontier_idx:
             return selected_frontier_idx
         else:
-            self._logger.error("No frontier can be selected")
+            self._logger.error(f"{agent.name} at {agent.at_wp}: No frontier can be selected from {len(frontier_idxs)} frontiers")
             return None
 
     #############################################################################################
@@ -69,6 +77,7 @@ class ExplorationUsecase:
             return self.evaluate_frontiers(agent, frontier_idxs, krm)
 
         else:
+            self._logger.debug(f"{agent.name}: No frontiers to explore")
             self.no_frontiers = True
             return None
 
@@ -85,7 +94,8 @@ class ExplorationUsecase:
         if len(path) > 1:
             return path
         else:
-            raise ValueError("No path found")
+            # raise ValueError("No path found")
+            self._logger.error(f"{agent.name}: No path found")
 
     def real_sample_step(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
@@ -98,7 +108,7 @@ class ExplorationUsecase:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             krm.add_frontier(frontier_pos_global, agent.at_wp)
 
-    def sample_waypoint(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
+    def sample_waypoint_from_pose(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         this should be sampled from the pose graph eventually
@@ -170,7 +180,7 @@ class ExplorationUsecase:
                     )
 
     def perform_path_step(
-        self, agent: AbstractAgent, path, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, path: list, krm: KnowledgeRoadmap
     ) -> list:
         """
         Execute a single step of the path.
@@ -178,6 +188,7 @@ class ExplorationUsecase:
         if len(path) > 1:
             node_data = krm.get_node_data_by_idx(path[0])
             agent.move_to_pos(node_data["pos"])
+            agent.at_wp = krm.get_nodes_of_type_in_margin(agent.pos, self.cfg.AT_WP_MARGIN, "waypoint")[0]
             path.pop(0)
             return path
 
@@ -185,7 +196,7 @@ class ExplorationUsecase:
             selected_frontier_data = krm.get_node_data_by_idx(path[0])
             agent.move_to_pos(selected_frontier_data["pos"])
             self._logger.debug(
-                f"the selected frontier pos is {selected_frontier_data['pos']}"
+                f"{agent.name}: the selected frontier pos is {selected_frontier_data['pos']}"
             )
             return []
 
@@ -193,7 +204,7 @@ class ExplorationUsecase:
             # self._logger.warning(
             #     f"trying to perform path step with empty path {path}"
             # )
-            raise Exception(f"trying to perform path step with empty path {path}")
+            raise Exception(f"{agent.name}: trying to perform path step with empty path {path}")
 
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:
         lg_img = agent.get_local_grid_img()
@@ -204,6 +215,7 @@ class ExplorationUsecase:
             cfg=self.cfg,
         )
 
+    # @print_timing
     def run_exploration_step(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap
     ):
@@ -220,19 +232,29 @@ class ExplorationUsecase:
         # selecting a target frontier
         # no redraw
         if not self.selected_frontier_idx:
+            self._logger.debug(f"{agent.name}: select target frontier and find path")
             """if there are no more frontiers, exploration is done"""
-            self._logger.debug("Step 3: select target frontier and find path")
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
-            self.consumable_path = self.find_path_to_selected_frontier(
+            possible_path = self.find_path_to_selected_frontier(
                 agent, self.selected_frontier_idx, krm
             )
+            if possible_path:
+                self.consumable_path = possible_path
 
+            return
+
+        try:
+            krm.get_node_data_by_idx(self.selected_frontier_idx)
+        except:
+            self._logger.debug(f"{agent.name}: my target frontier no longer exists")
+
+            self.selected_frontier_idx = None
             return
 
         # executing path
         # redraw, maybe not necc, can remove agent instead of cla()
         if self.consumable_path:
-            self._logger.debug("Step 2: execute consumable path")
+            self._logger.debug(f"{agent.name}: execute consumable path")
             self.consumable_path = self.perform_path_step(
                 agent, self.consumable_path, krm
             )
@@ -240,17 +262,19 @@ class ExplorationUsecase:
 
         # updating the KRM when arrived at the frontier
         # redraw necc for sampling ste
-        # FIXME: this pos no longer exactly matches, need to find some margin
 
-        # if krm.graph.nodes[krm.get_node_by_pos(agent.pos)]["type"] == "frontier":
+        # FIXME: multi: when one agent removes the frontier of another one it breaks
+        # add a check if the selected frontier still exists, otherwise remove it
+
         arrival_margin = 0.5
         if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
+        # if len(self.consumable_path) == 0:
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
-            self._logger.debug("Step 1: frontier processing")
+            self._logger.debug(f"{agent.name}: frontier processing")
             krm.remove_frontier(self.selected_frontier_idx)
             self.selected_frontier_idx = None
 
-            self.sample_waypoint(agent, krm)
+            self.sample_waypoint_from_pose(agent, krm)
             lg = self.get_lg(agent)
             self.real_sample_step(agent, krm, lg)
             self.prune_frontiers(krm)
@@ -258,4 +282,4 @@ class ExplorationUsecase:
 
             return lg
 
-        self._logger.warning("no exploration condition triggered")
+        self._logger.warning(f"{agent.name}:no exploration condition triggered")

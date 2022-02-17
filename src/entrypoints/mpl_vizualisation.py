@@ -1,4 +1,5 @@
 import time
+from typing import Sequence
 import matplotlib.pyplot as plt
 import networkx as nx
 from PIL import Image
@@ -39,9 +40,9 @@ class MplVizualisation(AbstractVizualisation):
         self.initialized = True
 
     def figure_final_result(
-        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid
     ) -> None:
-        self.figure_update(krm, agent, lg)
+        self.figure_update(krm, agents, lg)
         plt.ioff()
         plt.show()
 
@@ -92,7 +93,7 @@ class MplVizualisation(AbstractVizualisation):
             color="red",
         )
         self.ax2.set_aspect("equal", "box")  # set the aspect ratio of the plot
-        self.ax2.set_title("local grid")
+        self.ax2.set_title("local grid of agent 0")
 
     def draw_krm_graph(self, krm, ax):
         positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
@@ -178,7 +179,7 @@ class MplVizualisation(AbstractVizualisation):
 
         nx.draw_networkx_labels(krm.graph, positions_of_all_nodes, ax=ax, font_size=6)
 
-    def viz_krm_no_floorplan(self, krm: KnowledgeRoadmap, agent: AbstractAgent) -> None:
+    def viz_krm_no_floorplan(self, krm: KnowledgeRoadmap) -> None:
         """
         Draw the agent's perspective on the world, like RViz.
 
@@ -322,10 +323,13 @@ class MplVizualisation(AbstractVizualisation):
             )
 
     def figure_update(
-        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid
     ) -> None:
         timer = False
         start = time.perf_counter()
+
+        # HACK: matplotlib only works with one agent
+        # agent = agents[0]
 
         self.viz_krm_on_floorplan(krm)
         if timer:
@@ -347,28 +351,30 @@ class MplVizualisation(AbstractVizualisation):
                 )
             start = time.perf_counter()
 
-        self.draw_agent_and_sensor_range(
-            agent.pos, self.ax2, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.8
-        )
-        if timer:
-            print(
-                f"draw_agent_and_sensor_range() took {time.perf_counter() - start:.4f}s"
+        for agent in agents:
+            self.draw_agent_and_sensor_range(
+                agent.pos, self.ax2, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.8
             )
-            start = time.perf_counter()
+            if timer:
+                print(
+                    f"draw_agent_and_sensor_range() took {time.perf_counter() - start:.4f}s"
+                )
+                start = time.perf_counter()
 
-        self.viz_krm_no_floorplan(krm, agent)
+        self.viz_krm_no_floorplan(krm)
         if timer:
             print(f"viz_krm_no_floorplan() took {time.perf_counter() - start:.4f}s")
             start = time.perf_counter()
 
-        self.draw_agent_and_sensor_range(
-            agent.pos, self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.2
-        )
-        if timer:
-            print(
-                f"draw_agent_and_sensor_range() took {time.perf_counter() - start:.4f}s"
+        for agent in agents:
+            self.draw_agent_and_sensor_range(
+                agent.pos, self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.2
             )
-            start = time.perf_counter()
+            if timer:
+                print(
+                    f"draw_agent_and_sensor_range() took {time.perf_counter() - start:.4f}s"
+                )
+                start = time.perf_counter()
 
         plt.pause(0.001)  # type: ignore
         if timer:

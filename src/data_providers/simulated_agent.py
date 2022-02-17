@@ -10,10 +10,10 @@ class SimulatedAgent(AbstractAgent):
     - provide a simulated agent
     """
 
-    def __init__(self, start_pos: tuple[float, float], cfg: Config) -> None:
-        super().__init__(start_pos)
+    def __init__(self, start_pos: tuple[float, float], cfg: Config, name: int = 0) -> None:
+        super().__init__(start_pos, name=name)
         self.lgs = LocalGridImageSpoofer(cfg)
-        self.pos = start_pos
+        # self.pos = start_pos
 
     def move_to_pos(self, pos: tuple[float, float]) -> None:
         self.teleport_to_pos(pos)

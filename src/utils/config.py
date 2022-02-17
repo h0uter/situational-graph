@@ -27,7 +27,13 @@ class Vizualiser(Enum):
 
 
 class Config:
-    def __init__(self, plot_lvl: PlotLvl = PlotLvl.ALL, world: World = World.SIM_VILLA, vizualiser: Vizualiser = Vizualiser.VEDO):
+    def __init__(
+        self,
+        plot_lvl: PlotLvl = PlotLvl.ALL,
+        world: World = World.SIM_VILLA,
+        vizualiser: Vizualiser = Vizualiser.VEDO,
+        num_agents: int = 1,
+    ):
         self.PLOT_LVL = plot_lvl
         self.WORLD = world
         self.VIZUALISER = vizualiser
@@ -93,6 +99,9 @@ class Config:
         self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
         self.AT_WP_MARGIN = 0.25
         self.PREV_POS_MARGIN = 0.15
+
+        # SIM PARAMS
+        self.NUM_AGENTS = num_agents
 
         # logging
         # LOG_LVL = logging.DEBUG
