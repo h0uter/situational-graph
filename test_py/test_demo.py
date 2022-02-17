@@ -17,6 +17,6 @@ def test_main_maze_completes():
     assert main(cfg) is True
 
 
-def test_main_maze_completes_multi_agent():
+def test_main_villa_completes_multi_agent():
     cfg = Config(PlotLvl.NONE, World.SIM_VILLA, num_agents=10)
     assert main(cfg) is True
