@@ -27,13 +27,17 @@ class Vizualiser(Enum):
 
 
 class Config:
-    def __init__(self, plot_lvl: PlotLvl = PlotLvl.ALL, world: World = World.SIM_VILLA, vizualiser: Vizualiser = Vizualiser.VEDO):
+    def __init__(
+        self,
+        plot_lvl: PlotLvl = PlotLvl.ALL,
+        world: World = World.SIM_VILLA,
+        vizualiser: Vizualiser = Vizualiser.VEDO,
+    ):
         self.PLOT_LVL = plot_lvl
         self.WORLD = world
         self.VIZUALISER = vizualiser
 
         self.PRUNE_RADIUS_FACTOR = 0.25
-
 
         if self.WORLD == World.SIM_VILLA or self.WORLD == World.SIM_VILLA_ROOM:
             self.FULL_PATH = os.path.join("resource", "villa_holes_closed.png")
@@ -97,7 +101,6 @@ class Config:
 
         # SIM PARAMS
         self.NUM_AGENTS = 5
-
 
         # logging
         # LOG_LVL = logging.DEBUG

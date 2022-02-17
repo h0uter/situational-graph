@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Sequence
 
 import networkx as nx
 import vedo
@@ -37,12 +38,12 @@ class VedoVisualisation(AbstractVizualisation):
         time.sleep(0.1)
 
     def figure_update(
-        self, krm: KnowledgeRoadmap, agents: list[AbstractAgent], lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid
     ) -> None:
         self.viz_all(krm, agents)
 
     def figure_final_result(
-        self, krm: KnowledgeRoadmap, agents: list[AbstractAgent], lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid
     ) -> None:
         self.figure_update(krm, agents, lg)
         self.plt.show(interactive=True, resetcam=True)

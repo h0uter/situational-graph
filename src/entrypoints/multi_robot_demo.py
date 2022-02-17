@@ -18,29 +18,25 @@ import matplotlib
 
 
 def init_entities(cfg: Config):
-
-    agents = []
-    exploration_usecases = []
-
     if cfg.WORLD == World.REAL:
         agents = [SpotAgent()]
+        exploration_usecases = [ExplorationUsecase(cfg)]
     else:
-        # TODO: make this a list comprehension
-        for i in range(cfg.NUM_AGENTS):
-            agents.append(SimulatedAgent(start_pos=(-3, 0), cfg=cfg, name=i))
-            exploration_usecases.append(ExplorationUsecase(cfg))
+        agents = [SimulatedAgent(cfg.AGENT_START_POS, cfg, i) for i in range(cfg.NUM_AGENTS)]
+        exploration_usecases = [ExplorationUsecase(cfg) for i in range(cfg.NUM_AGENTS)]
 
     if cfg.VIZUALISER == Vizualiser.MATPLOTLIB:
         gui = MplVizualisation(cfg)
     else:
         gui = VedoVisualisation(cfg)
+
+    #TODO: fixme this is ugly
     start_poses = [agent.pos for agent in agents]
     krm = KnowledgeRoadmap(start_poses=start_poses)
 
     return gui, agents, krm, exploration_usecases
 
 
-# def main(cfg: Config):
 def main(cfg: Config):
     step = 0
     start = time.perf_counter()
@@ -53,6 +49,7 @@ def main(cfg: Config):
         for i in range(len(agents)):
 
             lg = None
+            # FIXME: one exploration usecase should be enough
             exploration_usecases[i].run_exploration_step(agents[i], krm)
 
         if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:

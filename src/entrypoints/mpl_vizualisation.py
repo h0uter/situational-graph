@@ -1,4 +1,5 @@
 import time
+from typing import Sequence
 import matplotlib.pyplot as plt
 import networkx as nx
 from PIL import Image
@@ -39,7 +40,7 @@ class MplVizualisation(AbstractVizualisation):
         self.initialized = True
 
     def figure_final_result(
-        self, krm: KnowledgeRoadmap, agents: list[AbstractAgent], lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid
     ) -> None:
         self.figure_update(krm, agents, lg)
         plt.ioff()
@@ -322,10 +323,13 @@ class MplVizualisation(AbstractVizualisation):
             )
 
     def figure_update(
-        self, krm: KnowledgeRoadmap, agent: AbstractAgent, lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid
     ) -> None:
         timer = False
         start = time.perf_counter()
+
+        # HACK: matplotlib only works with one agent
+        agent = agents[0]
 
         self.viz_krm_on_floorplan(krm)
         if timer:
