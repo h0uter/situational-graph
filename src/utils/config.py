@@ -32,6 +32,7 @@ class Config:
         plot_lvl: PlotLvl = PlotLvl.ALL,
         world: World = World.SIM_VILLA,
         vizualiser: Vizualiser = Vizualiser.VEDO,
+        num_agents: int = 1,
     ):
         self.PLOT_LVL = plot_lvl
         self.WORLD = world
@@ -100,7 +101,7 @@ class Config:
         self.PREV_POS_MARGIN = 0.15
 
         # SIM PARAMS
-        self.NUM_AGENTS = 1
+        self.NUM_AGENTS = num_agents
 
         # logging
         # LOG_LVL = logging.DEBUG
