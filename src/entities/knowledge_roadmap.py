@@ -58,7 +58,7 @@ class KnowledgeRoadmap:
         )
         # print(f"agent_at_wp: {agent_at_wp}, next frt idx: {self.next_frontier_idx}, pos: {pos}")
         # FIXME: add edge cost
-        
+
         # self.graph.add_edge(
         #     agent_at_wp, self.next_frontier_idx, type="frontier_edge", id=uuid.uuid4()
         # )
@@ -140,14 +140,20 @@ class KnowledgeRoadmap:
     def calc_edge_len(self, node_a, node_b):
         """ calculates the distance between two nodes"""
         return math.sqrt(
-            (self.graph.nodes[node_a]["pos"][0] - self.graph.nodes[node_b]["pos"][0]) ** 2
-            + (self.graph.nodes[node_a]["pos"][1] - self.graph.nodes[node_b]["pos"][1]) ** 2
+            (self.graph.nodes[node_a]["pos"][0] - self.graph.nodes[node_b]["pos"][0])
+            ** 2
+            + (self.graph.nodes[node_a]["pos"][1] - self.graph.nodes[node_b]["pos"][1])
+            ** 2
         )
 
-    def add_edge_with_cost(self, node_a, node_b, edge_type: str, cost:float=1):
+    def add_edge_with_cost(self, node_a, node_b, edge_type: str, cost: float = 1):
         """ adds an edge between two nodes with the given type"""
         if edge_type == "frontier_edge" or edge_type == "waypoint_edge":
             edge_len = self.calc_edge_len(node_a, node_b)
-            self.graph.add_edge(node_a, node_b, type=edge_type, id=uuid.uuid4(), cost=edge_len)
+            self.graph.add_edge(
+                node_a, node_b, type=edge_type, id=uuid.uuid4(), cost=edge_len
+            )
         else:
-            self.graph.add_edge(node_a, node_b, type=edge_type, id=uuid.uuid4(), cost=cost)
+            self.graph.add_edge(
+                node_a, node_b, type=edge_type, id=uuid.uuid4(), cost=cost
+            )

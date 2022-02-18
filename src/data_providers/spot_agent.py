@@ -89,6 +89,7 @@ class SpotAgent(AbstractAgent):
         else:
             self._logger.warning("Spot wrapper is not valid!")
 
+        # FIXME: ugly sleep.
         time.sleep(5)
 
         self.pos = self.get_localization()
@@ -158,6 +159,8 @@ class SpotAgent(AbstractAgent):
 
         self._try_grpc(desc, _start_command)
 
+    # do this instead of the wait timer
+    # https://khssnv.medium.com/spot-sdk-blocking-robot-commands-3d6902cfb403
     def move_vision_frame(self, pos: tuple, heading=0.0):
         """ROS service handler"""
         self._logger.info("Executing move_vision action")
