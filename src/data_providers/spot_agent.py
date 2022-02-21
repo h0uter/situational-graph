@@ -119,7 +119,7 @@ class SpotAgent(AbstractAgent):
         # return odom_tform_body.position.x, odom_tform_body.position.y, odom_tform_body.position.z
         # pos = self.pos
         pos = tform_body.position.x, tform_body.position.y
-        print(f"tform_body.position = {pos}")
+        # print(f"tform_body.position = {pos}")
 
         return pos
 
@@ -159,6 +159,30 @@ class SpotAgent(AbstractAgent):
 
         self._try_grpc(desc, _start_command)
 
+    # def blocking_move_vision_frame():
+    #     cmd = RobotCommandBuilder.synchro_stand_command()
+
+    #     cmd_id = command_client.robot_command_async(cmd)
+
+    #     robot.logger.info("Robot standing twisted.")
+    #     start_time = time.time()
+    #     end_time = start_time + 5.0  # timeout is 5 seconds
+    #     while time.time() < end_time:
+    #         cmd_status = (command_client
+    #                         .robot_command_feedback_async(cmd_id)
+    #                         .result()
+    #                         .feedback.synchronized_feedback
+    #                         .mobility_command_feedback
+    #                         .stand_feedback
+    #                         .status
+    #         )
+    #         if cmd_status == basic_command_pb2.StandCommand.Feedback.STATUS_IS_STANDING:
+    #             robot.logger.info("Done.")
+    #             break
+    #         time.sleep(0.1)  # wait 100ms before the next check
+    #     else:
+    #         robot.logger.info("Timeout!")
+
     # do this instead of the wait timer
     # https://khssnv.medium.com/spot-sdk-blocking-robot-commands-3d6902cfb403
     def move_vision_frame(self, pos: tuple, heading=0.0):
@@ -171,8 +195,9 @@ class SpotAgent(AbstractAgent):
                 pos[1],
                 heading,
                 frame_name=VISION_FRAME_NAME,
-                cmd_duration=30
-                # frame_name=BODY_FRAME_NAME
+                cmd_duration=30,
+                # frame_name=BODY_FRAME_NAME,
+                # frame_name=ODOM_FRAME_NAME
             )
         except Exception as e:
             self._logger.error(f"Move vision frame action error: {e}")
@@ -181,18 +206,24 @@ class SpotAgent(AbstractAgent):
 
         # TODO: make it await completion
 
-    # def move_vision_frame2(self, pos, heading = 0.0):
-    #     while not response
-    #     response = self.spot_wrapper._robot_command(
-    #         RobotCommandBuilder.synchro_se2_trajectory_point_command(
-    #             goal_x=goal_x,
-    #             goal_y=goal_y,
-    #             goal_heading=goal_heading,
-    #             frame_name=frame_name,
-    #             params=self._mobility_params,
-    #         ),
-    #         end_time_secs=end_time,
-    #     )
+
+
+    def move_odom_frame(self, pos: tuple, heading=0.0):
+        """ROS service handler"""
+        self._logger.info("Executing move_vision action")
+
+        try:
+            self.spot_wrapper.trajectory_cmd(
+                pos[0],
+                pos[1],
+                heading,
+                cmd_duration=30,
+                frame_name=ODOM_FRAME_NAME
+            )
+        except Exception as e:
+            self._logger.error(f"Move vision frame action error: {e}")
+            # goal_handle.abort()
+            # return result
 
     def move_body_frame(self, pos: tuple, heading=0.0):
         frame_tree = self.spot_wrapper._robot.get_frame_tree_snapshot()
@@ -429,8 +460,40 @@ def move_to_sampled_point_usecase():
         spot.move_vision_frame((x_goal, y_goal))
         time.sleep(5)
 
+def movement_square_VISION_test(spot):
+    spot.move_vision_frame((0, -6), 0)
+    time.sleep(10)
+    spot.move_vision_frame((3.5, -6), 0)
+    time.sleep(10)
+    spot.move_vision_frame((3.5, 0), 0)
+    time.sleep(10)
+    spot.move_vision_frame((0, 0), 0)
+    time.sleep(10)
+
+
+def movement_square_ODOM_test(spot):
+    # spot.move_odom_frame((0, -6), 0)
+    spot.move_odom_frame((6, 0), 0)
+    time.sleep(10)
+    # spot.move_odom_frame((3.5, -6), 0)
+    spot.move_odom_frame((6, 3.5), 0)
+    time.sleep(10)
+    # spot.move_odom_frame((3.5, 0), 0)
+    spot.move_odom_frame((0, 3.5), 0)
+    time.sleep(10)
+    # spot.move_odom_frame((0, 0), 0)
+    spot.move_odom_frame((0, 0), 0)
+    time.sleep(10)
 
 if __name__ == "__main__":
     # move_demo_usecase()
     # move_vision_demo_usecase()
-    move_to_sampled_point_usecase()
+    # move_to_sampled_point_usecase()
+
+    spot = SpotAgent()
+
+    # movement_square_VISION_test(spot)
+    # movement_square_ODOM_test(spot)
+
+    spot.move_odom_frame((0, 0), np.pi)
+
