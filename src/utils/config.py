@@ -39,6 +39,10 @@ class Config:
         self.VIZUALISER = vizualiser
 
         self.PRUNE_RADIUS_FACTOR = 0.25
+        # self.SAMPLE_RING_WIDTH = 0.7
+        self.SAMPLE_RING_WIDTH = 0.9
+
+
 
         if self.WORLD == World.SIM_VILLA or self.WORLD == World.SIM_VILLA_ROOM:
             self.FULL_PATH = os.path.join("resource", "villa_holes_closed.png")
@@ -46,6 +50,8 @@ class Config:
             self.IMG_TOTAL_X_PIX = 2026
             self.IMG_TOTAL_Y_PIX = 1686
             self.LG_NUM_CELLS = 420  # max:400 due to img border margins
+            self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
+
             self.AGENT_START_POS = (-9, 13)
             self.TOT_MAP_LEN_M_Y = (
                 self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
@@ -74,6 +80,8 @@ class Config:
             self.IMG_TOTAL_X_PIX = 1920
             self.IMG_TOTAL_Y_PIX = 1920
             self.LG_NUM_CELLS = 200  # max:400 due to img border margins
+            self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
+
             self.AGENT_START_POS = (-3, 0)
             self.TOT_MAP_LEN_M_Y = (
                 self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
@@ -85,18 +93,22 @@ class Config:
             self.LG_NUM_CELLS = 128  # max:400 due to img border margins
             self.LG_CELL_SIZE_M = 0.03
             self.FULL_PATH = ""
-            self.PRUNE_RADIUS_FACTOR = 0.15
+            # self.PRUNE_RADIUS_FACTOR = 0.15
+            self.PRUNE_RADIUS_FACTOR = 0.25
+            self.SAMPLE_RING_WIDTH = 0.3
+            # self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2 - 20
+            self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2 
+
 
         self.LG_LENGTH_IN_M = self.LG_NUM_CELLS * self.LG_CELL_SIZE_M
 
         # exploration hyperparameters
         self.N_SAMPLES = 25
         self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * self.PRUNE_RADIUS_FACTOR
-        # self.SAMPLE_RING_WIDTH = 0.7
-        self.SAMPLE_RING_WIDTH = 0.9
+
         # FIXME: the minus is for spot only
         # self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2 - 20
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
+        # self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
         self.AT_WP_MARGIN = 0.25
         self.PREV_POS_MARGIN = 0.15
 

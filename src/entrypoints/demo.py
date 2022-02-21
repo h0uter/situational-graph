@@ -87,8 +87,9 @@ if __name__ == "__main__":
     # cfg = Config(world=World.SIM_MAZE)
     # cfg = Config(world=World.SIM_VILLA, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, world=World.SIM_MAZE_MEDIUM)
-    # cfg = Config(world=World.REAL)
+    # cfg = Config(world=World.REAL, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
     # cfg = Config(world=World.SIM_VILLA, num_agents=10)
+    # cfg = Config(world=World.SIM_MAZE_MEDIUM)
 
     main(cfg)

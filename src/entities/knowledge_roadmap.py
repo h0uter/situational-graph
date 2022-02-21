@@ -1,3 +1,4 @@
+import math
 import uuid
 
 import networkx as nx
@@ -32,17 +33,22 @@ class KnowledgeRoadmap:
     def add_waypoint(self, pos: tuple, prev_wp) -> None:
         """ adds new waypoints and increments wp the idx"""
         self.graph.add_node(self.next_wp_idx, pos=pos, type="waypoint", id=uuid.uuid4())
-        self.graph.add_edge(
-            self.next_wp_idx, prev_wp, type="waypoint_edge", id=uuid.uuid4()
-        )
+        # FIXME: add edge cost
+        # self.graph.add_edge(
+        #     self.next_wp_idx, prev_wp, type="waypoint_edge", id=uuid.uuid4()
+        # )
+        self.add_edge_with_cost(self.next_wp_idx, prev_wp, "waypoint_edge")
         self.next_wp_idx += 1
 
     def add_world_object(self, pos: tuple, label: str) -> None:
         """ adds a world object to the graph"""
         self.graph.add_node(label, pos=pos, type="world_object", id=uuid.uuid4())
-        self.graph.add_edge(
-            self.next_wp_idx - 1, label, type="world_object_edge", id=uuid.uuid4()
-        )
+        # FIXME: add edge cost
+        # self.graph.add_edge(
+        #     self.next_wp_idx - 1, label, type="world_object_edge", id=uuid.uuid4()
+        # )
+        # TODO: I believe this is no longer ok
+        self.add_edge_with_cost(self.next_wp_idx - 1, label, "world_object_edge")
 
     # TODO: remove the agent_at_wp parameter requirement
     def add_frontier(self, pos: tuple, agent_at_wp: int) -> None:
@@ -51,9 +57,12 @@ class KnowledgeRoadmap:
             self.next_frontier_idx, pos=pos, type="frontier", id=uuid.uuid4()
         )
         # print(f"agent_at_wp: {agent_at_wp}, next frt idx: {self.next_frontier_idx}, pos: {pos}")
-        self.graph.add_edge(
-            agent_at_wp, self.next_frontier_idx, type="frontier_edge", id=uuid.uuid4()
-        )
+        # FIXME: add edge cost
+
+        # self.graph.add_edge(
+        #     agent_at_wp, self.next_frontier_idx, type="frontier_edge", id=uuid.uuid4()
+        # )
+        self.add_edge_with_cost(agent_at_wp, self.next_frontier_idx, "frontier_edge")
         self.next_frontier_idx += 1
 
     def remove_frontier(self, target_frontier_idx) -> None:
@@ -127,3 +136,24 @@ class KnowledgeRoadmap:
         # if len(close_nodes) == 0:
         #     return []
         return close_nodes
+
+    def calc_edge_len(self, node_a, node_b):
+        """ calculates the distance between two nodes"""
+        return math.sqrt(
+            (self.graph.nodes[node_a]["pos"][0] - self.graph.nodes[node_b]["pos"][0])
+            ** 2
+            + (self.graph.nodes[node_a]["pos"][1] - self.graph.nodes[node_b]["pos"][1])
+            ** 2
+        )
+
+    def add_edge_with_cost(self, node_a, node_b, edge_type: str, cost: float = 1):
+        """ adds an edge between two nodes with the given type"""
+        if edge_type == "frontier_edge" or edge_type == "waypoint_edge":
+            edge_len = self.calc_edge_len(node_a, node_b)
+            self.graph.add_edge(
+                node_a, node_b, type=edge_type, id=uuid.uuid4(), cost=edge_len
+            )
+        else:
+            self.graph.add_edge(
+                node_a, node_b, type=edge_type, id=uuid.uuid4(), cost=cost
+            )
