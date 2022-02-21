@@ -8,7 +8,7 @@ from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.utils.config import Config, PlotLvl
+from src.utils.config import Config, PlotLvl, World
 from src.utils.print_timing import print_timing
 
 # from vedo.pyplot import plot
@@ -24,9 +24,10 @@ class VedoVisualisation(AbstractVizualisation):
 
         # NOTE: perhaps I just should not instantiate viz classes if we run headless
         if self.cfg.PLOT_LVL is not PlotLvl.NONE:
-            map_pic = vedo.Picture(cfg.FULL_PATH)
-            map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
-            self.plt.show(map_pic, interactive=False)
+            if self.cfg.WORLD is not World.REAL:
+                map_pic = vedo.Picture(cfg.FULL_PATH)
+                map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
+                self.plt.show(map_pic, interactive=False)
 
             logo_path = os.path.join("resource", "KRM.png")
             logo = vedo.load(logo_path)

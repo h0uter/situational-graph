@@ -173,7 +173,10 @@ class LocalGrid:
         if sample_valid:
             return x_sample, y_sample
         else:
-            raise Exception("Could not sample a valid cell around other cell")
+            # FIXME: instead of rasing an exception it should print a warning and continue
+            # raise Exception("Could not sample a valid cell around other cell")
+            self._logger.warning("Could not sample a valid cell around other cell")
+            # raise Exception("Could not sample a valid cell around other cell")
 
     def sample_frontiers_on_cellmap(
         self, radius: int, num_frontiers_to_sample: int
