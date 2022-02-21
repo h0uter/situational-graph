@@ -1,5 +1,6 @@
 from src.data_providers.local_grid_image_spoofer import LocalGridImageSpoofer
 from src.entities.abstract_agent import AbstractAgent
+from src.data_providers.world_object_spoofer import WorldObjectSpoofer
 from src.utils.config import Config
 import numpy.typing as npt
 
@@ -13,6 +14,7 @@ class SimulatedAgent(AbstractAgent):
     def __init__(self, start_pos: tuple[float, float], cfg: Config, name: int = 0) -> None:
         super().__init__(start_pos, name=name)
         self.lgs = LocalGridImageSpoofer(cfg)
+        self.world_object_spoofer = WorldObjectSpoofer(cfg)
         # self.pos = start_pos
 
     def move_to_pos(self, pos: tuple[float, float]) -> None:
@@ -34,3 +36,7 @@ class SimulatedAgent(AbstractAgent):
         self.previous_pos = self.pos
         self.pos = pos
         self.steps_taken += 1
+
+    def look_for_world_objects_in_perception_scene(self) -> list:
+        w_os = self.world_object_spoofer.spoof_world_objects_from_position(self.pos)
+        return w_os 

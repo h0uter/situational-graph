@@ -268,7 +268,6 @@ class ExplorationUsecase:
 
         # FIXME: multi: when one agent removes the frontier of another one it breaks
         # add a check if the selected frontier still exists, otherwise remove it
-
         arrival_margin = 0.5
         if len(krm.get_nodes_of_type_in_margin(agent.get_localization(), arrival_margin, "frontier")) >= 1:
         # if len(self.consumable_path) == 0:
@@ -282,7 +281,9 @@ class ExplorationUsecase:
             self.real_sample_step(agent, krm, lg)
             self.prune_frontiers(krm)
             self.find_shortcuts_between_wps(lg, krm, agent)
-
+            w_os = agent.look_for_world_objects_in_perception_scene()
+            for w_o in w_os:
+                krm.add_world_object(w_o.pos, w_o.name)
             return lg
 
         self._logger.warning(f"{agent.name}:no exploration condition triggered")

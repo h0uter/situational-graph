@@ -83,6 +83,14 @@ class VedoVisualisation(AbstractVizualisation):
             ).keys()
         )
 
+        world_object_nodes = list(
+            dict(
+                (n, d["type"])
+                for n, d in krm.graph.nodes().items()
+                if d["type"] == "world_object"
+            ).keys()
+        )
+
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         self.wp_counter.append(len(wps))
         waypoints = vedo.Points(wps, r=8, c="r")
@@ -93,6 +101,33 @@ class VedoVisualisation(AbstractVizualisation):
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
+        # TODO: make these individual points.
+        # wos = [pos_dict[f] for f in world_object_nodes]
+
+        for wo in world_object_nodes:
+            wo_pos = pos_dict[wo]
+            wo_point = vedo.Point(wo_pos, r=20, c="purple")
+            # wo_point.flag(wo)
+            # print(f"wo_pos: {wo_pos}")
+            # print(f"wo : {wo}")
+            # caption_pos = wo_pos[0], wo_pos[1], 10*self.factor
+            # wo_cap = wo_point.caption(wo, point=caption_pos, size=(0.1, 0.05))
+            # wo_cap = wo_point.caption(wo, offset=[0,0, 10*self.factor], size=(0.1, 0.05))
+            # wo_vig = wo_point.vignette(wo, point=wo_pos, offset=[0, 0, self.factor], s=self.factor,)
+            wo_vig = wo_point.vignette(wo, offset=[0, 0, self.factor], s=self.factor,)
+            # wo_cap.z(1*self.factor)
+            actors.append(wo_point)
+            actors.append(wo_vig)
+
+
+        # world_objects = vedo.Points(wos, r=25, c="p")
+        # for world_object in world_objects:
+
+            # world_object.flag("hello world")
+        # world_objects.caption("hello world")
+        # world_objects.legend("world objects")
+        # actors.append(world_objects)
+
         for agent in agents:
             agent_pos = [self.factor * agent.pos[0], self.factor * agent.pos[1], 0]
             grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
@@ -100,6 +135,10 @@ class VedoVisualisation(AbstractVizualisation):
             actors.append(local_grid_viz)
             agent_sphere = vedo.Point(agent_pos, r=25, c="b")
             actors.append(agent_sphere)
+
+        # lbox = vedo.LegendBox([world_objects], font="roboto", width=0.25)
+        # lbox = vedo.LegendBox([world_objects], width=0.25)
+        # actors.append(lbox)
 
         self.plt.show(
             actors,
