@@ -9,9 +9,12 @@ from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.utils.config import Config, PlotLvl, World
-from src.utils.print_timing import print_timing
+
+# from src.utils.print_timing import print_timing
 
 # from vedo.pyplot import plot
+
+# vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 
 vedo.settings.allowInteraction = True
 
@@ -93,7 +96,8 @@ class VedoVisualisation(AbstractVizualisation):
 
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         self.wp_counter.append(len(wps))
-        waypoints = vedo.Points(wps, r=8, c="r")
+        # waypoints = vedo.Points(wps, r=8, c="r")
+        waypoints = vedo.Points(wps, r=8, c="FireBrick")
         actors.append(waypoints)
 
         fts = [pos_dict[f] for f in frontier_nodes]
@@ -101,52 +105,14 @@ class VedoVisualisation(AbstractVizualisation):
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
-        # TODO: make these individual points.
-        # wos = [pos_dict[f] for f in world_object_nodes]
-
-        for wo in world_object_nodes:
-            wo_pos = pos_dict[wo]
-            wo_point = vedo.Point(wo_pos, r=20, c="magenta")
-            # wo_point.flag(wo)
-            # print(f"wo_pos: {wo_pos}")
-            # print(f"wo : {wo}")
-            caption_pos = wo_pos[0], wo_pos[1], 2*self.factor
-            # caption_pos = [0, 0, 2*self.factor]
-            # wo_label = wo_point.labels('id', scale=self.factor)
-            # wo_label = wo_point.labels(content=[wo], scale=self.factor)
-            # wo_cap = wo_point.caption(wo, point=caption_pos, size=(0.05, 0.025), font='VTK')
-            wo_cap = wo_point.caption(wo, size=(0.1, 0.05), font="VictorMono", lw=0.5)
-            # wo_cap = wo_point.caption(wo, size=(0.03, 0.015))
-            # wo_cap = wo_point.caption(wo, offset=[0,0, 10*self.factor], size=(0.1, 0.05))
-            # wo_vig = wo_point.vignette(wo, point=wo_pos, offset=[0, 0, self.factor], s=self.factor,)
-            # wo_vig = wo_point.vignette(wo, offset=[0, 0, self.factor], s=self.factor,)
-            # wo_cap.z(1*self.factor)
-            actors.append(wo_point)
-            # actors.append(wo_vig)
-            # actors.append(wo_cap)
-            # actors.append(wo_label)
-
-
-
-        # world_objects = vedo.Points(wos, r=25, c="p")
-        # for world_object in world_objects:
-
-            # world_object.flag("hello world")
-        # world_objects.caption("hello world")
-        # world_objects.legend("world objects")
-        # actors.append(world_objects)
-
-        for agent in agents:
-            agent_pos = [self.factor * agent.pos[0], self.factor * agent.pos[1], 0]
-            grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
-            local_grid_viz = vedo.Grid(pos=agent_pos, sx=grid_len, sy=grid_len, lw=2, alpha=0.3)
-            actors.append(local_grid_viz)
-            agent_sphere = vedo.Point(agent_pos, r=25, c="b")
-            actors.append(agent_sphere)
+        actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict)
+        actors = self.add_agents(agents, actors)
 
         # lbox = vedo.LegendBox([world_objects], font="roboto", width=0.25)
         # lbox = vedo.LegendBox([world_objects], width=0.25)
         # actors.append(lbox)
+
+        # print(f"the num of actors is {len(actors)}")
 
         self.plt.show(
             actors,
@@ -156,6 +122,56 @@ class VedoVisualisation(AbstractVizualisation):
             resetcam=False,
             # at=0
         )
+
+    def add_agents(self, agents, actors):
+        for agent in agents:
+            agent_pos = [self.factor * agent.pos[0], self.factor * agent.pos[1], 0]
+            grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
+            local_grid_viz = vedo.Grid(
+                pos=agent_pos, sx=grid_len, sy=grid_len, lw=2, alpha=0.3
+            )
+            actors.append(local_grid_viz)
+            # agent_sphere = vedo.Point(agent_pos, r=25, c="b")
+            # agent_sphere = vedo.Point(agent_pos, r=25, c="royal_blue")
+            agent_sphere = vedo.Point(agent_pos, r=25, c="dodger_blue")
+            actors.append(agent_sphere)
+            return actors
+
+    def add_world_object_nodes(self, world_object_nodes, actors, pos_dict):
+        # world_objects = vedo.Points(wos, r=25, c="p")
+        # for world_object in world_objects:
+
+        # world_object.flag("hello world")
+        # world_objects.caption("hello world")
+        # world_objects.legend("world objects")
+        # actors.append(world_objects)
+
+        for wo in world_object_nodes:
+            wo_pos = pos_dict[wo]
+            wo_point = vedo.Point(wo_pos, r=20, c="magenta")
+            # wo_point = vedo.Point(wo_pos, r=20, c="cobalt_violet_deep")
+            # wo_point.flag(wo)
+            # print(f"wo_pos: {wo_pos}")
+            # print(f"wo : {wo}")
+            # caption_pos = wo_pos[0], wo_pos[1], 2 * self.factor
+            # caption_pos = [0, 0, 2*self.factor]
+            # wo_label = wo_point.labels('id', scale=self.factor)
+            # wo_label = wo_point.labels(content=[wo], scale=self.factor)
+            # wo_cap = wo_point.caption(wo, point=caption_pos, size=(0.05, 0.025), font='VTK')
+            
+            # wo_point.caption(wo, size=(0.1, 0.05), font="VictorMono", lw=0.5)
+            
+            # wo_cap = wo_point.caption(wo, size=(0.03, 0.015))
+            # wo_cap = wo_point.caption(wo, offset=[0,0, 10*self.factor], size=(0.1, 0.05))
+            # wo_vig = wo_point.vignette(wo, point=wo_pos, offset=[0, 0, self.factor], s=self.factor,)
+            wo_vig = wo_point.vignette(wo, offset=[0, 0, 5*self.factor], s=self.factor,)
+            # wo_cap.z(1*self.factor)
+            actors.append(wo_point)
+            actors.append(wo_vig)
+            # actors.append(wo_cap)
+            # actors.append(wo_label)
+
+        return actors
 
     # def plot_stats(self):
     #     if len(self.wp_counter) > 1 and len(self.ft_counter) > 1:

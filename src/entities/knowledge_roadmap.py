@@ -48,7 +48,8 @@ class KnowledgeRoadmap:
         #     self.next_wp_idx - 1, label, type="world_object_edge", id=uuid.uuid4()
         # )
         # TODO: I believe this is no longer ok
-        self.add_edge_with_cost(self.next_wp_idx - 1, label, "world_object_edge")
+        # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
+        self.add_edge_with_cost(self.next_wp_idx - 1, label, "world_object_edge", float("inf"))
 
     # TODO: remove the agent_at_wp parameter requirement
     def add_frontier(self, pos: tuple, agent_at_wp: int) -> None:

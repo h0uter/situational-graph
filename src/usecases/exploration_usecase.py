@@ -191,6 +191,8 @@ class ExplorationUsecase:
         if len(path) > 1:
             node_data = krm.get_node_data_by_idx(path[0])
             agent.move_to_pos(node_data["pos"])
+            # FIXME: this can return none if world object nodes are included in the graph.
+            # can just give them infinite weight... should solve it by performing shortest path over a subgraph.
             agent.at_wp = krm.get_nodes_of_type_in_margin(agent.pos, self.cfg.AT_WP_MARGIN, "waypoint")[0]
             path.pop(0)
             return path
