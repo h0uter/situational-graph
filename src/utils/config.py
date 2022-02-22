@@ -42,7 +42,6 @@ class Config:
         # self.SAMPLE_RING_WIDTH = 0.7
         self.SAMPLE_RING_WIDTH = 0.9
 
-
         if self.WORLD == World.SIM_VILLA or self.WORLD == World.SIM_VILLA_ROOM:
             self.FULL_PATH = os.path.join("resource", "villa_holes_closed.png")
             self.TOT_MAP_LEN_M_X = 50
@@ -98,8 +97,7 @@ class Config:
             self.PRUNE_RADIUS_FACTOR = 0.25
             self.SAMPLE_RING_WIDTH = 0.3
             # self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2 - 20
-            self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2 
-
+            self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
 
         self.LG_LENGTH_IN_M = self.LG_NUM_CELLS * self.LG_CELL_SIZE_M
 

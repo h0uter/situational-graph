@@ -106,18 +106,26 @@ class VedoVisualisation(AbstractVizualisation):
 
         for wo in world_object_nodes:
             wo_pos = pos_dict[wo]
-            wo_point = vedo.Point(wo_pos, r=20, c="purple")
+            wo_point = vedo.Point(wo_pos, r=20, c="magenta")
             # wo_point.flag(wo)
             # print(f"wo_pos: {wo_pos}")
             # print(f"wo : {wo}")
-            # caption_pos = wo_pos[0], wo_pos[1], 10*self.factor
-            # wo_cap = wo_point.caption(wo, point=caption_pos, size=(0.1, 0.05))
+            caption_pos = wo_pos[0], wo_pos[1], 2*self.factor
+            # caption_pos = [0, 0, 2*self.factor]
+            # wo_label = wo_point.labels('id', scale=self.factor)
+            # wo_label = wo_point.labels(content=[wo], scale=self.factor)
+            # wo_cap = wo_point.caption(wo, point=caption_pos, size=(0.05, 0.025), font='VTK')
+            wo_cap = wo_point.caption(wo, size=(0.1, 0.05), font="VictorMono", lw=0.5)
+            # wo_cap = wo_point.caption(wo, size=(0.03, 0.015))
             # wo_cap = wo_point.caption(wo, offset=[0,0, 10*self.factor], size=(0.1, 0.05))
             # wo_vig = wo_point.vignette(wo, point=wo_pos, offset=[0, 0, self.factor], s=self.factor,)
-            wo_vig = wo_point.vignette(wo, offset=[0, 0, self.factor], s=self.factor,)
+            # wo_vig = wo_point.vignette(wo, offset=[0, 0, self.factor], s=self.factor,)
             # wo_cap.z(1*self.factor)
             actors.append(wo_point)
-            actors.append(wo_vig)
+            # actors.append(wo_vig)
+            # actors.append(wo_cap)
+            # actors.append(wo_label)
+
 
 
         # world_objects = vedo.Points(wos, r=25, c="p")
