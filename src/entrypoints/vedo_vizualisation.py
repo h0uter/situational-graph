@@ -56,6 +56,9 @@ class VedoVisualisation(AbstractVizualisation):
 
         positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
         pos_dict = positions_of_all_nodes
+
+        # scale the sizes to the scale of the simulated map image
+        # TODO: make list comprehension
         for pos in pos_dict:
             pos_dict[pos] = tuple([self.factor * x for x in pos_dict[pos]])
 
@@ -67,41 +70,29 @@ class VedoVisualisation(AbstractVizualisation):
             raw_edg = vedo.Lines(raw_lines).lw(2)
             actors.append(raw_edg)
 
-        waypoint_nodes = list(
-            dict(
-                (n, d["type"])
-                for n, d in krm.graph.nodes().items()
-                if d["type"] == "waypoint"
-            ).keys()
-        )
+        def get_nodes_by_type(krm, node_type):
+            return list(
+                dict(
+                    (n, d["type"])
+                    for n, d in krm.graph.nodes().items()
+                    if d["type"] == node_type
+                ).keys()
+            )
 
-        frontier_nodes = list(
-            dict(
-                (n, d["type"])
-                for n, d in krm.graph.nodes().items()
-                if d["type"] == "frontier"
-            ).keys()
-        )
-
-        world_object_nodes = list(
-            dict(
-                (n, d["type"])
-                for n, d in krm.graph.nodes().items()
-                if d["type"] == "world_object"
-            ).keys()
-        )
-
+        waypoint_nodes = get_nodes_by_type(krm, "waypoint")
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         self.wp_counter.append(len(wps))
         # waypoints = vedo.Points(wps, r=8, c="r")
         waypoints = vedo.Points(wps, r=8, c="FireBrick")
         actors.append(waypoints)
 
+        frontier_nodes = get_nodes_by_type(krm, "frontier")
         fts = [pos_dict[f] for f in frontier_nodes]
         self.ft_counter.append(len(fts))
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
+        world_object_nodes = get_nodes_by_type(krm, "world_object")
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict)
         actors = self.add_agents(agents, actors)
 
@@ -114,10 +105,7 @@ class VedoVisualisation(AbstractVizualisation):
         self.plt.show(
             actors,
             interactive=False,
-            # render=False,
-            # sharecam=False,
             resetcam=False,
-            # at=0
         )
 
     def add_agents(self, agents, actors):
