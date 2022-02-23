@@ -38,9 +38,9 @@ class Config:
         self.WORLD = world
         self.VIZUALISER = vizualiser
 
-        self.PRUNE_RADIUS_FACTOR = 0.25
+        self.PRUNE_RADIUS_FACTOR = 0.20  # too low and we get dense graph, too high and corners are pruned from inside rooms
         # self.SAMPLE_RING_WIDTH = 0.7
-        self.SAMPLE_RING_WIDTH = 0.9
+        self.SAMPLE_RING_WIDTH = 1.0
 
         if self.WORLD == World.SIM_VILLA or self.WORLD == World.SIM_VILLA_ROOM:
             self.FULL_PATH = os.path.join("resource", "villa_holes_closed.png")

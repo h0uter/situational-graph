@@ -11,11 +11,9 @@ from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.utils.config import Config, PlotLvl, World
 
 # from src.utils.print_timing import print_timing
-
 # from vedo.pyplot import plot
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
-
 vedo.settings.allowInteraction = True
 
 
@@ -135,7 +133,7 @@ class VedoVisualisation(AbstractVizualisation):
             # agent_sphere = vedo.Point(agent_pos, r=25, c="royal_blue")
             agent_sphere = vedo.Point(agent_pos, r=25, c="dodger_blue")
             actors.append(agent_sphere)
-            return actors
+        return actors
 
     def add_world_object_nodes(self, world_object_nodes, actors, pos_dict):
         # world_objects = vedo.Points(wos, r=25, c="p")

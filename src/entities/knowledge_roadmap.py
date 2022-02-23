@@ -149,10 +149,20 @@ class KnowledgeRoadmap:
 
     def add_edge_with_cost(self, node_a, node_b, edge_type: str, cost: float = 1):
         """ adds an edge between two nodes with the given type"""
-        if edge_type == "frontier_edge" or edge_type == "waypoint_edge":
+        if edge_type == "waypoint_edge":
             edge_len = self.calc_edge_len(node_a, node_b)
             self.graph.add_edge(
                 node_a, node_b, type=edge_type, id=uuid.uuid4(), cost=edge_len
+            )
+        elif edge_type == "frontier_edge":
+            edge_len = self.calc_edge_len(node_a, node_b)
+            # BUG: edge len can be zero in the final step.
+            if edge_len:
+                cost = 1/edge_len  # Prefer the longest waypoints
+            else:
+                cost = edge_len
+            self.graph.add_edge(
+                node_a, node_b, type=edge_type, id=uuid.uuid4(), cost=cost
             )
         else:
             self.graph.add_edge(
