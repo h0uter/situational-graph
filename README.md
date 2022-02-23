@@ -16,7 +16,7 @@ Here you can see WIP exploration in simulation to build the skeleton of the **Kn
 sudo pacman -S tk          # on Arch based distros
 sudo apt-get install tk    # on Debian based distros
 ```
-- select a demo in `thesis_demos.py` and run it.
+- select a demo config in `src/entrypoints/demo.py` and run it.
 
 # Background
 ## 🤖 Search and Rescue Missions 🐕‍🦺
@@ -63,6 +63,3 @@ Data objects can be retrieved with get methods.
 - [X] Frontier Based Exploration
 - [ ] Semantic Information Gain Exploration
 - [ ] Victim Assessment Action Mapping
-
-
-`streamlit run c:\LOCAL_Deckard\1_Projects\_thesis\src\entrypoints\demo.py`
