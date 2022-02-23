@@ -57,14 +57,13 @@ class VedoVisualisation(AbstractVizualisation):
         positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
         pos_dict = positions_of_all_nodes
         for pos in pos_dict:
-
             pos_dict[pos] = tuple([self.factor * x for x in pos_dict[pos]])
 
         ed_ls = list(krm.graph.edges)
 
+        # TODO: implement coloration for the different line types
         if len(ed_ls) > 1:
             raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
-
             raw_edg = vedo.Lines(raw_lines).lw(2)
             actors.append(raw_edg)
 
