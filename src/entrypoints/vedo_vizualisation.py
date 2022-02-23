@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Sequence
+from typing import Sequence, Union
 
 import networkx as nx
 import vedo
@@ -42,12 +42,12 @@ class VedoVisualisation(AbstractVizualisation):
         time.sleep(0.1)
 
     def figure_update(
-        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: Union[None, LocalGrid]
     ) -> None:
         self.viz_all(krm, agents)
 
     def figure_final_result(
-        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: Union[None, LocalGrid]
     ) -> None:
         self.figure_update(krm, agents, lg)
         self.plt.show(interactive=True, resetcam=True)
@@ -158,13 +158,15 @@ class VedoVisualisation(AbstractVizualisation):
             # wo_label = wo_point.labels('id', scale=self.factor)
             # wo_label = wo_point.labels(content=[wo], scale=self.factor)
             # wo_cap = wo_point.caption(wo, point=caption_pos, size=(0.05, 0.025), font='VTK')
-            
+
             # wo_point.caption(wo, size=(0.1, 0.05), font="VictorMono", lw=0.5)
-            
+
             # wo_cap = wo_point.caption(wo, size=(0.03, 0.015))
             # wo_cap = wo_point.caption(wo, offset=[0,0, 10*self.factor], size=(0.1, 0.05))
             # wo_vig = wo_point.vignette(wo, point=wo_pos, offset=[0, 0, self.factor], s=self.factor,)
-            wo_vig = wo_point.vignette(wo, offset=[0, 0, 5*self.factor], s=self.factor,)
+            wo_vig = wo_point.vignette(
+                wo, offset=[0, 0, 5 * self.factor], s=self.factor,
+            )
             # wo_cap.z(1*self.factor)
             actors.append(wo_point)
             actors.append(wo_vig)

@@ -1,7 +1,5 @@
 from src.utils.config import Config, World
 
-# TODO: make a world object class
-
 
 class WorldObject:
     def __init__(self, pos, name) -> None:

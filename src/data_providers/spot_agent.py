@@ -123,6 +123,9 @@ class SpotAgent(AbstractAgent):
 
         return pos
 
+    def look_for_world_objects_in_perception_scene(self):
+        pass
+
     def _apply_mobility_parameters(self, quaternion=None):
         if quaternion is None:
             # Unit Quaternion
