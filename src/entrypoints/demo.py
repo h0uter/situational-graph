@@ -1,14 +1,18 @@
 import logging
 import time
 
+from typing import Sequence
+
 import matplotlib
+from src.entities.abstract_agent import AbstractAgent
+from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.data_providers.simulated_agent import SimulatedAgent
 from src.data_providers.spot_agent import SpotAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entrypoints.mpl_vizualisation import MplVizualisation
 from src.entrypoints.vedo_vizualisation import VedoVisualisation
 from src.usecases.exploration_usecase import ExplorationUsecase
-from src.utils.config import Config, PlotLvl, World, Vizualiser
+from src.utils.config import Config, PlotLvl, Vizualiser, World
 
 # from src.utils.saving_objects import save_something
 
@@ -39,24 +43,33 @@ def init_entities(cfg: Config):
     return gui, agents, krm, exploration_usecases
 
 
-def main(cfg: Config):
+def perform_exploration_demo(
+    cfg: Config,
+    gui: AbstractVizualisation,
+    agents: Sequence[AbstractAgent],
+    krm: KnowledgeRoadmap,
+    exploration_usecases: Sequence[ExplorationUsecase],
+):
     step = 0
     start = time.perf_counter()
     my_logger = logging.getLogger(__name__)
 
-    gui, agents, krm, exploration_usecases = init_entities(cfg)
-
+    lg = None
     while exploration_usecases[0].no_frontiers is False:
         step_start = time.perf_counter()
-        lg = None
-        for i in range(len(agents)):
+        for agent_idx in range(len(agents)):
 
-            # FIXME: this is to allow plotting the local grid with matplotlib
-            if i == 0:
+            # FIXME: this is to allow plotting the local grid with matplotlib for multiple agent
+            if agent_idx == 0:
                 # TODO: one exploration usecase should be enough, maybe not
-                lg = exploration_usecases[i].run_exploration_step(agents[i], krm)
+                lg = exploration_usecases[agent_idx].run_exploration_step(
+                    agents[agent_idx], krm
+                )
             else:
-                exploration_usecases[i].run_exploration_step(agents[i], krm)
+                exploration_usecases[agent_idx].run_exploration_step(
+                    agents[agent_idx], krm
+                )
+
         if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
             gui.figure_update(krm, agents, lg)
 
@@ -78,10 +91,17 @@ def main(cfg: Config):
     return exploration_usecases[0].no_frontiers
 
 
+def main(cfg: Config):
+    gui, agents, krm, exploration_usecases = init_entities(cfg)
+    success = perform_exploration_demo(cfg, gui, agents, krm, exploration_usecases)
+    return success
+
+
 if __name__ == "__main__":
     matplotlib.use("Qt5agg")
 
     cfg = Config()
+    # cfg = Config(num_agents=10)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(world=World.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
     # cfg = Config(world=World.SIM_MAZE)
@@ -91,5 +111,6 @@ if __name__ == "__main__":
     # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
     # cfg = Config(world=World.SIM_VILLA, num_agents=10)
     # cfg = Config(world=World.SIM_MAZE_MEDIUM)
+    # cfg = Config(world=World.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
 
     main(cfg)

@@ -48,7 +48,8 @@ class KnowledgeRoadmap:
         #     self.next_wp_idx - 1, label, type="world_object_edge", id=uuid.uuid4()
         # )
         # TODO: I believe this is no longer ok
-        self.add_edge_with_cost(self.next_wp_idx - 1, label, "world_object_edge")
+        # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
+        self.add_edge_with_cost(self.next_wp_idx - 1, label, "world_object_edge", float("inf"))
 
     # TODO: remove the agent_at_wp parameter requirement
     def add_frontier(self, pos: tuple, agent_at_wp: int) -> None:
@@ -148,10 +149,20 @@ class KnowledgeRoadmap:
 
     def add_edge_with_cost(self, node_a, node_b, edge_type: str, cost: float = 1):
         """ adds an edge between two nodes with the given type"""
-        if edge_type == "frontier_edge" or edge_type == "waypoint_edge":
+        if edge_type == "waypoint_edge":
             edge_len = self.calc_edge_len(node_a, node_b)
             self.graph.add_edge(
                 node_a, node_b, type=edge_type, id=uuid.uuid4(), cost=edge_len
+            )
+        elif edge_type == "frontier_edge":
+            edge_len = self.calc_edge_len(node_a, node_b)
+            # BUG: edge len can be zero in the final step.
+            if edge_len:
+                cost = 1/edge_len  # Prefer the longest waypoints
+            else:
+                cost = edge_len
+            self.graph.add_edge(
+                node_a, node_b, type=edge_type, id=uuid.uuid4(), cost=cost
             )
         else:
             self.graph.add_edge(

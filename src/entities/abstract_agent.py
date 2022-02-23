@@ -36,3 +36,12 @@ class AbstractAgent(ABC):
     @abstractmethod
     def get_localization(self) -> tuple:
         pass
+
+    @abstractmethod
+    def look_for_world_objects_in_perception_scene(self) -> list:
+        """
+        Look for world objects in the perception scene.
+
+        :return: The world objects in the perception scene.
+        """
+        pass

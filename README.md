@@ -10,13 +10,17 @@ This will enable spatial reasoning and especially for search and rescue scenario
 Here you can see WIP exploration in simulation to build the skeleton of the **Knowledge Roadmap**.
 
 ## Quick start
-- `pip install -r requirements.txt`
+- goto the folder of the repo: `cd <path>/knowledge_roadmap`
+- install dependencies: `pip install -r requirements.txt`
+- install repo as a local editable package: `pip install -e .`
+- select a demo config in `src/entrypoints/demo.py` and run it.
+
+If you get an error about missing tkinter on certain barebones linux distros:
 - install the tkinter package:
 ```
 sudo pacman -S tk          # on Arch based distros
 sudo apt-get install tk    # on Debian based distros
 ```
-- select a demo in `thesis_demos.py` and run it.
 
 # Background
 ## 🤖 Search and Rescue Missions 🐕‍🦺
@@ -54,7 +58,8 @@ Data objects can be retrieved with get methods.
 #### General
 - [X] Code a generator for large graph world as a baseline for exploration and for testing.
 - [X] Exploration on metric world instead of graph world.
-- [ ] Emulate spot robot API one-on-one, run a test on the physical robot.
+- [ ] Emulate spot robot API one-on-one, 
+- [X] run a test on the physical robot.
 - [ ] Incorporate semantic information in exploration 
 - [ ] Use the height of the local grid to calculate a risk for each frontier edge and sample multiple frontiers in the same region.
 - [ ] Interface world-object classes with the knowledge base. If the world object class is correlated with the search target class, then it should influence how the surrounding region is valued for the search.
@@ -63,6 +68,3 @@ Data objects can be retrieved with get methods.
 - [X] Frontier Based Exploration
 - [ ] Semantic Information Gain Exploration
 - [ ] Victim Assessment Action Mapping
-
-
-`streamlit run c:\LOCAL_Deckard\1_Projects\_thesis\src\entrypoints\demo.py`
