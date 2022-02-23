@@ -9,7 +9,8 @@ class WorldObject:
 
 class WorldObjectSpoofer:
     def __init__(self, cfg: Config) -> None:
-        # TODO: this should be a list of dictionaries instead.
+        self.world_object_list = []
+
         if cfg.WORLD == World.SIM_VILLA:
             self.world_object_list = [
                 WorldObject((-15.5, 14), "victim1"),

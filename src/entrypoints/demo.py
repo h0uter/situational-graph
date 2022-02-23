@@ -93,7 +93,8 @@ def perform_exploration_demo(
 
 def main(cfg: Config):
     gui, agents, krm, exploration_usecases = init_entities(cfg)
-    perform_exploration_demo(cfg, gui, agents, krm, exploration_usecases)
+    success = perform_exploration_demo(cfg, gui, agents, krm, exploration_usecases)
+    return success
 
 
 if __name__ == "__main__":
