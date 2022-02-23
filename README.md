@@ -13,7 +13,7 @@ Here you can see WIP exploration in simulation to build the skeleton of the **Kn
 - goto the folder of the repo: `cd <path>/knowledge_roadmap`
 - install dependencies: `pip install -r requirements.txt`
 - install repo as a local editable package: `pip install -e .`
-- select a demo config in `src/entrypoints/demo.py` and run it.
+- select a demo config in `src/entrypoints/demo.py` and run it (min Python 3.9).
 
 If you get an error about missing tkinter on certain barebones linux distros:
 - install the tkinter package:
