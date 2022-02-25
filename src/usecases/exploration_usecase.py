@@ -1,6 +1,7 @@
 import logging
 import uuid
 from typing import Union
+import time
 
 import networkx as nx
 from src.entities.abstract_agent import AbstractAgent
@@ -94,7 +95,7 @@ class ExplorationUsecase:
             return self.evaluate_frontiers(agent, frontier_idxs, krm)
 
         else:
-            self._logger.debug(f"{agent.name}: No frontiers to explore")
+            self._logger.debug(f"{agent.name}: No frontiers left to explore")
             self.no_frontiers = True
             return None
 
@@ -245,8 +246,8 @@ class ExplorationUsecase:
 
     def StepStrategy(
         self, krm: KnowledgeRoadmap, agent: AbstractAgent
-    ) -> tuple[KnowledgeRoadmap, AbstractAgent, LocalGrid]:
-        return krm, agent, lg
+    ) -> tuple[KnowledgeRoadmap, AbstractAgent]:
+        return krm, agent
 
     # @print_timing
     # TODO: make this a generalized strategy
