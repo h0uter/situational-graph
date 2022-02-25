@@ -15,6 +15,8 @@ from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, Vizualiser, World
 
 # from src.utils.saving_objects import save_something
+from src.entrypoints.mpl_listener import MPLListener
+from src.entities.event import post_event
 
 ############################################################################################
 # DEMONSTRATIONS
@@ -54,6 +56,9 @@ def perform_exploration_demo(
     start = time.perf_counter()
     my_logger = logging.getLogger(__name__)
 
+    listener = MPLListener(cfg)
+    listener.setup_gui_event_handler()
+
     lg = None
     while exploration_usecases[0].no_frontiers is False:
         step_start = time.perf_counter()
@@ -71,7 +76,9 @@ def perform_exploration_demo(
                 )
 
         if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
-            gui.figure_update(krm, agents, lg)
+            # gui.figure_update(krm, agents, lg)
+            data = {"krm": krm, "agents": agents}
+            post_event("figure update", data)
 
         if step % 50 == 0:
             my_logger.info(
@@ -84,7 +91,9 @@ def perform_exploration_demo(
         f"It took {agents[0].steps_taken} move actions and {time.perf_counter()-start:.2f}s  to complete the exploration."
     )
     if cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or cfg.PLOT_LVL == PlotLvl.ALL:
-        gui.figure_final_result(krm, agents, lg)
+        # gui.figure_final_result(krm, agents, lg)
+        data = {"krm": krm, "agents": agents}
+        post_event("figure update", data)
 
     # save_something(krm, 'krm_1302.p')
 

@@ -9,6 +9,8 @@ from src.entities.local_grid import LocalGrid
 from src.utils.config import Config
 from src.utils.print_timing import print_timing
 
+from src.entities.event import post_event
+
 
 # TODO: refactor with a bunch of list comprehensions
 class ExplorationUsecase:
@@ -257,6 +259,7 @@ class ExplorationUsecase:
 
             self.real_sample_step(agent, krm, lg)
             self.init = True
+            post_event("new lg", lg)
             return lg
 
         # selecting a target frontier
@@ -320,6 +323,8 @@ class ExplorationUsecase:
             w_os = agent.look_for_world_objects_in_perception_scene()
             for w_o in w_os:
                 krm.add_world_object(w_o.pos, w_o.name)
+            post_event("new lg", lg)
+
             return lg
 
         self._logger.warning(f"{agent.name}:no exploration condition triggered")
