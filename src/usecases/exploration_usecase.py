@@ -1,14 +1,12 @@
 import logging
 import uuid
 from typing import Union
-import time
 
 import networkx as nx
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.utils.config import Config
-from src.utils.print_timing import print_timing
 
 from src.entities.event import post_event
 
@@ -22,7 +20,7 @@ class ExplorationUsecase:
         self.consumable_path = None
         self.selected_frontier_idx = None
         self.init = False
-        self.no_frontiers = False
+        self.no_frontiers_remaining = False
 
         self.cfg = cfg
         # self.total_map_len_m = cfg.TOTAL_MAP_LEN_M
@@ -96,7 +94,7 @@ class ExplorationUsecase:
 
         else:
             self._logger.debug(f"{agent.name}: No frontiers left to explore")
-            self.no_frontiers = True
+            self.no_frontiers_remaining = True
             return None
 
     def find_path_to_selected_frontier(

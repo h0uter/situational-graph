@@ -1,5 +1,6 @@
-from src.entities.event import post_event, subscribe
-from src.entrypoints.abstract_vizualisation import AbstractVizualisation
+# OBSERVER PATTERN
+
+from src.entities.event import subscribe
 from src.entrypoints.mpl_vizualisation import MplVizualisation
 from src.entrypoints.vedo_vizualisation import VedoVisualisation
 from src.utils.config import Config, Vizualiser, PlotLvl
@@ -15,6 +16,7 @@ class VizListener():
             self.viz = VedoVisualisation(cfg)
 
     # BUG: multi agents all post their lg events and overwrite eachother
+    # result is that you always see the lg of the last agent
     def handle_new_lg_event(self, lg):
         self.lg = lg
 

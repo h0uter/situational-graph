@@ -1,3 +1,4 @@
+# OBSERVER PATTERN
 from typing import Callable
 
 
