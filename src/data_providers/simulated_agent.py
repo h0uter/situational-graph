@@ -39,4 +39,4 @@ class SimulatedAgent(AbstractAgent):
 
     def look_for_world_objects_in_perception_scene(self) -> list:
         w_os = self.world_object_spoofer.spoof_world_objects_from_position(self.pos)
-        return w_os 
+        return w_os

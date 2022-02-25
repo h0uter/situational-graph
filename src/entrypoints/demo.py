@@ -100,8 +100,8 @@ def main(cfg: Config):
 if __name__ == "__main__":
     matplotlib.use("Qt5agg")
 
-    cfg = Config()
-    # cfg = Config(num_agents=10)
+    # cfg = Config()
+    cfg = Config(num_agents=1, world=World.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(world=World.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
     # cfg = Config(world=World.SIM_MAZE)

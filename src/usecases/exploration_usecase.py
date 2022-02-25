@@ -26,6 +26,7 @@ class ExplorationUsecase:
         # self.lg_num_cells = cfg.LG_NUM_CELLS
         self.lg_length_in_m = cfg.LG_LENGTH_IN_M
 
+        # TODO: this is duplicate with self.cfg.XXX
         # Hyper parameters
         self.N_samples = cfg.N_SAMPLES
         self.frontier_sample_radius_num_cells = cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS
@@ -50,7 +51,11 @@ class ExplorationUsecase:
             # perhaps add a connected check first...
             try:
                 candidate_path = nx.shortest_path(
-                    krm.graph, source=agent.at_wp, target=frontier_idx, weight="cost"
+                    krm.graph,
+                    source=agent.at_wp,
+                    target=frontier_idx,
+                    weight="cost",
+                    method=self.cfg.PATH_FINDING_METHOD,
                 )
                 # candidate_path = nx.shortest_path(
                 #     krm.graph, source=agent.at_wp, target=frontier_idx
@@ -134,6 +139,7 @@ class ExplorationUsecase:
             agent.get_localization(), self.cfg.AT_WP_MARGIN, "waypoint"
         )[0]
 
+    # TODO: this can go to KRM
     def get_nodes_of_type_in_radius(
         self, pos: tuple, radius: float, node_type: str, krm: KnowledgeRoadmap
     ) -> list:
@@ -235,7 +241,13 @@ class ExplorationUsecase:
             world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
         )
 
+    def StepStrategy(
+        self, krm: KnowledgeRoadmap, agent: AbstractAgent
+    ) -> tuple[KnowledgeRoadmap, AbstractAgent, LocalGrid]:
+        return krm, agent, lg
+
     # @print_timing
+    # TODO: make this a generalized strategy
     def run_exploration_step(self, agent: AbstractAgent, krm: KnowledgeRoadmap):
 
         # sampling for the first time
