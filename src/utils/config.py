@@ -6,7 +6,7 @@ from enum import Enum, auto
 import coloredlogs
 
 
-class World(Enum):
+class Scenario(Enum):
     SIM_VILLA = auto()
     SIM_VILLA_ROOM = auto()
     SIM_MAZE = auto()
@@ -30,28 +30,28 @@ class Config:
     def __init__(
         self,
         plot_lvl: PlotLvl = PlotLvl.ALL,
-        world: World = World.SIM_VILLA,
+        scenario: Scenario = Scenario.SIM_VILLA,
         vizualiser: Vizualiser = Vizualiser.VEDO,
         num_agents: int = 1,
     ):
         self.PLOT_LVL = plot_lvl
-        self.WORLD = world
+        self.SCENARIO = scenario
         self.VIZUALISER = vizualiser
 
         self.PRUNE_RADIUS_FACTOR = 0.20  # too low and we get dense graph, too high and corners are pruned from inside rooms
         self.SAMPLE_RING_WIDTH = 1.0  # 0 - 1.0
 
         # instead of doing it like this, how could I compose this behavour?
-        if self.WORLD == World.SIM_VILLA or self.WORLD == World.SIM_VILLA_ROOM:
+        if self.SCENARIO == Scenario.SIM_VILLA or self.SCENARIO == Scenario.SIM_VILLA_ROOM:
             self.set_sim_villa_params()
 
-        elif self.WORLD == World.SIM_MAZE:
+        elif self.SCENARIO == Scenario.SIM_MAZE:
             self.set_sim_maze_params()
 
-        elif self.WORLD == World.SIM_MAZE_MEDIUM:
+        elif self.SCENARIO == Scenario.SIM_MAZE_MEDIUM:
             self.set_sim_maze_medium_params()
 
-        elif self.WORLD == World.REAL:
+        elif self.SCENARIO == Scenario.REAL:
             self.set_real_params()
 
         self.LG_LENGTH_IN_M = self.LG_NUM_CELLS * self.LG_CELL_SIZE_M
@@ -100,7 +100,7 @@ class Config:
         ) * self.IMG_TOTAL_Y_PIX
         self.TOTAL_MAP_LEN_M = (self.TOT_MAP_LEN_M_X, self.TOT_MAP_LEN_M_Y)
         self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
-        if self.WORLD == World.SIM_VILLA_ROOM:
+        if self.SCENARIO == Scenario.SIM_VILLA_ROOM:
             self.AGENT_START_POS = (13, 14)
 
     def set_sim_maze_params(self):

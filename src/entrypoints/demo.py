@@ -10,7 +10,7 @@ from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.abstract_agent import AbstractAgent
 import src.entities.event as event
 from src.usecases.exploration_usecase import ExplorationUsecase
-from src.utils.config import Config, World, Vizualiser
+from src.utils.config import Config, Scenario, Vizualiser
 from src.entrypoints.viz_listener import VizListener
 
 
@@ -20,7 +20,7 @@ from src.entrypoints.viz_listener import VizListener
 
 
 def init_entities(cfg: Config):
-    if cfg.WORLD == World.REAL:
+    if cfg.SCENARIO == Scenario.REAL:
         agents = [SpotAgent()]
     else:
         agents = [

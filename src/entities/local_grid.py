@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import numpy.typing as npt
 from skimage import draw
-from src.utils.config import Config, World
+from src.utils.config import Config, Scenario
 
 
 class LocalGrid:
@@ -57,7 +57,7 @@ class LocalGrid:
         """
         # somehow switched between spot grid and my own grid
         # FIXME: need to make sim equal to spot
-        if self.cfg.WORLD == World.REAL:
+        if self.cfg.SCENARIO == Scenario.REAL:
             x_coord = (
                 # self.world_pos[0] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
                 self.world_pos[0]
@@ -107,7 +107,7 @@ class LocalGrid:
         self, at: tuple, to: tuple
     ) -> tuple:
         # FIXME: make my loaded images consistent with the spot local grid somehow
-        if self.cfg.WORLD == World.REAL:
+        if self.cfg.SCENARIO == Scenario.REAL:
             # FIXME: spot obstacle map has rr and cc flipped somehow
             rr, cc = self.get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
@@ -122,7 +122,7 @@ class LocalGrid:
                     return False, collision_point
             return True, None
 
-        if self.cfg.WORLD == World.SIM_MAZE_MEDIUM:
+        if self.cfg.SCENARIO == Scenario.SIM_MAZE_MEDIUM:
             rr, cc = self.get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
                 if np.greater(
