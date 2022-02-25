@@ -19,14 +19,14 @@ class WorldObjectSpoofer:
                 WorldObject((13, 0), "victim2"),
             ]
 
-    def spoof_world_objects_from_position(self, agent_pos: tuple[float, float]):
+    def spoof_world_objects_from_position(self, agent_pos: tuple[float, float]) -> list[WorldObject]:
 
         # if line of sight with world object, return the world object
         # kinda waste of time to do line of sight check if the real robot does not need that....
         # to mimic the real fiducial server we should return an id and a transform...
 
         margin = 3
-        world_objects_in_scene = []
+        world_objects_in_scene = list()
         for spoof in self.world_object_list:
             if (
                 abs(agent_pos[0] - spoof.pos[0]) < margin

@@ -5,13 +5,11 @@ import numpy.typing as npt
 class AbstractAgent(ABC):
     @abstractmethod
     def __init__(self, start_pos: tuple[float, float], name: int = 0) -> None:
-        # TODO: remove as much as possible
         self.name = name
         self.at_wp = name
         self.pos = start_pos
         self.previous_pos = self.pos
 
-        # FIXME: this should not be in the agent
         self.steps_taken = 0
 
     @abstractmethod

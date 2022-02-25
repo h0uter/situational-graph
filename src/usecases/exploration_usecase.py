@@ -1,6 +1,7 @@
 import logging
 import uuid
 from typing import Union
+import time
 
 import networkx as nx
 from src.entities.abstract_agent import AbstractAgent
@@ -8,6 +9,8 @@ from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.utils.config import Config
 from src.utils.print_timing import print_timing
+
+from src.entities.event import post_event
 
 
 # TODO: refactor with a bunch of list comprehensions
@@ -26,6 +29,7 @@ class ExplorationUsecase:
         # self.lg_num_cells = cfg.LG_NUM_CELLS
         self.lg_length_in_m = cfg.LG_LENGTH_IN_M
 
+        # TODO: this is duplicate with self.cfg.XXX
         # Hyper parameters
         self.N_samples = cfg.N_SAMPLES
         self.frontier_sample_radius_num_cells = cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS
@@ -50,7 +54,11 @@ class ExplorationUsecase:
             # perhaps add a connected check first...
             try:
                 candidate_path = nx.shortest_path(
-                    krm.graph, source=agent.at_wp, target=frontier_idx, weight="cost"
+                    krm.graph,
+                    source=agent.at_wp,
+                    target=frontier_idx,
+                    weight="cost",
+                    method=self.cfg.PATH_FINDING_METHOD,
                 )
                 # candidate_path = nx.shortest_path(
                 #     krm.graph, source=agent.at_wp, target=frontier_idx
@@ -87,7 +95,7 @@ class ExplorationUsecase:
             return self.evaluate_frontiers(agent, frontier_idxs, krm)
 
         else:
-            self._logger.debug(f"{agent.name}: No frontiers to explore")
+            self._logger.debug(f"{agent.name}: No frontiers left to explore")
             self.no_frontiers = True
             return None
 
@@ -134,6 +142,7 @@ class ExplorationUsecase:
             agent.get_localization(), self.cfg.AT_WP_MARGIN, "waypoint"
         )[0]
 
+    # TODO: this can go to KRM
     def get_nodes_of_type_in_radius(
         self, pos: tuple, radius: float, node_type: str, krm: KnowledgeRoadmap
     ) -> list:
@@ -235,7 +244,13 @@ class ExplorationUsecase:
             world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
         )
 
+    def StepStrategy(
+        self, krm: KnowledgeRoadmap, agent: AbstractAgent
+    ) -> tuple[KnowledgeRoadmap, AbstractAgent]:
+        return krm, agent
+
     # @print_timing
+    # TODO: make this a generalized strategy
     def run_exploration_step(self, agent: AbstractAgent, krm: KnowledgeRoadmap):
 
         # sampling for the first time
@@ -245,6 +260,7 @@ class ExplorationUsecase:
 
             self.real_sample_step(agent, krm, lg)
             self.init = True
+            post_event("new lg", lg)
             return lg
 
         # selecting a target frontier
@@ -308,6 +324,8 @@ class ExplorationUsecase:
             w_os = agent.look_for_world_objects_in_perception_scene()
             for w_o in w_os:
                 krm.add_world_object(w_o.pos, w_o.name)
+            post_event("new lg", lg)
+
             return lg
 
         self._logger.warning(f"{agent.name}:no exploration condition triggered")
