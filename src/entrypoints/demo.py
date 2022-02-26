@@ -53,7 +53,7 @@ def perform_exploration_demo(
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
-            exploration_usecases[agent_idx].run_exploration_step(agents[agent_idx], krm)
+            exploration_usecases[agent_idx].run_usecase_step(agents[agent_idx], krm)
 
         """ Visualisation """
         event.post_event("figure update", {"krm": krm, "agents": agents})
