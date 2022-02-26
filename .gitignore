@@ -13,6 +13,9 @@ knowledge_roadmap/data_providers/login.json
 
 afile.vtk
 
+*/benchmarks/
+benchmarks/
+
 src/data_providers/login.json
 */login.json
 **/login.json

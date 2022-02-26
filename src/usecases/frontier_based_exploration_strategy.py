@@ -42,6 +42,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             self._log.warning(f"{agent.name}: path_generation(): no path found")
             return None
 
+    # XXX: this is my most expensive function, so I should try to optimize it
     def path_execution(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path: list[Node]
     ) -> Union[list[Node], None]:
@@ -50,9 +51,13 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             self._log.warning(f"{agent.name}: target frontier is no longer valid")
             return None
         next_node = action_path[1]
-        self._log.debug(f"{agent.name}: the action path before execution is {action_path}")
+        self._log.debug(
+            f"{agent.name}: the action path before execution is {action_path}"
+        )
         action_path = self.perform_path_step(agent, action_path, krm)
-        self._log.debug(f"{agent.name}: the action path after execution is {action_path}")
+        self._log.debug(
+            f"{agent.name}: the action path after execution is {action_path}"
+        )
 
         at_destination = (
             len(
@@ -72,8 +77,8 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
 
             self.sample_waypoint_from_pose(agent, krm)
             lg = self.get_lg(agent)
-            self.obtain_and_process_new_frontiers(agent, krm, lg)
-            self.prune_frontiers(krm)
+            self.obtain_and_process_new_frontiers(agent, krm, lg) # XXX: this is my most expensive function, so I should try to optimize it
+            self.prune_frontiers(krm) # XXX: this is my 2nd expensive function, so I should try to optimize it
             self.find_shortcuts_between_wps(lg, krm, agent)
             w_os = agent.look_for_world_objects_in_perception_scene()
             for w_o in w_os:
@@ -89,7 +94,9 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         else:
             return False
 
-    def check_target_still_valid(self, krm: KnowledgeRoadmap, target_node: Node) -> bool:
+    def check_target_still_valid(
+        self, krm: KnowledgeRoadmap, target_node: Node
+    ) -> bool:
         return krm.check_node_exists(target_node)
 
     # utitlies
@@ -269,6 +276,10 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         this should be sampled from the pose graph eventually
         """
+        # BUG:  this can make the agent teleport to a random frontier in the vicinty.
+        # better would be to explicitly check if we reached the frontier we intended to reach.
+        # and if we didnt to attempt to walk to it again. To attempt to actually expand the krm 
+        # with the intended frontier and not a random one
         # HACK: just taking the first one from the list is not neccessarily the closest
         wp_at_previous_pos = krm.get_nodes_of_type_in_margin(
             agent.previous_pos, self.cfg.PREV_POS_MARGIN, "waypoint"

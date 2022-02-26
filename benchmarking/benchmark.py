@@ -1,16 +1,6 @@
-
-from src.entrypoints.demo_sim import exploration_with_sampling_viz
-
-def test():
-    print("hi")
-
-
-def basic_timing():
-    import time
-    start = time.perf_counter()
-    exploration_with_sampling_viz("none")
-    elapsed = time.perf_counter() - start
-    print(f"Elapsed time: {elapsed}")
+from datetime import datetime
+import os
+from src.entrypoints.demo import benchmark_func
 
 
 def profiler_test():
@@ -29,8 +19,14 @@ def profiler_test():
 def basic_profiler_test():
     import cProfile
     import pstats
+    func_name = 'benchmark_func()'
+    # prof_name = f"{datetime.now().strftime('%Y%m%d-%H%M%S')}.profile"
+    prof_name = f"{datetime.now().strftime('%Y%m%d-%H%M')}.profile"
 
-    pr = cProfile.run('exploration_with_sampling_viz("intermediate only")', sort='tottime', filename="with_plotting.profile")
+    path = os.path.join("benchmarking","benchmarks", prof_name)
+
+    # pr = cProfile.run(func_name, sort='tottime', filename=f"benchmarking{prof_name}.profile")
+    pr = cProfile.run(func_name, sort='tottime', filename=path)
     stats = pstats.Stats(pr)
     stats.sort_stats(pstats.SortKey.TIME)
     stats.print_stats()
@@ -54,4 +50,3 @@ if __name__ == "__main__":
     # profiler_test()
     # basic_timing()
     basic_profiler_test()
-    

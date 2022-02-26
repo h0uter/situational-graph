@@ -10,7 +10,7 @@ from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.abstract_agent import AbstractAgent
 import src.utils.event as event
 from src.usecases.exploration_usecase import ExplorationUsecase
-from src.utils.config import Config, Scenario, Vizualiser
+from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
 from src.entrypoints.vizualisation_listener import VizualisationListener
 
 
@@ -87,13 +87,18 @@ def main(cfg: Config):
     success = perform_exploration_demo(cfg, agents, krm, exploration_usecases)
     return success
 
+def benchmark_func():
+    # cfg = Config(plot_lvl=PlotLvl.NONE)
+    cfg = Config(plot_lvl=PlotLvl.NONE, num_agents=15, scenario=Scenario.SIM_MAZE_MEDIUM)
+    main(cfg)
+
 
 if __name__ == "__main__":
     matplotlib.use("Qt5agg")
 
     cfg = Config()
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
-    cfg = Config(num_agents=2, scenario=Scenario.SIM_MAZE_MEDIUM)
+    cfg = Config(num_agents=15, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
     # cfg = Config(scenario=Scenario.SIM_MAZE)
