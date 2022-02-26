@@ -30,7 +30,9 @@ def init_entities(cfg: Config):
     krm = KnowledgeRoadmap(start_poses=[agent.pos for agent in agents])
     exploration_usecases = [ExplorationUsecase(cfg) for i in range(cfg.NUM_AGENTS)]
 
-    VizualisationListener(cfg).setup_viz_event_handler()  # setup the listener for vizualisation
+    VizualisationListener(
+        cfg
+    ).setup_viz_event_handler()  # setup the listener for vizualisation
 
     return agents, krm, exploration_usecases
 
@@ -46,7 +48,8 @@ def perform_exploration_demo(
     my_logger = logging.getLogger(__name__)
 
     """ Main Logic"""
-    while exploration_usecases[0].ExplorationStrategy.no_frontiers_remaining is False:
+    # TODO: this condition should be checked for any of the agents
+    while exploration_usecases[0].ExplorationStrategy.exploration_completed is False:
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
@@ -72,7 +75,7 @@ def perform_exploration_demo(
 
     event.post_event("figure final result", {"krm": krm, "agents": agents})
 
-    return exploration_usecases[0].ExplorationStrategy.no_frontiers_remaining
+    return exploration_usecases[0].ExplorationStrategy.exploration_completed
 
 
 def main(cfg: Config):
@@ -85,6 +88,7 @@ if __name__ == "__main__":
     matplotlib.use("Qt5agg")
 
     cfg = Config()
+    cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
     # cfg = Config(num_agents=1, world=World.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(world=World.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)

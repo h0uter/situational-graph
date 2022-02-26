@@ -39,6 +39,9 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
     ) -> Union[tuple[KnowledgeRoadmap, AbstractAgent, list[Node]], None]:
         pass
 
+    def check_completion(self, krm: KnowledgeRoadmap) -> bool:
+        pass
+
     """Target Selection"""
     ############################################################################################
     # ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ########################################
