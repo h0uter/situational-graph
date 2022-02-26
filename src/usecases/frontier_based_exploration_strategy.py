@@ -1,4 +1,3 @@
-import logging
 import uuid
 from typing import Union
 
@@ -21,17 +20,15 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
 
     def target_selection(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> Node:
         num_of_frontiers = len(krm.get_all_frontiers_idxs())
-        self._logger.debug(
-            f"{agent.name}: {num_of_frontiers} frontiers currently in krm"
-        )
+        self._log.debug(f"{agent.name}: {num_of_frontiers} frontiers currently in krm")
         if num_of_frontiers < 1:
             lg = self.get_lg(agent)
             self.obtain_and_process_new_frontiers(agent, krm, lg)
             post_event("new lg", lg)
 
-        self._logger.debug(f"{agent.name}: selecting target frontier and finding path")
+        self._log.debug(f"{agent.name}: selecting target frontier and finding path")
         target_node = self.select_target_frontier(agent, krm)
-        self._logger.debug(f"{agent.name}: target frontier selected: {target_node}")
+        self._log.debug(f"{agent.name}: target frontier selected: {target_node}")
 
         return target_node
 
@@ -42,14 +39,20 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         if possible_path:
             return list(possible_path)
         else:
-            self._logger.warning(f"{agent.name}: path_generation(): no path found")
+            self._log.warning(f"{agent.name}: path_generation(): no path found")
             return None
 
     def path_execution(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path: list[Node]
     ) -> Union[list[Node], None]:
-        next_node = action_path[0]
+        # next_node = action_path[0]
+        if not self.check_target_still_valid(krm, self.target_node):
+            self._log.warning(f"{agent.name}: target frontier is no longer valid")
+            return None
+        next_node = action_path[1]
+        self._log.debug(f"{agent.name}: the action path before execution is {action_path}")
         action_path = self.perform_path_step(agent, action_path, krm)
+        self._log.debug(f"{agent.name}: the action path after execution is {action_path}")
 
         at_destination = (
             len(
@@ -59,10 +62,11 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             )
             >= 1
         )
+        self._log.debug(f"{agent.name}: at_destination: {at_destination}")
 
         if not action_path and at_destination:
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
-            self._logger.debug(f"{agent.name}: frontier processing")
+            self._log.debug(f"{agent.name}: frontier processing")
             krm.remove_frontier(next_node)
             # self.selected_frontier_idx = None
 
@@ -85,6 +89,9 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         else:
             return False
 
+    def check_target_still_valid(self, krm: KnowledgeRoadmap, target_node: Node) -> bool:
+        return krm.check_node_exists(target_node)
+
     # utitlies
     ############################################################################################
 
@@ -102,7 +109,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
             num_frontiers_to_sample=self.cfg.N_SAMPLES,
         )
-        self._logger.debug(f"{agent.name}: found {frontiers_cells} new frontiers")
+        # self._log.debug(f"{agent.name}: found {frontiers_cells} new frontiers")
         for frontier_cell in frontiers_cells:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             krm.add_frontier(frontier_pos_global, agent.at_wp)
@@ -113,7 +120,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
     ############################################################################################
     def evaluate_frontiers(
         self, agent: AbstractAgent, frontier_idxs: list, krm: KnowledgeRoadmap
-    ):
+    ) -> Node:
         """
         Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics
@@ -150,25 +157,34 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
                 shortest_path_by_node_count = len(candidate_path)
                 candidate_path = list(candidate_path)
                 selected_frontier_idx = candidate_path[-1]
-        if selected_frontier_idx:
-            return selected_frontier_idx
-        else:
-            self._logger.error(
-                f"{agent.name} at {agent.at_wp}: No frontier can be selected from {len(frontier_idxs)} frontiers"
+        if not selected_frontier_idx:
+            self._log.error(
+                f"{agent.name} at {agent.at_wp}: No frontier can be selected from {len(frontier_idxs)} frontiers because no candidate path can be found."
             )
-            return None
+            self._log.error(
+                f"{agent.name} at {agent.at_wp}: so either im at a node not connected to the krm or my target is not connected to the krm."
+            )
+            # HACK: low cohesion solution
+            # self.target_node = None
+            # self.localize_agent_to_wp(agent, krm)
+
+        # assert selected_frontier_idx is not None
+
+        return selected_frontier_idx
 
     # TODO: this should be a variable strategy
-    def select_target_frontier(self, agent: AbstractAgent, krm: KnowledgeRoadmap):
+    def select_target_frontier(
+        self, agent: AbstractAgent, krm: KnowledgeRoadmap
+    ) -> Node:
         """ using the KRM, obtain the optimal frontier to visit next"""
         frontier_idxs = krm.get_all_frontiers_idxs()
-        if len(frontier_idxs) > 0:
-            return self.evaluate_frontiers(agent, frontier_idxs, krm)
 
-        else:
-            self._logger.debug(f"{agent.name}: No frontiers left to explore")
-            self.no_frontiers_remaining = True
-            return None
+        if len(frontier_idxs) < 1:
+            self._log.warning(
+                f"{agent.name}: could not select a frontier, when I should've."
+            )
+
+        return self.evaluate_frontiers(agent, frontier_idxs, krm)
 
     """Path/Plan generation"""
     #############################################################################################
@@ -192,7 +208,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             return path
         else:
             # raise ValueError("No path found")
-            self._logger.error(f"{agent.name}: No path found")
+            self._log.error(f"{agent.name}: No path found")
 
     def perform_path_step(
         self, agent: AbstractAgent, path: list, krm: KnowledgeRoadmap
@@ -200,8 +216,9 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         """
         Execute a single step of the path.
         """
-        if len(path) > 1:
-            node_data = krm.get_node_data_by_idx(path[0])
+        if len(path) > 2:
+            # node_data = krm.get_node_data_by_idx(path[0])
+            node_data = krm.get_node_data_by_idx(path[1])
             agent.move_to_pos(node_data["pos"])
             # FIXME: this can return none if world object nodes are included in the graph.
             # can just give them infinite weight... should solve it by performing shortest path over a subgraph.
@@ -212,10 +229,25 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             path.pop(0)
             return path
 
-        elif len(path) == 1:
-            selected_frontier_data = krm.get_node_data_by_idx(path[0])
+        # if len(path) == 2:
+        #     # node_data = krm.get_node_data_by_idx(path[0])
+        #     node_data = krm.get_node_data_by_idx(path[1])
+        #     agent.move_to_pos(node_data["pos"])
+        #     # FIXME: this can return none if world object nodes are included in the graph.
+        #     # can just give them infinite weight... should solve it by performing shortest path over a subgraph.
+        #     # BUG: can still randomly think the agent is at a world object if it is very close to the frontier.
+        #     agent.at_wp = krm.get_nodes_of_type_in_margin(
+        #         agent.pos, self.cfg.AT_WP_MARGIN, "waypoint"
+        #     )[0]
+        #     path.pop(0)
+        #     return path
+
+        # elif len(path) == 1:
+        elif len(path) == 2:
+            # selected_frontier_data = krm.get_node_data_by_idx(path[0])
+            selected_frontier_data = krm.get_node_data_by_idx(path[1])
             agent.move_to_pos(selected_frontier_data["pos"])
-            self._logger.debug(
+            self._log.debug(
                 f"{agent.name}: the selected frontier pos is {selected_frontier_data['pos']}"
             )
             return []
@@ -242,6 +274,12 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             agent.previous_pos, self.cfg.PREV_POS_MARGIN, "waypoint"
         )[0]
         krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
+        agent.at_wp = krm.get_nodes_of_type_in_margin(
+            agent.get_localization(), self.cfg.AT_WP_MARGIN, "waypoint"
+        )[0]
+
+    # TODO: move this to agent class
+    def localize_agent_to_wp(self, agent: AbstractAgent, krm: KnowledgeRoadmap):
         agent.at_wp = krm.get_nodes_of_type_in_margin(
             agent.get_localization(), self.cfg.AT_WP_MARGIN, "waypoint"
         )[0]

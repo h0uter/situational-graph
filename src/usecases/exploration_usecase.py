@@ -1,6 +1,5 @@
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
-from src.usecases.archive.old_frontier_based_exploration_strategy import OldFrontierBasedExplorationStrategy
 from src.usecases.frontier_based_exploration_strategy import FrontierBasedExplorationStrategy
 from src.utils.config import Config
 

@@ -10,41 +10,47 @@ from src.utils.my_types import Node
 
 class ExplorationStrategy(ABC):
 
-    target_node = None
-    action_path = list()
 
     def __init__(self, cfg: Config) -> None:
-        self._logger = logging.getLogger(__name__)
+        self._log = logging.getLogger(__name__)
         self.cfg = cfg
         self.exploration_completed = False
+        self.action_path = list()
+        self.target_node = None
 
     # CONTEXT
     def run_exploration_step(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap
     ) -> tuple[AbstractAgent, KnowledgeRoadmap]:
+        something_was_done = False
 
         if not self.target_node:
-            self._logger.debug(f"{agent.name}: No target node set. Setting one.")
+            self._log.debug(f"{agent.name}: No target node set. Setting one.")
             self.target_node = self.target_selection(agent, krm)
-            return agent, krm
+            # return agent, krm
+            something_was_done = True
 
         if not self.action_path:
-            self._logger.debug(f"{agent.name}: No action path set. Setting one.")
+            self._log.debug(f"{agent.name}: No action path set. Setting one.")
             self.action_path = self.path_generation(agent, krm, self.target_node)
-            return agent, krm
+            something_was_done = True
+            # return agent, krm
 
         if self.action_path:
-            self._logger.debug(f"{agent.name}: Action path set. Executing one.")
+
+            self._log.debug(f"{agent.name}: Action path set. Executing one.")
             self.action_path = self.path_execution(agent, krm, self.action_path)
             if not self.action_path:
-                self._logger.debug(f"{agent.name}: Action path execution finished.")
+                self._log.debug(f"{agent.name}: Action path execution finished.")
                 self.target_node = None
                 self.action_path = None
-                self.exploration_completed = self.check_completion(krm)
+                self.exploration_completed = self.check_completion(krm)  # only ever have to check completion here
+            something_was_done = True
 
-            return agent, krm
+            # return agent, krm
 
-        logging.warning("No exploration step taken")
+        if not something_was_done:
+            logging.warning("No exploration step taken")
         return agent, krm
 
     @abstractmethod
@@ -65,4 +71,8 @@ class ExplorationStrategy(ABC):
 
     @abstractmethod
     def check_completion(self, krm: KnowledgeRoadmap) -> bool:
+        pass
+
+    @abstractmethod
+    def check_target_still_valid(self, krm: KnowledgeRoadmap, target_node: Node) -> bool:
         pass

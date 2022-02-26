@@ -2,7 +2,7 @@ import math
 import uuid
 
 import networkx as nx
-
+from src.utils.my_types import Node
 
 class KnowledgeRoadmap:
     """
@@ -18,8 +18,12 @@ class KnowledgeRoadmap:
     def __init__(self, start_poses: list[tuple]) -> None:
         self.graph = nx.Graph()  # Knowledge Road Map
         self.next_wp_idx = 0
+
+        self.duplicate_start_poses = []
         for start_pos in start_poses:
-            self.add_start_waypoints(start_pos)
+            if start_pos not in self.duplicate_start_poses:
+                self.add_start_waypoints(start_pos)
+                self.duplicate_start_poses.append(start_pos)
         self.next_frontier_idx = 9000
         self.next_wo_idx = 90000
 
@@ -146,3 +150,7 @@ class KnowledgeRoadmap:
                     close_nodes.append(node)
 
         return close_nodes
+
+    def check_node_exists(self, node: Node):
+        """ checks if the given node exists in the graph"""
+        return node in self.graph.nodes

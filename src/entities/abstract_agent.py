@@ -6,7 +6,7 @@ class AbstractAgent(ABC):
     @abstractmethod
     def __init__(self, start_pos: tuple[float, float], name: int = 0) -> None:
         self.name = name
-        self.at_wp = name
+        self.at_wp = None
         self.pos = start_pos
         self.previous_pos = self.pos
 

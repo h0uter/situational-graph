@@ -47,6 +47,9 @@ def perform_exploration_demo(
     start = time.perf_counter()
     my_logger = logging.getLogger(__name__)
 
+    for agent in agents:
+        exploration_usecases[agent.name].ExplorationStrategy.localize_agent_to_wp(agent, krm)
+
     """ Main Logic"""
     # TODO: this condition should be checked for any of the agents
     while exploration_usecases[0].ExplorationStrategy.exploration_completed is False:
@@ -55,11 +58,12 @@ def perform_exploration_demo(
         for agent_idx in range(len(agents)):
             exploration_usecases[agent_idx].run_usecase_step(agents[agent_idx], krm)
 
+        my_logger.debug("--------------------------------------------------------")
         """ Visualisation """
         event.post_event("figure update", {"krm": krm, "agents": agents})
 
         if step % 50 == 0:
-            s = f"sim step = {step} took {time.perf_counter() - step_start:.4f}s"
+            s = f"sim step = {step} took {time.perf_counter() - step_start:.4f}s, with {agents[0].steps_taken} move actions"
             my_logger.info(s)
         step += 1
 
@@ -88,19 +92,19 @@ if __name__ == "__main__":
     matplotlib.use("Qt5agg")
 
     cfg = Config()
-    cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
-    # cfg = Config(num_agents=1, world=World.SIM_MAZE_MEDIUM)
+    # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
+    cfg = Config(num_agents=2, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
-    # cfg = Config(world=World.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
-    # cfg = Config(world=World.SIM_MAZE)
-    # cfg = Config(world=World.SIM_VILLA, vizualiser=Vizualiser.MATPLOTLIB)
-    # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, world=World.SIM_MAZE_MEDIUM)
+    # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
+    # cfg = Config(scenario=Scenario.SIM_MAZE)
+    # cfg = Config(scenario=Scenario.SIM_VILLA, vizualiser=Vizualiser.MATPLOTLIB)
+    # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, scenario=Scenario.SIM_MAZE_MEDIUM)
 
-    # cfg = Config(world=World.REAL, vizualiser=Vizualiser.MATPLOTLIB)
+    # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
-    # cfg = Config(world=World.SIM_VILLA, num_agents=10)
-    # cfg = Config(world=World.SIM_MAZE_MEDIUM)
-    # cfg = Config(world=World.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
+    # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)
+    # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM)
+    # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 
     main(cfg)

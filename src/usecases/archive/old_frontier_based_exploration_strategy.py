@@ -88,7 +88,7 @@ class OldFrontierBasedExplorationStrategy(ExplorationStrategy):
         if selected_frontier_idx:
             return selected_frontier_idx
         else:
-            self._logger.error(
+            self._log.error(
                 f"{agent.name} at {agent.at_wp}: No frontier can be selected from {len(frontier_idxs)} frontiers"
             )
             return None
@@ -101,7 +101,7 @@ class OldFrontierBasedExplorationStrategy(ExplorationStrategy):
             return self.evaluate_frontiers(agent, frontier_idxs, krm)
 
         else:
-            self._logger.debug(f"{agent.name}: No frontiers left to explore")
+            self._log.debug(f"{agent.name}: No frontiers left to explore")
             self.no_frontiers_remaining = True  # can almost remove
             self.exploration_completed = True
             return None
@@ -128,7 +128,7 @@ class OldFrontierBasedExplorationStrategy(ExplorationStrategy):
             return path
         else:
             # raise ValueError("No path found")
-            self._logger.error(f"{agent.name}: No path found")
+            self._log.error(f"{agent.name}: No path found")
 
     def obtain_and_process_new_frontiers(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
@@ -219,7 +219,7 @@ class OldFrontierBasedExplorationStrategy(ExplorationStrategy):
         elif len(path) == 1:
             selected_frontier_data = krm.get_node_data_by_idx(path[0])
             agent.move_to_pos(selected_frontier_data["pos"])
-            self._logger.debug(
+            self._log.debug(
                 f"{agent.name}: the selected frontier pos is {selected_frontier_data['pos']}"
             )
             return []
@@ -259,7 +259,7 @@ class OldFrontierBasedExplorationStrategy(ExplorationStrategy):
         # selecting a target frontier
         # no redraw
         if not self.selected_frontier_idx:
-            self._logger.debug(f"{agent.name}: select target frontier and find path")
+            self._log.debug(f"{agent.name}: select target frontier and find path")
             """if there are no more frontiers, exploration is done"""
             self.selected_frontier_idx = self.select_target_frontier(agent, krm)
             possible_path = self.find_path_to_selected_frontier(
@@ -274,8 +274,8 @@ class OldFrontierBasedExplorationStrategy(ExplorationStrategy):
         try:
             krm.get_node_data_by_idx(self.selected_frontier_idx)
         except Exception as e:
-            self._logger.debug(f"{agent.name}: my target frontier no longer exists")
-            self._logger.debug(f"error {e}")
+            self._log.debug(f"{agent.name}: my target frontier no longer exists")
+            self._log.debug(f"error {e}")
 
             self.selected_frontier_idx = None
             return agent, krm
@@ -283,7 +283,7 @@ class OldFrontierBasedExplorationStrategy(ExplorationStrategy):
         # executing path
         # redraw, maybe not necc, can remove agent instead of cla()
         if self.consumable_path:
-            self._logger.debug(f"{agent.name}: execute consumable path")
+            self._log.debug(f"{agent.name}: execute consumable path")
             self.consumable_path = self.perform_path_step(
                 agent, self.consumable_path, krm
             )
@@ -304,7 +304,7 @@ class OldFrontierBasedExplorationStrategy(ExplorationStrategy):
         ):
             # if len(self.consumable_path) == 0:
             """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
-            self._logger.debug(f"{agent.name}: frontier processing")
+            self._log.debug(f"{agent.name}: frontier processing")
             krm.remove_frontier(self.selected_frontier_idx)
             self.selected_frontier_idx = None
 
@@ -320,5 +320,5 @@ class OldFrontierBasedExplorationStrategy(ExplorationStrategy):
 
             return agent, krm
 
-        self._logger.warning(f"{agent.name}:no exploration condition triggered")
+        self._log.warning(f"{agent.name}:no exploration condition triggered")
         return agent, krm

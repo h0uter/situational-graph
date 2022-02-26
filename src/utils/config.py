@@ -57,7 +57,8 @@ class Config:
         self.LG_LENGTH_IN_M = self.LG_NUM_CELLS * self.LG_CELL_SIZE_M
 
         # exploration hyperparameters
-        self.PATH_FINDING_METHOD = "bellman-ford"
+        # self.PATH_FINDING_METHOD = "bellman-ford"
+        self.PATH_FINDING_METHOD = "dijkstra"
         self.N_SAMPLES = 25
         self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * self.PRUNE_RADIUS_FACTOR
         self.AT_WP_MARGIN = 0.25
@@ -68,8 +69,8 @@ class Config:
         self.NUM_AGENTS = num_agents
 
         # logging
-        LOG_LVL = logging.DEBUG
-        # LOG_LVL = logging.INFO
+        # LOG_LVL = logging.DEBUG
+        LOG_LVL = logging.INFO
         logging.basicConfig(stream=sys.stdout, level=LOG_LVL)
         logging.getLogger("matplotlib").setLevel(logging.WARNING)
         logging.getLogger("PIL").setLevel(logging.WARNING)
