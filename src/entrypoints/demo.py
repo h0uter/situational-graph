@@ -8,10 +8,10 @@ from src.data_providers.simulated_agent import SimulatedAgent
 from src.data_providers.spot_agent import SpotAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.abstract_agent import AbstractAgent
-import src.entities.event as event
+import src.utils.event as event
 from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, Scenario, Vizualiser
-from src.entrypoints.viz_listener import VizListener
+from src.entrypoints.vizualisation_listener import VizualisationListener
 
 
 ############################################################################################
@@ -30,7 +30,7 @@ def init_entities(cfg: Config):
     krm = KnowledgeRoadmap(start_poses=[agent.pos for agent in agents])
     exploration_usecases = [ExplorationUsecase(cfg) for i in range(cfg.NUM_AGENTS)]
 
-    VizListener(cfg).setup_viz_event_handler()  # setup the listener for vizualisation
+    VizualisationListener(cfg).setup_viz_event_handler()  # setup the listener for vizualisation
 
     return agents, krm, exploration_usecases
 
@@ -46,7 +46,7 @@ def perform_exploration_demo(
     my_logger = logging.getLogger(__name__)
 
     """ Main Logic"""
-    while exploration_usecases[0].no_frontiers_remaining is False:
+    while exploration_usecases[0].ExplorationStrategy.no_frontiers_remaining is False:
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
@@ -72,7 +72,7 @@ def perform_exploration_demo(
 
     event.post_event("figure final result", {"krm": krm, "agents": agents})
 
-    return exploration_usecases[0].no_frontiers_remaining
+    return exploration_usecases[0].ExplorationStrategy.no_frontiers_remaining
 
 
 def main(cfg: Config):
@@ -97,6 +97,6 @@ if __name__ == "__main__":
     # cfg = Config(world=World.SIM_VILLA, num_agents=10)
     # cfg = Config(world=World.SIM_MAZE_MEDIUM)
     # cfg = Config(world=World.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
-    cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
+    # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 
     main(cfg)

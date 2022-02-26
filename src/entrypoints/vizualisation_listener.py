@@ -1,12 +1,12 @@
 # OBSERVER PATTERN
 
-from src.entities.event import subscribe
+from src.utils.event import subscribe
 from src.entrypoints.mpl_vizualisation import MplVizualisation
 from src.entrypoints.vedo_vizualisation import VedoVisualisation
 from src.utils.config import Config, Vizualiser, PlotLvl
 
 
-class VizListener():
+class VizualisationListener():
 
     def __init__(self, cfg: Config):
         self.cfg = cfg
