@@ -23,6 +23,8 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
 
         self.cfg = cfg
 
+
+    """Target Selection"""
     ############################################################################################
     # ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ########################################
     ############################################################################################
@@ -87,6 +89,8 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             self.no_frontiers_remaining = True
             return None
 
+
+    """Path/Plan generation"""
     def find_path_to_selected_frontier(
         self, agent: AbstractAgent, target_frontier, krm: KnowledgeRoadmap
     ):
@@ -114,6 +118,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             krm.add_frontier(frontier_pos_global, agent.at_wp)
 
+    """Path Execution"""
     def sample_waypoint_from_pose(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap
     ) -> None:
@@ -130,30 +135,6 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             agent.get_localization(), self.cfg.AT_WP_MARGIN, "waypoint"
         )[0]
 
-    # TODO: this can go to KRM
-    def get_nodes_of_type_in_radius(
-        self, pos: tuple, radius: float, node_type: str, krm: KnowledgeRoadmap
-    ) -> list:
-        """
-        Given a position, a radius and a node type, return a list of nodes of that type that are within the radius of the position.
-
-        :param pos: the position of the agent
-        :param radius: the radius of the circle
-        :param node_type: the type of node to search for
-        :return: The list of nodes that are close to the given position.
-        """
-        close_nodes = []
-        for node in krm.graph.nodes:
-            data = krm.get_node_data_by_idx(node)
-            if data["type"] == node_type:
-                node_pos = data["pos"]
-                if (
-                    abs(pos[0] - node_pos[0]) < radius
-                    and abs(pos[1] - node_pos[1]) < radius
-                ):
-                    close_nodes.append(node)
-        return close_nodes
-
     def prune_frontiers(self, krm: KnowledgeRoadmap) -> None:
         """obtain all the frontier nodes in krm in a certain radius around the current position"""
 
@@ -161,8 +142,9 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
 
         for wp in waypoints:
             wp_pos = krm.get_node_data_by_idx(wp)["pos"]
-            close_frontiers = self.get_nodes_of_type_in_radius(
-                wp_pos, self.cfg.PRUNE_RADIUS, "frontier", krm
+            # close_frontiers = self.get_nodes_of_type_in_radius(
+            close_frontiers = krm.get_nodes_of_type_in_margin(
+                wp_pos, self.cfg.PRUNE_RADIUS, "frontier"
             )
             for frontier in close_frontiers:
                 krm.remove_frontier(frontier)
@@ -232,7 +214,10 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
         )
 
+
+    """Main logic combining the above to perform a mission step"""
     # TODO: make this a generalized strategy
+    # TODO: break this logic up in several more high level functions.
     def run_exploration_step(self, agent: AbstractAgent, krm: KnowledgeRoadmap):
 
         # sampling for the first time
@@ -283,11 +268,10 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
 
         # FIXME: multi: when one agent removes the frontier of another one it breaks
         # add a check if the selected frontier still exists, otherwise remove it
-        arrival_margin = 0.5
         if (
             len(
                 krm.get_nodes_of_type_in_margin(
-                    agent.get_localization(), arrival_margin, "frontier"
+                    agent.get_localization(), self.cfg.ARRIVAL_MARGIN, "frontier"
                 )
             )
             >= 1
@@ -311,3 +295,27 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             return lg
 
         self._logger.warning(f"{agent.name}:no exploration condition triggered")
+
+#    # TODO: this can go to KRM
+#     def get_nodes_of_type_in_radius(
+#         self, pos: tuple, radius: float, node_type: str, krm: KnowledgeRoadmap
+#     ) -> list:
+#         """
+#         Given a position, a radius and a node type, return a list of nodes of that type that are within the radius of the position.
+
+#         :param pos: the position of the agent
+#         :param radius: the radius of the circle
+#         :param node_type: the type of node to search for
+#         :return: The list of nodes that are close to the given position.
+#         """
+#         close_nodes = []
+#         for node in krm.graph.nodes:
+#             data = krm.get_node_data_by_idx(node)
+#             if data["type"] == node_type:
+#                 node_pos = data["pos"]
+#                 if (
+#                     abs(pos[0] - node_pos[0]) < radius
+#                     and abs(pos[1] - node_pos[1]) < radius
+#                 ):
+#                     close_nodes.append(node)
+#         return close_nodes

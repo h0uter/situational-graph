@@ -60,9 +60,9 @@ class Config:
         self.PATH_FINDING_METHOD = "bellman-ford"
         self.N_SAMPLES = 25
         self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * self.PRUNE_RADIUS_FACTOR
-
         self.AT_WP_MARGIN = 0.25
         self.PREV_POS_MARGIN = 0.15
+        self.ARRIVAL_MARGIN = 0.5
 
         # SIM PARAMS
         self.NUM_AGENTS = num_agents
