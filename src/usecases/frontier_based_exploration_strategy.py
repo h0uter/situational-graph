@@ -9,11 +9,13 @@ from src.entities.local_grid import LocalGrid
 from src.usecases.exploration_strategy import ExplorationStrategy
 from src.utils.event import post_event
 from src.utils.config import Config
+from src.utils.my_types import Node
 
 
 class FrontierBasedExplorationStrategy(ExplorationStrategy):
     def __init__(self, cfg: Config) -> None:
-        self._logger = logging.getLogger(__name__)
+        super().__init__(cfg)
+        # self._logger = logging.getLogger(__name__)
 
         # FIXME: statefull exploration case is preventing multiagent exploration
         self.consumable_path = None
@@ -21,7 +23,21 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         self.init = False
         self.no_frontiers_remaining = False
 
-        self.cfg = cfg
+        # self.cfg = cfg
+
+    # HACK: this is the old school class with the old behaviour that soon will be replaced by v2
+    def target_selection(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> Node:
+        pass
+
+    def path_generation(
+        self, agent: AbstractAgent, krm: KnowledgeRoadmap, target_node: Union[str, int]
+    ) -> list[Node]:
+        pass
+
+    def path_execution(
+        self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path: list[Node]
+    ) -> Union[tuple[KnowledgeRoadmap, AbstractAgent, list[Node]], None]:
+        pass
 
     """Target Selection"""
     ############################################################################################
@@ -83,7 +99,8 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
 
         else:
             self._logger.debug(f"{agent.name}: No frontiers left to explore")
-            self.no_frontiers_remaining = True
+            self.no_frontiers_remaining = True  # can almost remove
+            self.exploration_completed = True
             return None
 
     """Path/Plan generation"""
@@ -97,14 +114,20 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         :param target_frontier: the frontier that we want to reach
         :return: The path to the selected frontier.
         """
-        path = nx.shortest_path(krm.graph, source=agent.at_wp, target=target_frontier)
+        path = nx.shortest_path(
+            krm.graph,
+            source=agent.at_wp,
+            target=target_frontier,
+            weight="cost",
+            method=self.cfg.PATH_FINDING_METHOD
+        )
         if len(path) > 1:
             return path
         else:
             # raise ValueError("No path found")
             self._logger.error(f"{agent.name}: No path found")
 
-    def real_sample_step(
+    def obtain_and_process_new_frontiers(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
     ) -> None:
         frontiers_cells = lg.sample_frontiers_on_cellmap(
@@ -183,6 +206,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             agent.move_to_pos(node_data["pos"])
             # FIXME: this can return none if world object nodes are included in the graph.
             # can just give them infinite weight... should solve it by performing shortest path over a subgraph.
+            # BUG: can still randomly think the agent is at a world object if it is very close to the frontier.
             agent.at_wp = krm.get_nodes_of_type_in_margin(
                 agent.pos, self.cfg.AT_WP_MARGIN, "waypoint"
             )[0]
@@ -224,7 +248,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         if not self.init:
             lg = self.get_lg(agent)
 
-            self.real_sample_step(agent, krm, lg)
+            self.obtain_and_process_new_frontiers(agent, krm, lg)
             self.init = True
             post_event("new lg", lg)
             return agent, krm
@@ -283,7 +307,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
 
             self.sample_waypoint_from_pose(agent, krm)
             lg = self.get_lg(agent)
-            self.real_sample_step(agent, krm, lg)
+            self.obtain_and_process_new_frontiers(agent, krm, lg)
             self.prune_frontiers(krm)
             self.find_shortcuts_between_wps(lg, krm, agent)
             w_os = agent.look_for_world_objects_in_perception_scene()
