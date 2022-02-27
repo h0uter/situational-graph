@@ -82,19 +82,9 @@ class VedoVisualisation(AbstractVizualisation):
 
         return pos_dict
 
-        
-
     # @print_timing
     def viz_all(self, krm, agents, usecases=None):
         actors = []
-
-        # positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
-        # pos_dict = positions_of_all_nodes
-
-        # # scale the sizes to the scale of the simulated map image
-        # # TODO: make list comprehension
-        # for pos in pos_dict:
-        #     pos_dict[pos] = tuple([self.factor * x for x in pos_dict[pos]])
 
         pos_dict = self.get_scaled_pos_dict(krm)
 
@@ -105,15 +95,6 @@ class VedoVisualisation(AbstractVizualisation):
             raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
             raw_edg = vedo.Lines(raw_lines).lw(2)
             actors.append(raw_edg)
-
-        # def get_nodes_by_type(krm, node_type):
-        #     return list(
-        #         dict(
-        #             (n, d["type"])
-        #             for n, d in krm.graph.nodes().items()
-        #             if d["type"] == node_type
-        #         ).keys()
-        #     )
 
         waypoint_nodes = self.get_nodes_by_type(krm, "waypoint")
         wps = [pos_dict[wp] for wp in waypoint_nodes]
@@ -151,16 +132,28 @@ class VedoVisualisation(AbstractVizualisation):
         self.annoying_captions = list()
 
     def viz_action_graph(
-        self, actors: list, krm: KnowledgeRoadmap, usecases: Sequence[ExplorationUsecase]
+        self,
+        actors: list,
+        krm: KnowledgeRoadmap,
+        usecases: Sequence[ExplorationUsecase],
     ):
         pos_dict = self.get_scaled_pos_dict(krm)
+        action_path_offsett = self.factor * 5
+
         for usecase in usecases:
             if usecase.exploration_strategy.action_path:
                 action_path = usecase.exploration_strategy.action_path
                 path_actions_points = [pos_dict[node] for node in action_path]
-                path_actions_actors = vedo.Points(path_actions_points, r=8, c="FireBrick").z(self.factor * 5)
+                path_actions_actors = vedo.Points(
+                    path_actions_points, r=8, c="FireBrick"
+                ).z(action_path_offsett)
                 actors.append(path_actions_actors)
 
+                ed_ls = [action_path[i : i + 2] for i in range(len(action_path) - 1)]
+
+                raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
+                edge_actors = vedo.Lines(raw_lines, c="r").lw(10).z(action_path_offsett)
+                actors.append(edge_actors)
 
                 # scale the sizes to the scale of the simulated map image
         # pass
