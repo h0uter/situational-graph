@@ -24,7 +24,8 @@ class VizualisationListener():
         if self.cfg.PLOT_LVL == PlotLvl.ALL or self.cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
             krm = data["krm"]
             agents = data["agents"]
-            self.viz.figure_update(krm, agents, self.lg)
+            usecases = data["usecases"]
+            self.viz.figure_update(krm, agents, self.lg, usecases)
 
     def handle_figure_final_result_event(self, data):
         if self.cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or self.cfg.PLOT_LVL == PlotLvl.ALL:

@@ -65,7 +65,7 @@ def perform_exploration_demo(
 
         my_logger.debug("--------------------------------------------------------")
         """ Visualisation """
-        event.post_event("figure update", {"krm": krm, "agents": agents})
+        event.post_event("figure update", {"krm": krm, "agents": agents, "usecases": exploration_usecases})
 
         if step % 50 == 0:
             s = f"sim step = {step} took {time.perf_counter() - step_start:.4f}s, with {agents[0].steps_taken} move actions"
@@ -82,7 +82,7 @@ def perform_exploration_demo(
         """
     )
 
-    event.post_event("figure final result", {"krm": krm, "agents": agents})
+    event.post_event("figure final result", {"krm": krm, "agents": agents, "usecases": exploration_usecases})
 
     return exploration_usecases[0].exploration_strategy.exploration_completed
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     cfg = Config()
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
     # cfg = Config(num_agents=15, scenario=Scenario.SIM_MAZE)
-    cfg = Config(num_agents=3)
+    cfg = Config(num_agents=1)
     # cfg = Config(num_agents=15, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)

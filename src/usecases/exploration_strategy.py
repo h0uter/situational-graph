@@ -9,8 +9,6 @@ from src.utils.my_types import Node
 
 
 class ExplorationStrategy(ABC):
-
-
     def __init__(self, cfg: Config) -> None:
         self._log = logging.getLogger(__name__)
         self.cfg = cfg
@@ -19,9 +17,7 @@ class ExplorationStrategy(ABC):
         self.target_node = None
 
     # CONTEXT
-    def run_exploration_step(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap
-    ) -> bool:
+    def run_exploration_step(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> bool:
         something_was_done = False
 
         if not self.target_node:
@@ -43,7 +39,9 @@ class ExplorationStrategy(ABC):
                 self._log.debug(f"{agent.name}: Action path execution finished.")
                 self.target_node = None
                 self.action_path = None
-                if self.check_completion(krm):  # only ever have to check completion here
+                if self.check_completion(
+                    krm
+                ):  # only ever have to check completion here
                     self._log.debug(f"{agent.name}: Exploration completed.")
                     self.exploration_completed = True
 
@@ -76,5 +74,7 @@ class ExplorationStrategy(ABC):
         pass
 
     @abstractmethod
-    def check_target_still_valid(self, krm: KnowledgeRoadmap, target_node: Node) -> bool:
+    def check_target_still_valid(
+        self, krm: KnowledgeRoadmap, target_node: Node
+    ) -> bool:
         pass

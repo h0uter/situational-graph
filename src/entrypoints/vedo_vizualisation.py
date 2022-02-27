@@ -8,6 +8,7 @@ from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
+from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, Scenario
 
 # from src.utils.print_timing import print_timing
@@ -42,20 +43,35 @@ class VedoVisualisation(AbstractVizualisation):
         time.sleep(0.1)
 
     def figure_update(
-        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: Union[None, LocalGrid]
+        self,
+        krm: KnowledgeRoadmap,
+        agents: Sequence[AbstractAgent],
+        lg: Union[None, LocalGrid],
+        usecases: Sequence[ExplorationUsecase],
     ) -> None:
-        self.viz_all(krm, agents)
+        # TODO: move viz all into here directly
+        self.viz_all(krm, agents, usecases)
 
     def figure_final_result(
-        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: Union[None, LocalGrid]
+        self,
+        krm: KnowledgeRoadmap,
+        agents: Sequence[AbstractAgent],
+        lg: Union[None, LocalGrid],
     ) -> None:
-        self.figure_update(krm, agents, lg)
+        # self.figure_update(krm, agents, lg)
+        self.viz_all(krm, agents)
         self.plt.show(interactive=True, resetcam=True)
 
-    # @print_timing
-    def viz_all(self, krm, agents):
-        actors = []
+    def get_nodes_by_type(self, krm, node_type):
+        return list(
+            dict(
+                (n, d["type"])
+                for n, d in krm.graph.nodes().items()
+                if d["type"] == node_type
+            ).keys()
+        )
 
+    def get_scaled_pos_dict(self, krm) -> dict:
         positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
         pos_dict = positions_of_all_nodes
 
@@ -63,6 +79,24 @@ class VedoVisualisation(AbstractVizualisation):
         # TODO: make list comprehension
         for pos in pos_dict:
             pos_dict[pos] = tuple([self.factor * x for x in pos_dict[pos]])
+
+        return pos_dict
+
+        
+
+    # @print_timing
+    def viz_all(self, krm, agents, usecases=None):
+        actors = []
+
+        # positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
+        # pos_dict = positions_of_all_nodes
+
+        # # scale the sizes to the scale of the simulated map image
+        # # TODO: make list comprehension
+        # for pos in pos_dict:
+        #     pos_dict[pos] = tuple([self.factor * x for x in pos_dict[pos]])
+
+        pos_dict = self.get_scaled_pos_dict(krm)
 
         ed_ls = list(krm.graph.edges)
 
@@ -72,31 +106,34 @@ class VedoVisualisation(AbstractVizualisation):
             raw_edg = vedo.Lines(raw_lines).lw(2)
             actors.append(raw_edg)
 
-        def get_nodes_by_type(krm, node_type):
-            return list(
-                dict(
-                    (n, d["type"])
-                    for n, d in krm.graph.nodes().items()
-                    if d["type"] == node_type
-                ).keys()
-            )
+        # def get_nodes_by_type(krm, node_type):
+        #     return list(
+        #         dict(
+        #             (n, d["type"])
+        #             for n, d in krm.graph.nodes().items()
+        #             if d["type"] == node_type
+        #         ).keys()
+        #     )
 
-        waypoint_nodes = get_nodes_by_type(krm, "waypoint")
+        waypoint_nodes = self.get_nodes_by_type(krm, "waypoint")
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         self.wp_counter.append(len(wps))
         # waypoints = vedo.Points(wps, r=8, c="r")
         waypoints = vedo.Points(wps, r=8, c="FireBrick")
         actors.append(waypoints)
 
-        frontier_nodes = get_nodes_by_type(krm, "frontier")
+        frontier_nodes = self.get_nodes_by_type(krm, "frontier")
         fts = [pos_dict[f] for f in frontier_nodes]
         self.ft_counter.append(len(fts))
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
-        world_object_nodes = get_nodes_by_type(krm, "world_object")
+        world_object_nodes = self.get_nodes_by_type(krm, "world_object")
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict)
         actors = self.add_agents(agents, actors)
+
+        if usecases is not None:
+            self.viz_action_graph(actors, krm, usecases)
 
         # lbox = vedo.LegendBox([world_objects], font="roboto", width=0.25)
         # lbox = vedo.LegendBox([world_objects], width=0.25)
@@ -105,15 +142,28 @@ class VedoVisualisation(AbstractVizualisation):
         # print(f"the num of actors is {len(actors)}")
 
         self.plt.show(
-            actors,
-            interactive=False,
-            resetcam=False,
+            actors, interactive=False, resetcam=False,
         )
         self.clear_annoying_captions()
 
     def clear_annoying_captions(self):
         self.plt.clear(self.annoying_captions)
         self.annoying_captions = list()
+
+    def viz_action_graph(
+        self, actors: list, krm: KnowledgeRoadmap, usecases: Sequence[ExplorationUsecase]
+    ):
+        pos_dict = self.get_scaled_pos_dict(krm)
+        for usecase in usecases:
+            if usecase.exploration_strategy.action_path:
+                action_path = usecase.exploration_strategy.action_path
+                path_actions_points = [pos_dict[node] for node in action_path]
+                path_actions_actors = vedo.Points(path_actions_points, r=8, c="FireBrick").z(self.factor * 5)
+                actors.append(path_actions_actors)
+
+
+                # scale the sizes to the scale of the simulated map image
+        # pass
 
     def add_agents(self, agents, actors):
         for agent in agents:
@@ -132,7 +182,7 @@ class VedoVisualisation(AbstractVizualisation):
             actors.append(agent_sphere)
             self.annoying_captions.append(agent_sphere._caption)
             # actors.extend([agent_sphere, vig])
-  
+
         return actors
 
     def add_world_object_nodes(self, world_object_nodes, actors, pos_dict):
