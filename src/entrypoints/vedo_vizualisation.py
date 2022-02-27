@@ -149,18 +149,38 @@ class VedoVisualisation(AbstractVizualisation):
                 for node in action_path:
                     if node not in pos_dict:
                         return
-                
-                path_actions_points = [pos_dict[node] for node in action_path]
-                path_actions_actors = vedo.Points(
-                    path_actions_points, r=8, c="FireBrick"
-                ).z(action_path_offsett)
-                actors.append(path_actions_actors)
+
+                # path_actions_points = [pos_dict[node] for node in action_path]
+                # path_actions_actors = vedo.Points(
+                #     path_actions_points, r=8, c="FireBrick"
+                # ).z(action_path_offsett)
+                # actors.append(path_actions_actors)
 
                 ed_ls = [action_path[i : i + 2] for i in range(len(action_path) - 1)]
 
                 raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
-                edge_actors = vedo.Lines(raw_lines, c="r").lw(10).z(action_path_offsett)
-                actors.append(edge_actors)
+                frontier_edge = raw_lines.pop()
+                wp_edge_actors = (
+                    vedo.Lines(raw_lines, c="r", alpha=0.5).lw(10).z(action_path_offsett)
+                )
+
+                # wp_arrow_starts = [(x[0], x[1], 0) for x, y in raw_lines]
+                # wp_arrow_ends = [(y[0], y[1], 0) for x, y in raw_lines]
+                # if wp_arrow_ends and wp_arrow_starts:
+                #     wp_edge_actors = (
+                #         vedo.Arrows(wp_arrow_starts, wp_arrow_ends, c="r", thickness=3, alpha=0.2).z(action_path_offsett)
+                #     )
+
+                actors.append(wp_edge_actors)
+
+                print(f"======frontier edge is {frontier_edge}")
+                arrow_start = (frontier_edge[0][0], frontier_edge[0][1], 0)
+                arrow_end = (frontier_edge[1][0], frontier_edge[1][1], 0)
+                ft_edge_actor = (
+                    vedo.Arrow(arrow_start, arrow_end, c="g", s=1.5)
+                    .z(action_path_offsett)
+                )
+                actors.append(ft_edge_actor)
 
                 # scale the sizes to the scale of the simulated map image
         # pass
