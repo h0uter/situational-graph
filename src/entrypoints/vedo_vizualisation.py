@@ -173,7 +173,6 @@ class VedoVisualisation(AbstractVizualisation):
 
                 actors.append(wp_edge_actors)
 
-                print(f"======frontier edge is {frontier_edge}")
                 arrow_start = (frontier_edge[0][0], frontier_edge[0][1], 0)
                 arrow_end = (frontier_edge[1][0], frontier_edge[1][1], 0)
                 ft_edge_actor = (

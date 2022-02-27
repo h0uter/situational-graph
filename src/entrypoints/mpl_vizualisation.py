@@ -323,7 +323,7 @@ class MplVizualisation(AbstractVizualisation):
             )
 
     def figure_update(
-        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid
+        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
     ) -> None:
         timer = False
         start = time.perf_counter()

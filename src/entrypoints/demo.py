@@ -119,7 +119,7 @@ if __name__ == "__main__":
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
     # cfg = Config(num_agents=15, scenario=Scenario.SIM_MAZE)
     # cfg = Config(num_agents=2)
-    cfg = Config(num_agents=15, scenario=Scenario.SIM_MAZE_MEDIUM)
+    # cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
     # cfg = Config(scenario=Scenario.SIM_MAZE)
@@ -131,6 +131,6 @@ if __name__ == "__main__":
     # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)
     # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
-    # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
+    cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 
     main(cfg)
