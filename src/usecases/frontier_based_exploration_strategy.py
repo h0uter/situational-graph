@@ -320,7 +320,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         self, lg: LocalGrid, krm: KnowledgeRoadmap, agent: AbstractAgent
     ):
         close_nodes = krm.get_nodes_of_type_in_margin(
-            lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, "waypoint"
+            lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, "waypoint"
         )
         points = []
         for node in close_nodes:

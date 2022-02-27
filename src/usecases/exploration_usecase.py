@@ -6,8 +6,7 @@ from src.utils.config import Config
 
 class ExplorationUsecase:
     def __init__(self, cfg: Config) -> None:
-        self.ExplorationStrategy = FrontierBasedExplorationStrategy(cfg)
+        self.exploration_strategy = FrontierBasedExplorationStrategy(cfg)
 
     def run_usecase_step(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> bool:
-        _, _, completed = self.ExplorationStrategy.run_exploration_step(agent, krm)
-        return completed
+        return self.exploration_strategy.run_exploration_step(agent, krm)

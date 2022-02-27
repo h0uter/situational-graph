@@ -125,7 +125,7 @@ class VedoVisualisation(AbstractVizualisation):
             actors.append(local_grid_viz)
             # agent_sphere = vedo.Point(agent_pos, r=25, c="b")
             # agent_sphere = vedo.Point(agent_pos, r=25, c="royal_blue")
-            agent_sphere = vedo.Point(agent_pos, r=25, c="dodger_blue")
+            agent_sphere = vedo.Point(agent_pos, r=25, c="dodger_blue", alpha=0.7)
             agent_label = f"Agent {agent.name}"
             agent_sphere.caption(agent_label, size=(0.05, 0.025))
             # vig = agent_sphere.vignette(agent_label, offset=[0, 0, 3 * self.factor], s=self.factor)

@@ -21,7 +21,7 @@ class ExplorationStrategy(ABC):
     # CONTEXT
     def run_exploration_step(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap
-    ) -> tuple[AbstractAgent, KnowledgeRoadmap, bool]:
+    ) -> bool:
         something_was_done = False
 
         if not self.target_node:
@@ -53,7 +53,7 @@ class ExplorationStrategy(ABC):
 
         if not something_was_done:
             logging.warning("No exploration step taken")
-        return agent, krm, self.exploration_completed
+        return self.exploration_completed
 
     @abstractmethod
     def target_selection(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> Node:

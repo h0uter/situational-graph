@@ -48,19 +48,19 @@ def perform_exploration_demo(
     my_logger = logging.getLogger(__name__)
 
     for agent in agents:
-        exploration_usecases[agent.name].ExplorationStrategy.localize_agent_to_wp(
+        exploration_usecases[agent.name].exploration_strategy.localize_agent_to_wp(
             agent, krm
         )
 
     """ Main Logic"""
     # TODO: this condition should be checked for any of the agents
     # while exploration_usecases[0].ExplorationStrategy.exploration_completed is False:
-    while not any(exploration_usecase.ExplorationStrategy.exploration_completed is True for exploration_usecase in exploration_usecases):
+    while not any(exploration_usecase.exploration_strategy.exploration_completed is True for exploration_usecase in exploration_usecases):
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
-            exploration_completed = exploration_usecases[agent_idx].run_usecase_step(agents[agent_idx], krm)
-            if exploration_completed:
+            if exploration_usecases[agent_idx].run_usecase_step(agents[agent_idx], krm):
+                my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
 
         my_logger.debug("--------------------------------------------------------")
@@ -84,7 +84,7 @@ def perform_exploration_demo(
 
     event.post_event("figure final result", {"krm": krm, "agents": agents})
 
-    return exploration_usecases[0].ExplorationStrategy.exploration_completed
+    return exploration_usecases[0].exploration_strategy.exploration_completed
 
 
 def main(cfg: Config):
