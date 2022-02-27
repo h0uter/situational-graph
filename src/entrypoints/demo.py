@@ -55,7 +55,10 @@ def perform_exploration_demo(
     """ Main Logic"""
     # TODO: this condition should be checked for any of the agents
     # while exploration_usecases[0].ExplorationStrategy.exploration_completed is False:
-    while not any(exploration_usecase.exploration_strategy.exploration_completed is True for exploration_usecase in exploration_usecases):
+    while not any(
+        exploration_usecase.exploration_strategy.exploration_completed is True
+        for exploration_usecase in exploration_usecases
+    ):
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
@@ -63,9 +66,12 @@ def perform_exploration_demo(
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
 
-        my_logger.debug("--------------------------------------------------------")
         """ Visualisation """
-        event.post_event("figure update", {"krm": krm, "agents": agents, "usecases": exploration_usecases})
+        my_logger.debug("--------------------------------------------------------")
+        event.post_event(
+            "figure update",
+            {"krm": krm, "agents": agents, "usecases": exploration_usecases},
+        )
 
         if step % 50 == 0:
             s = f"sim step = {step} took {time.perf_counter() - step_start:.4f}s, with {agents[0].steps_taken} move actions"
@@ -82,7 +88,10 @@ def perform_exploration_demo(
         """
     )
 
-    event.post_event("figure final result", {"krm": krm, "agents": agents, "usecases": exploration_usecases})
+    event.post_event(
+        "figure final result",
+        {"krm": krm, "agents": agents, "usecases": exploration_usecases},
+    )
 
     return exploration_usecases[0].exploration_strategy.exploration_completed
 
@@ -96,8 +105,8 @@ def main(cfg: Config):
 def benchmark_func():
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     cfg = Config(
-        plot_lvl=PlotLvl.NONE, 
-        num_agents=15, 
+        plot_lvl=PlotLvl.NONE,
+        num_agents=15,
         # scenario=Scenario.SIM_MAZE_MEDIUM
     )
     main(cfg)
@@ -109,7 +118,7 @@ if __name__ == "__main__":
     cfg = Config()
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
     # cfg = Config(num_agents=15, scenario=Scenario.SIM_MAZE)
-    # cfg = Config(num_agents=1)
+    cfg = Config(num_agents=2)
     # cfg = Config(num_agents=15, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
@@ -120,7 +129,7 @@ if __name__ == "__main__":
     # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
     # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)
-    cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM)
+    # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 

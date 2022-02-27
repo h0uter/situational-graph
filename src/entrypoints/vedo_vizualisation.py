@@ -114,7 +114,7 @@ class VedoVisualisation(AbstractVizualisation):
         actors = self.add_agents(agents, actors)
 
         if usecases is not None:
-            self.viz_action_graph(actors, krm, usecases)
+            self.viz_action_graph(actors, krm, usecases, pos_dict)
 
         # lbox = vedo.LegendBox([world_objects], font="roboto", width=0.25)
         # lbox = vedo.LegendBox([world_objects], width=0.25)
@@ -136,13 +136,20 @@ class VedoVisualisation(AbstractVizualisation):
         actors: list,
         krm: KnowledgeRoadmap,
         usecases: Sequence[ExplorationUsecase],
+        pos_dict: dict,
     ):
-        pos_dict = self.get_scaled_pos_dict(krm)
+        # pos_dict = self.get_scaled_pos_dict(krm)
         action_path_offsett = self.factor * 5
 
         for usecase in usecases:
             if usecase.exploration_strategy.action_path:
                 action_path = usecase.exploration_strategy.action_path
+
+                # HACK TO fix frontier already being removed from krm by one agent in final step
+                for node in action_path:
+                    if node not in pos_dict:
+                        return
+                
                 path_actions_points = [pos_dict[node] for node in action_path]
                 path_actions_actors = vedo.Points(
                     path_actions_points, r=8, c="FireBrick"
