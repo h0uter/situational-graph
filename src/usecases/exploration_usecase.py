@@ -8,5 +8,6 @@ class ExplorationUsecase:
     def __init__(self, cfg: Config) -> None:
         self.ExplorationStrategy = FrontierBasedExplorationStrategy(cfg)
 
-    def run_usecase_step(self, agent: AbstractAgent, krm: KnowledgeRoadmap):
-        self.ExplorationStrategy.run_exploration_step(agent, krm)
+    def run_usecase_step(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> bool:
+        _, _, completed = self.ExplorationStrategy.run_exploration_step(agent, krm)
+        return completed

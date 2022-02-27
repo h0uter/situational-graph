@@ -48,15 +48,20 @@ def perform_exploration_demo(
     my_logger = logging.getLogger(__name__)
 
     for agent in agents:
-        exploration_usecases[agent.name].ExplorationStrategy.localize_agent_to_wp(agent, krm)
+        exploration_usecases[agent.name].ExplorationStrategy.localize_agent_to_wp(
+            agent, krm
+        )
 
     """ Main Logic"""
     # TODO: this condition should be checked for any of the agents
-    while exploration_usecases[0].ExplorationStrategy.exploration_completed is False:
+    # while exploration_usecases[0].ExplorationStrategy.exploration_completed is False:
+    while not any(exploration_usecase.ExplorationStrategy.exploration_completed is True for exploration_usecase in exploration_usecases):
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
-            exploration_usecases[agent_idx].run_usecase_step(agents[agent_idx], krm)
+            exploration_completed = exploration_usecases[agent_idx].run_usecase_step(agents[agent_idx], krm)
+            if exploration_completed:
+                break
 
         my_logger.debug("--------------------------------------------------------")
         """ Visualisation """
@@ -87,9 +92,14 @@ def main(cfg: Config):
     success = perform_exploration_demo(cfg, agents, krm, exploration_usecases)
     return success
 
+
 def benchmark_func():
     # cfg = Config(plot_lvl=PlotLvl.NONE)
-    cfg = Config(plot_lvl=PlotLvl.NONE, num_agents=15, scenario=Scenario.SIM_MAZE_MEDIUM)
+    cfg = Config(
+        plot_lvl=PlotLvl.NONE, 
+        num_agents=15, 
+        # scenario=Scenario.SIM_MAZE_MEDIUM
+    )
     main(cfg)
 
 
@@ -98,7 +108,9 @@ if __name__ == "__main__":
 
     cfg = Config()
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
-    cfg = Config(num_agents=15, scenario=Scenario.SIM_MAZE_MEDIUM)
+    # cfg = Config(num_agents=15, scenario=Scenario.SIM_MAZE)
+    cfg = Config(num_agents=3)
+    # cfg = Config(num_agents=15, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
     # cfg = Config(scenario=Scenario.SIM_MAZE)

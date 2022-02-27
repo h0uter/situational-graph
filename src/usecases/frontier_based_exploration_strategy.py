@@ -18,10 +18,14 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
 
         self.no_frontiers_remaining = False
 
+        # TODO: according to arjan the parameters for a certain strategy should be defined here.
+
     def target_selection(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> Node:
         num_of_frontiers = len(krm.get_all_frontiers_idxs())
         self._log.debug(f"{agent.name}: {num_of_frontiers} frontiers currently in krm")
         if num_of_frontiers < 1:
+            self._log.debug(f"{agent.name}: no frontiers left to explore, sampling one")
+
             lg = self.get_lg(agent)
             self.obtain_and_process_new_frontiers(agent, krm, lg)
             post_event("new lg", lg)
@@ -70,15 +74,18 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         self._log.debug(f"{agent.name}: at_destination: {at_destination}")
 
         if not action_path and at_destination:
-            """now we have visited the frontier we can remove it from the KRM and sample a waypoint in its place"""
-            self._log.debug(f"{agent.name}: frontier processing")
+            self._log.debug(f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place")
             krm.remove_frontier(next_node)
             # self.selected_frontier_idx = None
 
             self.sample_waypoint_from_pose(agent, krm)
             lg = self.get_lg(agent)
-            self.obtain_and_process_new_frontiers(agent, krm, lg) # XXX: this is my most expensive function, so I should try to optimize it
-            self.prune_frontiers(krm) # XXX: this is my 2nd expensive function, so I should try to optimize it
+            self.obtain_and_process_new_frontiers(
+                agent, krm, lg
+            )  # XXX: this is my most expensive function, so I should try to optimize it
+            self.prune_frontiers(
+                krm
+            )  # XXX: this is my 2nd expensive function, so I should try to optimize it
             self.find_shortcuts_between_wps(lg, krm, agent)
             w_os = agent.look_for_world_objects_in_perception_scene()
             for w_o in w_os:
@@ -278,7 +285,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         """
         # BUG:  this can make the agent teleport to a random frontier in the vicinty.
         # better would be to explicitly check if we reached the frontier we intended to reach.
-        # and if we didnt to attempt to walk to it again. To attempt to actually expand the krm 
+        # and if we didnt to attempt to walk to it again. To attempt to actually expand the krm
         # with the intended frontier and not a random one
         # HACK: just taking the first one from the list is not neccessarily the closest
         wp_at_previous_pos = krm.get_nodes_of_type_in_margin(
