@@ -8,7 +8,7 @@ from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.utils.config import Config, PlotLvl, World
+from src.utils.config import Config, PlotLvl, Scenario
 
 # from src.utils.print_timing import print_timing
 # from vedo.pyplot import plot
@@ -25,7 +25,7 @@ class VedoVisualisation(AbstractVizualisation):
 
         # NOTE: perhaps I just should not instantiate viz classes if we run headless
         if self.cfg.PLOT_LVL is not PlotLvl.NONE:
-            if self.cfg.WORLD is not World.REAL:
+            if self.cfg.SCENARIO is not Scenario.REAL:
                 map_pic = vedo.Picture(cfg.FULL_PATH)
                 map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
                 self.plt.show(map_pic, interactive=False)
@@ -36,6 +36,8 @@ class VedoVisualisation(AbstractVizualisation):
 
         self.wp_counter = []
         self.ft_counter = []
+
+        self.annoying_captions = list()
 
         time.sleep(0.1)
 
@@ -107,10 +109,15 @@ class VedoVisualisation(AbstractVizualisation):
             interactive=False,
             resetcam=False,
         )
+        self.clear_annoying_captions()
+
+    def clear_annoying_captions(self):
+        self.plt.clear(self.annoying_captions)
+        self.annoying_captions = list()
 
     def add_agents(self, agents, actors):
         for agent in agents:
-            agent_pos = [self.factor * agent.pos[0], self.factor * agent.pos[1], 0]
+            agent_pos = (self.factor * agent.pos[0], self.factor * agent.pos[1], 0)
             grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
             local_grid_viz = vedo.Grid(
                 pos=agent_pos, sx=grid_len, sy=grid_len, lw=2, alpha=0.3
@@ -118,8 +125,14 @@ class VedoVisualisation(AbstractVizualisation):
             actors.append(local_grid_viz)
             # agent_sphere = vedo.Point(agent_pos, r=25, c="b")
             # agent_sphere = vedo.Point(agent_pos, r=25, c="royal_blue")
-            agent_sphere = vedo.Point(agent_pos, r=25, c="dodger_blue")
+            agent_sphere = vedo.Point(agent_pos, r=25, c="dodger_blue", alpha=0.7)
+            agent_label = f"Agent {agent.name}"
+            agent_sphere.caption(agent_label, size=(0.05, 0.025))
+            # vig = agent_sphere.vignette(agent_label, offset=[0, 0, 3 * self.factor], s=self.factor)
             actors.append(agent_sphere)
+            self.annoying_captions.append(agent_sphere._caption)
+            # actors.extend([agent_sphere, vig])
+  
         return actors
 
     def add_world_object_nodes(self, world_object_nodes, actors, pos_dict):

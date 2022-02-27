@@ -1,4 +1,4 @@
-from src.utils.config import Config, World
+from src.utils.config import Config, Scenario
 
 
 class WorldObject:
@@ -11,7 +11,7 @@ class WorldObjectSpoofer:
     def __init__(self, cfg: Config) -> None:
         self.world_object_list = []
 
-        if cfg.WORLD == World.SIM_VILLA:
+        if cfg.SCENARIO == Scenario.SIM_VILLA:
             self.world_object_list = [
                 WorldObject((-15.5, 14), "victim1"),
                 WorldObject((14, -14), "fire1"),
