@@ -9,7 +9,7 @@ from src.usecases.exploration_strategy import ExplorationStrategy
 from src.utils.event import post_event
 from src.utils.config import Config
 
-from src.utils.my_types import Node, NodeType
+from src.utils.my_types import EdgeType, Node, NodeType
 
 
 class FrontierBasedExplorationStrategy(ExplorationStrategy):
@@ -340,5 +340,5 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
                     from_wp = agent.at_wp
                     to_wp = krm.get_node_by_pos(point)
                     krm.graph.add_edge(
-                        from_wp, to_wp, type="waypoint_edge", id=uuid.uuid4()
+                        from_wp, to_wp, type=EdgeType.WAYPOINT_EDGE, id=uuid.uuid4()
                     )

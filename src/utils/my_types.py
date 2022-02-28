@@ -9,5 +9,8 @@ class NodeType(Enum):
     WORLD_OBJECT = auto()
     FRONTIER = auto()
 
-# class EdgeType(Enum):
-    
+
+class EdgeType(Enum):
+    WAYPOINT_EDGE = auto()
+    FRONTIER_EDGE = auto()
+    WORLD_OBJECT_EDGE = auto()

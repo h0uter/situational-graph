@@ -3,7 +3,7 @@ import math
 import uuid
 
 import networkx as nx
-from src.utils.my_types import Node, NodeType
+from src.utils.my_types import EdgeType, Node, NodeType
 from enum import Enum, auto
 
 
@@ -51,7 +51,7 @@ class KnowledgeRoadmap:
 
         edge_len = self.calc_edge_len(self.next_wp_idx, prev_wp)
         self.graph.add_edge(
-            self.next_wp_idx, prev_wp, type="waypoint_edge", cost=edge_len
+            self.next_wp_idx, prev_wp, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
         )
         self.next_wp_idx += 1
 
@@ -62,7 +62,7 @@ class KnowledgeRoadmap:
         self.graph.add_edge(
             self.next_wp_idx - 1,
             label,
-            type="world_object_edge",
+            type=EdgeType.WORLD_OBJECT_EDGE,
             id=uuid.uuid4(),
             cost=float("inf"),
         )
@@ -83,7 +83,7 @@ class KnowledgeRoadmap:
         self.graph.add_edge(
             agent_at_wp,
             self.next_frontier_idx,
-            type="frontier_edge",
+            type=EdgeType.FRONTIER_EDGE,
             id=uuid.uuid4(),
             cost=cost,
         )

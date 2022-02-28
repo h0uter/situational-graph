@@ -9,7 +9,7 @@ from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
-from src.utils.my_types import NodeType
+from src.utils.my_types import EdgeType, NodeType
 
 
 class MplVizualisation(AbstractVizualisation):
@@ -117,17 +117,17 @@ class MplVizualisation(AbstractVizualisation):
         world_object_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == "world_object_edge"
+            if d["type"] == EdgeType.WORLD_OBJECT_EDGE
         )
         waypoint_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == "waypoint_edge"
+            if d["type"] == EdgeType.WAYPOINT_EDGE
         )
         frontier_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == "frontier_edge"
+            if d["type"] == EdgeType.FRONTIER_EDGE
         )
 
         """draw the nodes, edges and labels separately"""
