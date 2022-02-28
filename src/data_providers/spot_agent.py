@@ -27,6 +27,8 @@ from bosdyn.api import basic_command_pb2
 from bosdyn.api import local_grid_pb2
 from bosdyn.client.frame_helpers import *
 
+from src.data_providers.world_object_labels import create_wo_from_aruco
+
 
 from src.data_providers.spot_wrapper import SpotWrapper
 from src.entities.abstract_agent import AbstractAgent
@@ -153,8 +155,10 @@ class SpotAgent(AbstractAgent):
             if detected_fiducial:
                 # Go to the tag and stop within a certain distance
                 # self.go_to_tag(fiducial_rt_world)
-                print(f"fiducial_rt_world = {fiducial_rt_world}")
-                wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
+                # print(f"fiducial_rt_world = {fiducial_rt_world}")
+
+                # wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
+                wo = create_wo_from_aruco((fiducial_rt_world.x, fiducial_rt_world.y), fiducial.apriltag_properties.tag_id)
                 return [wo]
             else:
                 print("No fiducials found")
