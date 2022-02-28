@@ -189,11 +189,16 @@ class LocalGrid:
             x_center = self.length_num_cells // 2
             y_center = self.length_num_cells // 2
 
-            x_sample, y_sample = self.sample_cell_around_other_cell(
+            sample = self.sample_cell_around_other_cell(
                 x_center, y_center, radius=radius,
             )
+            if sample:
+                x_sample, y_sample = sample
 
-            candidate_frontiers.append((y_sample, x_sample))
+                candidate_frontiers.append((y_sample, x_sample))
+            else:
+                self._logger.warning(f"sample_cell_around_other_cell() returned None")
+                break
             # candidate_frontiers.append((x_sample, y_sample))
 
         # FIXME: this is hella random

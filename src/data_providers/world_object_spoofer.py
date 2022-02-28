@@ -1,10 +1,6 @@
 from src.utils.config import Config, Scenario
 
-
-class WorldObject:
-    def __init__(self, pos, name) -> None:
-        self.pos: tuple = pos
-        self.name: str = name
+from src.entities.world_object import WorldObject
 
 
 class WorldObjectSpoofer:
