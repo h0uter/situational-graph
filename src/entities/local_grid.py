@@ -3,6 +3,7 @@ import logging
 import numpy as np
 import numpy.typing as npt
 from skimage import draw
+
 from src.utils.config import Config, Scenario
 
 

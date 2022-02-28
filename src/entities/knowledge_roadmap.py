@@ -1,10 +1,9 @@
-import enum
 import math
 import uuid
 
 import networkx as nx
+
 from src.utils.my_types import EdgeType, Node, NodeType
-from enum import Enum, auto
 
 
 class KnowledgeRoadmap:

@@ -2,13 +2,13 @@ import uuid
 from typing import Union
 
 import networkx as nx
+
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.usecases.exploration_strategy import ExplorationStrategy
 from src.utils.event import post_event
 from src.utils.config import Config
-
 from src.utils.my_types import EdgeType, Node, NodeType
 
 

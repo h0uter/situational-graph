@@ -2,8 +2,8 @@ import logging
 import time
 from typing import Sequence
 
-
 import matplotlib
+
 from src.data_providers.simulated_agent import SimulatedAgent
 from src.data_providers.spot_agent import SpotAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap

@@ -4,6 +4,7 @@ from typing import Sequence, Union
 
 import networkx as nx
 import vedo
+
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid

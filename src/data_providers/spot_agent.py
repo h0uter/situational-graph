@@ -1,8 +1,17 @@
 import time
+
 from matplotlib import pyplot as plt
 import numpy as np
-
-# import all the boston shite
+import logging
+import numpy.typing as npt
+from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder
+from bosdyn.client import create_standard_sdk, ResponseError, RpcError
+from bosdyn.client.lease import Error as LeaseBaseError
+from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
+from bosdyn.api import world_object_pb2, basic_command_pb2, local_grid_pb2
+from bosdyn.api.geometry_pb2 import Quaternion
+from bosdyn.client import util
+from bosdyn.client.frame_helpers import *
 from bosdyn.client.frame_helpers import (
     BODY_FRAME_NAME,
     VISION_FRAME_NAME,
@@ -12,33 +21,12 @@ from bosdyn.client.frame_helpers import (
     get_vision_tform_body,
 )
 
-from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder
-from bosdyn.client import create_standard_sdk, ResponseError, RpcError
-from bosdyn.client.lease import Error as LeaseBaseError
-from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
-from bosdyn.api import world_object_pb2
-from bosdyn.api.geometry_pb2 import Quaternion
-from bosdyn.client import util
-
-from bosdyn.api import basic_command_pb2
-
-
-# local grid stuff
-from bosdyn.api import local_grid_pb2
-from bosdyn.client.frame_helpers import *
-
 from src.data_providers.world_object_labels import create_wo_from_aruco
-
-
 from src.data_providers.spot_wrapper import SpotWrapper
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.local_grid import LocalGrid
 from src.utils.get_login_config import get_login_config
-
-import logging
-import numpy.typing as npt
-
-from src.entities.world_object import WorldObject
+# from src.entities.world_object import WorldObject
 
 
 class SpotAgent(AbstractAgent):
@@ -146,8 +134,10 @@ class SpotAgent(AbstractAgent):
             fiducial = self.get_fiducial_objects()
             if fiducial is not None:
                 vision_tform_fiducial = get_a_tform_b(
-                    fiducial.transforms_snapshot, VISION_FRAME_NAME,
-                    fiducial.apriltag_properties.frame_name_fiducial).to_proto()
+                    fiducial.transforms_snapshot,
+                    VISION_FRAME_NAME,
+                    fiducial.apriltag_properties.frame_name_fiducial,
+                ).to_proto()
                 if vision_tform_fiducial is not None:
                     detected_fiducial = True
                     fiducial_rt_world = vision_tform_fiducial.position
@@ -158,7 +148,10 @@ class SpotAgent(AbstractAgent):
                 # print(f"fiducial_rt_world = {fiducial_rt_world}")
 
                 # wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
-                wo = create_wo_from_aruco((fiducial_rt_world.x, fiducial_rt_world.y), fiducial.apriltag_properties.tag_id)
+                wo = create_wo_from_aruco(
+                    (fiducial_rt_world.x, fiducial_rt_world.y),
+                    fiducial.apriltag_properties.tag_id,
+                )
                 return [wo]
             else:
                 print("No fiducials found")
@@ -170,14 +163,16 @@ class SpotAgent(AbstractAgent):
         # Get all fiducial objects (an object of a specific type).
         request_fiducials = [world_object_pb2.WORLD_OBJECT_APRILTAG]
         # fiducial_objects = self._world_object_client.list_world_objects(
-        fiducial_objects = self.spot_wrapper._clients["world_object"].list_world_objects(
-            object_type=request_fiducials).world_objects
+        fiducial_objects = (
+            self.spot_wrapper._clients["world_object"]
+            .list_world_objects(object_type=request_fiducials)
+            .world_objects
+        )
         if len(fiducial_objects) > 0:
             # Return the first detected fiducial.
             return fiducial_objects[0]
         # Return none if no fiducials are found.
         return None
-
 
     def _apply_mobility_parameters(self, quaternion=None):
         if quaternion is None:
@@ -239,7 +234,10 @@ class SpotAgent(AbstractAgent):
                 .result()
                 .feedback.synchronized_feedback.mobility_command_feedback.se2_trajectory_feedback.status
             )
-            if cmd_status == basic_command_pb2.SE2TrajectoryCommand.Feedback.STATUS_AT_GOAL:
+            if (
+                cmd_status
+                == basic_command_pb2.SE2TrajectoryCommand.Feedback.STATUS_AT_GOAL
+            ):
                 self._logger.info("Arrived at goal")
                 break
             time.sleep(0.1)  # wait 100ms before the next check

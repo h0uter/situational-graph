@@ -10,6 +10,7 @@ class NodeType(Enum):
     FRONTIER = auto()
 
 
+# this is the start for my knowledge base action types domain.pddl etc
 class EdgeType(Enum):
     WAYPOINT_EDGE = auto()
     FRONTIER_EDGE = auto()

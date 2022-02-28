@@ -1,8 +1,10 @@
 import time
 from typing import Sequence
+
 import matplotlib.pyplot as plt
 import networkx as nx
 from PIL import Image
+
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid

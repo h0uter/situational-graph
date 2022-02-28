@@ -1,5 +1,4 @@
 from src.utils.config import Config, Scenario
-
 from src.entities.world_object import WorldObject
 
 

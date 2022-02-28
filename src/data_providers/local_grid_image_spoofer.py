@@ -1,7 +1,8 @@
+import numpy.typing as npt
+from PIL import Image
+
 from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
-from PIL import Image
-import numpy.typing as npt
 
 
 class LocalGridImageSpoofer:
