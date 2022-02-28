@@ -9,7 +9,7 @@ from src.usecases.exploration_strategy import ExplorationStrategy
 from src.utils.event import post_event
 from src.utils.config import Config
 
-from src.utils.my_types import Node
+from src.utils.my_types import Node, NodeType
 
 
 class FrontierBasedExplorationStrategy(ExplorationStrategy):
@@ -66,7 +66,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         at_destination = (
             len(
                 krm.get_nodes_of_type_in_margin(
-                    agent.get_localization(), self.cfg.ARRIVAL_MARGIN, "frontier"
+                    agent.get_localization(), self.cfg.ARRIVAL_MARGIN, NodeType.FRONTIER
                 )
             )
             >= 1
@@ -239,7 +239,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             # can just give them infinite weight... should solve it by performing shortest path over a subgraph.
             # BUG: can still randomly think the agent is at a world object if it is very close to the frontier.
             agent.at_wp = krm.get_nodes_of_type_in_margin(
-                agent.pos, self.cfg.AT_WP_MARGIN, "waypoint"
+                agent.pos, self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
             )[0]
             path.pop(0)
             return path
@@ -252,7 +252,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         #     # can just give them infinite weight... should solve it by performing shortest path over a subgraph.
         #     # BUG: can still randomly think the agent is at a world object if it is very close to the frontier.
         #     agent.at_wp = krm.get_nodes_of_type_in_margin(
-        #         agent.pos, self.cfg.AT_WP_MARGIN, "waypoint"
+        #         agent.pos, self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
         #     )[0]
         #     path.pop(0)
         #     return path
@@ -291,17 +291,17 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         # HACK: just taking the first one from the list is not neccessarily the closest
         # BUG: list index out of range range
         wp_at_previous_pos = krm.get_nodes_of_type_in_margin(
-            agent.previous_pos, self.cfg.PREV_POS_MARGIN, "waypoint"
+            agent.previous_pos, self.cfg.PREV_POS_MARGIN, NodeType.WAYPOINT
         )[0]
         krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
         agent.at_wp = krm.get_nodes_of_type_in_margin(
-            agent.get_localization(), self.cfg.AT_WP_MARGIN, "waypoint"
+            agent.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
         )[0]
 
     # TODO: move this to agent class
     def localize_agent_to_wp(self, agent: AbstractAgent, krm: KnowledgeRoadmap):
         agent.at_wp = krm.get_nodes_of_type_in_margin(
-            agent.get_localization(), self.cfg.AT_WP_MARGIN, "waypoint"
+            agent.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
         )[0]
 
     def prune_frontiers(self, krm: KnowledgeRoadmap) -> None:
@@ -313,7 +313,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             wp_pos = krm.get_node_data_by_idx(wp)["pos"]
             # close_frontiers = self.get_nodes_of_type_in_radius(
             close_frontiers = krm.get_nodes_of_type_in_margin(
-                wp_pos, self.cfg.PRUNE_RADIUS, "frontier"
+                wp_pos, self.cfg.PRUNE_RADIUS, NodeType.FRONTIER
             )
             for frontier in close_frontiers:
                 krm.remove_frontier(frontier)
@@ -322,7 +322,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         self, lg: LocalGrid, krm: KnowledgeRoadmap, agent: AbstractAgent
     ):
         close_nodes = krm.get_nodes_of_type_in_margin(
-            lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, "waypoint"
+            lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, NodeType.WAYPOINT
         )
         points = []
         for node in close_nodes:
