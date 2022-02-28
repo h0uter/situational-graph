@@ -9,6 +9,7 @@ from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.utils.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
+from src.utils.my_types import EdgeType, NodeType
 
 
 class MplVizualisation(AbstractVizualisation):
@@ -101,32 +102,32 @@ class MplVizualisation(AbstractVizualisation):
         waypoint_nodes = dict(
             (n, d["type"])
             for n, d in krm.graph.nodes().items()
-            if d["type"] == "waypoint"
+            if d["type"] == NodeType.WAYPOINT
         )
         frontier_nodes = dict(
             (n, d["type"])
             for n, d in krm.graph.nodes().items()
-            if d["type"] == "frontier"
+            if d["type"] == NodeType.FRONTIER
         )
         world_object_nodes = dict(
             (n, d["type"])
             for n, d in krm.graph.nodes().items()
-            if d["type"] == "world_object"
+            if d["type"] == NodeType.WORLD_OBJECT
         )
         world_object_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == "world_object_edge"
+            if d["type"] == EdgeType.WORLD_OBJECT_EDGE
         )
         waypoint_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == "waypoint_edge"
+            if d["type"] == EdgeType.WAYPOINT_EDGE
         )
         frontier_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == "frontier_edge"
+            if d["type"] == EdgeType.FRONTIER_EDGE
         )
 
         """draw the nodes, edges and labels separately"""
@@ -271,7 +272,7 @@ class MplVizualisation(AbstractVizualisation):
             self.init_fig()
 
         close_nodes = krm.get_nodes_of_type_in_margin(
-            lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, "waypoint"
+            lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, NodeType.WA
         )
         points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
 

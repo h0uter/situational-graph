@@ -10,6 +10,7 @@ from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, Scenario
+from src.utils.my_types import NodeType
 
 # from src.utils.print_timing import print_timing
 # from vedo.pyplot import plot
@@ -97,20 +98,20 @@ class VedoVisualisation(AbstractVizualisation):
             raw_edg = vedo.Lines(raw_lines).lw(2)
             actors.append(raw_edg)
 
-        waypoint_nodes = self.get_nodes_by_type(krm, "waypoint")
+        waypoint_nodes = self.get_nodes_by_type(krm, NodeType.WAYPOINT)
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         self.wp_counter.append(len(wps))
         # waypoints = vedo.Points(wps, r=8, c="r")
         waypoints = vedo.Points(wps, r=8, c="FireBrick")
         actors.append(waypoints)
 
-        frontier_nodes = self.get_nodes_by_type(krm, "frontier")
+        frontier_nodes = self.get_nodes_by_type(krm, NodeType.FRONTIER)
         fts = [pos_dict[f] for f in frontier_nodes]
         self.ft_counter.append(len(fts))
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
-        world_object_nodes = self.get_nodes_by_type(krm, "world_object")
+        world_object_nodes = self.get_nodes_by_type(krm, NodeType.WORLD_OBJECT)
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict)
         actors = self.add_agents(agents, actors)
 

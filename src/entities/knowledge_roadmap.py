@@ -1,8 +1,11 @@
+import enum
 import math
 import uuid
 
 import networkx as nx
-from src.utils.my_types import Node
+from src.utils.my_types import EdgeType, Node, NodeType
+from enum import Enum, auto
+
 
 class KnowledgeRoadmap:
     """
@@ -30,7 +33,7 @@ class KnowledgeRoadmap:
     # add startpoints function
     def add_start_waypoints(self, pos: tuple) -> None:
         """ adds start points to the graph"""
-        self.graph.add_node(self.next_wp_idx, pos=pos, type="waypoint", id=uuid.uuid4())
+        self.graph.add_node(self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4())
         self.next_wp_idx += 1
 
     def calc_edge_len(self, node_a, node_b):
@@ -44,20 +47,22 @@ class KnowledgeRoadmap:
 
     def add_waypoint(self, pos: tuple, prev_wp) -> None:
         """ adds new waypoints and increments wp the idx"""
-        self.graph.add_node(self.next_wp_idx, pos=pos, type="waypoint", id=uuid.uuid4())
+        self.graph.add_node(self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4())
 
         edge_len = self.calc_edge_len(self.next_wp_idx, prev_wp)
-        self.graph.add_edge(self.next_wp_idx, prev_wp, type="waypoint_edge", cost=edge_len)
+        self.graph.add_edge(
+            self.next_wp_idx, prev_wp, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
+        )
         self.next_wp_idx += 1
 
     def add_world_object(self, pos: tuple, label: str) -> None:
         """ adds a world object to the graph"""
-        self.graph.add_node(label, pos=pos, type="world_object", id=uuid.uuid4())
+        self.graph.add_node(label, pos=pos, type=NodeType.WORLD_OBJECT, id=uuid.uuid4())
         # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
         self.graph.add_edge(
             self.next_wp_idx - 1,
             label,
-            type="world_object_edge",
+            type=EdgeType.WORLD_OBJECT_EDGE,
             id=uuid.uuid4(),
             cost=float("inf"),
         )
@@ -66,7 +71,7 @@ class KnowledgeRoadmap:
     def add_frontier(self, pos: tuple, agent_at_wp: int) -> None:
         """ adds a frontier to the graph"""
         self.graph.add_node(
-            self.next_frontier_idx, pos=pos, type="frontier", id=uuid.uuid4()
+            self.next_frontier_idx, pos=pos, type=NodeType.FRONTIER, id=uuid.uuid4()
         )
 
         edge_len = self.calc_edge_len(agent_at_wp, self.next_frontier_idx)
@@ -76,7 +81,11 @@ class KnowledgeRoadmap:
             cost = edge_len
 
         self.graph.add_edge(
-            agent_at_wp, self.next_frontier_idx, type="frontier_edge", id=uuid.uuid4(), cost=cost
+            agent_at_wp,
+            self.next_frontier_idx,
+            type=EdgeType.FRONTIER_EDGE,
+            id=uuid.uuid4(),
+            cost=cost,
         )
 
         self.next_frontier_idx += 1
@@ -84,7 +93,7 @@ class KnowledgeRoadmap:
     def remove_frontier(self, target_frontier_idx) -> None:
         """ removes a frontier from the graph"""
         target_frontier = self.get_node_data_by_idx(target_frontier_idx)
-        if target_frontier["type"] == "frontier":
+        if target_frontier["type"] == NodeType.FRONTIER:
             self.graph.remove_node(target_frontier_idx)
 
     def get_node_by_pos(self, pos: tuple):
@@ -108,7 +117,7 @@ class KnowledgeRoadmap:
         return [
             self.graph.nodes[node]
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == "waypoint"
+            if self.graph.nodes[node]["type"] == NodeType.WAYPOINT
         ]
 
     def get_all_waypoint_idxs(self) -> list:
@@ -116,7 +125,7 @@ class KnowledgeRoadmap:
         return [
             node
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == "waypoint"
+            if self.graph.nodes[node]["type"] == NodeType.WAYPOINT
         ]
 
     def get_all_frontiers_idxs(self) -> list:
@@ -124,7 +133,7 @@ class KnowledgeRoadmap:
         return [
             node
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == "frontier"
+            if self.graph.nodes[node]["type"] == NodeType.FRONTIER
         ]
 
     def get_nodes_of_type_in_margin(

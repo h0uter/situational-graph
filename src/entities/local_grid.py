@@ -102,7 +102,6 @@ class LocalGrid:
 
         return rr, cc
 
-    # TODO: add robot size as parameter to the collision check.
     def is_collision_free_straight_line_between_cells(
         self, at: tuple, to: tuple
     ) -> tuple:
@@ -173,7 +172,6 @@ class LocalGrid:
         if sample_valid:
             return x_sample, y_sample
         else:
-            # FIXME: instead of rasing an exception it should print a warning and continue
             # raise Exception("Could not sample a valid cell around other cell")
             self._logger.warning("Could not sample a valid cell around other cell")
             # raise Exception("Could not sample a valid cell around other cell")
