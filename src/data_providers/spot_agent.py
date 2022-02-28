@@ -36,6 +36,8 @@ from src.utils.get_login_config import get_login_config
 import logging
 import numpy.typing as npt
 
+from src.entities.world_object import WorldObject
+
 
 class SpotAgent(AbstractAgent):
     def __init__(self, start_pos: tuple = (0, 0)):
@@ -58,7 +60,7 @@ class SpotAgent(AbstractAgent):
             "speed_limit_x": 0.7,  # [m/s]
             "speed_limit_y": 0.7,  # [m/s]
             "speed_limit_angular": 0.8,  # [rad/s]
-            "body_height": 0.0,  # [m]
+            "body_height": 1.0,  # [m]
             "gait": spot_command_pb2.HINT_AUTO,
         }
 
@@ -152,7 +154,8 @@ class SpotAgent(AbstractAgent):
                 # Go to the tag and stop within a certain distance
                 # self.go_to_tag(fiducial_rt_world)
                 print(f"fiducial_rt_world = {fiducial_rt_world}")
-                return fiducial_rt_world.x
+                wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
+                return [wo]
             else:
                 print("No fiducials found")
 

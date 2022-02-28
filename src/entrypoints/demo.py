@@ -115,7 +115,7 @@ def benchmark_func():
 if __name__ == "__main__":
     matplotlib.use("Qt5agg")
 
-    # cfg = Config()
+    cfg = Config()
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
     # cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(num_agents=2)
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     # cfg = Config(scenario=Scenario.SIM_VILLA, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, scenario=Scenario.SIM_MAZE_MEDIUM)
 
-    cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
+    # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
 
     # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
     # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)
