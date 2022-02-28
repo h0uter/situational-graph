@@ -88,8 +88,9 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             )  # XXX: this is my 2nd expensive function, so I should try to optimize it
             self.find_shortcuts_between_wps(lg, krm, agent)
             w_os = agent.look_for_world_objects_in_perception_scene()
-            for w_o in w_os:
-                krm.add_world_object(w_o.pos, w_o.name)
+            if w_os:
+                for w_o in w_os:
+                    krm.add_world_object(w_o.pos, w_o.name)
             post_event("new lg", lg)
 
         return action_path
@@ -288,6 +289,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         # and if we didnt to attempt to walk to it again. To attempt to actually expand the krm
         # with the intended frontier and not a random one
         # HACK: just taking the first one from the list is not neccessarily the closest
+        # BUG: list index out of range range
         wp_at_previous_pos = krm.get_nodes_of_type_in_margin(
             agent.previous_pos, self.cfg.PREV_POS_MARGIN, "waypoint"
         )[0]

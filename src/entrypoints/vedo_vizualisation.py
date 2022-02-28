@@ -57,6 +57,7 @@ class VedoVisualisation(AbstractVizualisation):
         krm: KnowledgeRoadmap,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
+        usecases
     ) -> None:
         # self.figure_update(krm, agents, lg)
         self.viz_all(krm, agents)

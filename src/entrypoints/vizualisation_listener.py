@@ -31,7 +31,8 @@ class VizualisationListener():
         if self.cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or self.cfg.PLOT_LVL == PlotLvl.ALL:
             krm = data["krm"]
             agents = data["agents"]
-            self.viz.figure_final_result(krm, agents, self.lg)
+            usecases = data["usecases"]
+            self.viz.figure_final_result(krm, agents, self.lg, usecases)
 
     def setup_viz_event_handler(self):
         subscribe("new lg", self.handle_new_lg_event)

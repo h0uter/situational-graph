@@ -16,8 +16,12 @@ from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder
 from bosdyn.client import create_standard_sdk, ResponseError, RpcError
 from bosdyn.client.lease import Error as LeaseBaseError
 from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
+from bosdyn.api import world_object_pb2
 from bosdyn.api.geometry_pb2 import Quaternion
 from bosdyn.client import util
+
+from bosdyn.api import basic_command_pb2
+
 
 # local grid stuff
 from bosdyn.api import local_grid_pb2
@@ -45,8 +49,9 @@ class SpotAgent(AbstractAgent):
         # self._logger = logging.getLogger(__name__)
         self._logger = util.get_logger()
         # logging.basicConfig(level=logging.INFO)
-        
-        self._logger.setLevel(level=logging.WARNING)
+
+        # self._logger.setLevel(level=logging.WARNING)
+        self._logger.setLevel(level=logging.INFO)
 
         self.mobility_parameters = {
             "obstacle_padding": 0.1,  # [m]
@@ -90,15 +95,19 @@ class SpotAgent(AbstractAgent):
             self._logger.warning("Spot wrapper is not valid!")
 
         # FIXME: ugly sleep.
-        time.sleep(5)
+        time.sleep(10)
 
         self.pos = self.get_localization()
         # self.pos = start_pos
 
     def move_to_pos(self, pos: tuple):
         # self.spot_move_to_pos(pos)
+        start = time.perf_counter()
+        print(f"===before func: {start}")
 
         self.move_vision_frame(pos)
+        print(f"===after func: {start - time.perf_counter()}")
+
         time.sleep(5)
         self.previous_pos = self.pos
         # self.pos = pos
@@ -124,7 +133,44 @@ class SpotAgent(AbstractAgent):
         return pos
 
     def look_for_world_objects_in_perception_scene(self):
-        pass
+        max_attempts = 10
+        attempts = 0
+        while attempts <= max_attempts:
+            detected_fiducial = False
+            fiducial_rt_world = None
+            # Get the first fiducial object Spot detects with the world object service.
+            fiducial = self.get_fiducial_objects()
+            if fiducial is not None:
+                vision_tform_fiducial = get_a_tform_b(
+                    fiducial.transforms_snapshot, VISION_FRAME_NAME,
+                    fiducial.apriltag_properties.frame_name_fiducial).to_proto()
+                if vision_tform_fiducial is not None:
+                    detected_fiducial = True
+                    fiducial_rt_world = vision_tform_fiducial.position
+
+            if detected_fiducial:
+                # Go to the tag and stop within a certain distance
+                # self.go_to_tag(fiducial_rt_world)
+                print(f"fiducial_rt_world = {fiducial_rt_world}")
+                return fiducial_rt_world.x
+            else:
+                print("No fiducials found")
+
+            attempts += 1  # increment attempts at finding a fiducial
+
+    def get_fiducial_objects(self):
+        """Get all fiducials that Spot detects with its perception system."""
+        # Get all fiducial objects (an object of a specific type).
+        request_fiducials = [world_object_pb2.WORLD_OBJECT_APRILTAG]
+        # fiducial_objects = self._world_object_client.list_world_objects(
+        fiducial_objects = self.spot_wrapper._clients["world_object"].list_world_objects(
+            object_type=request_fiducials).world_objects
+        if len(fiducial_objects) > 0:
+            # Return the first detected fiducial.
+            return fiducial_objects[0]
+        # Return none if no fiducials are found.
+        return None
+
 
     def _apply_mobility_parameters(self, quaternion=None):
         if quaternion is None:
@@ -162,32 +208,40 @@ class SpotAgent(AbstractAgent):
 
         self._try_grpc(desc, _start_command)
 
-    # def blocking_move_vision_frame():
-    #     cmd = RobotCommandBuilder.synchro_stand_command()
+    def blocking_move_vision_frame(self):
+        cmd = RobotCommandBuilder.synchro_stand_command()
+        cmd = RobotCommandBuilder.synchro_stand_command()
 
-    #     cmd_id = command_client.robot_command_async(cmd)
+        cmd_id = command_client.robot_command_async(cmd)
 
-    #     robot.logger.info("Robot standing twisted.")
-    #     start_time = time.time()
-    #     end_time = start_time + 5.0  # timeout is 5 seconds
-    #     while time.time() < end_time:
-    #         cmd_status = (command_client
-    #                         .robot_command_feedback_async(cmd_id)
-    #                         .result()
-    #                         .feedback.synchronized_feedback
-    #                         .mobility_command_feedback
-    #                         .stand_feedback
-    #                         .status
-    #         )
-    #         if cmd_status == basic_command_pb2.StandCommand.Feedback.STATUS_IS_STANDING:
-    #             robot.logger.info("Done.")
-    #             break
-    #         time.sleep(0.1)  # wait 100ms before the next check
-    #     else:
-    #         robot.logger.info("Timeout!")
+        self._logger.info("Robot standing twisted.")
+        start_time = time.time()
+        end_time = start_time + 5.0  # timeout is 5 seconds
+        while time.time() < end_time:
+            # cmd_status = (command_client
+            #                 .robot_command_feedback_async(cmd_id)
+            #                 .result()
+            #                 .feedback.synchronized_feedback
+            #                 .mobility_command_feedback
+            #                 .stand_feedback
+            #                 .status
+            # )
+            cmd_status = (
+                self.spot_wrapper._clients["robot_command"]
+                .robot_command_feedback_async(cmd_id)
+                .result()
+                .feedback.synchronized_feedback.mobility_command_feedback.se2_trajectory_feedback.status
+            )
+            if cmd_status == basic_command_pb2.SE2TrajectoryCommand.Feedback.STATUS_AT_GOAL:
+                self._logger.info("Arrived at goal")
+                break
+            time.sleep(0.1)  # wait 100ms before the next check
+        else:
+            self._logger.info("Timeout!")
 
     # do this instead of the wait timer
     # https://khssnv.medium.com/spot-sdk-blocking-robot-commands-3d6902cfb403
+
     def move_vision_frame(self, pos: tuple, heading=0.0):
         """ROS service handler"""
         self._logger.info("Executing move_vision action")
@@ -209,19 +263,13 @@ class SpotAgent(AbstractAgent):
 
         # TODO: make it await completion
 
-
-
     def move_odom_frame(self, pos: tuple, heading=0.0):
         """ROS service handler"""
         self._logger.info("Executing move_vision action")
 
         try:
             self.spot_wrapper.trajectory_cmd(
-                pos[0],
-                pos[1],
-                heading,
-                cmd_duration=30,
-                frame_name=ODOM_FRAME_NAME
+                pos[0], pos[1], heading, cmd_duration=30, frame_name=ODOM_FRAME_NAME
             )
         except Exception as e:
             self._logger.error(f"Move vision frame action error: {e}")
@@ -463,6 +511,7 @@ def move_to_sampled_point_usecase():
         spot.move_vision_frame((x_goal, y_goal))
         time.sleep(5)
 
+
 def movement_square_VISION_test(spot):
     spot.move_vision_frame((0, -6), 0)
     time.sleep(10)
@@ -487,6 +536,7 @@ def movement_square_ODOM_test(spot):
     # spot.move_odom_frame((0, 0), 0)
     spot.move_odom_frame((0, 0), 0)
     time.sleep(10)
+
 
 if __name__ == "__main__":
     # move_demo_usecase()
