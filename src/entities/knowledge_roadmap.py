@@ -2,9 +2,10 @@ import math
 import uuid
 
 import networkx as nx
+import logging
 
 from src.utils.my_types import EdgeType, Node, NodeType
-
+from src.utils.config import Config
 
 class KnowledgeRoadmap:
     """
@@ -17,8 +18,9 @@ class KnowledgeRoadmap:
     """
 
     # TODO: adress local vs global KRM
-    def __init__(self, start_poses: list[tuple]) -> None:
+    def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
         self.graph = nx.Graph()  # Knowledge Road Map
+        self.cfg = cfg
         self.next_wp_idx = 0
 
         self.duplicate_start_poses = []
@@ -162,3 +164,21 @@ class KnowledgeRoadmap:
     def check_node_exists(self, node: Node):
         """ checks if the given node exists in the graph"""
         return node in self.graph.nodes
+
+    def set_frontier_edge_weight(self, node_a: Node, weight: float):
+        """ sets the weight of the edge between two nodes"""
+
+        neighbors = self.graph.neighbors(node_a)
+        for neighbor in neighbors:
+            if self.graph.edges[node_a, neighbor]["type"] == EdgeType.FRONTIER_EDGE:
+                self.graph.edges[node_a, neighbor]["cost"] = weight
+                print(f"setting edge between {node_a} and {neighbor} to {weight}")
+
+    def shortest_path(self, source: Node, target: Node):
+        return nx.shortest_path(
+            self.graph,
+            source=source,
+            target=target,
+            weight="cost",
+            method=self.cfg.PATH_FINDING_METHOD,
+        )

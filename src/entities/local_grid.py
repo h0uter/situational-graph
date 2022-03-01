@@ -26,6 +26,7 @@ class LocalGrid:
                 f"ERROR: data.shape = {self.data.shape[0:2]}, length_num_cells = {self.length_num_cells}"
             )
 
+    # XXX: this function is not used
     def is_inside(self, world_pos: tuple) -> bool:
         """
         Check if the world position is inside the local grid.
@@ -177,6 +178,8 @@ class LocalGrid:
             self._logger.warning("Could not sample a valid cell around other cell")
             # raise Exception("Could not sample a valid cell around other cell")
 
+    # TODO: make this a a strategy
+    # alternatice strategy should be sampling with dijkstra on a lattice graph.
     def sample_frontiers_on_cellmap(
         self, radius: int, num_frontiers_to_sample: int
     ) -> npt.NDArray:
@@ -196,7 +199,7 @@ class LocalGrid:
 
                 candidate_frontiers.append((y_sample, x_sample))
             else:
-                self._logger.warning(f"sample_cell_around_other_cell() returned None")
+                self._logger.warning("sample_cell_around_other_cell() returned None")
                 break
             # candidate_frontiers.append((x_sample, y_sample))
 

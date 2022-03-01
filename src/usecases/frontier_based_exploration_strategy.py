@@ -74,7 +74,9 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         self._log.debug(f"{agent.name}: at_destination: {at_destination}")
 
         if not action_path and at_destination:
-            self._log.debug(f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place")
+            self._log.debug(
+                f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place"
+            )
             krm.remove_frontier(next_node)
             # self.selected_frontier_idx = None
 
@@ -133,7 +135,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
     ############################################################################################
     # ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ########################################
     ############################################################################################
-    def evaluate_frontiers(
+    def evaluate_frontiers_based_on_cost_to_go(
         self, agent: AbstractAgent, frontier_idxs: list, krm: KnowledgeRoadmap
     ) -> Node:
         """
@@ -148,13 +150,14 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             # HACK: have to do this becaue  sometimes the paths are not possible
             # perhaps add a connected check first...
             try:
-                candidate_path = nx.shortest_path(
-                    krm.graph,
-                    source=agent.at_wp,
-                    target=frontier_idx,
-                    weight="cost",
-                    method=self.cfg.PATH_FINDING_METHOD,
-                )
+                candidate_path = krm.shortest_path(agent.at_wp, frontier_idx)
+                # candidate_path = nx.shortest_path(
+                #     krm.graph,
+                #     source=agent.at_wp,
+                #     target=frontier_idx,
+                #     weight="cost",
+                #     method=self.cfg.PATH_FINDING_METHOD,
+                # )
                 # candidate_path = nx.shortest_path(
                 #     krm.graph, source=agent.at_wp, target=frontier_idx
                 # )
@@ -199,7 +202,7 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
                 f"{agent.name}: could not select a frontier, when I should've."
             )
 
-        return self.evaluate_frontiers(agent, frontier_idxs, krm)
+        return self.evaluate_frontiers_based_on_cost_to_go(agent, frontier_idxs, krm)
 
     """Path/Plan generation"""
     #############################################################################################
@@ -212,13 +215,15 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         :param target_frontier: the frontier that we want to reach
         :return: The path to the selected frontier.
         """
-        path = nx.shortest_path(
-            krm.graph,
-            source=agent.at_wp,
-            target=target_frontier,
-            weight="cost",
-            method=self.cfg.PATH_FINDING_METHOD,
-        )
+        # TODO: move this dependency to KRM
+        # path = nx.shortest_path(
+        #     krm.graph,
+        #     source=agent.at_wp,
+        #     target=target_frontier,
+        #     weight="cost",
+        #     method=self.cfg.PATH_FINDING_METHOD,
+        # )
+        path = krm.shortest_path(source=agent.at_wp, target=target_frontier,)
         if len(path) > 1:
             return path
         else:

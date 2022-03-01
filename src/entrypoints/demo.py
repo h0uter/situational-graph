@@ -27,7 +27,7 @@ def init_entities(cfg: Config):
             SimulatedAgent(cfg.AGENT_START_POS, cfg, i) for i in range(cfg.NUM_AGENTS)
         ]
 
-    krm = KnowledgeRoadmap(start_poses=[agent.pos for agent in agents])
+    krm = KnowledgeRoadmap(cfg, start_poses=[agent.pos for agent in agents])
     exploration_usecases = [ExplorationUsecase(cfg) for i in range(cfg.NUM_AGENTS)]
 
     VizualisationListener(
@@ -67,15 +67,32 @@ def perform_exploration_demo(
                 break
 
         """ Visualisation """
-        my_logger.debug("--------------------------------------------------------")
+        my_logger.debug(f"{step} --------------------------------------------------------")
         event.post_event(
             "figure update",
             {"krm": krm, "agents": agents, "usecases": exploration_usecases},
         )
 
-        if step % 50 == 0:
+        if step % 25 == 0:
             s = f"sim step = {step} took {time.perf_counter() - step_start:.4f}s, with {agents[0].steps_taken} move actions"
             my_logger.info(s)
+
+            if step >= 1:
+                """" experiment with neg edge cost"""
+                print(f"edges in graph: {krm.graph.edges}")
+                for edge in krm.graph.edges:
+                    print(f"edge: {edge} properties: {krm.graph.edges[edge]}")
+                frontiers = krm.get_all_frontiers_idxs()
+                lowest_frontier_idx = min(frontiers)
+                prio_ft_data = krm.get_node_data_by_idx(lowest_frontier_idx)
+                print(f"prio_ft_data = {prio_ft_data}")
+                # krm.set_frontier_edge_weight(lowest_frontier_idx, -10)
+                prio_ft_pos = prio_ft_data["pos"]
+
+                event.post_event("viz point", prio_ft_pos)
+                
+                """" experiment with neg edge cost"""
+
         step += 1
 
     # TODO: move this to the usecase, close to the data
