@@ -1,8 +1,6 @@
 import uuid
 from typing import Union
 
-import networkx as nx
-
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
@@ -142,25 +140,21 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics
         """
-        shortest_path_by_node_count = float("inf")
+        shortest_path_len = float("inf")
+        
         selected_frontier_idx: Union[int, None] = None
 
         for frontier_idx in frontier_idxs:
-            candidate_path = []
+            candidate_path_len = float("inf")
             # HACK: have to do this becaue  sometimes the paths are not possible
             # perhaps add a connected check first...
+
+            # TODO: make this the shortest path from single point to multiple endpoints.
+
             try:
-                candidate_path = krm.shortest_path(agent.at_wp, frontier_idx)
-                # candidate_path = nx.shortest_path(
-                #     krm.graph,
-                #     source=agent.at_wp,
-                #     target=frontier_idx,
-                #     weight="cost",
-                #     method=self.cfg.PATH_FINDING_METHOD,
-                # )
-                # candidate_path = nx.shortest_path(
-                #     krm.graph, source=agent.at_wp, target=frontier_idx
-                # )
+                # candidate_path = krm.shortest_path_len(agent.at_wp, frontier_idx)
+                candidate_path_len = krm.shortest_path_len(agent.at_wp, frontier_idx)
+
             except Exception:
                 # no path can be found which is ok
                 # for multi agent systems the graphs can be disconnected
@@ -169,12 +163,13 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
             # if len(candidate_path) <= shortest_path_by_node_count:
             #  choose the first shortest path among equals
             if (
-                len(candidate_path) < shortest_path_by_node_count
-                and len(candidate_path) > 0
+                candidate_path_len < shortest_path_len
+                and candidate_path_len != 0
             ):
-                shortest_path_by_node_count = len(candidate_path)
-                candidate_path = list(candidate_path)
-                selected_frontier_idx = candidate_path[-1]
+                shortest_path_len = candidate_path_len
+                # candidate_path_len = list(candidate_path_len)
+                # selected_frontier_idx = candidate_path_len[-1]
+                selected_frontier_idx = frontier_idx
         if not selected_frontier_idx:
             self._log.error(
                 f"{agent.name} at {agent.at_wp}: No frontier can be selected from {len(frontier_idxs)} frontiers because no candidate path can be found."
@@ -215,14 +210,6 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         :param target_frontier: the frontier that we want to reach
         :return: The path to the selected frontier.
         """
-        # TODO: move this dependency to KRM
-        # path = nx.shortest_path(
-        #     krm.graph,
-        #     source=agent.at_wp,
-        #     target=target_frontier,
-        #     weight="cost",
-        #     method=self.cfg.PATH_FINDING_METHOD,
-        # )
         path = krm.shortest_path(source=agent.at_wp, target=target_frontier,)
         if len(path) > 1:
             return path
@@ -344,6 +331,12 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
                 if is_collision_free:
                     from_wp = agent.at_wp
                     to_wp = krm.get_node_by_pos(point)
+
+                    # TODO: encapsulate this in krm
+                    edge_len = krm.calc_edge_len(from_wp, to_wp)
                     krm.graph.add_edge(
-                        from_wp, to_wp, type=EdgeType.WAYPOINT_EDGE, id=uuid.uuid4()
+                        from_wp, to_wp, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
+                    )
+                    krm.graph.add_edge(
+                        to_wp, from_wp, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
                     )

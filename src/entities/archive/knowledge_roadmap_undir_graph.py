@@ -19,7 +19,7 @@ class KnowledgeRoadmap:
 
     # TODO: adress local vs global KRM
     def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
-        self.graph = nx.DiGraph()  # Knowledge Road Map
+        self.graph = nx.Graph()  # Knowledge Road Map
         self.cfg = cfg
         self.next_wp_idx = 0
 
@@ -54,9 +54,6 @@ class KnowledgeRoadmap:
         self.graph.add_edge(
             self.next_wp_idx, prev_wp, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
         )
-        self.graph.add_edge(
-            prev_wp, self.next_wp_idx, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
-        )
         self.next_wp_idx += 1
 
     def add_world_object(self, pos: tuple, label: str) -> None:
@@ -67,7 +64,7 @@ class KnowledgeRoadmap:
             self.next_wp_idx - 1,
             label,
             type=EdgeType.WORLD_OBJECT_EDGE,
-            # id=uuid.uuid4(),
+            id=uuid.uuid4(),
             cost=float("inf"),
         )
 
@@ -88,7 +85,7 @@ class KnowledgeRoadmap:
             agent_at_wp,
             self.next_frontier_idx,
             type=EdgeType.FRONTIER_EDGE,
-            # id=uuid.uuid4(),
+            id=uuid.uuid4(),
             cost=cost,
         )
 
@@ -98,7 +95,7 @@ class KnowledgeRoadmap:
         """ removes a frontier from the graph"""
         target_frontier = self.get_node_data_by_idx(target_frontier_idx)
         if target_frontier["type"] == NodeType.FRONTIER:
-            self.graph.remove_node(target_frontier_idx)  # also removes the edge
+            self.graph.remove_node(target_frontier_idx)
 
     def get_node_by_pos(self, pos: tuple):
         """ returns the node idx at the given position """
@@ -171,24 +168,14 @@ class KnowledgeRoadmap:
     def set_frontier_edge_weight(self, node_a: Node, weight: float):
         """ sets the weight of the edge between two nodes"""
 
-        predecessors = self.graph.predecessors(node_a)
-        for predecessor in predecessors:
-            # if self.graph.edges[node_a, neighbor]["type"] == EdgeType.FRONTIER_EDGE:
-            if self.graph.edges[predecessor, node_a]["type"] == EdgeType.FRONTIER_EDGE:
-                self.graph.edges[predecessor, node_a]["cost"] = weight
-                print(f"setting edge between {predecessor} and {node_a} to {weight}")
+        neighbors = self.graph.neighbors(node_a)
+        for neighbor in neighbors:
+            if self.graph.edges[node_a, neighbor]["type"] == EdgeType.FRONTIER_EDGE:
+                self.graph.edges[node_a, neighbor]["cost"] = weight
+                print(f"setting edge between {node_a} and {neighbor} to {weight}")
 
     def shortest_path(self, source: Node, target: Node):
         return nx.shortest_path(
-            self.graph,
-            source=source,
-            target=target,
-            weight="cost",
-            method=self.cfg.PATH_FINDING_METHOD,
-        )
-
-    def shortest_path_len(self, source: Node, target: Node):
-        return nx.shortest_path_length(
             self.graph,
             source=source,
             target=target,

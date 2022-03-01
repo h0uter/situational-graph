@@ -79,17 +79,17 @@ def perform_exploration_demo(
 
             if step >= 1:
                 """" experiment with neg edge cost"""
-                print(f"edges in graph: {krm.graph.edges}")
-                for edge in krm.graph.edges:
-                    print(f"edge: {edge} properties: {krm.graph.edges[edge]}")
+                # print(f"edges in graph: {krm.graph.edges}")
                 frontiers = krm.get_all_frontiers_idxs()
                 lowest_frontier_idx = min(frontiers)
                 prio_ft_data = krm.get_node_data_by_idx(lowest_frontier_idx)
-                print(f"prio_ft_data = {prio_ft_data}")
-                # krm.set_frontier_edge_weight(lowest_frontier_idx, -10)
+                # print(f"prio_ft_data = {prio_ft_data}")
+                krm.set_frontier_edge_weight(lowest_frontier_idx, -100.0)
                 prio_ft_pos = prio_ft_data["pos"]
 
                 event.post_event("viz point", prio_ft_pos)
+                for edge in krm.graph.edges:
+                    print(f"edge: {edge} properties: {krm.graph.edges[edge]}")
                 
                 """" experiment with neg edge cost"""
 
@@ -147,7 +147,7 @@ if __name__ == "__main__":
 
     # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
     # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)
-    # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM)
+    cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 
