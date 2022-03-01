@@ -59,7 +59,7 @@ class VedoVisualisation(AbstractVizualisation):
         krm: KnowledgeRoadmap,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
-        usecases
+        usecases,
     ) -> None:
         # self.figure_update(krm, agents, lg)
         self.viz_all(krm, agents)
@@ -164,7 +164,9 @@ class VedoVisualisation(AbstractVizualisation):
                 raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
                 frontier_edge = raw_lines.pop()
                 wp_edge_actors = (
-                    vedo.Lines(raw_lines, c="r", alpha=0.5).lw(10).z(action_path_offsett)
+                    vedo.Lines(raw_lines, c="r", alpha=0.5)
+                    .lw(10)
+                    .z(action_path_offsett)
                 )
 
                 # wp_arrow_starts = [(x[0], x[1], 0) for x, y in raw_lines]
@@ -178,9 +180,8 @@ class VedoVisualisation(AbstractVizualisation):
 
                 arrow_start = (frontier_edge[0][0], frontier_edge[0][1], 0)
                 arrow_end = (frontier_edge[1][0], frontier_edge[1][1], 0)
-                ft_edge_actor = (
-                    vedo.Arrow(arrow_start, arrow_end, c="g", s=1.5)
-                    .z(action_path_offsett)
+                ft_edge_actor = vedo.Arrow(arrow_start, arrow_end, c="g", s=1.5).z(
+                    action_path_offsett
                 )
                 actors.append(ft_edge_actor)
 
@@ -197,7 +198,7 @@ class VedoVisualisation(AbstractVizualisation):
             actors.append(local_grid_viz)
             # agent_sphere = vedo.Point(agent_pos, r=25, c="b")
             # agent_sphere = vedo.Point(agent_pos, r=25, c="royal_blue")
-            agent_sphere = vedo.Point(agent_pos, r=25, c="dodger_blue", alpha=0.7)
+            agent_sphere = vedo.Point(agent_pos, r=25, c="dodger_blue", alpha=0.7)  # type: ignore
             agent_label = f"Agent {agent.name}"
             agent_sphere.caption(agent_label, size=(0.05, 0.025))
             # vig = agent_sphere.vignette(agent_label, offset=[0, 0, 3 * self.factor], s=self.factor)

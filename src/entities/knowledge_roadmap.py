@@ -136,7 +136,7 @@ class KnowledgeRoadmap:
         ]
 
     def get_nodes_of_type_in_margin(
-        self, pos: tuple, margin: float, node_type: str
+        self, pos: tuple, margin: float, node_type: NodeType
     ) -> list:
         """
         Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.

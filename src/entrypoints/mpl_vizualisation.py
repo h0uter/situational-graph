@@ -50,7 +50,7 @@ class MplVizualisation(AbstractVizualisation):
         plt.show()
 
     def draw_agent_and_sensor_range(
-        self, pos: tuple, ax, rec_len=7, circle_size=1.2
+        self, pos: tuple, ax, rec_len=7.0, circle_size=1.2
     ) -> None:
         """
         Draw the agent on the world.
@@ -274,7 +274,7 @@ class MplVizualisation(AbstractVizualisation):
             self.init_fig()
 
         close_nodes = krm.get_nodes_of_type_in_margin(
-            lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, NodeType.WA
+            lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, NodeType.WAYPOINT
         )
         points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
 
