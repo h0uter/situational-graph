@@ -3,9 +3,11 @@ import uuid
 
 import networkx as nx
 import logging
+from src.utils.krm_stats import KRMStats
 
 from src.utils.my_types import EdgeType, Node, NodeType
 from src.utils.config import Config
+
 
 class KnowledgeRoadmap:
     """
@@ -19,6 +21,7 @@ class KnowledgeRoadmap:
 
     # TODO: adress local vs global KRM
     def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
+
         self.graph = nx.DiGraph()  # Knowledge Road Map
         self.cfg = cfg
         self.next_wp_idx = 0
@@ -34,7 +37,9 @@ class KnowledgeRoadmap:
     # add startpoints function
     def add_start_waypoints(self, pos: tuple) -> None:
         """ adds start points to the graph"""
-        self.graph.add_node(self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4())
+        self.graph.add_node(
+            self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
+        )
         self.next_wp_idx += 1
 
     def calc_edge_len(self, node_a, node_b):
@@ -48,7 +53,9 @@ class KnowledgeRoadmap:
 
     def add_waypoint(self, pos: tuple, prev_wp) -> None:
         """ adds new waypoints and increments wp the idx"""
-        self.graph.add_node(self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4())
+        self.graph.add_node(
+            self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
+        )
 
         edge_len = self.calc_edge_len(self.next_wp_idx, prev_wp)
         self.graph.add_edge(
@@ -195,3 +202,18 @@ class KnowledgeRoadmap:
             weight="cost",
             method=self.cfg.PATH_FINDING_METHOD,
         )
+
+    def update_graph_statistics(self, krm_stats, step_duration) -> KRMStats:
+
+        krm_stats.num_nodes.append(self.graph.number_of_nodes())
+        krm_stats.num_edges.append(self.graph.number_of_edges())
+        krm_stats.step_duration.append(step_duration)
+
+        # krm_stats.num_waypoint_nodes = (
+        #     n for n in self.graph.nodes() if self.graph.nodes[n]["type"] == NodeType.WAYPOINT
+        # ).__len__()
+        # krm_stats.num_frontier_nodes = (
+        #     n for n in self.graph.nodes() if self.graph.nodes[n]["type"] == NodeType.FRONTIER
+        # ).__len__()
+
+        return krm_stats
