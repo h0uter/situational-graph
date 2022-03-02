@@ -37,6 +37,7 @@ class VedoVisualisation(AbstractVizualisation):
             logo = vedo.load(logo_path)
             self.plt.addIcon(logo, pos=1, size=0.15)
 
+        self.debug_actors = list()
         self.wp_counter = []
         self.ft_counter = []
 
@@ -124,6 +125,9 @@ class VedoVisualisation(AbstractVizualisation):
         # actors.append(lbox)
 
         # print(f"the num of actors is {len(actors)}")
+        
+        if self.debug_actors:
+            actors.extend(self.debug_actors)
 
         self.plt.show(
             actors, interactive=False, resetcam=False,
@@ -258,3 +262,10 @@ class VedoVisualisation(AbstractVizualisation):
     #         # plot_wps.x(0.7 * self.cfg.IMG_TOTAL_X_PIX)
     #         # plot_wps.show()
     #         self.plt.add(plot_wps, at=1, render=False)
+
+    def viz_point(self, pos):
+        point = vedo.Point((pos[0]*self.factor, pos[1]*self.factor, 0), r=35, c="yellow")
+        # self.plt.show(point)
+        # self.actors.append(point)
+        self.debug_actors.append(point)
+        print(f"adding point {pos} to debug actors")

@@ -10,7 +10,7 @@ from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.abstract_agent import AbstractAgent
 import src.utils.event as event
 from src.usecases.exploration_usecase import ExplorationUsecase
-from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
+from src.utils.config import Config, PlotLvl, Scenario
 from src.entrypoints.vizualisation_listener import VizualisationListener
 
 
@@ -27,7 +27,7 @@ def init_entities(cfg: Config):
             SimulatedAgent(cfg.AGENT_START_POS, cfg, i) for i in range(cfg.NUM_AGENTS)
         ]
 
-    krm = KnowledgeRoadmap(start_poses=[agent.pos for agent in agents])
+    krm = KnowledgeRoadmap(cfg, start_poses=[agent.pos for agent in agents])
     exploration_usecases = [ExplorationUsecase(cfg) for i in range(cfg.NUM_AGENTS)]
 
     VizualisationListener(
@@ -35,6 +35,22 @@ def init_entities(cfg: Config):
     ).setup_viz_event_handler()  # setup the listener for vizualisation
 
     return agents, krm, exploration_usecases
+
+
+def priority_frontier_test(step, krm):
+    if step >= 1:
+        """" experiment with neg edge cost"""
+        # print(f"edges in graph: {krm.graph.edges}")
+        frontiers = krm.get_all_frontiers_idxs()
+        lowest_frontier_idx = min(frontiers)
+        prio_ft_data = krm.get_node_data_by_idx(lowest_frontier_idx)
+        # print(f"prio_ft_data = {prio_ft_data}")
+        krm.set_frontier_edge_weight(lowest_frontier_idx, -100.0)
+        prio_ft_pos = prio_ft_data["pos"]
+
+        event.post_event("viz point", prio_ft_pos)
+        for edge in krm.graph.edges:
+            print(f"edge: {edge} properties: {krm.graph.edges[edge]}")
 
 
 def perform_exploration_demo(
@@ -53,11 +69,13 @@ def perform_exploration_demo(
         )
 
     """ Main Logic"""
-    # TODO: this condition should be checked for any of the agents
-    # while exploration_usecases[0].ExplorationStrategy.exploration_completed is False:
-    while not any(
-        exploration_usecase.exploration_strategy.exploration_completed is True
-        for exploration_usecase in exploration_usecases
+    my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
+    while (
+        not any(
+            exploration_usecase.exploration_strategy.exploration_completed is True
+            for exploration_usecase in exploration_usecases
+        )
+        and step < cfg.MAX_STEPS
     ):
         step_start = time.perf_counter()
 
@@ -67,7 +85,9 @@ def perform_exploration_demo(
                 break
 
         """ Visualisation """
-        my_logger.debug("--------------------------------------------------------")
+        my_logger.debug(
+            f"{step} -------------------------------------------------------- {time.perf_counter() - step_start:.4f}s"
+        )
         event.post_event(
             "figure update",
             {"krm": krm, "agents": agents, "usecases": exploration_usecases},
@@ -76,6 +96,9 @@ def perform_exploration_demo(
         if step % 50 == 0:
             s = f"sim step = {step} took {time.perf_counter() - step_start:.4f}s, with {agents[0].steps_taken} move actions"
             my_logger.info(s)
+
+            priority_frontier_test(step, krm)
+
         step += 1
 
     # TODO: move this to the usecase, close to the data
@@ -106,8 +129,9 @@ def benchmark_func():
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     cfg = Config(
         plot_lvl=PlotLvl.NONE,
-        num_agents=15,
-        # scenario=Scenario.SIM_MAZE_MEDIUM
+        num_agents=1,
+        scenario=Scenario.SIM_MAZE_MEDIUM,
+        max_steps=600
     )
     main(cfg)
 
@@ -119,7 +143,7 @@ if __name__ == "__main__":
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
     # cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(num_agents=2)
-    # cfg = Config(num_agents=3, scenario=Scenario.SIM_MAZE_MEDIUM)
+    cfg = Config(num_agents=10, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
     # cfg = Config(scenario=Scenario.SIM_MAZE)
