@@ -21,6 +21,7 @@ class PlotLvl(Enum):
     ALL = auto()
     INTERMEDIATE_ONLY = auto()
     RESULT_ONLY = auto()
+    STATS_ONLY = auto()
 
 
 class Vizualiser(Enum):

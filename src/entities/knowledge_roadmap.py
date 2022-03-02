@@ -202,18 +202,3 @@ class KnowledgeRoadmap:
             weight="cost",
             method=self.cfg.PATH_FINDING_METHOD,
         )
-
-    def update_graph_statistics(self, krm_stats, step_duration) -> KRMStats:
-
-        krm_stats.num_nodes.append(self.graph.number_of_nodes())
-        krm_stats.num_edges.append(self.graph.number_of_edges())
-        krm_stats.step_duration.append(step_duration)
-
-        # krm_stats.num_waypoint_nodes = (
-        #     n for n in self.graph.nodes() if self.graph.nodes[n]["type"] == NodeType.WAYPOINT
-        # ).__len__()
-        # krm_stats.num_frontier_nodes = (
-        #     n for n in self.graph.nodes() if self.graph.nodes[n]["type"] == NodeType.FRONTIER
-        # ).__len__()
-
-        return krm_stats

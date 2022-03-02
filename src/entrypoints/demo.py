@@ -60,6 +60,8 @@ def perform_exploration_demo(
 ):
     step = 0
     krm_stats = KRMStats()
+    # krm_stats.update(krm, step_duration=0)
+
     start = time.perf_counter()
     my_logger = logging.getLogger(__name__)
 
@@ -84,9 +86,9 @@ def perform_exploration_demo(
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
 
+        """Data collection"""
         step_duration = time.perf_counter() - step_start
-        krm_stats = krm.update_graph_statistics(krm_stats, step_duration)
-
+        krm_stats.update(krm, step_duration)
 
         """ Visualisation """
         my_logger.debug(
@@ -101,10 +103,11 @@ def perform_exploration_demo(
             s = f"sim step = {step} took {step_duration:.4f}s, with {agents[0].steps_taken} move actions"
             my_logger.info(s)
 
-            priority_frontier_test(step, krm)
+            # priority_frontier_test(step, krm)
 
         step += 1
 
+    """Results"""
     # TODO: move this to the usecase, close to the data
     my_logger.info(
         f"""
@@ -120,37 +123,27 @@ def perform_exploration_demo(
         {"krm": krm, "agents": agents, "usecases": exploration_usecases},
     )
 
-    return True, krm_stats
+    krm_stats.plot_krm_stats()
+    krm_stats.save()
+
+    return not any(
+        exploration_usecase.exploration_strategy.exploration_completed is True
+        for exploration_usecase in exploration_usecases
+    )
 
 
 def main(cfg: Config):
     agents, krm, exploration_usecases = init_entities(cfg)
-    success, krm_stats = perform_exploration_demo(cfg, agents, krm, exploration_usecases)
-    plot_krm_stats(krm_stats)
+    success = perform_exploration_demo(cfg, agents, krm, exploration_usecases)
     return success
 
 
-def plot_krm_stats(krm_stats):
-    matplotlib.use("TkAgg")
-    import matplotlib.pyplot as plt
-
-    plt.plot(krm_stats.num_nodes, krm_stats.step_duration, label="num nodes")
-    plt.plot(krm_stats.num_edges, krm_stats.step_duration, label="num edges")
-    # plt.plot(krm_stats.num_waypoint_nodes, label="num waypoint nodes")
-    # plt.plot(krm_stats.num_frontier_nodes, label="num frontier nodes")
-    # plt.plot(, label="step duration")
-    plt.legend()
-    plt.title("Step duration vs size of the KRM")
-    plt.show()
-
-
 def benchmark_func():
-    # cfg = Config(plot_lvl=PlotLvl.NONE)
     cfg = Config(
         plot_lvl=PlotLvl.NONE,
         num_agents=1,
         scenario=Scenario.SIM_MAZE_MEDIUM,
-        max_steps=600
+        max_steps=400,
     )
     main(cfg)
 
