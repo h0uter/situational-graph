@@ -1,9 +1,11 @@
 import logging
+import math
 import os
 import sys
 from enum import Enum, auto
 
 import coloredlogs
+from numpy import Infinity
 
 
 class Scenario(Enum):
@@ -33,7 +35,9 @@ class Config:
         scenario: Scenario = Scenario.SIM_VILLA,
         vizualiser: Vizualiser = Vizualiser.VEDO,
         num_agents: int = 1,
+        max_steps: float = math.inf,
     ):
+        self.MAX_STEPS = max_steps
         self.PLOT_LVL = plot_lvl
         self.SCENARIO = scenario
         self.VIZUALISER = vizualiser
@@ -128,7 +132,8 @@ class Config:
         self.LG_NUM_CELLS = 200  # max:420 due to img border margins
         self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
 
-        self.AGENT_START_POS = (-3, 0)
+        # self.AGENT_START_POS = (-3, 0)
+        self.AGENT_START_POS = (-30, -30)
         self.TOT_MAP_LEN_M_Y = (
             self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
         ) * self.IMG_TOTAL_Y_PIX
