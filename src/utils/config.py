@@ -2,7 +2,7 @@ import logging
 import math
 import os
 import sys
-from enum import Enum, auto
+from enum import IntEnum, Enum, auto
 
 import coloredlogs
 from numpy import Infinity
@@ -16,11 +16,12 @@ class Scenario(Enum):
     REAL = auto()
 
 
-class PlotLvl(Enum):
-    NONE = auto()
+class PlotLvl(IntEnum):
     ALL = auto()
     INTERMEDIATE_ONLY = auto()
     RESULT_ONLY = auto()
+    STATS_ONLY = auto()
+    NONE = auto()
 
 
 class Vizualiser(Enum):

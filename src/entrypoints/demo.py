@@ -12,6 +12,7 @@ import src.utils.event as event
 from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, Scenario
 from src.entrypoints.vizualisation_listener import VizualisationListener
+from src.utils.krm_stats import KRMStats
 
 
 ############################################################################################
@@ -32,25 +33,23 @@ def init_entities(cfg: Config):
 
     VizualisationListener(
         cfg
-    ).setup_viz_event_handler()  # setup the listener for vizualisation
+    ).setup_event_handler()  # setup the listener for vizualisation
 
     return agents, krm, exploration_usecases
 
 
-def priority_frontier_test(step, krm):
+def priority_frontier_mvp_test(step, krm):
     if step >= 1:
         """" experiment with neg edge cost"""
-        # print(f"edges in graph: {krm.graph.edges}")
         frontiers = krm.get_all_frontiers_idxs()
         lowest_frontier_idx = min(frontiers)
         prio_ft_data = krm.get_node_data_by_idx(lowest_frontier_idx)
-        # print(f"prio_ft_data = {prio_ft_data}")
         krm.set_frontier_edge_weight(lowest_frontier_idx, -100.0)
         prio_ft_pos = prio_ft_data["pos"]
 
         event.post_event("viz point", prio_ft_pos)
-        for edge in krm.graph.edges:
-            print(f"edge: {edge} properties: {krm.graph.edges[edge]}")
+        # for edge in krm.graph.edges:
+        #     print(f"edge: {edge} properties: {krm.graph.edges[edge]}")
 
 
 def perform_exploration_demo(
@@ -60,6 +59,8 @@ def perform_exploration_demo(
     exploration_usecases: Sequence[ExplorationUsecase],
 ):
     step = 0
+    krm_stats = KRMStats()
+
     start = time.perf_counter()
     my_logger = logging.getLogger(__name__)
 
@@ -84,9 +85,13 @@ def perform_exploration_demo(
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
 
+        """Data collection"""
+        step_duration = time.perf_counter() - step_start
+        krm_stats.update(krm, step_duration)
+
         """ Visualisation """
         my_logger.debug(
-            f"{step} -------------------------------------------------------- {time.perf_counter() - step_start:.4f}s"
+            f"{step} -------------------------------------------------------- {step_duration:.4f}s"
         )
         event.post_event(
             "figure update",
@@ -94,13 +99,14 @@ def perform_exploration_demo(
         )
 
         if step % 50 == 0:
-            s = f"sim step = {step} took {time.perf_counter() - step_start:.4f}s, with {agents[0].steps_taken} move actions"
+            s = f"sim step = {step} took {step_duration:.4f}s, with {agents[0].steps_taken} move actions"
             my_logger.info(s)
 
-            priority_frontier_test(step, krm)
+            # priority_frontier_test(step, krm)
 
         step += 1
 
+    """Results"""
     # TODO: move this to the usecase, close to the data
     my_logger.info(
         f"""
@@ -116,7 +122,15 @@ def perform_exploration_demo(
         {"krm": krm, "agents": agents, "usecases": exploration_usecases},
     )
 
-    return exploration_usecases[0].exploration_strategy.exploration_completed
+    if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
+        krm_stats.plot_krm_stats()
+
+    # krm_stats.save()
+
+    return not any(
+        exploration_usecase.exploration_strategy.exploration_completed is True
+        for exploration_usecase in exploration_usecases
+    )
 
 
 def main(cfg: Config):
@@ -126,12 +140,11 @@ def main(cfg: Config):
 
 
 def benchmark_func():
-    # cfg = Config(plot_lvl=PlotLvl.NONE)
     cfg = Config(
         plot_lvl=PlotLvl.NONE,
         num_agents=1,
         scenario=Scenario.SIM_MAZE_MEDIUM,
-        max_steps=600
+        max_steps=400,
     )
     main(cfg)
 
@@ -143,7 +156,7 @@ if __name__ == "__main__":
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
     # cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(num_agents=2)
-    cfg = Config(num_agents=10, scenario=Scenario.SIM_MAZE_MEDIUM)
+    # cfg = Config(num_agents=10, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
     # cfg = Config(scenario=Scenario.SIM_MAZE)
@@ -159,3 +172,4 @@ if __name__ == "__main__":
     # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 
     main(cfg)
+    # benchmark_func()

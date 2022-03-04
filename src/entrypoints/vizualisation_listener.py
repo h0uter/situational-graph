@@ -6,8 +6,7 @@ from src.entrypoints.vedo_vizualisation import VedoVisualisation
 from src.utils.config import Config, Vizualiser, PlotLvl
 
 
-class VizualisationListener():
-
+class VizualisationListener:
     def __init__(self, cfg: Config):
         self.cfg = cfg
         if cfg.VIZUALISER == Vizualiser.MATPLOTLIB:
@@ -21,7 +20,10 @@ class VizualisationListener():
         self.lg = lg
 
     def handle_figure_update_event(self, data):
-        if self.cfg.PLOT_LVL == PlotLvl.ALL or self.cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
+        if (
+            self.cfg.PLOT_LVL == PlotLvl.ALL
+            or self.cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY
+        ):
             krm = data["krm"]
             agents = data["agents"]
             usecases = data["usecases"]
@@ -37,9 +39,7 @@ class VizualisationListener():
     def viz_point(self, data):
         self.viz.viz_point((data[0], data[1]))
 
-
-
-    def setup_viz_event_handler(self):
+    def setup_event_handler(self):
         subscribe("new lg", self.handle_new_lg_event)
         subscribe("figure update", self.handle_figure_update_event)
         subscribe("figure final result", self.handle_figure_final_result_event)
