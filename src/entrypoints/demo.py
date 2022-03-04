@@ -123,8 +123,10 @@ def perform_exploration_demo(
         {"krm": krm, "agents": agents, "usecases": exploration_usecases},
     )
 
-    krm_stats.plot_krm_stats()
-    krm_stats.save()
+    if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
+        krm_stats.plot_krm_stats()
+        
+    # krm_stats.save()
 
     return not any(
         exploration_usecase.exploration_strategy.exploration_completed is True
