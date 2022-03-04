@@ -4,6 +4,7 @@ from src.usecases.frontier_based_exploration_strategy import FrontierBasedExplor
 from src.utils.config import Config
 
 
+# TODO: currently this usecase is redundant with the abstract strategy
 class ExplorationUsecase:
     def __init__(self, cfg: Config) -> None:
         self.exploration_strategy = FrontierBasedExplorationStrategy(cfg)

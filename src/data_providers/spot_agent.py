@@ -47,9 +47,11 @@ class SpotAgent(AbstractAgent):
 
         self.mobility_parameters = {
             "obstacle_padding": 0.1,  # [m]
-            "speed_limit_x": 0.7,  # [m/s]
-            "speed_limit_y": 0.7,  # [m/s]
-            "speed_limit_angular": 0.8,  # [rad/s]
+            # "speed_limit_x": 0.7,  # [m/s]
+            "speed_limit_x": 1,  # [m/s]
+            # "speed_limit_y": 0.7,  # [m/s]
+            "speed_limit_y": 1,  # [m/s]
+            "speed_limit_angular": 1,  # [rad/s]
             "body_height": 1.0,  # [m]
             "gait": spot_command_pb2.HINT_AUTO,
         }
@@ -93,16 +95,12 @@ class SpotAgent(AbstractAgent):
         # self.pos = start_pos
 
     def move_to_pos(self, pos: tuple):
-        # self.spot_move_to_pos(pos)
-        start = time.perf_counter()
-        print(f"===before func: {start}")
+        # self.move_vision_frame(pos)
+        # time.sleep(5)
 
-        self.move_vision_frame(pos)
-        print(f"===after func: {start - time.perf_counter()}")
+        self.blocking_move_vision_frame(pos)
 
-        time.sleep(5)
         self.previous_pos = self.pos
-        # self.pos = pos
         self.pos = self.get_localization()
         self.steps_taken += 1
 
@@ -210,24 +208,27 @@ class SpotAgent(AbstractAgent):
 
         self._try_grpc(desc, _start_command)
 
-    def blocking_move_vision_frame(self):
-        cmd = RobotCommandBuilder.synchro_stand_command()
-        cmd = RobotCommandBuilder.synchro_stand_command()
+    def blocking_move_vision_frame(self, pos):
+        goal_heading = 0.0
+        frame_name = VISION_FRAME_NAME
 
-        cmd_id = command_client.robot_command_async(cmd)
+        cmd = RobotCommandBuilder.synchro_se2_trajectory_point_command(
+                goal_x=pos[0],
+                goal_y=pos[1],
+                goal_heading=goal_heading,
+                frame_name=frame_name,
+                params=self.spot_wrapper._mobility_params,
+            )
+
+        cmd_duration = 30
+        end_time = time.time() + cmd_duration
+        cmd_id = self.spot_wrapper._clients["robot_command"].robot_command(cmd, end_time_secs=end_time)
 
         self._logger.info("Robot standing twisted.")
         start_time = time.time()
         end_time = start_time + 5.0  # timeout is 5 seconds
         while time.time() < end_time:
-            # cmd_status = (command_client
-            #                 .robot_command_feedback_async(cmd_id)
-            #                 .result()
-            #                 .feedback.synchronized_feedback
-            #                 .mobility_command_feedback
-            #                 .stand_feedback
-            #                 .status
-            # )
+
             cmd_status = (
                 self.spot_wrapper._clients["robot_command"]
                 .robot_command_feedback_async(cmd_id)
@@ -240,7 +241,7 @@ class SpotAgent(AbstractAgent):
             ):
                 self._logger.info("Arrived at goal")
                 break
-            time.sleep(0.1)  # wait 100ms before the next check
+            time.sleep(0.01)  # wait 100ms before the next check
         else:
             self._logger.info("Timeout!")
 
