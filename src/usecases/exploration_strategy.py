@@ -36,7 +36,6 @@ class ExplorationStrategy(ABC):
             self._log.debug(f"{agent.name}: Action path set. Executing one.")
             self.action_path = self.path_execution(agent, krm, self.action_path)
             if not self.action_path:
-                self.at_destination_logic(agent, krm)
                 self._log.debug(f"{agent.name}: Action path execution finished.")
                 self.target_node = None
                 self.action_path = None

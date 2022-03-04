@@ -50,7 +50,6 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
     def path_execution(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path: list[Node]
     ) -> Union[list[Node], None]:
-        # next_node = action_path[0]
         if not self.check_target_still_valid(krm, self.target_node):
             self._log.warning(f"path_execution()::{agent.name}:: Target is no longer valid.")
             return None
@@ -63,6 +62,9 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
         self._log.debug(
             f"{agent.name}: The action path after execution is {action_path}."
         )
+
+        if not action_path:
+            self.at_destination_logic(agent, krm) # HACK:: this should be handled automatically based on the edge type
 
         return action_path
 
