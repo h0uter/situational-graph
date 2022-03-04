@@ -75,7 +75,8 @@ class KnowledgeRoadmap:
             label,
             type=EdgeType.WORLD_OBJECT_EDGE,
             # id=uuid.uuid4(),
-            cost=float("inf"),
+            # cost=float("inf"),
+            cost=-100,
         )
 
     # TODO: remove the agent_at_wp parameter requirement
@@ -146,6 +147,14 @@ class KnowledgeRoadmap:
             for node in self.graph.nodes()
             if self.graph.nodes[node]["type"] == NodeType.FRONTIER
         ]
+        
+    def get_all_world_object_idxs(self) -> list:
+        """ returns all frontier idxs in the graph"""
+        return [
+            node
+            for node in self.graph.nodes()
+            if self.graph.nodes[node]["type"] == NodeType.WORLD_OBJECT
+        ]
 
     def get_nodes_of_type_in_margin(
         self, pos: tuple, margin: float, node_type: NodeType
@@ -177,10 +186,8 @@ class KnowledgeRoadmap:
 
     def set_frontier_edge_weight(self, node_a: Node, weight: float):
         """ sets the weight of the edge between two nodes"""
-
         predecessors = self.graph.predecessors(node_a)
         for predecessor in predecessors:
-            # if self.graph.edges[node_a, neighbor]["type"] == EdgeType.FRONTIER_EDGE:
             if self.graph.edges[predecessor, node_a]["type"] == EdgeType.FRONTIER_EDGE:
                 self.graph.edges[predecessor, node_a]["cost"] = weight
                 print(f"setting edge between {predecessor} and {node_a} to {weight}")

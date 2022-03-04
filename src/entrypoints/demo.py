@@ -69,7 +69,7 @@ def perform_exploration_demo(
         exploration_usecases[agent.name].exploration_strategy.localize_agent_to_wp(
             agent, krm
         )
-        krm.add_world_object(agent.pos, f"Agent {agent.name} start")
+        # krm.add_world_object(agent.pos, f"Agent {agent.name} start")
 
     """ Main Logic"""
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")

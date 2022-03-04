@@ -38,6 +38,9 @@ class GeneralSARStrategy(FrontierBasedExplorationStrategy):
             elif current_edge_type == EdgeType.WAYPOINT_EDGE:
                 action_path = self.waypoint_action_edge(agent, krm, action_path)
 
+            elif current_edge_type == EdgeType.WORLD_OBJECT_EDGE:
+                action_path = self.world_object_action_edge(agent, krm, action_path)
+
         return action_path
 
     def frontier_action_edge(self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path):
@@ -80,7 +83,7 @@ class GeneralSARStrategy(FrontierBasedExplorationStrategy):
     def waypoint_action_edge(self, agent, krm, action_path):
         # Execute a single action edge of the action path.
 
-        if len(action_path) > 2:
+        if len(action_path) >= 2:
             # node_data = krm.get_node_data_by_idx(action_path[0])
             node_data = krm.get_node_data_by_idx(action_path[1])
             agent.move_to_pos(node_data["pos"])
@@ -91,7 +94,10 @@ class GeneralSARStrategy(FrontierBasedExplorationStrategy):
                 agent.pos, self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
             )[0]
             action_path.pop(0)
-            return action_path
+            if len(action_path) < 2:
+                return []
+            else:
+                return action_path
 
         else:
             # self._logger.warning(
@@ -100,3 +106,25 @@ class GeneralSARStrategy(FrontierBasedExplorationStrategy):
             raise Exception(
                 f"{agent.name}: Trying to perform action_path step with empty action_path {action_path}."
             )
+
+    def world_object_action_edge(self, agent, krm, action_path):
+        # is it allowed to make an action set a different action path?
+        start_node = 0
+        action_path = krm.shortest_path(agent.at_wp, start_node)
+        return action_path
+
+
+    # TODO: this should be a variable strategy
+    def select_target_frontier(
+        self, agent: AbstractAgent, krm: KnowledgeRoadmap
+    ) -> Node:
+        """ using the KRM, obtain the optimal frontier to visit next"""
+        frontier_idxs = krm.get_all_frontiers_idxs()
+        frontier_idxs.extend(krm.get_all_world_object_idxs())
+
+        if len(frontier_idxs) < 1:
+            self._log.warning(
+                f"{agent.name}: Could not select a frontier, when I should've."
+            )
+
+        return self.evaluate_frontiers_based_on_cost_to_go(agent, frontier_idxs, krm)
