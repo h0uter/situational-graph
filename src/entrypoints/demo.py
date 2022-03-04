@@ -10,7 +10,7 @@ from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.abstract_agent import AbstractAgent
 import src.utils.event as event
 from src.usecases.exploration_usecase import ExplorationUsecase
-from src.utils.config import Config, PlotLvl, Scenario
+from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
 from src.entrypoints.vizualisation_listener import VizualisationListener
 from src.utils.krm_stats import KRMStats
 
@@ -64,10 +64,12 @@ def perform_exploration_demo(
     start = time.perf_counter()
     my_logger = logging.getLogger(__name__)
 
+    """setup"""
     for agent in agents:
         exploration_usecases[agent.name].exploration_strategy.localize_agent_to_wp(
             agent, krm
         )
+        krm.add_world_object(agent.pos, f"Agent {agent.name} start")
 
     """ Main Logic"""
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
@@ -163,7 +165,7 @@ if __name__ == "__main__":
     # cfg = Config(scenario=Scenario.SIM_VILLA, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, scenario=Scenario.SIM_MAZE_MEDIUM)
 
-    # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
+    cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
 
     # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
     # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)

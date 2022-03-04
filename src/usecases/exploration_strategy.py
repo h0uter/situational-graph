@@ -36,12 +36,13 @@ class ExplorationStrategy(ABC):
             self._log.debug(f"{agent.name}: Action path set. Executing one.")
             self.action_path = self.path_execution(agent, krm, self.action_path)
             if not self.action_path:
+                self.at_destination_logic(agent, krm)
                 self._log.debug(f"{agent.name}: Action path execution finished.")
                 self.target_node = None
                 self.action_path = None
-                if self.check_completion(
-                    krm
-                ):  # only ever have to check completion here
+
+                # only ever have to check completion here
+                if self.check_completion(krm):
                     self._log.debug(f"{agent.name}: Exploration completed.")
                     self.exploration_completed = True
 
@@ -67,6 +68,10 @@ class ExplorationStrategy(ABC):
     def path_execution(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path: list[Node]
     ) -> Union[tuple[KnowledgeRoadmap, AbstractAgent, list[Node]], None]:
+        pass
+
+    @abstractmethod
+    def at_destination_logic(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
         pass
 
     @abstractmethod
