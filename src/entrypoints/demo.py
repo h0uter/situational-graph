@@ -33,12 +33,12 @@ def init_entities(cfg: Config):
 
     VizualisationListener(
         cfg
-    ).setup_viz_event_handler()  # setup the listener for vizualisation
+    ).setup_event_handler()  # setup the listener for vizualisation
 
     return agents, krm, exploration_usecases
 
 
-def priority_frontier_test(step, krm):
+def priority_frontier_mvp_test(step, krm):
     if step >= 1:
         """" experiment with neg edge cost"""
         frontiers = krm.get_all_frontiers_idxs()
@@ -60,7 +60,6 @@ def perform_exploration_demo(
 ):
     step = 0
     krm_stats = KRMStats()
-    # krm_stats.update(krm, step_duration=0)
 
     start = time.perf_counter()
     my_logger = logging.getLogger(__name__)
@@ -125,7 +124,7 @@ def perform_exploration_demo(
 
     if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
         krm_stats.plot_krm_stats()
-        
+
     # krm_stats.save()
 
     return not any(
@@ -172,5 +171,5 @@ if __name__ == "__main__":
     # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 
-    # main(cfg)
-    benchmark_func()
+    main(cfg)
+    # benchmark_func()
