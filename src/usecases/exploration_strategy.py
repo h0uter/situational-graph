@@ -20,14 +20,14 @@ class ExplorationStrategy(ABC):
     def run_exploration_step(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> bool:
         something_was_done = False
 
-        if not self.target_node:
+        if self.target_node is None:
             self._log.debug(f"{agent.name}: No target node set. Setting one.")
             self.target_node = self.target_selection(agent, krm)
             # return agent, krm
             something_was_done = True
 
         if not self.action_path:
-            self._log.debug(f"{agent.name}: No action path set. Setting one.")
+            self._log.debug(f"{agent.name}: No action path set. Finding one to {self.target_node}.")
             self.action_path = self.path_generation(agent, krm, self.target_node)
             something_was_done = True
             # return agent, krm
@@ -37,8 +37,8 @@ class ExplorationStrategy(ABC):
             self.action_path = self.path_execution(agent, krm, self.action_path)
             if not self.action_path:
                 self._log.debug(f"{agent.name}: Action path execution finished.")
-                self.target_node = None
-                self.action_path = None
+                # self.target_node = None
+                # self.action_path = None
 
                 # only ever have to check completion here
                 if self.check_completion(krm):

@@ -108,6 +108,14 @@ class KnowledgeRoadmap:
         if target_frontier["type"] == NodeType.FRONTIER:
             self.graph.remove_node(target_frontier_idx)  # also removes the edge
 
+
+    #TODO: this should be invalidate, so that we change its alpha or smth
+    def remove_world_object(self, idx) -> None:
+        """ removes a frontier from the graph"""
+        removal_target = self.get_node_data_by_idx(idx)
+        if removal_target["type"] == NodeType.WORLD_OBJECT:
+            self.graph.remove_node(idx)  # also removes the edge
+
     def get_node_by_pos(self, pos: tuple):
         """ returns the node idx at the given position """
         for node in self.graph.nodes():

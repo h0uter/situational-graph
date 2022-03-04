@@ -79,6 +79,8 @@ class GeneralSARStrategy(FrontierBasedExplorationStrategy):
                 for w_o in w_os:
                     krm.add_world_object(w_o.pos, w_o.name)
             post_event("new lg", lg)
+            self.target_node = None
+            self.action_path = None
 
     def waypoint_action_edge(self, agent, krm, action_path):
         # Execute a single action edge of the action path.
@@ -95,6 +97,8 @@ class GeneralSARStrategy(FrontierBasedExplorationStrategy):
             )[0]
             action_path.pop(0)
             if len(action_path) < 2:
+                self.target_node = None  # HACK: this should not be set all the way down here.
+                # Need a  
                 return []
             else:
                 return action_path
@@ -110,9 +114,17 @@ class GeneralSARStrategy(FrontierBasedExplorationStrategy):
     def world_object_action_edge(self, agent, krm, action_path):
         # is it allowed to make an action set a different action path?
         start_node = 0
-        action_path = krm.shortest_path(agent.at_wp, start_node)
-        return action_path
-
+        self._log.debug(
+            f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1]} from graph."
+        )
+        krm.remove_world_object(action_path[-1])
+        # action_path = krm.shortest_path(agent.at_wp, start_node)
+        # self._log.debug(
+        #     f"{agent.name}: world_object_action_edge():: action_path: {action_path}"
+        # )
+        # return action_path
+        self.target_node = start_node
+        return []
 
     # TODO: this should be a variable strategy
     def select_target_frontier(
