@@ -7,16 +7,13 @@ from src.utils.my_types import NodeType
 import uuid
 from typing import Union
 
-from src.entities.abstract_agent import AbstractAgent
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
-from src.usecases.abstract_mission import AbstractMission
 from src.utils.event import post_event
 from src.utils.config import Config
 from src.utils.my_types import EdgeType, Node, NodeType
 
 
-class ExploreFrontier(AbstractAction):
+class ExploreFrontierAction(AbstractAction):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
@@ -26,10 +23,14 @@ class ExploreFrontier(AbstractAction):
         node_data = krm.get_node_data_by_idx(action_path[1])
         agent.move_to_pos(node_data["pos"])
 
+        # this is there so we can initialze by adding a frontier self edge on 0
+        target_node_type = node_data["type"]  
+
         at_destination = (
             len(
                 krm.get_nodes_of_type_in_margin(
-                    agent.get_localization(), self.cfg.ARRIVAL_MARGIN, NodeType.FRONTIER
+                    # agent.get_localization(), self.cfg.ARRIVAL_MARGIN, NodeType.FRONTIER
+                    agent.get_localization(), self.cfg.ARRIVAL_MARGIN, target_node_type
                 )
             )
             >= 1

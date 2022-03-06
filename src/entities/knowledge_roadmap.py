@@ -21,6 +21,7 @@ class KnowledgeRoadmap:
 
     # TODO: adress local vs global KRM
     def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
+        self._log = logging.getLogger(__name__)
 
         self.graph = nx.DiGraph()  # Knowledge Road Map
         self.cfg = cfg
@@ -201,13 +202,19 @@ class KnowledgeRoadmap:
                 print(f"setting edge between {predecessor} and {node_a} to {weight}")
 
     def shortest_path(self, source: Node, target: Node):
-        return nx.shortest_path(
+
+        path = nx.shortest_path(
             self.graph,
             source=source,
             target=target,
             weight="cost",
             method=self.cfg.PATH_FINDING_METHOD,
         )
+        if len(path) > 1:
+            return path
+        else:
+            # raise ValueError("No path found")
+            self._log.error(f": No path found from {source} to {target}.")
 
     def shortest_path_len(self, source: Node, target: Node):
         return nx.shortest_path_length(

@@ -12,8 +12,8 @@ from src.utils.event import post_event
 from src.utils.config import Config
 from src.utils.my_types import EdgeType, Node, NodeType
 
-from src.usecases.actions.goto import Goto
-from src.usecases.actions.explore_frontier import ExploreFrontier
+from src.usecases.actions.goto_action import GotoAction
+from src.usecases.actions.explore_frontier_action import ExploreFrontierAction
 from src.usecases.actions.world_object_action import WorldObjectAction
 
 
@@ -22,21 +22,6 @@ class SARMission(AbstractMission):
         super().__init__(cfg)
 
     def target_selection(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> Node:
-        num_of_frontiers = len(krm.get_all_frontiers_idxs())
-        self._log.debug(
-            f"{agent.name}: There are {num_of_frontiers} frontiers currently in KRM."
-        )
-
-        # TODO: this is actually initialisation logic. it should be moved elsewere.
-        if num_of_frontiers < 1:
-            self._log.debug(
-                f"{agent.name}: No frontiers left to explore, sampling one."
-            )
-
-            lg = self.get_lg(agent)
-            self.obtain_and_process_new_frontiers(agent, krm, lg)
-            post_event("new lg", lg)
-
         self._log.debug(f"{agent.name}: Selecting target frontier and finding path.")
         target_node = self.select_optimal_target(agent, krm)
         self._log.debug(f"{agent.name}: Target frontier selected: {target_node}.")
@@ -46,7 +31,9 @@ class SARMission(AbstractMission):
     def path_generation(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, target_node: Union[str, int]
     ) -> Union[list[Node], None]:
-        possible_path = self.find_path_to_selected_frontier(agent, target_node, krm)
+        # possible_path = self.find_path_to_selected_frontier(agent, target_node, krm)
+        possible_path = krm.shortest_path(agent.at_wp, target_node)
+
         if possible_path:
             return list(possible_path)
         else:
@@ -70,13 +57,13 @@ class SARMission(AbstractMission):
             print(f"{agent.name}: current_edge_type: {current_edge_type}")
             if current_edge_type == EdgeType.FRONTIER_EDGE:
                 # self.frontier_action_edge(agent, krm, action_path)
-                ExploreFrontier(self.cfg).run(agent, krm, action_path)
+                ExploreFrontierAction(self.cfg).run(agent, krm, action_path)
                 action_path = []
                 self.target_node = None
                 self.action_path = None
             elif current_edge_type == EdgeType.WAYPOINT_EDGE:
                 # action_path = self.waypoint_action_edge(agent, krm, action_path)
-                action_path = Goto(self.cfg).run(agent, krm, action_path)
+                action_path = GotoAction(self.cfg).run(agent, krm, action_path)
                 if len(action_path) < 2:
                     self.target_node = (
                         None  # HACK: this should not be set all the way down here.
@@ -86,24 +73,49 @@ class SARMission(AbstractMission):
                     return action_path
             elif current_edge_type == EdgeType.WORLD_OBJECT_EDGE:
                 # action_path, self.target_node = self.world_object_action_edge(agent, krm, action_path)
-                action_path, self.target_node = WorldObjectAction(self.cfg).run(agent, krm, action_path)
+                action_path, self.target_node = WorldObjectAction(self.cfg).run(
+                    agent, krm, action_path
+                )
 
         return action_path
 
-    # TODO: this should be a variable strategy
     def select_optimal_target(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap
     ) -> Node:
-        """ using the KRM, obtain the optimal frontier to visit next"""
+        """ using the KRM, obtain the optimal target node to visit next"""
+        target_nodes = []
         frontier_idxs = krm.get_all_frontiers_idxs()
-        frontier_idxs.extend(krm.get_all_world_object_idxs())
+        target_nodes.extend(frontier_idxs)
+        target_nodes.extend(krm.get_all_world_object_idxs())
 
         if len(frontier_idxs) < 1:
             self._log.warning(
                 f"{agent.name}: Could not select a frontier, when I should've."
             )
 
-        return self.evaluate_frontiers_based_on_cost_to_go(agent, frontier_idxs, krm)
+        return self.evaluate_potential_targets_based_on_cost_to_go(
+            agent, target_nodes, krm
+        )
+
+    def check_target_available(self, krm: KnowledgeRoadmap) -> bool:
+        num_targets = 0
+        num_frontiers = len(krm.get_all_frontiers_idxs())
+        num_targets += num_frontiers
+
+        # TODO: this is actually initialisation logic. it should be moved elsewere.
+        if num_targets < 1:
+            return False
+        else:
+            return True
+
+    def fix_target_initialisation(self, krm: KnowledgeRoadmap) -> tuple:
+        krm.graph.add_edge(0, 0, type=EdgeType.FRONTIER_EDGE)
+
+        action_path = [0, 0]
+        return action_path, 0
+        # lg = self.get_lg(agent)
+        # self.obtain_and_process_new_frontiers(agent, krm, lg)
+        # post_event("new lg", lg)
 
     def check_completion(self, krm: KnowledgeRoadmap) -> bool:
         num_of_frontiers = len(krm.get_all_frontiers_idxs())
@@ -123,6 +135,7 @@ class SARMission(AbstractMission):
             agent.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
         )[0]
 
+    # TODO: move this to agent or LocalGrid class
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:
         lg_img = agent.get_local_grid_img()
 
@@ -130,24 +143,14 @@ class SARMission(AbstractMission):
             world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
         )
 
-    def obtain_and_process_new_frontiers(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
-    ) -> None:
-        frontiers_cells = lg.sample_frontiers_on_cellmap(
-            radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
-            num_frontiers_to_sample=self.cfg.N_SAMPLES,
-        )
-        # self._log.debug(f"{agent.name}: found {frontiers_cells} new frontiers")
-        for frontier_cell in frontiers_cells:
-            frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
-            krm.add_frontier(frontier_pos_global, agent.at_wp)
-
     """Target Selection"""
     ############################################################################################
     # ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ########################################
     ############################################################################################
-    def evaluate_frontiers_based_on_cost_to_go(
-        self, agent: AbstractAgent, frontier_idxs: list, krm: KnowledgeRoadmap
+
+    # TODO: this function needs to be optimized with a lookupt table
+    def evaluate_potential_targets_based_on_cost_to_go(
+        self, agent: AbstractAgent, target_idxs: list, krm: KnowledgeRoadmap
     ) -> Node:
         """
         Evaluate the frontiers and return the best one.
@@ -157,7 +160,7 @@ class SARMission(AbstractMission):
 
         selected_frontier_idx: Union[int, None] = None
 
-        for frontier_idx in frontier_idxs:
+        for frontier_idx in target_idxs:
             candidate_path_len = float("inf")
             # HACK: have to do this becaue  sometimes the paths are not possible
             # perhaps add a connected check first...
@@ -182,7 +185,7 @@ class SARMission(AbstractMission):
                 selected_frontier_idx = frontier_idx
         if not selected_frontier_idx:
             self._log.error(
-                f"{agent.name} at {agent.at_wp}: 1/2 No frontier can be selected from {len(frontier_idxs)} frontiers because no candidate path can be found."
+                f"{agent.name} at {agent.at_wp}: 1/2 No frontier can be selected from {len(target_idxs)} frontiers because no candidate path can be found."
             )
             self._log.error(
                 f"{agent.name} at {agent.at_wp}: 2/2 So either im at a node not connected to the krm or my target is not connected to the krm."
@@ -194,21 +197,3 @@ class SARMission(AbstractMission):
         # assert selected_frontier_idx is not None
 
         return selected_frontier_idx
-
-    """Path/Plan generation"""
-    #############################################################################################
-    def find_path_to_selected_frontier(
-        self, agent: AbstractAgent, target_frontier, krm: KnowledgeRoadmap
-    ):
-        """
-        Find the shortest path from the current waypoint to the target frontier.
-
-        :param target_frontier: the frontier that we want to reach
-        :return: The path to the selected frontier.
-        """
-        path = krm.shortest_path(source=agent.at_wp, target=target_frontier,)
-        if len(path) > 1:
-            return path
-        else:
-            # raise ValueError("No path found")
-            self._log.error(f"{agent.name}: No path found.")

@@ -15,30 +15,32 @@ class AbstractMission(ABC):
         self.exploration_completed = False
         self.action_path = list()
         self.target_node = None
+        self.init_flag = False
 
     # CONTEXT
     def main_loop(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> bool:
         something_was_done = False
 
+        if not self.check_target_available(krm) and not self.init_flag:
+            self._log.debug(f"{agent.name}: No targets available. Performing initialization.")
+            self.action_path, self.target_node = self.fix_target_initialisation(krm)
+            self.init_flag = True
+
         if self.target_node is None:
             self._log.debug(f"{agent.name}: No target node set. Setting one.")
             self.target_node = self.target_selection(agent, krm)
-            # return agent, krm
             something_was_done = True
 
         if not self.action_path:
             self._log.debug(f"{agent.name}: No action path set. Finding one to {self.target_node}.")
             self.action_path = self.path_generation(agent, krm, self.target_node)
             something_was_done = True
-            # return agent, krm
 
         if self.action_path:
             self._log.debug(f"{agent.name}: Action path set. Executing one.")
             self.action_path = self.path_execution(agent, krm, self.action_path)
             if not self.action_path:
                 self._log.debug(f"{agent.name}: Action path execution finished.")
-                # self.target_node = None
-                # self.action_path = None
 
                 # only ever have to check completion here
                 if self.check_completion(krm):
@@ -46,8 +48,6 @@ class AbstractMission(ABC):
                     self.exploration_completed = True
 
             something_was_done = True
-
-            # return agent, krm
 
         if not something_was_done:
             logging.warning("No exploration step taken")
@@ -81,4 +81,12 @@ class AbstractMission(ABC):
     def check_target_still_valid(
         self, krm: KnowledgeRoadmap, target_node: Node
     ) -> bool:
+        pass
+
+    @abstractmethod
+    def check_target_available(self, krm: KnowledgeRoadmap) -> bool:
+        pass
+    
+    @abstractmethod
+    def fix_target_initialisation(self, krm: KnowledgeRoadmap) -> tuple:
         pass

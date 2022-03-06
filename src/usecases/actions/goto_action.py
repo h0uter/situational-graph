@@ -3,7 +3,7 @@ from src.utils.config import Config
 from src.utils.my_types import NodeType
 
 
-class Goto(AbstractAction):
+class GotoAction(AbstractAction):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
