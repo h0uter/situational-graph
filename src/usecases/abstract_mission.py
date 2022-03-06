@@ -22,7 +22,9 @@ class AbstractMission(ABC):
         something_was_done = False
 
         if not self.check_target_available(krm) and not self.init_flag:
-            self._log.debug(f"{agent.name}: No targets available. Performing initialization.")
+            self._log.debug(
+                f"{agent.name}: No targets available. Performing initialization."
+            )
             self.action_path, self.target_node = self.fix_target_initialisation(krm)
             self.init_flag = True
 
@@ -32,7 +34,9 @@ class AbstractMission(ABC):
             something_was_done = True
 
         if not self.action_path:
-            self._log.debug(f"{agent.name}: No action path set. Finding one to {self.target_node}.")
+            self._log.debug(
+                f"{agent.name}: No action path set. Finding one to {self.target_node}."
+            )
             self.action_path = self.path_generation(agent, krm, self.target_node)
             something_was_done = True
 
@@ -69,10 +73,6 @@ class AbstractMission(ABC):
     ) -> Union[tuple[KnowledgeRoadmap, AbstractAgent, list[Node]], None]:
         pass
 
-    # @abstractmethod
-    # def at_destination_logic(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
-    #     pass
-
     @abstractmethod
     def check_completion(self, krm: KnowledgeRoadmap) -> bool:
         pass
@@ -86,7 +86,7 @@ class AbstractMission(ABC):
     @abstractmethod
     def check_target_available(self, krm: KnowledgeRoadmap) -> bool:
         pass
-    
+
     @abstractmethod
     def fix_target_initialisation(self, krm: KnowledgeRoadmap) -> tuple:
         pass

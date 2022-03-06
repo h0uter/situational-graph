@@ -88,6 +88,8 @@ class Config:
         self.LG_NUM_CELLS = 128
         self.LG_CELL_SIZE_M = 0.03
         self.FULL_PATH = ""
+        self.AGENT_START_POS = (0, 0)
+
         # self.PRUNE_RADIUS_FACTOR = 0.15
         self.PRUNE_RADIUS_FACTOR = 0.25
         self.SAMPLE_RING_WIDTH = 0.3

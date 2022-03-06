@@ -22,10 +22,10 @@ from src.utils.krm_stats import KRMStats
 
 def init_entities(cfg: Config):
     if cfg.SCENARIO == Scenario.REAL:
-        agents = [SpotAgent()]
+        agents = [SpotAgent(cfg)]
     else:
         agents = [
-            SimulatedAgent(cfg.AGENT_START_POS, cfg, i) for i in range(cfg.NUM_AGENTS)
+            SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)
         ]
 
     krm = KnowledgeRoadmap(cfg, start_poses=[agent.pos for agent in agents])
@@ -67,9 +67,7 @@ def perform_exploration_demo(
 
     """setup"""
     for agent in agents:
-        exploration_usecases[agent.name].exploration_strategy.localize_agent_to_wp(
-            agent, krm
-        )
+        agent.localize_to_node(krm)
         # krm.add_world_object(agent.pos, f"Agent {agent.name} start")
 
     """ Main Logic"""

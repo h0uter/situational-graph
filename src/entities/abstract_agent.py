@@ -1,16 +1,23 @@
 from abc import ABC, abstractmethod
 import numpy.typing as npt
+import logging
+
+from src.utils.config import Config
+from src.utils.my_types import NodeType
+from src.entities.knowledge_roadmap import KnowledgeRoadmap
 
 
 class AbstractAgent(ABC):
     @abstractmethod
-    def __init__(self, start_pos: tuple[float, float], name: int = 0) -> None:
+    def __init__(self, cfg: Config, name: int = 0) -> None:
         self.name = name
         self.at_wp = None
-        self.pos = start_pos
+        self.pos = cfg.AGENT_START_POS
         self.previous_pos = self.pos
+        self.cfg = cfg
 
         self.steps_taken = 0
+        self._log = logging.getLogger(__name__)
 
     @abstractmethod
     def move_to_pos(self, pos: tuple) -> None:
@@ -43,3 +50,21 @@ class AbstractAgent(ABC):
         :return: The world objects in the perception scene.
         """
         pass
+
+    # perhaps something like this should go into robot services, to not murk the dependencies.
+    def localize_to_node(self, krm: KnowledgeRoadmap):
+        loc_candidates = krm.get_nodes_of_type_in_margin(
+            self.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
+        )
+
+        if len(loc_candidates) == 0:
+            self._log.warning(f"{self.name}: could not find a waypoint in the margin")
+            return None
+        elif len(loc_candidates) == 1:
+            self.at_wp = loc_candidates[0]
+
+        elif len(loc_candidates) > 1:
+            self._log.warning(
+                f"{self.name}: found multiple waypoints in the margin, picking the first one"
+            )
+            self.at_wp = loc_candidates[0]

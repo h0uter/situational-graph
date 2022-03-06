@@ -1,5 +1,5 @@
-from src.data_providers.local_grid_image_spoofer import LocalGridImageSpoofer
 from src.entities.abstract_agent import AbstractAgent
+from src.data_providers.local_grid_image_spoofer import LocalGridImageSpoofer
 from src.data_providers.world_object_spoofer import WorldObjectSpoofer
 import numpy.typing as npt
 
@@ -13,9 +13,9 @@ class SimulatedAgent(AbstractAgent):
     """
 
     def __init__(
-        self, start_pos: tuple[float, float], cfg: Config, name: int = 0
+        self, cfg: Config, name: int = 0
     ) -> None:
-        super().__init__(start_pos, name=name)
+        super().__init__(cfg, name)
         self.lgs = LocalGridImageSpoofer(cfg)
         self.world_object_spoofer = WorldObjectSpoofer(cfg)
         # self.pos = start_pos

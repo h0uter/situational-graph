@@ -113,9 +113,6 @@ class SARMission(AbstractMission):
 
         action_path = [0, 0]
         return action_path, 0
-        # lg = self.get_lg(agent)
-        # self.obtain_and_process_new_frontiers(agent, krm, lg)
-        # post_event("new lg", lg)
 
     def check_completion(self, krm: KnowledgeRoadmap) -> bool:
         num_of_frontiers = len(krm.get_all_frontiers_idxs())
@@ -128,20 +125,6 @@ class SARMission(AbstractMission):
         self, krm: KnowledgeRoadmap, target_node: Node
     ) -> bool:
         return krm.check_node_exists(target_node)
-
-    # TODO: move this to agent class
-    def localize_agent_to_wp(self, agent: AbstractAgent, krm: KnowledgeRoadmap):
-        agent.at_wp = krm.get_nodes_of_type_in_margin(
-            agent.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
-        )[0]
-
-    # TODO: move this to agent or LocalGrid class
-    def get_lg(self, agent: AbstractAgent) -> LocalGrid:
-        lg_img = agent.get_local_grid_img()
-
-        return LocalGrid(
-            world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
-        )
 
     """Target Selection"""
     ############################################################################################
