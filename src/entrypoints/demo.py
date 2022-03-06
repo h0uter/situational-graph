@@ -155,7 +155,7 @@ if __name__ == "__main__":
 
     cfg = Config()
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
-    cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
+    # cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(num_agents=2)
     # cfg = Config(num_agents=10, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)

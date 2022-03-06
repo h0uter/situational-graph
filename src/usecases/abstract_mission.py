@@ -5,7 +5,7 @@ from typing import Union
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.utils.config import Config
-from src.utils.my_types import Node
+from src.utils.my_types import Node, EdgeType
 
 
 class AbstractMission(ABC):
@@ -46,15 +46,15 @@ class AbstractMission(ABC):
             if not self.action_path:
                 self._log.debug(f"{agent.name}: Action path execution finished.")
 
-                # only ever have to check completion here
-                if self.check_completion(krm):
-                    self._log.debug(f"{agent.name}: Exploration completed.")
-                    self.exploration_completed = True
-
+        # only ever have to check completion here
+        if self.check_completion(krm):
+            self._log.debug(f"{agent.name}: Exploration completed.")
+            self.exploration_completed = True
             something_was_done = True
 
         if not something_was_done:
             logging.warning("No exploration step taken")
+
         return self.exploration_completed
 
     @abstractmethod
@@ -77,16 +77,24 @@ class AbstractMission(ABC):
     def check_completion(self, krm: KnowledgeRoadmap) -> bool:
         pass
 
-    @abstractmethod
     def check_target_still_valid(
         self, krm: KnowledgeRoadmap, target_node: Node
     ) -> bool:
-        pass
+        return krm.check_node_exists(target_node)
 
-    @abstractmethod
     def check_target_available(self, krm: KnowledgeRoadmap) -> bool:
-        pass
+        num_targets = 0
+        num_frontiers = len(krm.get_all_frontiers_idxs())
+        num_targets += num_frontiers
+        # TODO: also add other targets
 
-    @abstractmethod
+        if num_targets < 1:
+            return False
+        else:
+            return True
+
     def fix_target_initialisation(self, krm: KnowledgeRoadmap) -> tuple:
-        pass
+        # Add a frontier edge self loop on the start node to ensure a exploration sampling action
+        krm.graph.add_edge(0, 0, type=EdgeType.FRONTIER_EDGE)
+        action_path = [0, 0]
+        return action_path, 0
