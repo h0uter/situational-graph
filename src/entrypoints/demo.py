@@ -52,6 +52,7 @@ def priority_frontier_mvp_test(step, krm):
         #     print(f"edge: {edge} properties: {krm.graph.edges[edge]}")
 
 
+# TODO: cleanup all the stuff not neccesary to understand the code high level
 def perform_exploration_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],

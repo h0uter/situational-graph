@@ -101,6 +101,8 @@ class FrontierBasedExplorationStrategy(ExplorationStrategy):
                 for w_o in w_os:
                     krm.add_world_object(w_o.pos, w_o.name)
             post_event("new lg", lg)
+            self.target_node = None
+            self.action_path = None
 
     def check_completion(self, krm: KnowledgeRoadmap) -> bool:
         num_of_frontiers = len(krm.get_all_frontiers_idxs())

@@ -193,7 +193,7 @@ class MplVizualisation(AbstractVizualisation):
         if not self.initialized:
             self.init_fig()
 
-        self.ax1.cla()  # XXX: plt1.cla is the bottleneck in my performance.
+        self.ax1.cla()  # plt1.cla is the bottleneck in my performance.
 
         self.ax1.set_title("Online Construction of Knowledge Roadmap (RViz)")
         self.ax1.set_xlabel("x", size=10)
@@ -211,7 +211,7 @@ class MplVizualisation(AbstractVizualisation):
         if not self.initialized:
             self.init_fig()
 
-        self.ax2.cla()  # XXX: plt1.cla is the bottleneck in my performance.
+        self.ax2.cla()  # plt1.cla is the bottleneck in my performance.
 
         self.ax2.set_title("Groundtruth Knowledge Roadmap construction (Gazebo)")
         self.ax2.set_xlabel("x", size=10)
@@ -245,9 +245,6 @@ class MplVizualisation(AbstractVizualisation):
         :param lg: LocalGrid
         :type lg: LocalGrid
         """
-        # TODO: emulate the local grid with this cmap alpha yada yada
-        # my_cmap = cm.jet
-        # my_cmap.set_under('k', alpha=0)
 
         self.ax2.imshow(
             lg.data,
@@ -258,7 +255,6 @@ class MplVizualisation(AbstractVizualisation):
                 lg.world_pos[1] - lg.length_in_m / 2,
                 lg.world_pos[1] + lg.length_in_m / 2,
             ],
-            # cmap=my_cmap,
             interpolation="none",
             clim=[0, 0.5],
         )
@@ -330,9 +326,6 @@ class MplVizualisation(AbstractVizualisation):
     ) -> None:
         timer = False
         start = time.perf_counter()
-
-        # HACK: matplotlib only works with one agent
-        # agent = agents[0]
 
         self.viz_krm_on_floorplan(krm)
         if timer:

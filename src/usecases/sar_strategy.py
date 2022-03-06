@@ -13,7 +13,7 @@ from src.utils.config import Config
 from src.utils.my_types import EdgeType, Node, NodeType
 
 
-class GeneralSARStrategy(FrontierBasedExplorationStrategy):
+class SARStrategy(FrontierBasedExplorationStrategy):
     def __init__(self, cfg: Config) -> None:
         super().__init__(cfg)
 
@@ -37,7 +37,6 @@ class GeneralSARStrategy(FrontierBasedExplorationStrategy):
                 action_path = []
             elif current_edge_type == EdgeType.WAYPOINT_EDGE:
                 action_path = self.waypoint_action_edge(agent, krm, action_path)
-
             elif current_edge_type == EdgeType.WORLD_OBJECT_EDGE:
                 action_path = self.world_object_action_edge(agent, krm, action_path)
 
