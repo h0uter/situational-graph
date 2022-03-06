@@ -1,7 +1,7 @@
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
-from src.usecases.frontier_based_exploration_strategy import FrontierBasedExplorationStrategy
-from src.usecases.sar_strategy import SARStrategy
+from src.usecases.archive.frontier_based_exploration_strategy import FrontierBasedExplorationStrategy
+from src.usecases.archive.sar_strategy import SARStrategy
 from src.usecases.decomposed_sar_strategy import DecomposedSARStrategy
 from src.utils.config import Config
 

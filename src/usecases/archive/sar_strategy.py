@@ -5,7 +5,7 @@ from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
 from src.usecases.exploration_strategy import ExplorationStrategy
-from src.usecases.frontier_based_exploration_strategy import (
+from src.usecases.archive.frontier_based_exploration_strategy import (
     FrontierBasedExplorationStrategy,
 )
 from src.utils.event import post_event
