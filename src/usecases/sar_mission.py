@@ -31,6 +31,13 @@ class SARMission(AbstractMission):
     def path_generation(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap, target_node: Union[str, int]
     ) -> Union[list[Node], None]:
+
+        if not self.check_target_still_valid(krm, target_node):
+            self._log.warning(
+                f"path_execution()::{agent.name}:: Target is no longer valid."
+            )
+            return None
+
         # possible_path = self.find_path_to_selected_frontier(agent, target_node, krm)
         possible_path = krm.shortest_path(agent.at_wp, target_node)
 
@@ -38,6 +45,7 @@ class SARMission(AbstractMission):
             return list(possible_path)
         else:
             self._log.warning(f"{agent.name}: path_generation(): no path found")
+
             return None
 
     def path_execution(
@@ -47,6 +55,8 @@ class SARMission(AbstractMission):
             self._log.warning(
                 f"path_execution()::{agent.name}:: Target is no longer valid."
             )
+            self.target_node = None
+            self.action_path = None
             return None
 
         print(f"{agent.name}: action_path: {action_path}")
