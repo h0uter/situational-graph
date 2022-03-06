@@ -1,7 +1,7 @@
-
 from src.usecases.actions.abstract_action import AbstractAction
 from src.utils.config import Config
 from src.utils.my_types import NodeType
+
 
 class WorldObjectAction(AbstractAction):
     def __init__(self, cfg: Config):
