@@ -8,7 +8,7 @@ from src.utils.config import Config
 from src.utils.my_types import Node
 
 
-class ExplorationStrategy(ABC):
+class AbstractMission(ABC):
     def __init__(self, cfg: Config) -> None:
         self._log = logging.getLogger(__name__)
         self.cfg = cfg
@@ -17,7 +17,7 @@ class ExplorationStrategy(ABC):
         self.target_node = None
 
     # CONTEXT
-    def run_exploration_step(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> bool:
+    def main_loop(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> bool:
         something_was_done = False
 
         if self.target_node is None:
@@ -69,9 +69,9 @@ class ExplorationStrategy(ABC):
     ) -> Union[tuple[KnowledgeRoadmap, AbstractAgent, list[Node]], None]:
         pass
 
-    @abstractmethod
-    def at_destination_logic(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
-        pass
+    # @abstractmethod
+    # def at_destination_logic(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
+    #     pass
 
     @abstractmethod
     def check_completion(self, krm: KnowledgeRoadmap) -> bool:

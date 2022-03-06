@@ -4,7 +4,7 @@ from typing import Union
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
-from src.usecases.exploration_strategy import ExplorationStrategy
+from src.usecases.abstract_mission import AbstractMission
 from src.usecases.archive.frontier_based_exploration_strategy import (
     FrontierBasedExplorationStrategy,
 )
@@ -14,25 +14,31 @@ from src.utils.my_types import EdgeType, Node, NodeType
 
 from src.usecases.actions.goto import Goto
 from src.usecases.actions.explore_frontier import ExploreFrontier
+from src.usecases.actions.world_object_action import WorldObjectAction
 
 
-# class DecomposedSARStrategy(FrontierBasedExplorationStrategy):
-class DecomposedSARStrategy(ExplorationStrategy):
+class SARMission(AbstractMission):
     def __init__(self, cfg: Config) -> None:
         super().__init__(cfg)
 
     def target_selection(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> Node:
         num_of_frontiers = len(krm.get_all_frontiers_idxs())
-        self._log.debug(f"{agent.name}: There are {num_of_frontiers} frontiers currently in KRM.")
+        self._log.debug(
+            f"{agent.name}: There are {num_of_frontiers} frontiers currently in KRM."
+        )
+
+        # TODO: this is actually initialisation logic. it should be moved elsewere.
         if num_of_frontiers < 1:
-            self._log.debug(f"{agent.name}: No frontiers left to explore, sampling one.")
+            self._log.debug(
+                f"{agent.name}: No frontiers left to explore, sampling one."
+            )
 
             lg = self.get_lg(agent)
             self.obtain_and_process_new_frontiers(agent, krm, lg)
             post_event("new lg", lg)
 
         self._log.debug(f"{agent.name}: Selecting target frontier and finding path.")
-        target_node = self.select_target_frontier(agent, krm)
+        target_node = self.select_optimal_target(agent, krm)
         self._log.debug(f"{agent.name}: Target frontier selected: {target_node}.")
 
         return target_node
@@ -72,32 +78,20 @@ class DecomposedSARStrategy(ExplorationStrategy):
                 # action_path = self.waypoint_action_edge(agent, krm, action_path)
                 action_path = Goto(self.cfg).run(agent, krm, action_path)
                 if len(action_path) < 2:
-                    self.target_node = None  # HACK: this should not be set all the way down here.
+                    self.target_node = (
+                        None  # HACK: this should not be set all the way down here.
+                    )
                     action_path = []
                 else:
                     return action_path
             elif current_edge_type == EdgeType.WORLD_OBJECT_EDGE:
-                action_path = self.world_object_action_edge(agent, krm, action_path)
+                # action_path, self.target_node = self.world_object_action_edge(agent, krm, action_path)
+                action_path, self.target_node = WorldObjectAction(self.cfg).run(agent, krm, action_path)
 
         return action_path
 
-    def world_object_action_edge(self, agent, krm, action_path):
-        # is it allowed to make an action set a different action path?
-        start_node = 0
-        self._log.debug(
-            f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1]} from graph."
-        )
-        krm.remove_world_object(action_path[-1])
-        # action_path = krm.shortest_path(agent.at_wp, start_node)
-        # self._log.debug(
-        #     f"{agent.name}: world_object_action_edge():: action_path: {action_path}"
-        # )
-        # return action_path
-        self.target_node = start_node
-        return []
-
     # TODO: this should be a variable strategy
-    def select_target_frontier(
+    def select_optimal_target(
         self, agent: AbstractAgent, krm: KnowledgeRoadmap
     ) -> Node:
         """ using the KRM, obtain the optimal frontier to visit next"""
@@ -110,43 +104,6 @@ class DecomposedSARStrategy(ExplorationStrategy):
             )
 
         return self.evaluate_frontiers_based_on_cost_to_go(agent, frontier_idxs, krm)
-
-##########
-    # TODO: this should be frontier edge action
-    def at_destination_logic(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
-        at_destination = (
-            len(
-                krm.get_nodes_of_type_in_margin(
-                    agent.get_localization(), self.cfg.ARRIVAL_MARGIN, NodeType.FRONTIER
-                )
-            )
-            >= 1
-        )
-        self._log.debug(f"{agent.name}: at_destination: {at_destination}")
-
-        if at_destination:
-            self._log.debug(
-                f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
-            )
-            krm.remove_frontier(self.next_node)
-            # self.selected_frontier_idx = None
-
-            self.sample_waypoint_from_pose(agent, krm)
-            lg = self.get_lg(agent)
-            self.obtain_and_process_new_frontiers(
-                agent, krm, lg
-            )  # XXX: this is my most expensive function, so I should try to optimize it
-            self.prune_frontiers(
-                krm
-            )  # XXX: this is my 2nd expensive function, so I should try to optimize it
-            self.find_shortcuts_between_wps(lg, krm, agent)
-            w_os = agent.look_for_world_objects_in_perception_scene()
-            if w_os:
-                for w_o in w_os:
-                    krm.add_world_object(w_o.pos, w_o.name)
-            post_event("new lg", lg)
-            self.target_node = None
-            self.action_path = None
 
     def check_completion(self, krm: KnowledgeRoadmap) -> bool:
         num_of_frontiers = len(krm.get_all_frontiers_idxs())
@@ -165,7 +122,6 @@ class DecomposedSARStrategy(ExplorationStrategy):
         agent.at_wp = krm.get_nodes_of_type_in_margin(
             agent.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
         )[0]
-
 
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:
         lg_img = agent.get_local_grid_img()
@@ -198,7 +154,7 @@ class DecomposedSARStrategy(ExplorationStrategy):
         this is the entrypoint for exploiting semantics
         """
         shortest_path_len = float("inf")
-        
+
         selected_frontier_idx: Union[int, None] = None
 
         for frontier_idx in frontier_idxs:
@@ -219,10 +175,7 @@ class DecomposedSARStrategy(ExplorationStrategy):
             # choose the last shortest path among equals
             # if len(candidate_path) <= shortest_path_by_node_count:
             #  choose the first shortest path among equals
-            if (
-                candidate_path_len < shortest_path_len
-                and candidate_path_len != 0
-            ):
+            if candidate_path_len < shortest_path_len and candidate_path_len != 0:
                 shortest_path_len = candidate_path_len
                 # candidate_path_len = list(candidate_path_len)
                 # selected_frontier_idx = candidate_path_len[-1]
@@ -241,7 +194,7 @@ class DecomposedSARStrategy(ExplorationStrategy):
         # assert selected_frontier_idx is not None
 
         return selected_frontier_idx
- 
+
     """Path/Plan generation"""
     #############################################################################################
     def find_path_to_selected_frontier(

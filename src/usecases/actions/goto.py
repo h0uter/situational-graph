@@ -1,4 +1,3 @@
-
 from src.usecases.actions.abstract_action import AbstractAction
 from src.utils.config import Config
 from src.utils.my_types import NodeType

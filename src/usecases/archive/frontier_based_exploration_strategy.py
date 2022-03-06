@@ -4,13 +4,13 @@ from typing import Union
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.knowledge_roadmap import KnowledgeRoadmap
 from src.entities.local_grid import LocalGrid
-from src.usecases.exploration_strategy import ExplorationStrategy
+from src.usecases.abstract_mission import AbstractMission
 from src.utils.event import post_event
 from src.utils.config import Config
 from src.utils.my_types import EdgeType, Node, NodeType
 
 
-class FrontierBasedExplorationStrategy(ExplorationStrategy):
+class FrontierBasedExplorationStrategy(AbstractMission):
     def __init__(self, cfg: Config) -> None:
         super().__init__(cfg)
 

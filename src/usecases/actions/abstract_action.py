@@ -3,6 +3,7 @@ from src.utils.config import Config
 
 import logging
 
+
 class AbstractAction(ABC):
     def __init__(self, cfg: Config):
         self.cfg = cfg
