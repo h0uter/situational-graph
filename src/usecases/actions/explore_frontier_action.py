@@ -3,10 +3,6 @@ from src.entities.krm import KRM
 from src.usecases.actions.abstract_action import AbstractAction
 from src.utils.config import Config
 from src.utils.my_types import NodeType
-
-import uuid
-from typing import Union
-
 from src.entities.local_grid import LocalGrid
 from src.utils.event import post_event
 from src.utils.config import Config
@@ -24,12 +20,11 @@ class ExploreFrontierAction(AbstractAction):
         agent.move_to_pos(node_data["pos"])
 
         # this is there so we can initialze by adding a frontier self edge on 0
-        target_node_type = node_data["type"]  
+        target_node_type = node_data["type"]
 
         at_destination = (
             len(
                 krm.get_nodes_of_type_in_margin(
-                    # agent.get_localization(), self.cfg.ARRIVAL_MARGIN, NodeType.FRONTIER
                     agent.get_localization(), self.cfg.ARRIVAL_MARGIN, target_node_type
                 )
             )
@@ -61,12 +56,9 @@ class ExploreFrontierAction(AbstractAction):
             self.target_node = None
             self.action_path = None
 
-        """Path Execution"""
-
+    """Path Execution"""
     #############################################################################################
-    def sample_waypoint_from_pose(
-        self, agent: AbstractAgent, krm: KRM
-    ) -> None:
+    def sample_waypoint_from_pose(self, agent: AbstractAgent, krm: KRM) -> None:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         this should be sampled from the pose graph eventually
@@ -84,16 +76,6 @@ class ExploreFrontierAction(AbstractAction):
         agent.at_wp = krm.get_nodes_of_type_in_margin(
             agent.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
         )[0]
-
-    # utitlies
-    ############################################################################################
-
-    def get_lg(self, agent: AbstractAgent) -> LocalGrid:
-        lg_img = agent.get_local_grid_img()
-
-        return LocalGrid(
-            world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
-        )
 
     def obtain_and_process_new_frontiers(
         self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
@@ -121,9 +103,7 @@ class ExploreFrontierAction(AbstractAction):
             for frontier in close_frontiers:
                 krm.remove_frontier(frontier)
 
-    def find_shortcuts_between_wps(
-        self, lg: LocalGrid, krm: KRM, agent: AbstractAgent
-    ):
+    def find_shortcuts_between_wps(self, lg: LocalGrid, krm: KRM, agent: AbstractAgent):
         close_nodes = krm.get_nodes_of_type_in_margin(
             lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, NodeType.WAYPOINT
         )
@@ -151,3 +131,12 @@ class ExploreFrontierAction(AbstractAction):
                     krm.graph.add_edge(
                         to_wp, from_wp, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
                     )
+
+    # utitlies
+    ############################################################################################
+    def get_lg(self, agent: AbstractAgent) -> LocalGrid:
+        lg_img = agent.get_local_grid_img()
+
+        return LocalGrid(
+            world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
+        )

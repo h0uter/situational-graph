@@ -27,9 +27,9 @@ class KRM:
         self.cfg = cfg
         self.next_wp_idx = 0
 
-        self.duplicate_start_poses = []
 
         # This is ugly
+        self.duplicate_start_poses = []
         for start_pos in start_poses:
             if start_pos not in self.duplicate_start_poses:
                 self.add_start_waypoints(start_pos)
@@ -78,7 +78,6 @@ class KRM:
             label,
             type=EdgeType.WORLD_OBJECT_EDGE,
             # id=uuid.uuid4(),
-            # cost=float("inf"),
             cost=-100,
         )
 
