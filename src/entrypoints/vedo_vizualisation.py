@@ -264,8 +264,12 @@ class VedoVisualisation(AbstractVizualisation):
     #         self.plt.add(plot_wps, at=1, render=False)
 
     def viz_point(self, pos):
-        point = vedo.Point((pos[0]*self.factor, pos[1]*self.factor, 0), r=35, c="yellow")
+        point = vedo.Point((pos[0]*self.factor, pos[1]*self.factor, 0), r=35, c="blue")
         # self.plt.show(point)
         # self.actors.append(point)
         self.debug_actors.append(point)
         print(f"adding point {pos} to debug actors")
+        start_vig = point.vignette(
+                "Start", offset=[0, 0, 5 * self.factor], s=self.factor,
+            )
+        self.debug_actors.append(start_vig)

@@ -21,7 +21,7 @@ from bosdyn.client.frame_helpers import (
     get_vision_tform_body,
 )
 
-from src.data_providers.world_object_labels import create_wo_from_aruco
+from src.data_providers.fiducial_2_world_object_labels import create_wo_from_fiducial
 from src.data_providers.spot_wrapper import SpotWrapper
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.local_grid import LocalGrid
@@ -147,7 +147,7 @@ class SpotAgent(AbstractAgent):
                 # print(f"fiducial_rt_world = {fiducial_rt_world}")
 
                 # wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
-                wo = create_wo_from_aruco(
+                wo = create_wo_from_fiducial(
                     (fiducial_rt_world.x, fiducial_rt_world.y),
                     fiducial.apriltag_properties.tag_id,
                 )

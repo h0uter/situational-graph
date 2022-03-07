@@ -12,6 +12,6 @@ world_object_id_to_name_mapping = {
 }
 
 
-def create_wo_from_aruco(pos, id):
+def create_wo_from_fiducial(pos, id):
     name = world_object_id_to_name_mapping[str(id)]
     return WorldObject(pos, name)

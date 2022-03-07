@@ -13,6 +13,7 @@ from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
 from src.entrypoints.vizualisation_listener import VizualisationListener
 from src.utils.krm_stats import KRMStats
+from src.utils.my_types import EdgeType, Node, NodeType
 
 
 ############################################################################################
@@ -52,7 +53,9 @@ def perform_exploration_demo(
     """setup"""
     for agent in agents:
         agent.localize_to_node(krm)
+        event.post_event("viz point", agent.pos)
         # krm.add_world_object(agent.pos, f"Agent {agent.name} start")
+
 
     """ Main Logic"""
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
