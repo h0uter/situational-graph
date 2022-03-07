@@ -10,7 +10,7 @@ from src.entities.krm import KRM
 from src.entities.abstract_agent import AbstractAgent
 import src.utils.event as event
 from src.usecases.exploration_usecase import ExplorationUsecase
-from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
+from src.utils.config import Config, PlotLvl, Scenario
 from src.entrypoints.vizualisation_listener import VizualisationListener
 from src.utils.krm_stats import KRMStats
 

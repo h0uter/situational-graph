@@ -2,11 +2,9 @@ from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
 from src.usecases.actions.abstract_action import AbstractAction
 from src.utils.config import Config
-from src.utils.my_types import NodeType
 from src.entities.local_grid import LocalGrid
 from src.utils.event import post_event
-from src.utils.config import Config
-from src.utils.my_types import EdgeType, Node, NodeType
+from src.utils.my_types import EdgeType, NodeType
 
 
 class ExploreFrontierAction(AbstractAction):
@@ -69,13 +67,25 @@ class ExploreFrontierAction(AbstractAction):
         # with the intended frontier and not a random one
         # HACK: just taking the first one from the list is not neccessarily the closest
         # BUG: list index out of range range
-        wp_at_previous_pos = krm.get_nodes_of_type_in_margin(
+        # wp_at_previous_pos_candidates = krm.get_nodes_of_type_in_margin(
+        #     agent.previous_pos, self.cfg.PREV_POS_MARGIN, NodeType.WAYPOINT
+        # )[0]
+        wp_at_previous_pos_candidates = krm.get_nodes_of_type_in_margin(
             agent.previous_pos, self.cfg.PREV_POS_MARGIN, NodeType.WAYPOINT
-        )[0]
-        krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
-        agent.at_wp = krm.get_nodes_of_type_in_margin(
-            agent.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
-        )[0]
+        )
+
+        if len(wp_at_previous_pos_candidates) == 0:
+            self._log.debug(f"{agent.name}: No waypoint at previous pos.")
+            return
+        elif len(wp_at_previous_pos_candidates) >= 1:
+            self._log.debug(
+                f"{agent.name}: Multiple waypoints at previous pos, taking first one."
+            )
+            wp_at_previous_pos = wp_at_previous_pos_candidates[0]
+
+            krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
+
+        agent.localize_to_node(krm)
 
     def obtain_and_process_new_frontiers(
         self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
@@ -96,7 +106,6 @@ class ExploreFrontierAction(AbstractAction):
 
         for wp in waypoints:
             wp_pos = krm.get_node_data_by_idx(wp)["pos"]
-            # close_frontiers = self.get_nodes_of_type_in_radius(
             close_frontiers = krm.get_nodes_of_type_in_margin(
                 wp_pos, self.cfg.PRUNE_RADIUS, NodeType.FRONTIER
             )

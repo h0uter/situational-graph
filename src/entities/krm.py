@@ -80,7 +80,7 @@ class KRM:
         )
 
     # TODO: remove the agent_at_wp parameter requirement
-    def add_frontier(self, pos: tuple, agent_at_wp: int) -> None:
+    def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
         """ adds a frontier to the graph"""
         self.graph.add_node(
             self.next_frontier_idx, pos=pos, type=NodeType.FRONTIER, id=uuid.uuid4()
@@ -223,6 +223,6 @@ class KRM:
             method=self.cfg.PATH_FINDING_METHOD,
         )
 
-        assert path_len is float
+        # assert path_len is float
 
         return path_len

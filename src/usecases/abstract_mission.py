@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
-from typing import Union
+from typing import Optional, Union
 
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
@@ -78,8 +78,10 @@ class AbstractMission(ABC):
         pass
 
     def check_target_still_valid(
-        self, krm: KRM, target_node: Node
+        self, krm: KRM, target_node: Optional[Node]
     ) -> bool:
+        if target_node is None:
+            return False
         return krm.check_node_exists(target_node)
 
     def check_target_available(self, krm: KRM) -> bool:

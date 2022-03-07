@@ -4,7 +4,7 @@ import logging
 
 from src.utils.config import Config
 from src.entities.krm import KRM
-from src.utils.my_types import EdgeType, Node, NodeType
+from src.utils.my_types import Node, NodeType
 
 
 class AbstractAgent(ABC):

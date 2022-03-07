@@ -7,7 +7,7 @@ from src.usecases.actions.explore_frontier_action import ExploreFrontierAction
 from src.usecases.actions.goto_action import GotoAction
 from src.usecases.actions.world_object_action import WorldObjectAction
 from src.utils.config import Config
-from src.utils.my_types import EdgeType, Node, NodeType
+from src.utils.my_types import EdgeType, Node
 
 
 class SARMission(AbstractMission):
@@ -36,8 +36,8 @@ class SARMission(AbstractMission):
         return target_node
 
     def path_generation(
-        self, agent: AbstractAgent, krm: KRM, target_node: Union[str, int]
-    ) -> Union[list[Node], None]:
+        self, agent: AbstractAgent, krm: KRM, target_node: Node
+    ) -> Optional[list[Optional[Node]]]:
 
         if not self.check_target_still_valid(krm, target_node):
             self._log.warning(
@@ -124,7 +124,7 @@ class SARMission(AbstractMission):
             # perhaps add a connected check first...
 
             # TODO: make this the shortest path from single point to multiple endpoints.
-            candidate_path_len: float = krm.shortest_path_len(agent.at_wp, target_idx)
+            candidate_path_len: float = krm.shortest_path_len(agent.at_wp, target_idx)  # type: ignore
 
             #  choose the first shortest path among equals
             if candidate_path_len < shortest_path_len and candidate_path_len != 0:
@@ -139,6 +139,7 @@ class SARMission(AbstractMission):
             self._log.error(
                 f"{agent.name} at {agent.at_wp}: 2/2 So either im at a node not connected to the krm or my target is not connected to the krm."
             )
+            return None
 
         assert selected_target_idx is not None
 
