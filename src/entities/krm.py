@@ -3,7 +3,6 @@ import uuid
 
 import networkx as nx
 import logging
-from src.utils.krm_stats import KRMStats
 
 from src.utils.my_types import EdgeType, Node, NodeType
 from src.utils.config import Config
@@ -26,7 +25,6 @@ class KRM:
         self.graph = nx.DiGraph()  # Knowledge Road Map
         self.cfg = cfg
         self.next_wp_idx = 0
-
 
         # This is ugly
         self.duplicate_start_poses = []
@@ -110,8 +108,7 @@ class KRM:
         if target_frontier["type"] == NodeType.FRONTIER:
             self.graph.remove_node(target_frontier_idx)  # also removes the edge
 
-
-    #TODO: this should be invalidate, so that we change its alpha or smth
+    # TODO: this should be invalidate, so that we change its alpha or smth
     def remove_world_object(self, idx) -> None:
         """ removes a frontier from the graph"""
         removal_target = self.get_node_data_by_idx(idx)
@@ -157,7 +154,7 @@ class KRM:
             for node in self.graph.nodes()
             if self.graph.nodes[node]["type"] == NodeType.FRONTIER
         ]
-        
+
     def get_all_world_object_idxs(self) -> list:
         """ returns all frontier idxs in the graph"""
         return [
@@ -218,10 +215,14 @@ class KRM:
             self._log.error(f": No path found from {source} to {target}.")
 
     def shortest_path_len(self, source: Node, target: Node):
-        return nx.shortest_path_length(
+        path_len = nx.shortest_path_length(
             self.graph,
             source=source,
             target=target,
             weight="cost",
             method=self.cfg.PATH_FINDING_METHOD,
         )
+
+        assert path_len is float
+
+        return path_len

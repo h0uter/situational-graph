@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
@@ -113,18 +113,18 @@ class SARMission(AbstractMission):
         Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics
         """
-        shortest_path_len = float("inf")
+        shortest_path_len: float = float("inf")
 
-        selected_target_idx: Union[int, None] = None
+        # selected_target_idx: Union[int, None] = None
+        selected_target_idx: Optional[int]
 
         for target_idx in target_idxs:
-            candidate_path_len = float("inf")
+            # candidate_path_len = float("inf")
             # HACK: have to do this becaue  sometimes the paths are not possible
             # perhaps add a connected check first...
 
             # TODO: make this the shortest path from single point to multiple endpoints.
-
-            candidate_path_len = krm.shortest_path_len(agent.at_wp, target_idx)
+            candidate_path_len: float = krm.shortest_path_len(agent.at_wp, target_idx)
 
             #  choose the first shortest path among equals
             if candidate_path_len < shortest_path_len and candidate_path_len != 0:
@@ -140,6 +140,6 @@ class SARMission(AbstractMission):
                 f"{agent.name} at {agent.at_wp}: 2/2 So either im at a node not connected to the krm or my target is not connected to the krm."
             )
 
-        # assert selected_frontier_idx is not None
+        assert selected_target_idx is not None
 
         return selected_target_idx

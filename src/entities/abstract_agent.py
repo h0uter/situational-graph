@@ -3,20 +3,21 @@ import numpy.typing as npt
 import logging
 
 from src.utils.config import Config
-from src.utils.my_types import NodeType
 from src.entities.krm import KRM
+from src.utils.my_types import EdgeType, Node, NodeType
 
 
 class AbstractAgent(ABC):
     @abstractmethod
     def __init__(self, cfg: Config, name: int = 0) -> None:
         self.name = name
-        self.at_wp = None
-        self.pos = cfg.AGENT_START_POS
-        self.previous_pos = self.pos
         self.cfg = cfg
 
-        self.steps_taken = 0
+        self.at_wp: Node
+        self.pos = cfg.AGENT_START_POS
+        self.previous_pos = self.pos
+
+        self.steps_taken: int = 0
         self._log = logging.getLogger(__name__)
 
     @abstractmethod
@@ -59,7 +60,7 @@ class AbstractAgent(ABC):
 
         if len(loc_candidates) == 0:
             self._log.warning(f"{self.name}: could not find a waypoint in the margin")
-            self.at_wp = None
+            # self.at_wp = None
         elif len(loc_candidates) == 1:
             self.at_wp = loc_candidates[0]
 
@@ -68,5 +69,5 @@ class AbstractAgent(ABC):
                 f"{self.name}: found multiple waypoints in the margin, picking the first one"
             )
             self.at_wp = loc_candidates[0]
-   
+
         assert self.at_wp is not None, "self.at_wp is None"

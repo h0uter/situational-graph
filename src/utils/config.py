@@ -98,9 +98,9 @@ class Config:
         # self.PRUNE_RADIUS_FACTOR = 0.25
         self.PRUNE_RADIUS_FACTOR = 0.25
         self.SAMPLE_RING_WIDTH = 0.3
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = (
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
             self.LG_NUM_CELLS // 2
-        ) * self.SAMPLE_RADIUS_FACTOR
+        ) * self.SAMPLE_RADIUS_FACTOR)
 
     def set_sim_villa_params(self):
 
@@ -113,9 +113,9 @@ class Config:
         self.IMG_TOTAL_X_PIX = 2026
         self.IMG_TOTAL_Y_PIX = 1686
         self.LG_NUM_CELLS = 420  # max:420 due to img border margins
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = (
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
             self.LG_NUM_CELLS // 2
-        ) * self.SAMPLE_RADIUS_FACTOR
+        ) * self.SAMPLE_RADIUS_FACTOR)
 
         # self.AGENT_START_POS = (-9, 13)
         self.AGENT_START_POS = (4, 0)
@@ -133,9 +133,9 @@ class Config:
         self.IMG_TOTAL_X_PIX = 2000
         self.IMG_TOTAL_Y_PIX = 1000
         self.LG_NUM_CELLS = 420  # max:420 due to img border margins
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = (
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
             self.LG_NUM_CELLS // 2
-        ) * self.SAMPLE_RADIUS_FACTOR
+        ) * self.SAMPLE_RADIUS_FACTOR)
 
         self.AGENT_START_POS = (-2, 0)
         self.TOT_MAP_LEN_M_Y = (
@@ -150,9 +150,9 @@ class Config:
         self.IMG_TOTAL_X_PIX = 1920
         self.IMG_TOTAL_Y_PIX = 1920
         self.LG_NUM_CELLS = 200  # max:420 due to img border margins
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = (
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
             self.LG_NUM_CELLS // 2
-        ) * self.SAMPLE_RADIUS_FACTOR
+        ) * self.SAMPLE_RADIUS_FACTOR)
 
         # self.AGENT_START_POS = (-3, 0)
         self.AGENT_START_POS = (-30, -30)
