@@ -2,7 +2,7 @@ import uuid
 from typing import Union
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.krm import KRM
 from src.entities.local_grid import LocalGrid
 from src.usecases.abstract_mission import AbstractMission
 from src.utils.event import post_event
@@ -18,7 +18,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
 
         # TODO: according to arjan the parameters for a certain strategy should be defined here.
 
-    def target_selection(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> Node:
+    def target_selection(self, agent: AbstractAgent, krm: KRM) -> Node:
         num_of_frontiers = len(krm.get_all_frontiers_idxs())
         self._log.debug(f"{agent.name}: There are {num_of_frontiers} frontiers currently in KRM.")
         if num_of_frontiers < 1:
@@ -35,7 +35,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
         return target_node
 
     def path_generation(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, target_node: Union[str, int]
+        self, agent: AbstractAgent, krm: KRM, target_node: Union[str, int]
     ) -> Union[list[Node], None]:
         possible_path = self.find_path_to_selected_frontier(agent, target_node, krm)
         if possible_path:
@@ -48,7 +48,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
     # TODO: I should split this up into executing path and logic for when we arrive at the destination
     # put path execution logic in abstract agent
     def path_execution(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path: list[Node]
+        self, agent: AbstractAgent, krm: KRM, action_path: list[Node]
     ) -> Union[list[Node], None]:
         if not self.check_target_still_valid(krm, self.target_node):
             self._log.warning(f"path_execution()::{agent.name}:: Target is no longer valid.")
@@ -69,7 +69,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
         return action_path
 
     # TODO: this should be frontier edge action
-    def at_destination_logic(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> None:
+    def at_destination_logic(self, agent: AbstractAgent, krm: KRM) -> None:
         at_destination = (
             len(
                 krm.get_nodes_of_type_in_margin(
@@ -104,7 +104,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
             self.target_node = None
             self.action_path = None
 
-    def check_completion(self, krm: KnowledgeRoadmap) -> bool:
+    def check_completion(self, krm: KRM) -> bool:
         num_of_frontiers = len(krm.get_all_frontiers_idxs())
         if num_of_frontiers < 1:
             return True
@@ -112,7 +112,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
             return False
 
     def check_target_still_valid(
-        self, krm: KnowledgeRoadmap, target_node: Node
+        self, krm: KRM, target_node: Node
     ) -> bool:
         return krm.check_node_exists(target_node)
 
@@ -127,7 +127,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
         )
 
     def obtain_and_process_new_frontiers(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
+        self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
     ) -> None:
         frontiers_cells = lg.sample_frontiers_on_cellmap(
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
@@ -143,7 +143,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
     # ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ########################################
     ############################################################################################
     def evaluate_frontiers_based_on_cost_to_go(
-        self, agent: AbstractAgent, frontier_idxs: list, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, frontier_idxs: list, krm: KRM
     ) -> Node:
         """
         Evaluate the frontiers and return the best one.
@@ -196,7 +196,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
 
     # TODO: this should be a variable strategy
     def select_target_frontier(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, krm: KRM
     ) -> Node:
         """ using the KRM, obtain the optimal frontier to visit next"""
         frontier_idxs = krm.get_all_frontiers_idxs()
@@ -211,7 +211,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
     """Path/Plan generation"""
     #############################################################################################
     def find_path_to_selected_frontier(
-        self, agent: AbstractAgent, target_frontier, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, target_frontier, krm: KRM
     ):
         """
         Find the shortest path from the current waypoint to the target frontier.
@@ -227,7 +227,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
             self._log.error(f"{agent.name}: No path found.")
 
     def perform_path_action(
-        self, agent: AbstractAgent, path: list, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, path: list, krm: KRM
     ) -> list:
         """
         Execute a single action edge of the action path.
@@ -279,7 +279,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
     """Path Execution"""
     #############################################################################################
     def sample_waypoint_from_pose(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, krm: KRM
     ) -> None:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
@@ -300,12 +300,12 @@ class FrontierBasedExplorationStrategy(AbstractMission):
         )[0]
 
     # TODO: move this to agent class
-    def localize_agent_to_wp(self, agent: AbstractAgent, krm: KnowledgeRoadmap):
+    def localize_agent_to_wp(self, agent: AbstractAgent, krm: KRM):
         agent.at_wp = krm.get_nodes_of_type_in_margin(
             agent.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
         )[0]
 
-    def prune_frontiers(self, krm: KnowledgeRoadmap) -> None:
+    def prune_frontiers(self, krm: KRM) -> None:
         """obtain all the frontier nodes in krm in a certain radius around the current position"""
 
         waypoints = krm.get_all_waypoint_idxs()
@@ -320,7 +320,7 @@ class FrontierBasedExplorationStrategy(AbstractMission):
                 krm.remove_frontier(frontier)
 
     def find_shortcuts_between_wps(
-        self, lg: LocalGrid, krm: KnowledgeRoadmap, agent: AbstractAgent
+        self, lg: LocalGrid, krm: KRM, agent: AbstractAgent
     ):
         close_nodes = krm.get_nodes_of_type_in_margin(
             lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, NodeType.WAYPOINT

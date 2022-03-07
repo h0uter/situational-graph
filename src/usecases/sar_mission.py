@@ -1,7 +1,7 @@
 from typing import Union
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.krm import KRM
 from src.usecases.abstract_mission import AbstractMission
 
 from src.utils.config import Config
@@ -16,7 +16,7 @@ class SARMission(AbstractMission):
     def __init__(self, cfg: Config) -> None:
         super().__init__(cfg)
 
-    def target_selection(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> Node:
+    def target_selection(self, agent: AbstractAgent, krm: KRM) -> Node:
         self._log.debug(f"{agent.name}: Selecting target frontier and finding path.")
 
         target_nodes = []
@@ -38,7 +38,7 @@ class SARMission(AbstractMission):
         return target_node
 
     def path_generation(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, target_node: Union[str, int]
+        self, agent: AbstractAgent, krm: KRM, target_node: Union[str, int]
     ) -> Union[list[Node], None]:
 
         if not self.check_target_still_valid(krm, target_node):
@@ -56,7 +56,7 @@ class SARMission(AbstractMission):
             return None
 
     def path_execution(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path: list
+        self, agent: AbstractAgent, krm: KRM, action_path: list
     ) -> Union[list[Node], None]:
         if not self.check_target_still_valid(krm, self.target_node):
             self._log.warning(
@@ -95,7 +95,7 @@ class SARMission(AbstractMission):
 
         return action_path
 
-    def check_completion(self, krm: KnowledgeRoadmap) -> bool:
+    def check_completion(self, krm: KRM) -> bool:
         num_of_frontiers = len(krm.get_all_frontiers_idxs())
         if num_of_frontiers < 1:
             return True
@@ -109,7 +109,7 @@ class SARMission(AbstractMission):
 
     # TODO: this function needs to be optimized with a lookupt table
     def evaluate_potential_targets_based_on_path_cost(
-        self, agent: AbstractAgent, target_idxs: list, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, target_idxs: list, krm: KRM
     ) -> Node:
         """
         Evaluate the frontiers and return the best one.

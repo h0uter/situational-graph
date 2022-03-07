@@ -3,7 +3,7 @@ import logging
 from typing import Union
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.krm import KRM
 from src.utils.config import Config
 from src.utils.my_types import Node, EdgeType
 
@@ -18,7 +18,7 @@ class AbstractMission(ABC):
         self.init_flag = False
 
     # CONTEXT
-    def main_loop(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> bool:
+    def main_loop(self, agent: AbstractAgent, krm: KRM) -> bool:
         something_was_done = False
 
         if not self.check_target_available(krm) and not self.init_flag:
@@ -45,12 +45,12 @@ class AbstractMission(ABC):
             self.action_path = self.path_execution(agent, krm, self.action_path)
             if not self.action_path:
                 self._log.debug(f"{agent.name}: Action path execution finished.")
+            something_was_done = True
 
         # only ever have to check completion here
         if self.check_completion(krm):
             self._log.debug(f"{agent.name}: Exploration completed.")
             self.exploration_completed = True
-            something_was_done = True
 
         if not something_was_done:
             logging.warning("No exploration step taken")
@@ -58,31 +58,31 @@ class AbstractMission(ABC):
         return self.exploration_completed
 
     @abstractmethod
-    def target_selection(self, agent: AbstractAgent, krm: KnowledgeRoadmap) -> Node:
+    def target_selection(self, agent: AbstractAgent, krm: KRM) -> Node:
         pass
 
     @abstractmethod
     def path_generation(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, target_node: Union[str, int]
+        self, agent: AbstractAgent, krm: KRM, target_node: Union[str, int]
     ) -> Union[list[Node], None]:
         pass
 
     @abstractmethod
     def path_execution(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path: list[Node]
-    ) -> Union[tuple[KnowledgeRoadmap, AbstractAgent, list[Node]], None]:
+        self, agent: AbstractAgent, krm: KRM, action_path: list[Node]
+    ) -> Union[tuple[KRM, AbstractAgent, list[Node]], None]:
         pass
 
     @abstractmethod
-    def check_completion(self, krm: KnowledgeRoadmap) -> bool:
+    def check_completion(self, krm: KRM) -> bool:
         pass
 
     def check_target_still_valid(
-        self, krm: KnowledgeRoadmap, target_node: Node
+        self, krm: KRM, target_node: Node
     ) -> bool:
         return krm.check_node_exists(target_node)
 
-    def check_target_available(self, krm: KnowledgeRoadmap) -> bool:
+    def check_target_available(self, krm: KRM) -> bool:
         num_targets = 0
         num_frontiers = len(krm.get_all_frontiers_idxs())
         num_targets += num_frontiers
@@ -93,7 +93,7 @@ class AbstractMission(ABC):
         else:
             return True
 
-    def fix_target_initialisation(self, krm: KnowledgeRoadmap) -> tuple:
+    def fix_target_initialisation(self, krm: KRM) -> tuple:
         # Add a frontier edge self loop on the start node to ensure a exploration sampling action
         krm.graph.add_edge(0, 0, type=EdgeType.FRONTIER_EDGE)
         action_path = [0, 0]

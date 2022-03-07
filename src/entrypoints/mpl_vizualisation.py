@@ -6,7 +6,7 @@ import networkx as nx
 from PIL import Image
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.krm import KRM
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.utils.config import Config
@@ -43,7 +43,7 @@ class MplVizualisation(AbstractVizualisation):
         self.initialized = True
 
     def figure_final_result(
-        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
+        self, krm: KRM, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
     ) -> None:
         self.figure_update(krm, agents, lg, usecase)
         plt.ioff()
@@ -182,7 +182,7 @@ class MplVizualisation(AbstractVizualisation):
 
         nx.draw_networkx_labels(krm.graph, positions_of_all_nodes, ax=ax, font_size=6)
 
-    def viz_krm_no_floorplan(self, krm: KnowledgeRoadmap) -> None:
+    def viz_krm_no_floorplan(self, krm: KRM) -> None:
         """
         Draw the agent's perspective on the world, like RViz.
 
@@ -205,7 +205,7 @@ class MplVizualisation(AbstractVizualisation):
         self.ax1.set_aspect("equal", "box")  # set the aspect ratio of the plot
         self.ax1.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 
-    def viz_krm_on_floorplan(self, krm: KnowledgeRoadmap) -> None:
+    def viz_krm_on_floorplan(self, krm: KRM) -> None:
         """ Like Gazebo """
 
         if not self.initialized:
@@ -263,7 +263,7 @@ class MplVizualisation(AbstractVizualisation):
         self.ax2.set_ylim([-self.origin_y_offset, self.origin_y_offset])
 
     def draw_shortcut_collision_lines(
-        self, lg: LocalGrid, krm: KnowledgeRoadmap
+        self, lg: LocalGrid, krm: KRM
     ) -> None:
 
         if not self.initialized:
@@ -322,7 +322,7 @@ class MplVizualisation(AbstractVizualisation):
             )
 
     def figure_update(
-        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
+        self, krm: KRM, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
     ) -> None:
         timer = False
         start = time.perf_counter()
@@ -376,7 +376,7 @@ class MplVizualisation(AbstractVizualisation):
         if timer:
             print(f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s")
 
-    def debug_logger(self, krm: KnowledgeRoadmap, agent: AbstractAgent) -> None:
+    def debug_logger(self, krm: KRM, agent: AbstractAgent) -> None:
         """
         Prints debug statements.
 

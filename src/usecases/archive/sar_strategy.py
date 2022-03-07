@@ -2,7 +2,7 @@ import uuid
 from typing import Union
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.krm import KRM
 from src.entities.local_grid import LocalGrid
 from src.usecases.abstract_mission import AbstractMission
 from src.usecases.archive.frontier_based_exploration_strategy import (
@@ -18,7 +18,7 @@ class SARStrategy(FrontierBasedExplorationStrategy):
         super().__init__(cfg)
 
     def path_execution(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path: list
+        self, agent: AbstractAgent, krm: KRM, action_path: list
     ) -> Union[list[Node], None]:
         if not self.check_target_still_valid(krm, self.target_node):
             self._log.warning(
@@ -42,7 +42,7 @@ class SARStrategy(FrontierBasedExplorationStrategy):
 
         return action_path
 
-    def frontier_action_edge(self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path):
+    def frontier_action_edge(self, agent: AbstractAgent, krm: KRM, action_path):
 
         node_data = krm.get_node_data_by_idx(action_path[1])
         agent.move_to_pos(node_data["pos"])
@@ -127,7 +127,7 @@ class SARStrategy(FrontierBasedExplorationStrategy):
 
     # TODO: this should be a variable strategy
     def select_target_frontier(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, krm: KRM
     ) -> Node:
         """ using the KRM, obtain the optimal frontier to visit next"""
         frontier_idxs = krm.get_all_frontiers_idxs()

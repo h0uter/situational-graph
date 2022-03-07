@@ -6,7 +6,7 @@ import matplotlib
 
 from src.data_providers.simulated_agent import SimulatedAgent
 from src.data_providers.spot_agent import SpotAgent
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.krm import KRM
 from src.entities.abstract_agent import AbstractAgent
 import src.utils.event as event
 from src.usecases.exploration_usecase import ExplorationUsecase
@@ -24,11 +24,9 @@ def init_entities(cfg: Config):
     if cfg.SCENARIO == Scenario.REAL:
         agents = [SpotAgent(cfg)]
     else:
-        agents = [
-            SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)
-        ]
+        agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
 
-    krm = KnowledgeRoadmap(cfg, start_poses=[agent.pos for agent in agents])
+    krm = KRM(cfg, start_poses=[agent.pos for agent in agents])
     exploration_usecases = [ExplorationUsecase(cfg) for i in range(cfg.NUM_AGENTS)]
 
     VizualisationListener(
@@ -38,25 +36,11 @@ def init_entities(cfg: Config):
     return agents, krm, exploration_usecases
 
 
-def priority_frontier_mvp_test(step, krm):
-    if step >= 1:
-        """" experiment with neg edge cost"""
-        frontiers = krm.get_all_frontiers_idxs()
-        lowest_frontier_idx = min(frontiers)
-        prio_ft_data = krm.get_node_data_by_idx(lowest_frontier_idx)
-        krm.set_frontier_edge_weight(lowest_frontier_idx, -100.0)
-        prio_ft_pos = prio_ft_data["pos"]
-
-        event.post_event("viz point", prio_ft_pos)
-        # for edge in krm.graph.edges:
-        #     print(f"edge: {edge} properties: {krm.graph.edges[edge]}")
-
-
 # TODO: cleanup all the stuff not neccesary to understand the code high level
 def perform_exploration_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],
-    krm: KnowledgeRoadmap,
+    krm: KRM,
     exploration_usecases: Sequence[ExplorationUsecase],
 ):
     step = 0
@@ -102,8 +86,6 @@ def perform_exploration_demo(
         if step % 50 == 0:
             s = f"sim step = {step} took {step_duration:.4f}s, with {agents[0].steps_taken} move actions"
             my_logger.info(s)
-
-            # priority_frontier_test(step, krm)
 
         step += 1
 

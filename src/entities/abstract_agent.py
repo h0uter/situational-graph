@@ -4,7 +4,7 @@ import logging
 
 from src.utils.config import Config
 from src.utils.my_types import NodeType
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.krm import KRM
 
 
 class AbstractAgent(ABC):
@@ -52,7 +52,7 @@ class AbstractAgent(ABC):
         pass
 
     # perhaps something like this should go into robot services, to not murk the dependencies.
-    def localize_to_node(self, krm: KnowledgeRoadmap):
+    def localize_to_node(self, krm: KRM):
         loc_candidates = krm.get_nodes_of_type_in_margin(
             self.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
         )

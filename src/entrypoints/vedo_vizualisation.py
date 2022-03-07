@@ -6,7 +6,7 @@ import networkx as nx
 import vedo
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.krm import KRM
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.usecases.exploration_usecase import ExplorationUsecase
@@ -47,7 +47,7 @@ class VedoVisualisation(AbstractVizualisation):
 
     def figure_update(
         self,
-        krm: KnowledgeRoadmap,
+        krm: KRM,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
         usecases: Sequence[ExplorationUsecase],
@@ -57,7 +57,7 @@ class VedoVisualisation(AbstractVizualisation):
 
     def figure_final_result(
         self,
-        krm: KnowledgeRoadmap,
+        krm: KRM,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
         usecases,
@@ -141,7 +141,7 @@ class VedoVisualisation(AbstractVizualisation):
     def viz_action_graph(
         self,
         actors: list,
-        krm: KnowledgeRoadmap,
+        krm: KRM,
         usecases: Sequence[ExplorationUsecase],
         pos_dict: dict,
     ):

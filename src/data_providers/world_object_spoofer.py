@@ -9,8 +9,8 @@ class WorldObjectSpoofer:
         if cfg.SCENARIO == Scenario.SIM_VILLA:
             self.world_object_list = [
                 WorldObject((-15.5, 14), "victim1"),
-                WorldObject((14, -14), "fire1"),
-                WorldObject((9.5, 8), "closed door1"),
+                # WorldObject((14, -14), "fire1"),
+                # WorldObject((9.5, 8), "closed door1"),
                 WorldObject((13, 0), "victim2"),
             ]
 
@@ -29,6 +29,4 @@ class WorldObjectSpoofer:
             ):
                 world_objects_in_scene.append(spoof)
 
-        # if len(close_nodes) == 0:
-        #     return []
         return world_objects_in_scene

@@ -90,7 +90,7 @@ class Config:
         self.FULL_PATH = ""
         self.AGENT_START_POS = (0, 0)
 
-        # self.PRUNE_RADIUS_FACTOR = 0.15
+        # self.PRUNE_RADIUS_FACTOR = 0.25
         self.PRUNE_RADIUS_FACTOR = 0.25
         self.SAMPLE_RING_WIDTH = 0.3
         self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
@@ -103,7 +103,8 @@ class Config:
         self.LG_NUM_CELLS = 420  # max:420 due to img border margins
         self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
 
-        self.AGENT_START_POS = (-9, 13)
+        # self.AGENT_START_POS = (-9, 13)
+        self.AGENT_START_POS = (0, 0)
         self.TOT_MAP_LEN_M_Y = (
             self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
         ) * self.IMG_TOTAL_Y_PIX

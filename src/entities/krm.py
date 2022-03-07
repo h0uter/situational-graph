@@ -9,7 +9,7 @@ from src.utils.my_types import EdgeType, Node, NodeType
 from src.utils.config import Config
 
 
-class KnowledgeRoadmap:
+class KRM:
     """
     An agent implements a Knowledge Roadmap to keep track of the
     world beliefs which are relevant for navigating during his mission.
@@ -28,6 +28,8 @@ class KnowledgeRoadmap:
         self.next_wp_idx = 0
 
         self.duplicate_start_poses = []
+
+        # This is ugly
         for start_pos in start_poses:
             if start_pos not in self.duplicate_start_poses:
                 self.add_start_waypoints(start_pos)

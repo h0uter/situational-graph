@@ -1,5 +1,5 @@
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.krm import KRM
 from src.usecases.actions.abstract_action import AbstractAction
 from src.utils.config import Config
 from src.utils.my_types import NodeType
@@ -17,7 +17,7 @@ class ExploreFrontierAction(AbstractAction):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def run(self, agent: AbstractAgent, krm: KnowledgeRoadmap, action_path):
+    def run(self, agent: AbstractAgent, krm: KRM, action_path):
         self.next_node = action_path[1]  # HACK: this is a hack, but it works for now
 
         node_data = krm.get_node_data_by_idx(action_path[1])
@@ -65,7 +65,7 @@ class ExploreFrontierAction(AbstractAction):
 
     #############################################################################################
     def sample_waypoint_from_pose(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap
+        self, agent: AbstractAgent, krm: KRM
     ) -> None:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
@@ -96,7 +96,7 @@ class ExploreFrontierAction(AbstractAction):
         )
 
     def obtain_and_process_new_frontiers(
-        self, agent: AbstractAgent, krm: KnowledgeRoadmap, lg: LocalGrid,
+        self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
     ) -> None:
         frontiers_cells = lg.sample_frontiers_on_cellmap(
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
@@ -107,7 +107,7 @@ class ExploreFrontierAction(AbstractAction):
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             krm.add_frontier(frontier_pos_global, agent.at_wp)
 
-    def prune_frontiers(self, krm: KnowledgeRoadmap) -> None:
+    def prune_frontiers(self, krm: KRM) -> None:
         """obtain all the frontier nodes in krm in a certain radius around the current position"""
 
         waypoints = krm.get_all_waypoint_idxs()
@@ -122,7 +122,7 @@ class ExploreFrontierAction(AbstractAction):
                 krm.remove_frontier(frontier)
 
     def find_shortcuts_between_wps(
-        self, lg: LocalGrid, krm: KnowledgeRoadmap, agent: AbstractAgent
+        self, lg: LocalGrid, krm: KRM, agent: AbstractAgent
     ):
         close_nodes = krm.get_nodes_of_type_in_margin(
             lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, NodeType.WAYPOINT
