@@ -115,13 +115,9 @@ class SARMission(AbstractMission):
         """
         shortest_path_len: float = float("inf")
 
-        # selected_target_idx: Union[int, None] = None
-        selected_target_idx: Optional[int]
+        selected_target_idx: Optional[int] = None
 
         for target_idx in target_idxs:
-            # candidate_path_len = float("inf")
-            # HACK: have to do this becaue  sometimes the paths are not possible
-            # perhaps add a connected check first...
 
             # TODO: make this the shortest path from single point to multiple endpoints.
             candidate_path_len: float = krm.shortest_path_len(agent.at_wp, target_idx)  # type: ignore
@@ -129,8 +125,6 @@ class SARMission(AbstractMission):
             #  choose the first shortest path among equals
             if candidate_path_len < shortest_path_len and candidate_path_len != 0:
                 shortest_path_len = candidate_path_len
-                # candidate_path_len = list(candidate_path_len)
-                # selected_frontier_idx = candidate_path_len[-1]
                 selected_target_idx = target_idx
         if not selected_target_idx:
             self._log.error(

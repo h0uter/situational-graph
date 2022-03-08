@@ -57,15 +57,16 @@ class KRM:
         self.graph.add_node(
             self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
         )
-
-        edge_len = self.calc_edge_len(self.next_wp_idx, prev_wp)
-        self.graph.add_edge(
-            self.next_wp_idx, prev_wp, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
-        )
-        self.graph.add_edge(
-            prev_wp, self.next_wp_idx, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
-        )
+        self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
         self.next_wp_idx += 1
+
+    def add_waypoint_diedge(self, node_a, node_b) -> None:
+        """ adds a waypoint edge in both direction to the graph"""
+        d = {
+            "type": EdgeType.WAYPOINT_EDGE,
+            "cost": self.calc_edge_len(node_a, node_b),
+        }
+        self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
 
     def add_world_object(self, pos: tuple, label: str) -> None:
         """ adds a world object to the graph"""
@@ -211,7 +212,6 @@ class KRM:
         if len(path) > 1:
             return path
         else:
-            # raise ValueError("No path found")
             self._log.error(f": No path found from {source} to {target}.")
 
     def shortest_path_len(self, source: Node, target: Node):
@@ -223,6 +223,5 @@ class KRM:
             method=self.cfg.PATH_FINDING_METHOD,
         )
 
-        # assert path_len is float
-
         return path_len
+

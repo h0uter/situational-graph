@@ -13,12 +13,11 @@ class ExploreFrontierAction(AbstractAction):
 
     def run(self, agent: AbstractAgent, krm: KRM, action_path):
         self.next_node = action_path[1]  # HACK: this is a hack, but it works for now
+        next_node_data = krm.get_node_data_by_idx(action_path[1])
+        agent.move_to_pos(next_node_data["pos"])
 
-        node_data = krm.get_node_data_by_idx(action_path[1])
-        agent.move_to_pos(node_data["pos"])
-
-        # this is there so we can initialze by adding a frontier self edge on 0
-        target_node_type = node_data["type"]
+        # This is there so we can initialze by adding a frontier self edge on 0
+        target_node_type = next_node_data["type"]
 
         at_destination = (
             len(
@@ -35,16 +34,14 @@ class ExploreFrontierAction(AbstractAction):
                 f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
             )
             krm.remove_frontier(self.next_node)
-            # self.selected_frontier_idx = None
 
             self.sample_waypoint_from_pose(agent, krm)
             lg = self.get_lg(agent)
-            self.obtain_and_process_new_frontiers(
-                agent, krm, lg
-            )  # XXX: this is my most expensive function, so I should try to optimize it
-            self.prune_frontiers(
-                krm
-            )  # XXX: this is my 2nd expensive function, so I should try to optimize it
+            # XXX: this is my most expensive function, so I should try to optimize it
+            self.obtain_and_process_new_frontiers(agent, krm, lg)
+            # XXX: this is my 2nd expensive function, so I should try to optimize it
+            self.prune_frontiers(krm)
+
             self.find_shortcuts_between_wps(lg, krm, agent)
             w_os = agent.look_for_world_objects_in_perception_scene()
             if w_os:
@@ -66,10 +63,7 @@ class ExploreFrontierAction(AbstractAction):
         # and if we didnt to attempt to walk to it again. To attempt to actually expand the krm
         # with the intended frontier and not a random one
         # HACK: just taking the first one from the list is not neccessarily the closest
-        # BUG: list index out of range range
-        # wp_at_previous_pos_candidates = krm.get_nodes_of_type_in_margin(
-        #     agent.previous_pos, self.cfg.PREV_POS_MARGIN, NodeType.WAYPOINT
-        # )[0]
+
         wp_at_previous_pos_candidates = krm.get_nodes_of_type_in_margin(
             agent.previous_pos, self.cfg.PREV_POS_MARGIN, NodeType.WAYPOINT
         )
@@ -90,12 +84,12 @@ class ExploreFrontierAction(AbstractAction):
     def obtain_and_process_new_frontiers(
         self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
     ) -> None:
-        frontiers_cells = lg.sample_frontiers_on_cellmap(
+        new_frontier_cells = lg.sample_frontiers_on_cellmap(
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
             num_frontiers_to_sample=self.cfg.N_SAMPLES,
         )
-        # self._log.debug(f"{agent.name}: found {frontiers_cells} new frontiers")
-        for frontier_cell in frontiers_cells:
+        self._log.debug(f"{agent.name}: found {new_frontier_cells} new frontiers")
+        for frontier_cell in new_frontier_cells:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             krm.add_frontier(frontier_pos_global, agent.at_wp)
 
@@ -132,14 +126,7 @@ class ExploreFrontierAction(AbstractAction):
                     from_wp = agent.at_wp
                     to_wp = krm.get_node_by_pos(point)
 
-                    # TODO: encapsulate this in krm
-                    edge_len = krm.calc_edge_len(from_wp, to_wp)
-                    krm.graph.add_edge(
-                        from_wp, to_wp, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
-                    )
-                    krm.graph.add_edge(
-                        to_wp, from_wp, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
-                    )
+                    krm.add_waypoint_diedge(from_wp, to_wp)
 
     # utitlies
     ############################################################################################
