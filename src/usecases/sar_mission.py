@@ -14,7 +14,7 @@ class SARMission(AbstractMission):
     def __init__(self, cfg: Config) -> None:
         super().__init__(cfg)
 
-    def target_selection(self, agent: AbstractAgent, krm: KRM) -> Node:
+    def target_selection(self, agent: AbstractAgent, krm: KRM) -> Optional[Node]:
         self._log.debug(f"{agent.name}: Selecting target frontier and finding path.")
 
         target_nodes = []
@@ -108,14 +108,14 @@ class SARMission(AbstractMission):
     # TODO: this function needs to be optimized with a lookupt table
     def evaluate_potential_targets_based_on_path_cost(
         self, agent: AbstractAgent, target_idxs: list, krm: KRM
-    ) -> Node:
+    ) -> Optional[Node]:
         """
         Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics
         """
         shortest_path_len: float = float("inf")
 
-        selected_target_idx: Optional[int] = None
+        selected_target_idx: Optional[Node] = None
 
         for target_idx in target_idxs:
 
@@ -133,7 +133,7 @@ class SARMission(AbstractMission):
             self._log.error(
                 f"{agent.name} at {agent.at_wp}: 2/2 So either im at a node not connected to the krm or my target is not connected to the krm."
             )
-            return None
+            return
 
         assert selected_target_idx is not None
 
