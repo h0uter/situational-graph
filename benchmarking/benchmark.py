@@ -1,6 +1,6 @@
 from datetime import datetime
 import os
-from src.entrypoints.demo import benchmark_func
+from src.__main__ import benchmark_func
 
 
 def basic_profiler_test():

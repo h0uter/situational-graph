@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
-from typing import Optional, Union
+from typing import Optional, Sequence, Literal
 
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
@@ -13,8 +13,8 @@ class AbstractMission(ABC):
         self._log = logging.getLogger(__name__)
         self.cfg = cfg
         self.exploration_completed = False
-        self.action_path = list()
-        self.target_node = None
+        self.action_path: Sequence[Optional[Node]] = []
+        self.target_node: Optional[Node] = None
         self.init_flag = False
 
     # CONTEXT
@@ -25,7 +25,7 @@ class AbstractMission(ABC):
             self._log.debug(
                 f"{agent.name}: No targets available. Performing initialization."
             )
-            self.action_path, self.target_node = self.fix_target_initialisation(krm)
+            self.action_path, self.target_node = self.setup_target_initialisation(krm)
             self.init_flag = True
 
         if self.target_node is None:
@@ -40,7 +40,8 @@ class AbstractMission(ABC):
             self.action_path = self.path_generation(agent, krm, self.target_node)
             something_was_done = True
 
-        if self.action_path:
+        # if self.action_path:
+        if len(self.action_path) >= 2:
             self._log.debug(f"{agent.name}: Action path set. Executing one.")
             self.action_path = self.path_execution(agent, krm, self.action_path)
             if not self.action_path:
@@ -68,11 +69,16 @@ class AbstractMission(ABC):
         else:
             return True
 
-    def fix_target_initialisation(self, krm: KRM) -> tuple:
+    def clear_target(self) -> None:
+        self.target_node = None
+        # self.action_path = []
+
+    def setup_target_initialisation(self, krm: KRM) -> tuple[Sequence[Node], Literal[0]]:
         # Add a frontier edge self loop on the start node to ensure a exploration sampling action
         krm.graph.add_edge(0, 0, type=EdgeType.FRONTIER_EDGE)
-        action_path = [0, 0]
-        return action_path, 0
+        action_path: list[Node] = [0, 0]
+        target_node: Node = 0
+        return action_path, target_node
 
     def check_target_still_valid(self, krm: KRM, target_node: Optional[Node]) -> bool:
         if target_node is None:
@@ -85,14 +91,14 @@ class AbstractMission(ABC):
 
     @abstractmethod
     def path_generation(
-        self, agent: AbstractAgent, krm: KRM, target_node: Union[str, int]
-    ) -> Union[list[Node], None]:
+        self, agent: AbstractAgent, krm: KRM, target_node: Node
+    ) -> list[Optional[Node]]:
         pass
 
     @abstractmethod
     def path_execution(
-        self, agent: AbstractAgent, krm: KRM, action_path: list[Node]
-    ) -> Union[tuple[KRM, AbstractAgent, list[Node]], None]:
+        self, agent: AbstractAgent, krm: KRM, action_path: Sequence[Optional[Node]]
+    ) -> Sequence[Optional[Node]]:
         pass
 
     @abstractmethod

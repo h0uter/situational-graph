@@ -1,4 +1,4 @@
-from src.entrypoints.demo import main
+from src.__main__ import main
 from src.utils.config import Config, Scenario, PlotLvl
 
 

@@ -437,3 +437,7 @@ class MplVizualisation(AbstractVizualisation):
         plt.axis("on")
         ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
         plt.show()
+
+    def viz_point(self, data):
+        # TODO: not implemented yet
+        pass

@@ -59,7 +59,7 @@ def perform_exploration_demo(
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
     while (
         not any(
-            exploration_usecase.exploration_strategy.exploration_completed is True
+            exploration_usecase.mission.exploration_completed is True
             for exploration_usecase in exploration_usecases
         )
         and step < cfg.MAX_STEPS
@@ -111,8 +111,8 @@ def perform_exploration_demo(
 
     # krm_stats.save()
 
-    return not any(
-        exploration_usecase.exploration_strategy.exploration_completed is True
+    return any(
+        exploration_usecase.mission.exploration_completed is True
         for exploration_usecase in exploration_usecases
     )
 

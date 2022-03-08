@@ -125,7 +125,7 @@ class VedoVisualisation(AbstractVizualisation):
         # actors.append(lbox)
 
         # print(f"the num of actors is {len(actors)}")
-        
+
         if self.debug_actors:
             actors.extend(self.debug_actors)
 
@@ -149,8 +149,8 @@ class VedoVisualisation(AbstractVizualisation):
         action_path_offsett = self.factor * 5
 
         for usecase in usecases:
-            if usecase.exploration_strategy.action_path:
-                action_path = usecase.exploration_strategy.action_path
+            if usecase.mission.action_path:
+                action_path = usecase.mission.action_path
 
                 # HACK TO fix frontier already being removed from krm by one agent in final step
                 for node in action_path:

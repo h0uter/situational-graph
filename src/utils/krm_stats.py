@@ -1,4 +1,3 @@
-from calendar import c
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
 
@@ -77,7 +76,6 @@ class KRMStats:
             self.num_frontier_nodes,
             label="Frontier nodes",
             c="g",
-
         )
         ax.step(
             range(len(self.num_world_object_nodes)),
@@ -116,14 +114,14 @@ class KRMStats:
 
     def plot_krm_stats(self):
 
-        fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(2, 2)
+        fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(2, 2)  # type: ignore
         fig.suptitle("Statistics about the KRM")
 
         self.subplot_step_vs_num_nodes(ax0)
         self.subplot_step_vs_step_duration(ax2)
 
         self.subplot_num_nodes_vs_step_duration(ax1)
-        
+
         mng = plt.get_current_fig_manager()
         mng.window.showMaximized()
 
