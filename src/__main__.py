@@ -8,8 +8,10 @@ from src.data_providers.simulated_agent import SimulatedAgent
 from src.data_providers.spot_agent import SpotAgent
 from src.entities.krm import KRM
 from src.entities.abstract_agent import AbstractAgent
+from src.usecases.abstract_mission import AbstractMission
+from src.usecases.sar_mission import SARMission
 import src.utils.event as event
-from src.usecases.exploration_usecase import ExplorationUsecase
+# from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, Scenario
 from src.entrypoints.vizualisation_listener import VizualisationListener
 from src.utils.krm_stats import KRMStats
@@ -27,47 +29,46 @@ def init_entities(cfg: Config):
         agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
 
     krm = KRM(cfg, start_poses=[agent.pos for agent in agents])
-    exploration_usecases = [ExplorationUsecase(cfg) for i in range(cfg.NUM_AGENTS)]
+    # exploration_usecases = [ExplorationUsecase(cfg) for i in range(cfg.NUM_AGENTS)]
+    usecases = [SARMission(cfg) for i in range(cfg.NUM_AGENTS)]
 
-    VizualisationListener(
-        cfg
-    ).setup_event_handler()  # setup the listener for vizualisation
-
-    return agents, krm, exploration_usecases
-
-
-# TODO: cleanup all the stuff not neccesary to understand the code high level
-def perform_exploration_demo(
-    cfg: Config,
-    agents: Sequence[AbstractAgent],
-    krm: KRM,
-    exploration_usecases: Sequence[ExplorationUsecase],
-):
-    step = 0
-    krm_stats = KRMStats()
-
-    start = time.perf_counter()
-    my_logger = logging.getLogger(__name__)
+    VizualisationListener(cfg).setup_event_handler()
 
     """setup"""
     for agent in agents:
         agent.localize_to_waypoint(krm)
-        event.post_event("viz point", agent.pos)
-        # krm.add_world_object(agent.pos, f"Agent {agent.name} start")
+        event.post_event("viz point", agent.pos)  # viz start position
+
+    # return agents, krm, exploration_usecases
+    return agents, krm, usecases
+
+
+# TODO: cleanup all the stuff not neccesary to understand the code high level
+def run_demo(
+    cfg: Config,
+    agents: Sequence[AbstractAgent],
+    krm: KRM,
+    # exploration_usecases: Sequence[AbstractMission],
+    usecases: Sequence[AbstractMission],
+):
+
+    step, start = 0, time.perf_counter()
+    krm_stats = KRMStats()
+    my_logger = logging.getLogger(__name__)
 
     """ Main Logic"""
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
     while (
         not any(
-            exploration_usecase.mission.exploration_completed is True
-            for exploration_usecase in exploration_usecases
+            mission.completed is True
+            for mission in usecases
         )
         and step < cfg.MAX_STEPS
     ):
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
-            if exploration_usecases[agent_idx].run_usecase_step(agents[agent_idx], krm):
+            if usecases[agent_idx].main_loop(agents[agent_idx], krm):
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
 
@@ -76,12 +77,10 @@ def perform_exploration_demo(
         krm_stats.update(krm, step_duration)
 
         """ Visualisation """
-        my_logger.debug(
-            f"{step} -------------------------------------------------------- {step_duration:.4f}s"
-        )
+        my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
         event.post_event(
             "figure update",
-            {"krm": krm, "agents": agents, "usecases": exploration_usecases},
+            {"krm": krm, "agents": agents, "usecases": usecases},
         )
 
         if step % 50 == 0:
@@ -91,7 +90,6 @@ def perform_exploration_demo(
         step += 1
 
     """Results"""
-    # TODO: move this to the usecase, close to the data
     my_logger.info(
         f"""
     !!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!
@@ -103,7 +101,7 @@ def perform_exploration_demo(
 
     event.post_event(
         "figure final result",
-        {"krm": krm, "agents": agents, "usecases": exploration_usecases},
+        {"krm": krm, "agents": agents, "usecases": usecases},
     )
 
     if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
@@ -112,14 +110,14 @@ def perform_exploration_demo(
     # krm_stats.save()
 
     return any(
-        exploration_usecase.mission.exploration_completed is True
-        for exploration_usecase in exploration_usecases
+        mission.completed is True
+        for mission in usecases
     )
 
 
 def main(cfg: Config):
-    agents, krm, exploration_usecases = init_entities(cfg)
-    success = perform_exploration_demo(cfg, agents, krm, exploration_usecases)
+    agents, krm, usecases = init_entities(cfg)
+    success = run_demo(cfg, agents, krm, usecases)
     return success
 
 

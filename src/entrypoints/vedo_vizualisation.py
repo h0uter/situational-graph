@@ -9,12 +9,11 @@ from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.usecases.exploration_usecase import ExplorationUsecase
+from src.usecases.abstract_mission import AbstractMission
+# from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, Scenario
 from src.utils.my_types import NodeType
 
-# from src.utils.print_timing import print_timing
-# from vedo.pyplot import plot
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allowInteraction = True
@@ -50,7 +49,7 @@ class VedoVisualisation(AbstractVizualisation):
         krm: KRM,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
-        usecases: Sequence[ExplorationUsecase],
+        usecases: Sequence[AbstractMission],
     ) -> None:
         # TODO: move viz all into here directly
         self.viz_all(krm, agents, usecases)
@@ -142,15 +141,15 @@ class VedoVisualisation(AbstractVizualisation):
         self,
         actors: list,
         krm: KRM,
-        usecases: Sequence[ExplorationUsecase],
+        usecases: Sequence[AbstractMission],
         pos_dict: dict,
     ):
         # pos_dict = self.get_scaled_pos_dict(krm)
         action_path_offsett = self.factor * 5
 
-        for usecase in usecases:
-            if usecase.mission.action_path:
-                action_path = usecase.mission.action_path
+        for mission in usecases:
+            if mission.action_path:
+                action_path = mission.action_path
 
                 # HACK TO fix frontier already being removed from krm by one agent in final step
                 for node in action_path:
@@ -250,6 +249,17 @@ class VedoVisualisation(AbstractVizualisation):
 
         return actors
 
+    def viz_point(self, pos):
+        point = vedo.Point((pos[0]*self.factor, pos[1]*self.factor, 0), r=35, c="blue")
+        # self.plt.show(point)
+        # self.actors.append(point)
+        self.debug_actors.append(point)
+        print(f"adding point {pos} to debug actors")
+        start_vig = point.vignette(
+                "Start", offset=[0, 0, 5 * self.factor], s=self.factor,
+            )
+        self.debug_actors.append(start_vig)
+
     # def plot_stats(self):
     #     if len(self.wp_counter) > 1 and len(self.ft_counter) > 1:
     #         self.plt.clear(at=1)
@@ -262,14 +272,3 @@ class VedoVisualisation(AbstractVizualisation):
     #         # plot_wps.x(0.7 * self.cfg.IMG_TOTAL_X_PIX)
     #         # plot_wps.show()
     #         self.plt.add(plot_wps, at=1, render=False)
-
-    def viz_point(self, pos):
-        point = vedo.Point((pos[0]*self.factor, pos[1]*self.factor, 0), r=35, c="blue")
-        # self.plt.show(point)
-        # self.actors.append(point)
-        self.debug_actors.append(point)
-        print(f"adding point {pos} to debug actors")
-        start_vig = point.vignette(
-                "Start", offset=[0, 0, 5 * self.factor], s=self.factor,
-            )
-        self.debug_actors.append(start_vig)

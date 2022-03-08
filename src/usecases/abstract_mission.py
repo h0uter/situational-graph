@@ -10,12 +10,12 @@ from src.utils.my_types import Node, EdgeType
 
 class AbstractMission(ABC):
     def __init__(self, cfg: Config) -> None:
-        self._log = logging.getLogger(__name__)
         self.cfg = cfg
-        self.exploration_completed = False
+        self.completed = False
         self.action_path: Sequence[Optional[Node]] = []
         self.target_node: Optional[Node] = None
         self.init_flag = False
+        self._log = logging.getLogger(__name__)
 
     # CONTEXT
     def main_loop(self, agent: AbstractAgent, krm: KRM) -> bool:
@@ -51,12 +51,12 @@ class AbstractMission(ABC):
         # only ever have to check completion here
         if self.check_completion(krm):
             self._log.debug(f"{agent.name}: Exploration completed.")
-            self.exploration_completed = True
+            self.completed = True
 
         if not something_was_done:
             logging.warning("No exploration step taken")
 
-        return self.exploration_completed
+        return self.completed
 
     def check_target_available(self, krm: KRM) -> bool:
         num_targets = 0
