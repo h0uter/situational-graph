@@ -74,7 +74,7 @@ class Config:
         self.AT_WP_MARGIN = 0.25
         self.PREV_POS_MARGIN = 0.15
         self.ARRIVAL_MARGIN = 0.5
-        self.WP_SHORTCUT_MARGIN = (self.LG_LENGTH_IN_M / 2) * 0.65
+        self.WP_SHORTCUT_MARGIN = (self.LG_LENGTH_IN_M / 2) * 0.75
 
         # SIM PARAMS
         self.NUM_AGENTS = num_agents
