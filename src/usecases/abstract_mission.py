@@ -62,7 +62,7 @@ class AbstractMission(ABC):
         num_targets = 0
         num_frontiers = len(krm.get_all_frontiers_idxs())
         num_targets += num_frontiers
-        # TODO: also add other targets
+        num_targets += len(krm.get_all_world_object_idxs())
 
         if num_targets < 1:
             return False

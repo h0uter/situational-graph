@@ -35,12 +35,6 @@ class ExploreAction(AbstractAction):
             self.prune_frontiers(krm)
             self.find_shortcuts_between_wps(lg, krm, agent)
 
-            # post run checks, dont really belong here
-            # # TODO: move this to agent services or smth
-            # w_os = agent.look_for_world_objects_in_perception_scene()
-            # if w_os:
-            #     for w_o in w_os:
-            #         krm.add_world_object(w_o.pos, w_o.name)
             self.process_world_objects(agent, krm)
 
         else:
@@ -49,6 +43,7 @@ class ExploreAction(AbstractAction):
             )
 
     def process_world_objects(self, agent: AbstractAgent, krm: KRM) -> None:
+        # TODO: move this to agent services or smth
         w_os = agent.look_for_world_objects_in_perception_scene()
         if w_os:
             for w_o in w_os:

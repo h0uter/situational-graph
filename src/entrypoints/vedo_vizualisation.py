@@ -10,7 +10,6 @@ from src.entities.krm import KRM
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.usecases.abstract_mission import AbstractMission
-# from src.usecases.exploration_usecase import ExplorationUsecase
 from src.utils.config import Config, PlotLvl, Scenario
 from src.utils.my_types import NodeType
 
@@ -51,7 +50,6 @@ class VedoVisualisation(AbstractVizualisation):
         lg: Union[None, LocalGrid],
         usecases: Sequence[AbstractMission],
     ) -> None:
-        # TODO: move viz all into here directly
         self.viz_all(krm, agents, usecases)
 
     def figure_final_result(
@@ -79,7 +77,6 @@ class VedoVisualisation(AbstractVizualisation):
         pos_dict = positions_of_all_nodes
 
         # scale the sizes to the scale of the simulated map image
-        # TODO: make list comprehension
         for pos in pos_dict:
             pos_dict[pos] = tuple([self.factor * x for x in pos_dict[pos]])
 

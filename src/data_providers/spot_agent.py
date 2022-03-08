@@ -89,7 +89,6 @@ class SpotAgent(AbstractAgent):
         else:
             self._logger.warning("Spot wrapper is not valid!")
 
-        # FIXME: ugly sleep.
         time.sleep(10)
 
         self.pos = self.get_localization()
@@ -267,8 +266,6 @@ class SpotAgent(AbstractAgent):
             self._logger.error(f"Move vision frame action error: {e}")
             # goal_handle.abort()
             # return result
-
-        # TODO: make it await completion
 
     def move_odom_frame(self, pos: tuple, heading=0.0):
         """ROS service handler"""
@@ -510,7 +507,6 @@ def move_to_sampled_point_usecase():
 
         x, y, z = spot.get_localization()
 
-        # TODO: integrate this
         x_goal = x + (frontiers[0, 0] - 64) * 0.03
         y_goal = y + (frontiers[0, 1] - 64) * 0.03
         print(f"ima at {x}, {y}, moving to: {x_goal}, {y_goal}")
