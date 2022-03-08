@@ -10,7 +10,7 @@ class AbstractAction(ABC):
         self._log = logging.getLogger(__name__)
 
     @abstractmethod
-    def run(self, agent, krm, action_path):
+    def run(self, agent, krm, action_path) -> list:
         # Execute a single action edge of the action path.
         # and return the remaining action_path.
         pass

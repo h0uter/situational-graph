@@ -57,6 +57,28 @@ class AbstractMission(ABC):
 
         return self.exploration_completed
 
+    def check_target_available(self, krm: KRM) -> bool:
+        num_targets = 0
+        num_frontiers = len(krm.get_all_frontiers_idxs())
+        num_targets += num_frontiers
+        # TODO: also add other targets
+
+        if num_targets < 1:
+            return False
+        else:
+            return True
+
+    def fix_target_initialisation(self, krm: KRM) -> tuple:
+        # Add a frontier edge self loop on the start node to ensure a exploration sampling action
+        krm.graph.add_edge(0, 0, type=EdgeType.FRONTIER_EDGE)
+        action_path = [0, 0]
+        return action_path, 0
+
+    def check_target_still_valid(self, krm: KRM, target_node: Optional[Node]) -> bool:
+        if target_node is None:
+            return False
+        return krm.check_node_exists(target_node)
+
     @abstractmethod
     def target_selection(self, agent: AbstractAgent, krm: KRM) -> Node:
         pass
@@ -76,27 +98,3 @@ class AbstractMission(ABC):
     @abstractmethod
     def check_completion(self, krm: KRM) -> bool:
         pass
-
-    def check_target_still_valid(
-        self, krm: KRM, target_node: Optional[Node]
-    ) -> bool:
-        if target_node is None:
-            return False
-        return krm.check_node_exists(target_node)
-
-    def check_target_available(self, krm: KRM) -> bool:
-        num_targets = 0
-        num_frontiers = len(krm.get_all_frontiers_idxs())
-        num_targets += num_frontiers
-        # TODO: also add other targets
-
-        if num_targets < 1:
-            return False
-        else:
-            return True
-
-    def fix_target_initialisation(self, krm: KRM) -> tuple:
-        # Add a frontier edge self loop on the start node to ensure a exploration sampling action
-        krm.graph.add_edge(0, 0, type=EdgeType.FRONTIER_EDGE)
-        action_path = [0, 0]
-        return action_path, 0

@@ -1,6 +1,5 @@
 from src.usecases.actions.abstract_action import AbstractAction
 from src.utils.config import Config
-from src.utils.my_types import NodeType
 import time
 
 
@@ -9,10 +8,10 @@ class WorldObjectAction(AbstractAction):
         super().__init__(cfg)
 
     def run(self, agent, krm, action_path):
-        # is it allowed to make an action set a different action path?
+        # Should I allow an action to set a different action path?
         start_node = 0
         self._log.debug(
-        f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1]} from graph."
+            f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1]} from graph."
         )
         time.sleep(2)
         krm.remove_world_object(action_path[-1])

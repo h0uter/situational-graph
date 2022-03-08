@@ -12,7 +12,6 @@ def subscribe(event_type: str, callback_fn: Callable):
 
 
 def post_event(event_type: str, event_data):
-    # brackets really neccesary?
     if not (event_type in subscribers):
         return
 

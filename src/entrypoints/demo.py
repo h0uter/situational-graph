@@ -51,7 +51,7 @@ def perform_exploration_demo(
 
     """setup"""
     for agent in agents:
-        agent.localize_to_node(krm)
+        agent.localize_to_waypoint(krm)
         event.post_event("viz point", agent.pos)
         # krm.add_world_object(agent.pos, f"Agent {agent.name} start")
 

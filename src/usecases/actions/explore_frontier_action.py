@@ -79,7 +79,7 @@ class ExploreFrontierAction(AbstractAction):
 
             krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
 
-        agent.localize_to_node(krm)
+        agent.localize_to_waypoint(krm)
 
     def obtain_and_process_new_frontiers(
         self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
@@ -88,7 +88,7 @@ class ExploreFrontierAction(AbstractAction):
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
             num_frontiers_to_sample=self.cfg.N_SAMPLES,
         )
-        self._log.debug(f"{agent.name}: found {new_frontier_cells} new frontiers")
+        self._log.debug(f"{agent.name}: found {len(new_frontier_cells)} new frontiers")
         for frontier_cell in new_frontier_cells:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             krm.add_frontier(frontier_pos_global, agent.at_wp)
