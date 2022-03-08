@@ -3,7 +3,7 @@ bosdyn-mission==3.0.3
 bosdyn-choreography-client==3.0.3
 coloredlogs==15.0.1
 matplotlib==3.5.1
-networkx==2.6.3
+networkx==2.7.1
 numpy==1.22.1
 Pillow==9.0.0
 scikit-image==0.19.1

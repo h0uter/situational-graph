@@ -6,7 +6,7 @@ import networkx as nx
 from PIL import Image
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.knowledge_roadmap import KnowledgeRoadmap
+from src.entities.krm import KRM
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.utils.config import Config
@@ -43,7 +43,7 @@ class MplVizualisation(AbstractVizualisation):
         self.initialized = True
 
     def figure_final_result(
-        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
+        self, krm: KRM, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
     ) -> None:
         self.figure_update(krm, agents, lg, usecase)
         plt.ioff()
@@ -182,7 +182,7 @@ class MplVizualisation(AbstractVizualisation):
 
         nx.draw_networkx_labels(krm.graph, positions_of_all_nodes, ax=ax, font_size=6)
 
-    def viz_krm_no_floorplan(self, krm: KnowledgeRoadmap) -> None:
+    def viz_krm_no_floorplan(self, krm: KRM) -> None:
         """
         Draw the agent's perspective on the world, like RViz.
 
@@ -193,7 +193,7 @@ class MplVizualisation(AbstractVizualisation):
         if not self.initialized:
             self.init_fig()
 
-        self.ax1.cla()  # XXX: plt1.cla is the bottleneck in my performance.
+        self.ax1.cla()  # plt1.cla is the bottleneck in my performance.
 
         self.ax1.set_title("Online Construction of Knowledge Roadmap (RViz)")
         self.ax1.set_xlabel("x", size=10)
@@ -205,13 +205,13 @@ class MplVizualisation(AbstractVizualisation):
         self.ax1.set_aspect("equal", "box")  # set the aspect ratio of the plot
         self.ax1.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 
-    def viz_krm_on_floorplan(self, krm: KnowledgeRoadmap) -> None:
+    def viz_krm_on_floorplan(self, krm: KRM) -> None:
         """ Like Gazebo """
 
         if not self.initialized:
             self.init_fig()
 
-        self.ax2.cla()  # XXX: plt1.cla is the bottleneck in my performance.
+        self.ax2.cla()  # plt1.cla is the bottleneck in my performance.
 
         self.ax2.set_title("Groundtruth Knowledge Roadmap construction (Gazebo)")
         self.ax2.set_xlabel("x", size=10)
@@ -245,9 +245,6 @@ class MplVizualisation(AbstractVizualisation):
         :param lg: LocalGrid
         :type lg: LocalGrid
         """
-        # TODO: emulate the local grid with this cmap alpha yada yada
-        # my_cmap = cm.jet
-        # my_cmap.set_under('k', alpha=0)
 
         self.ax2.imshow(
             lg.data,
@@ -258,7 +255,6 @@ class MplVizualisation(AbstractVizualisation):
                 lg.world_pos[1] - lg.length_in_m / 2,
                 lg.world_pos[1] + lg.length_in_m / 2,
             ],
-            # cmap=my_cmap,
             interpolation="none",
             clim=[0, 0.5],
         )
@@ -267,7 +263,7 @@ class MplVizualisation(AbstractVizualisation):
         self.ax2.set_ylim([-self.origin_y_offset, self.origin_y_offset])
 
     def draw_shortcut_collision_lines(
-        self, lg: LocalGrid, krm: KnowledgeRoadmap
+        self, lg: LocalGrid, krm: KRM
     ) -> None:
 
         if not self.initialized:
@@ -276,7 +272,7 @@ class MplVizualisation(AbstractVizualisation):
         close_nodes = krm.get_nodes_of_type_in_margin(
             lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, NodeType.WAYPOINT
         )
-        points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
+        points = [krm.get_node_data_by_node(node)["pos"] for node in close_nodes]
 
         if points:
             self.ax4.cla()
@@ -326,13 +322,10 @@ class MplVizualisation(AbstractVizualisation):
             )
 
     def figure_update(
-        self, krm: KnowledgeRoadmap, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
+        self, krm: KRM, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
     ) -> None:
         timer = False
         start = time.perf_counter()
-
-        # HACK: matplotlib only works with one agent
-        # agent = agents[0]
 
         self.viz_krm_on_floorplan(krm)
         if timer:
@@ -383,7 +376,7 @@ class MplVizualisation(AbstractVizualisation):
         if timer:
             print(f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s")
 
-    def debug_logger(self, krm: KnowledgeRoadmap, agent: AbstractAgent) -> None:
+    def debug_logger(self, krm: KRM, agent: AbstractAgent) -> None:
         """
         Prints debug statements.
 
@@ -444,3 +437,7 @@ class MplVizualisation(AbstractVizualisation):
         plt.axis("on")
         ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
         plt.show()
+
+    def viz_point(self, data):
+        # TODO: not implemented yet
+        pass

@@ -43,11 +43,16 @@ class Config:
         self.SCENARIO = scenario
         self.VIZUALISER = vizualiser
 
-        self.PRUNE_RADIUS_FACTOR = 0.20  # too low and we get dense graph, too high and corners are pruned from inside rooms
+        # self.PRUNE_RADIUS_FACTOR = 0.20  # too low (<0.20) and we get dense graph, too high (>0.25) and corners are pruned from inside rooms
+        self.PRUNE_RADIUS_FACTOR = 0.18  # too low and we get dense graph, too high and corners are pruned from inside rooms
         self.SAMPLE_RING_WIDTH = 1.0  # 0 - 1.0
+        self.SAMPLE_RADIUS_FACTOR = 0.6
 
         # instead of doing it like this, how could I compose this behavour?
-        if self.SCENARIO == Scenario.SIM_VILLA or self.SCENARIO == Scenario.SIM_VILLA_ROOM:
+        if (
+            self.SCENARIO == Scenario.SIM_VILLA
+            or self.SCENARIO == Scenario.SIM_VILLA_ROOM
+        ):
             self.set_sim_villa_params()
 
         elif self.SCENARIO == Scenario.SIM_MAZE:
@@ -64,12 +69,12 @@ class Config:
         # exploration hyperparameters
         self.PATH_FINDING_METHOD = "bellman-ford"
         # self.PATH_FINDING_METHOD = "dijkstra"
-        self.N_SAMPLES = 25
+        self.N_SAMPLES = 30
         self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * self.PRUNE_RADIUS_FACTOR
         self.AT_WP_MARGIN = 0.25
         self.PREV_POS_MARGIN = 0.15
         self.ARRIVAL_MARGIN = 0.5
-        self.WP_SHORTCUT_MARGIN = (self.LG_LENGTH_IN_M / 2) * 0.65
+        self.WP_SHORTCUT_MARGIN = (self.LG_LENGTH_IN_M / 2) * 0.75
 
         # SIM PARAMS
         self.NUM_AGENTS = num_agents
@@ -88,20 +93,32 @@ class Config:
         self.LG_NUM_CELLS = 128
         self.LG_CELL_SIZE_M = 0.03
         self.FULL_PATH = ""
-        # self.PRUNE_RADIUS_FACTOR = 0.15
+        self.AGENT_START_POS = (0, 0)
+
+        # self.PRUNE_RADIUS_FACTOR = 0.25
         self.PRUNE_RADIUS_FACTOR = 0.25
         self.SAMPLE_RING_WIDTH = 0.3
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
+            self.LG_NUM_CELLS // 2
+        ) * self.SAMPLE_RADIUS_FACTOR)
 
     def set_sim_villa_params(self):
+
+        self.PRUNE_RADIUS_FACTOR = 0.18  # too low and we get dense graph, too high and corners are pruned from inside rooms
+        self.SAMPLE_RING_WIDTH = 1.0  # 0 - 1.0
+        self.SAMPLE_RADIUS_FACTOR = 0.6
+
         self.FULL_PATH = os.path.join("resource", "villa_holes_closed.png")
         self.TOT_MAP_LEN_M_X = 50
         self.IMG_TOTAL_X_PIX = 2026
         self.IMG_TOTAL_Y_PIX = 1686
         self.LG_NUM_CELLS = 420  # max:420 due to img border margins
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
+            self.LG_NUM_CELLS // 2
+        ) * self.SAMPLE_RADIUS_FACTOR)
 
-        self.AGENT_START_POS = (-9, 13)
+        # self.AGENT_START_POS = (-9, 13)
+        self.AGENT_START_POS = (4, 0)
         self.TOT_MAP_LEN_M_Y = (
             self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
         ) * self.IMG_TOTAL_Y_PIX
@@ -116,7 +133,9 @@ class Config:
         self.IMG_TOTAL_X_PIX = 2000
         self.IMG_TOTAL_Y_PIX = 1000
         self.LG_NUM_CELLS = 420  # max:420 due to img border margins
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
+            self.LG_NUM_CELLS // 2
+        ) * self.SAMPLE_RADIUS_FACTOR)
 
         self.AGENT_START_POS = (-2, 0)
         self.TOT_MAP_LEN_M_Y = (
@@ -131,7 +150,9 @@ class Config:
         self.IMG_TOTAL_X_PIX = 1920
         self.IMG_TOTAL_Y_PIX = 1920
         self.LG_NUM_CELLS = 200  # max:420 due to img border margins
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = self.LG_NUM_CELLS // 2
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
+            self.LG_NUM_CELLS // 2
+        ) * self.SAMPLE_RADIUS_FACTOR)
 
         # self.AGENT_START_POS = (-3, 0)
         self.AGENT_START_POS = (-30, -30)

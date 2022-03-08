@@ -3,13 +3,12 @@ import uuid
 
 import networkx as nx
 import logging
-from src.utils.krm_stats import KRMStats
 
 from src.utils.my_types import EdgeType, Node, NodeType
 from src.utils.config import Config
 
 
-class KnowledgeRoadmap:
+class KRM:
     """
     An agent implements a Knowledge Roadmap to keep track of the
     world beliefs which are relevant for navigating during his mission.
@@ -21,11 +20,13 @@ class KnowledgeRoadmap:
 
     # TODO: adress local vs global KRM
     def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
+        self._log = logging.getLogger(__name__)
 
         self.graph = nx.DiGraph()  # Knowledge Road Map
         self.cfg = cfg
         self.next_wp_idx = 0
 
+        # This is ugly
         self.duplicate_start_poses = []
         for start_pos in start_poses:
             if start_pos not in self.duplicate_start_poses:
@@ -56,15 +57,16 @@ class KnowledgeRoadmap:
         self.graph.add_node(
             self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
         )
-
-        edge_len = self.calc_edge_len(self.next_wp_idx, prev_wp)
-        self.graph.add_edge(
-            self.next_wp_idx, prev_wp, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
-        )
-        self.graph.add_edge(
-            prev_wp, self.next_wp_idx, type=EdgeType.WAYPOINT_EDGE, cost=edge_len
-        )
+        self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
         self.next_wp_idx += 1
+
+    def add_waypoint_diedge(self, node_a, node_b) -> None:
+        """ adds a waypoint edge in both direction to the graph"""
+        d = {
+            "type": EdgeType.WAYPOINT_EDGE,
+            "cost": self.calc_edge_len(node_a, node_b),
+        }
+        self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
 
     def add_world_object(self, pos: tuple, label: str) -> None:
         """ adds a world object to the graph"""
@@ -75,11 +77,11 @@ class KnowledgeRoadmap:
             label,
             type=EdgeType.WORLD_OBJECT_EDGE,
             # id=uuid.uuid4(),
-            cost=float("inf"),
+            cost=-100,
         )
 
     # TODO: remove the agent_at_wp parameter requirement
-    def add_frontier(self, pos: tuple, agent_at_wp: int) -> None:
+    def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
         """ adds a frontier to the graph"""
         self.graph.add_node(
             self.next_frontier_idx, pos=pos, type=NodeType.FRONTIER, id=uuid.uuid4()
@@ -103,9 +105,16 @@ class KnowledgeRoadmap:
 
     def remove_frontier(self, target_frontier_idx) -> None:
         """ removes a frontier from the graph"""
-        target_frontier = self.get_node_data_by_idx(target_frontier_idx)
+        target_frontier = self.get_node_data_by_node(target_frontier_idx)
         if target_frontier["type"] == NodeType.FRONTIER:
             self.graph.remove_node(target_frontier_idx)  # also removes the edge
+
+    # TODO: this should be invalidate, so that we change its alpha or smth
+    def remove_world_object(self, idx) -> None:
+        """ removes a frontier from the graph"""
+        removal_target = self.get_node_data_by_node(idx)
+        if removal_target["type"] == NodeType.WORLD_OBJECT:
+            self.graph.remove_node(idx)  # also removes the edge
 
     def get_node_by_pos(self, pos: tuple):
         """ returns the node idx at the given position """
@@ -119,9 +128,9 @@ class KnowledgeRoadmap:
             if self.graph.nodes[node]["id"] == UUID:
                 return node
 
-    def get_node_data_by_idx(self, idx: int) -> dict:
+    def get_node_data_by_node(self, node: Node) -> dict:
         """ returns the node corresponding to the given index """
-        return self.graph.nodes[idx]
+        return self.graph.nodes[node]
 
     def get_all_waypoints(self) -> list:
         """ returns all waypoints in the graph"""
@@ -147,6 +156,14 @@ class KnowledgeRoadmap:
             if self.graph.nodes[node]["type"] == NodeType.FRONTIER
         ]
 
+    def get_all_world_object_idxs(self) -> list:
+        """ returns all frontier idxs in the graph"""
+        return [
+            node
+            for node in self.graph.nodes()
+            if self.graph.nodes[node]["type"] == NodeType.WORLD_OBJECT
+        ]
+
     def get_nodes_of_type_in_margin(
         self, pos: tuple, margin: float, node_type: NodeType
     ) -> list:
@@ -160,7 +177,7 @@ class KnowledgeRoadmap:
         """
         close_nodes = list()
         for node in self.graph.nodes:
-            data = self.get_node_data_by_idx(node)
+            data = self.get_node_data_by_node(node)
             if data["type"] == node_type:
                 node_pos = data["pos"]
                 if (
@@ -177,16 +194,28 @@ class KnowledgeRoadmap:
 
     def set_frontier_edge_weight(self, node_a: Node, weight: float):
         """ sets the weight of the edge between two nodes"""
-
         predecessors = self.graph.predecessors(node_a)
         for predecessor in predecessors:
-            # if self.graph.edges[node_a, neighbor]["type"] == EdgeType.FRONTIER_EDGE:
             if self.graph.edges[predecessor, node_a]["type"] == EdgeType.FRONTIER_EDGE:
                 self.graph.edges[predecessor, node_a]["cost"] = weight
                 print(f"setting edge between {predecessor} and {node_a} to {weight}")
 
     def shortest_path(self, source: Node, target: Node):
-        return nx.shortest_path(
+
+        path = nx.shortest_path(
+            self.graph,
+            source=source,
+            target=target,
+            weight="cost",
+            method=self.cfg.PATH_FINDING_METHOD,
+        )
+        if len(path) > 1:
+            return path
+        else:
+            self._log.error(f": No path found from {source} to {target}.")
+
+    def shortest_path_len(self, source: Node, target: Node):
+        path_len = nx.shortest_path_length(
             self.graph,
             source=source,
             target=target,
@@ -194,11 +223,4 @@ class KnowledgeRoadmap:
             method=self.cfg.PATH_FINDING_METHOD,
         )
 
-    def shortest_path_len(self, source: Node, target: Node):
-        return nx.shortest_path_length(
-            self.graph,
-            source=source,
-            target=target,
-            weight="cost",
-            method=self.cfg.PATH_FINDING_METHOD,
-        )
+        return path_len
