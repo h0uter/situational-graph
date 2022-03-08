@@ -4,65 +4,77 @@ from src.usecases.actions.abstract_action import AbstractAction
 from src.utils.config import Config
 from src.entities.local_grid import LocalGrid
 from src.utils.event import post_event
-from src.utils.my_types import EdgeType, NodeType
+from src.utils.my_types import NodeType, Node
 
 
-class ExploreFrontierAction(AbstractAction):
+class ExploreAction(AbstractAction):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
     def run(self, agent: AbstractAgent, krm: KRM, action_path):
-        self.next_node = action_path[1]  # HACK: this is a hack, but it works for now
-        next_node_data = krm.get_node_data_by_idx(action_path[1])
-        agent.move_to_pos(next_node_data["pos"])
+        next_node = action_path[1]
+        next_node_pos = krm.get_node_data_by_node(next_node)["pos"]
 
+        if agent.pos is not next_node_pos:
+            agent.move_to_pos(next_node_pos)
+        else:
+            self._log.warning(f"{agent.name}: already at next node")
+
+        if self.check_at_destination(agent, krm, next_node):
+            self._log.debug(
+                f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
+            )
+            krm.remove_frontier(next_node)
+            self.sample_waypoint_from_pose(agent, krm)
+
+            lg = self.get_lg(agent)
+            # XXX: this is my 2nd  most expensive function, so I should try to optimize it
+            self.sample_new_frontiers_and_add_to_krm(agent, krm, lg)
+
+            # XXX: this is my 3nd expensive function, so I should try to optimize it
+            self.prune_frontiers(krm)
+            self.find_shortcuts_between_wps(lg, krm, agent)
+
+            # post run checks, dont really belong here
+            # TODO: move this to agent services or smth
+            w_os = agent.look_for_world_objects_in_perception_scene()
+            if w_os:
+                for w_o in w_os:
+                    krm.add_world_object(w_o.pos, w_o.name)
+
+        else:
+            self._log.warning(
+                f"{agent.name}: did not reach destination during explore action."
+            )
+
+    def check_at_destination(
+        self, agent: AbstractAgent, krm: KRM, destination_node: Node
+    ) -> bool:
+        """
+        Check if the agent is at the destination.
+        """
         # This is there so we can initialze by adding a frontier self edge on 0
-        target_node_type = next_node_data["type"]
+        destination_node_type = krm.get_node_data_by_node(destination_node)["type"]
 
         at_destination = (
             len(
                 krm.get_nodes_of_type_in_margin(
-                    agent.get_localization(), self.cfg.ARRIVAL_MARGIN, target_node_type
+                    agent.get_localization(),
+                    self.cfg.ARRIVAL_MARGIN,
+                    destination_node_type,
                 )
             )
             >= 1
         )
         self._log.debug(f"{agent.name}: at_destination: {at_destination}")
-
-        if at_destination:
-            self._log.debug(
-                f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
-            )
-            krm.remove_frontier(self.next_node)
-
-            self.sample_waypoint_from_pose(agent, krm)
-            lg = self.get_lg(agent)
-            # XXX: this is my most expensive function, so I should try to optimize it
-            self.obtain_and_process_new_frontiers(agent, krm, lg)
-            # XXX: this is my 2nd expensive function, so I should try to optimize it
-            self.prune_frontiers(krm)
-
-            self.find_shortcuts_between_wps(lg, krm, agent)
-            w_os = agent.look_for_world_objects_in_perception_scene()
-            if w_os:
-                for w_o in w_os:
-                    krm.add_world_object(w_o.pos, w_o.name)
-            post_event("new lg", lg)
-            self.target_node = None
-            self.action_path = None
+        return at_destination
 
     """Path Execution"""
     #############################################################################################
     def sample_waypoint_from_pose(self, agent: AbstractAgent, krm: KRM) -> None:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
-        this should be sampled from the pose graph eventually
         """
-        # BUG:  this can make the agent teleport to a random frontier in the vicinty.
-        # better would be to explicitly check if we reached the frontier we intended to reach.
-        # and if we didnt to attempt to walk to it again. To attempt to actually expand the krm
-        # with the intended frontier and not a random one
-        # HACK: just taking the first one from the list is not neccessarily the closest
 
         wp_at_previous_pos_candidates = krm.get_nodes_of_type_in_margin(
             agent.previous_pos, self.cfg.PREV_POS_MARGIN, NodeType.WAYPOINT
@@ -81,7 +93,7 @@ class ExploreFrontierAction(AbstractAction):
 
         agent.localize_to_waypoint(krm)
 
-    def obtain_and_process_new_frontiers(
+    def sample_new_frontiers_and_add_to_krm(
         self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
     ) -> None:
         new_frontier_cells = lg.sample_frontiers_on_cellmap(
@@ -94,12 +106,10 @@ class ExploreFrontierAction(AbstractAction):
             krm.add_frontier(frontier_pos_global, agent.at_wp)
 
     def prune_frontiers(self, krm: KRM) -> None:
-        """obtain all the frontier nodes in krm in a certain radius around the current position"""
-
         waypoints = krm.get_all_waypoint_idxs()
 
         for wp in waypoints:
-            wp_pos = krm.get_node_data_by_idx(wp)["pos"]
+            wp_pos = krm.get_node_data_by_node(wp)["pos"]
             close_frontiers = krm.get_nodes_of_type_in_margin(
                 wp_pos, self.cfg.PRUNE_RADIUS, NodeType.FRONTIER
             )
@@ -110,13 +120,15 @@ class ExploreFrontierAction(AbstractAction):
         close_nodes = krm.get_nodes_of_type_in_margin(
             lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, NodeType.WAYPOINT
         )
-        points = []
+        shortcut_candidate_positions = []
         for node in close_nodes:
             if node != agent.at_wp:
-                points.append(krm.get_node_data_by_idx(node)["pos"])
+                shortcut_candidate_positions.append(
+                    krm.get_node_data_by_node(node)["pos"]
+                )
 
-        if points:
-            for point in points:
+        if shortcut_candidate_positions:
+            for point in shortcut_candidate_positions:
                 at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
                 to_cell = lg.world_coords2cell_idxs(point)
                 is_collision_free, _ = lg.is_collision_free_straight_line_between_cells(
@@ -132,7 +144,9 @@ class ExploreFrontierAction(AbstractAction):
     ############################################################################################
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:
         lg_img = agent.get_local_grid_img()
-
-        return LocalGrid(
+        lg = LocalGrid(
             world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
         )
+        post_event("new lg", lg)
+
+        return lg

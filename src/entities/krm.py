@@ -105,14 +105,14 @@ class KRM:
 
     def remove_frontier(self, target_frontier_idx) -> None:
         """ removes a frontier from the graph"""
-        target_frontier = self.get_node_data_by_idx(target_frontier_idx)
+        target_frontier = self.get_node_data_by_node(target_frontier_idx)
         if target_frontier["type"] == NodeType.FRONTIER:
             self.graph.remove_node(target_frontier_idx)  # also removes the edge
 
     # TODO: this should be invalidate, so that we change its alpha or smth
     def remove_world_object(self, idx) -> None:
         """ removes a frontier from the graph"""
-        removal_target = self.get_node_data_by_idx(idx)
+        removal_target = self.get_node_data_by_node(idx)
         if removal_target["type"] == NodeType.WORLD_OBJECT:
             self.graph.remove_node(idx)  # also removes the edge
 
@@ -128,9 +128,9 @@ class KRM:
             if self.graph.nodes[node]["id"] == UUID:
                 return node
 
-    def get_node_data_by_idx(self, idx: int) -> dict:
+    def get_node_data_by_node(self, node: Node) -> dict:
         """ returns the node corresponding to the given index """
-        return self.graph.nodes[idx]
+        return self.graph.nodes[node]
 
     def get_all_waypoints(self) -> list:
         """ returns all waypoints in the graph"""
@@ -177,7 +177,7 @@ class KRM:
         """
         close_nodes = list()
         for node in self.graph.nodes:
-            data = self.get_node_data_by_idx(node)
+            data = self.get_node_data_by_node(node)
             if data["type"] == node_type:
                 node_pos = data["pos"]
                 if (

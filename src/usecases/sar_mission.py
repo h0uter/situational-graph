@@ -3,7 +3,7 @@ from typing import Optional, Union
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
 from src.usecases.abstract_mission import AbstractMission
-from src.usecases.actions.explore_frontier_action import ExploreFrontierAction
+from src.usecases.actions.explore_action import ExploreAction
 from src.usecases.actions.goto_action import GotoAction
 from src.usecases.actions.world_object_action import WorldObjectAction
 from src.utils.config import Config
@@ -72,7 +72,8 @@ class SARMission(AbstractMission):
             print(f"{agent.name}: current_edge_type: {current_edge_type}")
 
             if current_edge_type == EdgeType.FRONTIER_EDGE:
-                ExploreFrontierAction(self.cfg).run(agent, krm, action_path)
+                ExploreAction(self.cfg).run(agent, krm, action_path)
+                # FIXME: there is an action_path and self.action_path
                 action_path = []
                 self.target_node = None
                 self.action_path = None

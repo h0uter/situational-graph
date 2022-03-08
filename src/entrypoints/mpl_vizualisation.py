@@ -272,7 +272,7 @@ class MplVizualisation(AbstractVizualisation):
         close_nodes = krm.get_nodes_of_type_in_margin(
             lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, NodeType.WAYPOINT
         )
-        points = [krm.get_node_data_by_idx(node)["pos"] for node in close_nodes]
+        points = [krm.get_node_data_by_node(node)["pos"] for node in close_nodes]
 
         if points:
             self.ax4.cla()

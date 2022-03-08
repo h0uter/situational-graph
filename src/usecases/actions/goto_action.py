@@ -14,7 +14,7 @@ class GotoAction(AbstractAction):
                 f"{agent.name}: Trying to perform action_path step with empty action_path {action_path}."
             )
 
-        node_data = krm.get_node_data_by_idx(action_path[1])
+        node_data = krm.get_node_data_by_node(action_path[1])
         agent.move_to_pos(node_data["pos"])
         agent.localize_to_waypoint(krm)
 
