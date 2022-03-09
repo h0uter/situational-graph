@@ -34,6 +34,9 @@ class KRM:
                 self.duplicate_start_poses.append(start_pos)
         self.next_frontier_idx = 9000
         self.next_wo_idx = 90000
+        
+        self.path_len_dict = dict()
+        self.prev_source_set = set()
 
     # add startpoints function
     def add_start_waypoints(self, pos: tuple) -> None:
@@ -215,12 +218,26 @@ class KRM:
             self._log.error(f": No path found from {source} to {target}.")
 
     def shortest_path_len(self, source: Node, target: Node):
-        path_len = nx.shortest_path_length(
-            self.graph,
-            source=source,
-            target=target,
-            weight="cost",
-            method=self.cfg.PATH_FINDING_METHOD,
-        )
 
-        return path_len
+        if target in self.path_len_dict.keys() and source in self.prev_source_set:
+            return self.path_len_dict[target]
+        else:
+            self.path_len_dict = nx.shortest_path_length(
+                self.graph,
+                source=source,
+                weight="cost",
+                method=self.cfg.PATH_FINDING_METHOD,
+            )
+            self.prev_source_set.add(source)
+            return self.path_len_dict[target]
+
+
+        #     path_len = nx.shortest_path_length(
+        #         self.graph,
+        #         source=source,
+        #         target=target,
+        #         weight="cost",
+        #         method=self.cfg.PATH_FINDING_METHOD,
+        #     )
+
+        # return path_len
