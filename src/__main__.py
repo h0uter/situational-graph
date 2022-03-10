@@ -86,7 +86,7 @@ def run_demo(
     my_logger.info(
         f"""
     !!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!
-    It took {step} sim steps
+    {cfg.SCENARIO} took {step} sim steps
     with {agents[0].steps_taken} move actions
     and {time.perf_counter()-start:.2f}s to complete the exploration.
         """
