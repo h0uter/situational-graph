@@ -18,6 +18,7 @@ class SimulatedAgent(AbstractAgent):
         self.world_object_spoofer = WorldObjectSpoofer(cfg)
 
     def move_to_pos(self, pos: tuple[float, float]) -> None:
+        self.heading = self.calc_heading_to_target(pos)
         self.teleport_to_pos(pos)
 
     def get_local_grid_img(self) -> npt.NDArray:

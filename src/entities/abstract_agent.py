@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy.typing as npt
+import numpy as np
 import logging
 
 from src.utils.config import Config
@@ -15,6 +16,7 @@ class AbstractAgent(ABC):
 
         self.at_wp: Node
         self.pos = cfg.AGENT_START_POS
+        self.heading = 0.0
         self.previous_pos = self.pos
 
         self.steps_taken: int = 0
@@ -71,3 +73,22 @@ class AbstractAgent(ABC):
             self.at_wp = loc_candidates[0]
 
         assert self.at_wp is not None, "self.at_wp is None"
+
+    def calc_heading_to_target(self, target_pos: tuple) -> float:
+        """
+        Calculate the heading to the target.
+
+        :param target_pos: The target position.
+        :return: The heading to the target in radians.
+        """
+        # FIXME: cannot calc angle if agent at 0, 0
+
+        # p1 = self.pos
+        # p2 = target_pos
+        p1 = target_pos
+        p2 = self.pos
+
+        ang1 = np.arctan2(*p1[::-1])
+        ang2 = np.arctan2(*p2[::-1])
+        heading = (ang1 - ang2) % (2 * np.pi)
+        return heading
