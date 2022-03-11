@@ -200,16 +200,16 @@ class VedoVisualisation(AbstractVizualisation):
             # agent_sphere = vedo.Point(agent_pos, r=25, c="b")
             # agent_sphere = vedo.Point(agent_pos, r=25, c="royal_blue")
             # agent_sphere = vedo.Point(agent_pos, r=25, c="dodger_blue", alpha=0.7)  # type: ignore
-            # agent_dir_vec = (np.cos(agent.heading), np.sin(agent.heading), 0)
-            # agent_dir_vec = (np.cos(agent.heading), np.sin(agent.heading), 0)
-            theta = agent.heading
-            rot = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
-            agent_dir_vec = np.dot(rot, np.array([1, 0]))
-            agent_dir_vec = (agent_dir_vec[0], agent_dir_vec[1], 0)
-
+            agent_dir_vec = (np.cos(agent.heading), np.sin(agent.heading), 0)
+            # agent_dir_vec = (np.sin(agent.heading), np.cos(agent.heading), 0)
+            # theta = agent.heading
+            # rot = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+            # agent_dir_vec = np.dot(rot, np.array([1, 0]))
+            # agent_dir_vec = (agent_dir_vec[0], agent_dir_vec[1], 0)
+            # agent_dir_vec = (0, -1, 0)
 
             print(f"agent heading is {agent.heading}, resulting in {agent_dir_vec}")
-            agent_actor = vedo.Cone(agent_pos, r=35, height=75, axis=agent_dir_vec, c="dodger_blue", alpha=0.7, res=4)  # type: ignore
+            agent_actor = vedo.Cone(agent_pos, r=55, height=125, axis=agent_dir_vec, c="dodger_blue", alpha=0.7, res=3)  # type: ignore
             agent_label = f"Agent {agent.name}"
             agent_actor.caption(agent_label, size=(0.05, 0.025))
             # vig = agent_sphere.vignette(agent_label, offset=[0, 0, 3 * self.factor], s=self.factor)
