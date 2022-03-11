@@ -69,9 +69,8 @@ class SARMission(AbstractMission):
         self._log.debug(f"{agent.name}: current_edge_type: {current_edge_type}")
 
         if current_edge_type == EdgeType.FRONTIER_EDGE:
-            ExploreAction(self.cfg).run(agent, krm, action_path)
+            action_path = ExploreAction(self.cfg).run(agent, krm, action_path)
             self.clear_target()
-            action_path = []
 
             # either a reset function
             # or pass and return the action path continuously

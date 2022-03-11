@@ -34,7 +34,7 @@ class KRM:
                 self.duplicate_start_poses.append(start_pos)
         self.next_frontier_idx = 9000
         self.next_wo_idx = 90000
-        
+
         self.path_len_dict = dict()
         self.prev_source_set = set()
 
@@ -241,7 +241,6 @@ class KRM:
         # - finding the paths
 
         # TODO: track how often these funcs are called in a single run.
-
 
         #     path_len = nx.shortest_path_length(
         #         self.graph,

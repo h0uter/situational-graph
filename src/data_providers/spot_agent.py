@@ -49,9 +49,11 @@ class SpotAgent(AbstractAgent):
         self.mobility_parameters = {
             "obstacle_padding": 0.1,  # [m]
             # "speed_limit_x": 0.7,  # [m/s]
-            "speed_limit_x": 1,  # [m/s]
+            "speed_limit_x": 1.5,  # [m/s]
+            # "speed_limit_x": 1,  # [m/s]
             # "speed_limit_y": 0.7,  # [m/s]
-            "speed_limit_y": 1,  # [m/s]
+            # "speed_limit_y": 1,  # [m/s]
+            "speed_limit_y": 1.5,  # [m/s]
             "speed_limit_angular": 1,  # [rad/s]
             "body_height": 1.0,  # [m]
             "gait": spot_command_pb2.HINT_AUTO,
@@ -153,7 +155,8 @@ class SpotAgent(AbstractAgent):
                 )
                 return [wo]
             else:
-                print("No fiducials found")
+                # print("No fiducials found")
+                pass
 
             attempts += 1  # increment attempts at finding a fiducial
 
@@ -227,7 +230,7 @@ class SpotAgent(AbstractAgent):
 
         self._logger.info("Robot standing twisted.")
         start_time = time.time()
-        end_time = start_time + 5.0  # timeout is 5 seconds
+        end_time = start_time + 15.0  # timeout is 5 seconds
         while time.time() < end_time:
 
             cmd_status = (
@@ -408,7 +411,8 @@ def get_local_grid(spot: SpotAgent):
     # # negative distance value in a grid cell, and the outside of an obstacle is determined by a positive distance value in a
     # # grid cell. The border of an obstacle is considered a distance of [0,.33] meters for a grid cell value.
 
-    OBSTACLE_DISTANCE_TRESHOLD = 0.3
+    # OBSTACLE_DISTANCE_TRESHOLD = 0.3
+    OBSTACLE_DISTANCE_TRESHOLD = 0.1
 
     colored_pts = np.ones([cell_count, 3], dtype=np.uint8)
     colored_pts[:, 0] = cells_obstacle_dist <= 0.0

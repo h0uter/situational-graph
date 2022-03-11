@@ -46,6 +46,7 @@ class Config:
         self.PRUNE_RADIUS_FACTOR = 0.18  # too low and we get dense graph, too high and corners are pruned from inside rooms
         self.SAMPLE_RING_WIDTH = 1.0  # 0 - 1.0
         self.SAMPLE_RADIUS_FACTOR = 0.6
+        self.WP_SHORTCUT_FACTOR = 0.75
 
         # instead of doing it like this, how could I compose this behavour?
         if (
@@ -73,7 +74,7 @@ class Config:
         self.AT_WP_MARGIN = 0.25
         self.PREV_POS_MARGIN = 0.15
         self.ARRIVAL_MARGIN = 0.5
-        self.WP_SHORTCUT_MARGIN = (self.LG_LENGTH_IN_M / 2) * 0.75
+        self.WP_SHORTCUT_MARGIN = (self.LG_LENGTH_IN_M / 2) * self.WP_SHORTCUT_FACTOR
 
         # SIM PARAMS
         self.NUM_AGENTS = num_agents
@@ -94,11 +95,12 @@ class Config:
         self.FULL_PATH = ""
         self.AGENT_START_POS = (0, 0)
 
-        self.PRUNE_RADIUS_FACTOR = 0.25 # really dont want a dense graph
+        self.PRUNE_RADIUS_FACTOR = 0.25  # really dont want a dense graph
         # self.PRUNE_RADIUS_FACTOR = 0.23
         # self.SAMPLE_RING_WIDTH = 0.5
-        self.SAMPLE_RING_WIDTH = 1.0
+        self.SAMPLE_RING_WIDTH = 0.7
         self.SAMPLE_RADIUS_FACTOR = 1.0
+        self.WP_SHORTCUT_FACTOR = 1.0
 
         self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
             self.LG_NUM_CELLS // 2
