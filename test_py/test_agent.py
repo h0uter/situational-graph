@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 from src.data_providers.simulated_agent import SimulatedAgent
@@ -14,7 +13,7 @@ def test_calc_heading_to_target_180():
 
     heading = agent.calc_heading_to_target(target_pos)
 
-    assert heading == math.pi
+    assert heading == np.pi
 
 
 def test_calc_heading_to_target_45():
@@ -26,7 +25,7 @@ def test_calc_heading_to_target_45():
 
     heading = agent.calc_heading_to_target(target_pos)
 
-    assert heading == math.pi * (7/4)
+    assert heading == np.pi * 1.5
 
 
 def test_calc_heading_to_target_45_agent_at_0_0():
@@ -38,7 +37,7 @@ def test_calc_heading_to_target_45_agent_at_0_0():
 
     heading = agent.calc_heading_to_target(target_pos)
 
-    assert heading == math.pi * (7/4)
+    assert heading == np.pi * (7/4)
 
 
 def test_calc_heading_to_target_180_agent_at_0_0():
@@ -50,7 +49,7 @@ def test_calc_heading_to_target_180_agent_at_0_0():
 
     heading = agent.calc_heading_to_target(target_pos)
 
-    assert heading == math.pi
+    assert heading == np.pi
 
 
 def test_calc_heading_to_target_270_agent_at_0_0():
@@ -62,7 +61,7 @@ def test_calc_heading_to_target_270_agent_at_0_0():
 
     heading = agent.calc_heading_to_target(target_pos)
 
-    assert heading == math.pi * 1.5
+    assert heading == np.pi * 1.5
 
 
 def test_calc_heading_to_target_90_agent_at_0_0():
@@ -74,4 +73,4 @@ def test_calc_heading_to_target_90_agent_at_0_0():
 
     heading = agent.calc_heading_to_target(target_pos)
 
-    assert heading == math.pi * 0.5
+    assert heading == np.pi * 0.5
