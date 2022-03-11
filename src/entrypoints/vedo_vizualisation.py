@@ -23,7 +23,10 @@ class VedoVisualisation(AbstractVizualisation):
     def __init__(self, cfg: Config) -> None:
         self.cfg = cfg
         self.factor = 1 / self.cfg.LG_CELL_SIZE_M
-        self.plt = vedo.Plotter(axes=13, sharecam=False, title="Knowledge Roadmap")
+        # self.plt = vedo.Plotter(axes=13, sharecam=False, title="Knowledge Roadmap")
+        # FIXME: real spot edit
+        # self.plt = vedo.Plotter(axes=13, interactive=False, resetcam=True, title="Knowledge Roadmap")
+        self.plt = vedo.Plotter(axes=13, interactive=False, sharecam=False, resetcam=True, title="Knowledge Roadmap")
 
         # NOTE: perhaps I just should not instantiate viz classes if we run headless
         if self.cfg.PLOT_LVL is not PlotLvl.NONE:
@@ -86,6 +89,9 @@ class VedoVisualisation(AbstractVizualisation):
     # @print_timing
     def viz_all(self, krm, agents, usecases=None):
         actors = []
+        
+        # print(f">>>>>>>self factor: {self.factor}")
+        # self.factor = 40.5 for villa
 
         pos_dict = self.get_scaled_pos_dict(krm)
 
@@ -121,14 +127,15 @@ class VedoVisualisation(AbstractVizualisation):
         # lbox = vedo.LegendBox([world_objects], width=0.25)
         # actors.append(lbox)
 
-        # print(f"the num of actors is {len(actors)}")
 
         if self.debug_actors:
             actors.extend(self.debug_actors)
 
+        # FIXME: real spot edit
         self.plt.show(
-            actors, interactive=False, resetcam=False,
+            actors
         )
+        self.plt.render()
         self.clear_annoying_captions()
 
     def clear_annoying_captions(self):
@@ -143,7 +150,8 @@ class VedoVisualisation(AbstractVizualisation):
         pos_dict: dict,
     ):
         # pos_dict = self.get_scaled_pos_dict(krm)
-        action_path_offsett = self.factor * 5
+        # FIXME: this is way too high in real scenario
+        action_path_offset = self.factor * 5
 
         for mission in usecases:
             if mission.action_path:
@@ -167,7 +175,7 @@ class VedoVisualisation(AbstractVizualisation):
                 wp_edge_actors = (
                     vedo.Lines(raw_lines, c="r", alpha=0.5)
                     .lw(10)
-                    .z(action_path_offsett)
+                    .z(action_path_offset)
                 )
 
                 # wp_arrow_starts = [(x[0], x[1], 0) for x, y in raw_lines]
@@ -181,8 +189,8 @@ class VedoVisualisation(AbstractVizualisation):
 
                 arrow_start = (frontier_edge[0][0], frontier_edge[0][1], 0)
                 arrow_end = (frontier_edge[1][0], frontier_edge[1][1], 0)
-                ft_edge_actor = vedo.Arrow(arrow_start, arrow_end, c="g", s=1.5).z(
-                    action_path_offsett
+                ft_edge_actor = vedo.Arrow(arrow_start, arrow_end, c="g", s=self.factor*0.037).z(
+                    action_path_offset
                 )
                 actors.append(ft_edge_actor)
 
@@ -208,8 +216,8 @@ class VedoVisualisation(AbstractVizualisation):
             # agent_dir_vec = (agent_dir_vec[0], agent_dir_vec[1], 0)
             # agent_dir_vec = (0, -1, 0)
 
-            print(f"agent heading is {agent.heading}, resulting in {agent_dir_vec}")
-            agent_actor = vedo.Cone(agent_pos, r=55, height=125, axis=agent_dir_vec, c="dodger_blue", alpha=0.7, res=3)  # type: ignore
+            # print(f"agent heading is {agent.heading}, resulting in {agent_dir_vec}")
+            agent_actor = vedo.Cone(agent_pos, r=self.factor * 1.35, height=self.factor*3.1, axis=agent_dir_vec, c="dodger_blue", alpha=0.7, res=3)  # type: ignore
             agent_label = f"Agent {agent.name}"
             agent_actor.caption(agent_label, size=(0.05, 0.025))
             # vig = agent_sphere.vignette(agent_label, offset=[0, 0, 3 * self.factor], s=self.factor)
@@ -263,6 +271,7 @@ class VedoVisualisation(AbstractVizualisation):
         # self.actors.append(point)
         self.debug_actors.append(point)
         print(f"adding point {pos} to debug actors")
+        # FIXME: this is way to big in real scenario
         start_vig = point.vignette(
                 "Start", offset=[0, 0, 5 * self.factor], s=self.factor,
             )

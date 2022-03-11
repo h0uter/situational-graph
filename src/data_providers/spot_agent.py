@@ -62,12 +62,12 @@ class SpotAgent(AbstractAgent):
         self.auto_stand = True
         self.timer_period = 0.1  # [second]
 
-        cfg = get_login_config()
+        login_cfg = get_login_config()
 
         self.spot_wrapper = SpotWrapper(
-            username=cfg.username,
-            password=cfg.password,
-            hostname=cfg.wifi_hostname,
+            username=login_cfg.username,
+            password=login_cfg.password,
+            hostname=login_cfg.wifi_hostname,
             logger=self._logger,
         )
 
@@ -102,6 +102,7 @@ class SpotAgent(AbstractAgent):
 
         self.previous_pos = self.pos
         self.pos = self.get_localization()
+        self.heading = target_heading
         self.steps_taken += 1
 
     def get_local_grid_img(self) -> npt.NDArray:

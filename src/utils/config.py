@@ -5,7 +5,6 @@ import sys
 from enum import IntEnum, Enum, auto
 
 import coloredlogs
-from numpy import Infinity
 
 
 class Scenario(Enum):
@@ -95,11 +94,11 @@ class Config:
         self.FULL_PATH = ""
         self.AGENT_START_POS = (0, 0)
 
-        # self.PRUNE_RADIUS_FACTOR = 0.25
-        self.PRUNE_RADIUS_FACTOR = 0.22
-        self.SAMPLE_RING_WIDTH = 0.5
+        self.PRUNE_RADIUS_FACTOR = 0.25 # really dont want a dense graph
+        # self.PRUNE_RADIUS_FACTOR = 0.23
+        # self.SAMPLE_RING_WIDTH = 0.5
+        self.SAMPLE_RING_WIDTH = 1.0
         self.SAMPLE_RADIUS_FACTOR = 1.0
-
 
         self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
             self.LG_NUM_CELLS // 2
