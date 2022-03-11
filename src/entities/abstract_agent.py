@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy.typing as npt
+import numpy as np
 import logging
 
 from src.utils.config import Config
@@ -15,6 +16,7 @@ class AbstractAgent(ABC):
 
         self.at_wp: Node
         self.pos = cfg.AGENT_START_POS
+        self.heading = 0.0
         self.previous_pos = self.pos
 
         self.steps_taken: int = 0
@@ -71,3 +73,33 @@ class AbstractAgent(ABC):
             self.at_wp = loc_candidates[0]
 
         assert self.at_wp is not None, "self.at_wp is None"
+
+    def calc_heading_to_target(self, target_pos: tuple) -> float:
+        """
+        Calculate the heading to the target.
+
+        :param target_pos: The target position.
+        :return: The heading to the target in radians.
+        """
+        # FIXME: this is wrong
+        # I need the arctan of p2 relative to p1, not absolute.
+
+        # p1 = self.pos
+        # p2 = target_pos
+        p1 = target_pos
+        p2 = self.pos
+
+        # ang1 = np.arctan2(*p1[::-1])
+        # ang2 = np.arctan2(*p2[::-1])
+        # heading = (ang1 - ang2) % (2 * np.pi)
+        # self._log.debug(f"{self.name}: >> target_pos {p1} & self.pos {p2} gives angs {ang1}, {ang2} heading: {heading}")
+        
+        dx = p1[0] - p2[0]
+        dy = p1[1] - p2[1]
+        ang = np.arctan2(dy, dx)
+        heading = (ang) % (2 * np.pi)
+        
+        
+        
+        
+        return heading

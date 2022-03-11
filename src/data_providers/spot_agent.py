@@ -97,8 +97,8 @@ class SpotAgent(AbstractAgent):
     def move_to_pos(self, pos: tuple):
         # self.move_vision_frame(pos)
         # time.sleep(5)
-
-        self.blocking_move_vision_frame(pos)
+        target_heading = self.calc_heading_to_target(pos)
+        self.blocking_move_vision_frame(pos, target_heading)
 
         self.previous_pos = self.pos
         self.pos = self.get_localization()
@@ -208,8 +208,8 @@ class SpotAgent(AbstractAgent):
 
         self._try_grpc(desc, _start_command)
 
-    def blocking_move_vision_frame(self, pos):
-        goal_heading = 0.0
+    def blocking_move_vision_frame(self, pos, goal_heading=0.0):
+        # goal_heading = heading
         frame_name = VISION_FRAME_NAME
 
         cmd = RobotCommandBuilder.synchro_se2_trajectory_point_command(

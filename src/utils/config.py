@@ -96,8 +96,11 @@ class Config:
         self.AGENT_START_POS = (0, 0)
 
         # self.PRUNE_RADIUS_FACTOR = 0.25
-        self.PRUNE_RADIUS_FACTOR = 0.25
-        self.SAMPLE_RING_WIDTH = 0.3
+        self.PRUNE_RADIUS_FACTOR = 0.22
+        self.SAMPLE_RING_WIDTH = 0.5
+        self.SAMPLE_RADIUS_FACTOR = 1.0
+
+
         self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
             self.LG_NUM_CELLS // 2
         ) * self.SAMPLE_RADIUS_FACTOR)
