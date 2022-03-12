@@ -37,24 +37,21 @@ class ExploreAction(AbstractAction):
             self.find_shortcuts_between_wps(lg, krm, agent)
 
             self.process_world_objects(agent, krm)
-            
 
             return []
 
         else:
             # Recovery behaviour
-            # FIXME: this creates masssive error.
             self._log.warning(
                 f"{agent.name}: did not reach destination during explore action."
             )
-            # remove target from krm
             krm.remove_frontier(next_node)
             agent.move_to_pos(krm.get_node_data_by_node(action_path[0])["pos"])
 
             return []
 
+    # TODO: move this to agent services or smth
     def process_world_objects(self, agent: AbstractAgent, krm: KRM) -> None:
-        # TODO: move this to agent services or smth
         w_os = agent.look_for_world_objects_in_perception_scene()
         if w_os:
             for w_o in w_os:
@@ -70,27 +67,14 @@ class ExploreAction(AbstractAction):
         at_destination = False
         destination_node_type = krm.get_node_data_by_node(destination_node)["type"]
 
-        # FIXME: instead of checking for any node I should check if that node is the specific target node.
         nodes_near_where_i_ended_up = krm.get_nodes_of_type_in_margin(
             agent.get_localization(),
             self.cfg.ARRIVAL_MARGIN,
             destination_node_type,
         )
-        # for node in nodes_near_where_i_ended_up:
-        #     if node is destination_node:
-        if destination_node in nodes_near_where_i_ended_up:
-                at_destination = True
 
-        # at_destination = (
-        #     len(
-        #         krm.get_nodes_of_type_in_margin(
-        #             agent.get_localization(),
-        #             self.cfg.ARRIVAL_MARGIN,
-        #             destination_node_type,
-        #         )
-        #     )
-        #     >= 1
-        # )
+        if destination_node in nodes_near_where_i_ended_up:
+            at_destination = True
 
         self._log.debug(f"{agent.name}: at_destination: {at_destination}")
         return at_destination
@@ -166,8 +150,6 @@ class ExploreAction(AbstractAction):
 
                     krm.add_waypoint_diedge(from_wp, to_wp)
 
-    # utitlies
-    ############################################################################################
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:
         lg_img = agent.get_local_grid_img()
         # save_something(lg_img, "lg_img")

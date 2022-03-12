@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -153,7 +154,7 @@ class LocalGrid:
                     return False, collision_point
             return True, None
 
-    def sample_cell_around_other_cell(self, x: int, y: int, radius: int) -> tuple:
+    def sample_cell_around_other_cell(self, x: int, y: int, radius: int) -> Optional[tuple]:
         sample_valid = False
         attempts = 0
         x_sample, y_sample = None, None

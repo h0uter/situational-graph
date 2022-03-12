@@ -30,7 +30,6 @@ class SARMission(AbstractMission):
         target_node = self.evaluate_potential_targets_based_on_path_cost(
             agent, target_nodes, krm
         )
-
         self._log.debug(f"{agent.name}: Target frontier selected: {target_node}.")
 
         return target_node
@@ -110,7 +109,7 @@ class SARMission(AbstractMission):
         Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics
         """
-        shortest_path_len: float = float("inf")
+        shortest_path_len = float("inf")
         selected_target_idx: Optional[Node] = None
 
         for target_idx in target_idxs:

@@ -37,7 +37,7 @@ class VizualisationListener:
             self.viz.figure_final_result(krm, agents, self.lg, usecases)
 
     def viz_point(self, data):
-        self.viz.viz_point((data[0], data[1]))
+        self.viz.viz_start_point((data[0], data[1]))
 
     def setup_event_handler(self):
         subscribe("new lg", self.handle_new_lg_event)

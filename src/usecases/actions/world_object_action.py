@@ -8,7 +8,13 @@ class WorldObjectAction(AbstractAction):
         super().__init__(cfg)
 
     def run(self, agent, krm, action_path):
+        """Currently the world object action is guide victim home action"""
         # Should I allow an action to set a different action path?
+        start_node = self.guide_victim_home(agent, krm, action_path)
+
+        return [], start_node
+
+    def guide_victim_home(self, agent, krm, action_path):
         start_node = 0
         self._log.debug(
             f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1]} from graph."
@@ -23,4 +29,4 @@ class WorldObjectAction(AbstractAction):
         # )
         # return action_path
         # self.target_node = start_node
-        return [], start_node
+        return start_node
