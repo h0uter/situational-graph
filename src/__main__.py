@@ -11,7 +11,7 @@ from src.entities.abstract_agent import AbstractAgent
 from src.usecases.abstract_mission import AbstractMission
 from src.usecases.sar_mission import SARMission
 import src.utils.event as event
-from src.utils.config import Config, PlotLvl, Scenario
+from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
 from src.entrypoints.vizualisation_listener import VizualisationListener
 from src.utils.krm_stats import KRMStats
 
@@ -86,7 +86,7 @@ def run_demo(
     my_logger.info(
         f"""
     !!!!!!!!!!! EXPLORATION COMPLETED !!!!!!!!!!!
-    It took {step} sim steps
+    {cfg.SCENARIO} took {step} sim steps
     with {agents[0].steps_taken} move actions
     and {time.perf_counter()-start:.2f}s to complete the exploration.
         """
@@ -129,6 +129,7 @@ if __name__ == "__main__":
     # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, scenario=Scenario.SIM_MAZE_MEDIUM)
 
     # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
+    # cfg = Config(scenario=Scenario.REAL)
 
     # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
     # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)

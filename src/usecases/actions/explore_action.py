@@ -5,6 +5,7 @@ from src.utils.config import Config
 from src.entities.local_grid import LocalGrid
 from src.utils.event import post_event
 from src.utils.my_types import NodeType, Node
+from src.utils.saving_data_objects import load_something, save_something
 
 
 class ExploreAction(AbstractAction):
@@ -36,11 +37,21 @@ class ExploreAction(AbstractAction):
             self.find_shortcuts_between_wps(lg, krm, agent)
 
             self.process_world_objects(agent, krm)
+            
+
+            return []
 
         else:
+            # Recovery behaviour
+            # FIXME: this creates masssive error.
             self._log.warning(
                 f"{agent.name}: did not reach destination during explore action."
             )
+            # remove target from krm
+            krm.remove_frontier(next_node)
+            agent.move_to_pos(krm.get_node_data_by_node(action_path[0])["pos"])
+
+            return []
 
     def process_world_objects(self, agent: AbstractAgent, krm: KRM) -> None:
         # TODO: move this to agent services or smth
@@ -56,18 +67,31 @@ class ExploreAction(AbstractAction):
         Check if the agent is at the destination.
         """
         # This is there so we can initialze by adding a frontier self edge on 0
+        at_destination = False
         destination_node_type = krm.get_node_data_by_node(destination_node)["type"]
 
-        at_destination = (
-            len(
-                krm.get_nodes_of_type_in_margin(
-                    agent.get_localization(),
-                    self.cfg.ARRIVAL_MARGIN,
-                    destination_node_type,
-                )
-            )
-            >= 1
+        # FIXME: instead of checking for any node I should check if that node is the specific target node.
+        nodes_near_where_i_ended_up = krm.get_nodes_of_type_in_margin(
+            agent.get_localization(),
+            self.cfg.ARRIVAL_MARGIN,
+            destination_node_type,
         )
+        # for node in nodes_near_where_i_ended_up:
+        #     if node is destination_node:
+        if destination_node in nodes_near_where_i_ended_up:
+                at_destination = True
+
+        # at_destination = (
+        #     len(
+        #         krm.get_nodes_of_type_in_margin(
+        #             agent.get_localization(),
+        #             self.cfg.ARRIVAL_MARGIN,
+        #             destination_node_type,
+        #         )
+        #     )
+        #     >= 1
+        # )
+
         self._log.debug(f"{agent.name}: at_destination: {at_destination}")
         return at_destination
 
@@ -98,7 +122,7 @@ class ExploreAction(AbstractAction):
     def sample_new_frontiers_and_add_to_krm(
         self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
     ) -> None:
-        new_frontier_cells = lg.sample_frontiers_on_cellmap(
+        new_frontier_cells = lg.los_sample_frontiers_on_cellmap(
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
             num_frontiers_to_sample=self.cfg.N_SAMPLES,
         )
@@ -146,6 +170,7 @@ class ExploreAction(AbstractAction):
     ############################################################################################
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:
         lg_img = agent.get_local_grid_img()
+        # save_something(lg_img, "lg_img")
         lg = LocalGrid(
             world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
         )

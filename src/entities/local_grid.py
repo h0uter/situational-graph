@@ -180,7 +180,7 @@ class LocalGrid:
 
     # TODO: make this a a strategy
     # alternatice strategy should be sampling with dijkstra on a lattice graph.
-    def sample_frontiers_on_cellmap(
+    def los_sample_frontiers_on_cellmap(
         self, radius: int, num_frontiers_to_sample: int
     ) -> npt.NDArray:
         """

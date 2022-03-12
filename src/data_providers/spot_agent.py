@@ -49,9 +49,11 @@ class SpotAgent(AbstractAgent):
         self.mobility_parameters = {
             "obstacle_padding": 0.1,  # [m]
             # "speed_limit_x": 0.7,  # [m/s]
-            "speed_limit_x": 1,  # [m/s]
+            "speed_limit_x": 1.5,  # [m/s]
+            # "speed_limit_x": 1,  # [m/s]
             # "speed_limit_y": 0.7,  # [m/s]
-            "speed_limit_y": 1,  # [m/s]
+            # "speed_limit_y": 1,  # [m/s]
+            "speed_limit_y": 1.5,  # [m/s]
             "speed_limit_angular": 1,  # [rad/s]
             "body_height": 1.0,  # [m]
             "gait": spot_command_pb2.HINT_AUTO,
@@ -62,12 +64,12 @@ class SpotAgent(AbstractAgent):
         self.auto_stand = True
         self.timer_period = 0.1  # [second]
 
-        cfg = get_login_config()
+        login_cfg = get_login_config()
 
         self.spot_wrapper = SpotWrapper(
-            username=cfg.username,
-            password=cfg.password,
-            hostname=cfg.wifi_hostname,
+            username=login_cfg.username,
+            password=login_cfg.password,
+            hostname=login_cfg.wifi_hostname,
             logger=self._logger,
         )
 
@@ -97,11 +99,12 @@ class SpotAgent(AbstractAgent):
     def move_to_pos(self, pos: tuple):
         # self.move_vision_frame(pos)
         # time.sleep(5)
-
-        self.blocking_move_vision_frame(pos)
+        target_heading = self.calc_heading_to_target(pos)
+        self.blocking_move_vision_frame(pos, target_heading)
 
         self.previous_pos = self.pos
         self.pos = self.get_localization()
+        self.heading = target_heading
         self.steps_taken += 1
 
     def get_local_grid_img(self) -> npt.NDArray:
@@ -152,7 +155,8 @@ class SpotAgent(AbstractAgent):
                 )
                 return [wo]
             else:
-                print("No fiducials found")
+                # print("No fiducials found")
+                pass
 
             attempts += 1  # increment attempts at finding a fiducial
 
@@ -208,8 +212,8 @@ class SpotAgent(AbstractAgent):
 
         self._try_grpc(desc, _start_command)
 
-    def blocking_move_vision_frame(self, pos):
-        goal_heading = 0.0
+    def blocking_move_vision_frame(self, pos, goal_heading=0.0):
+        # goal_heading = heading
         frame_name = VISION_FRAME_NAME
 
         cmd = RobotCommandBuilder.synchro_se2_trajectory_point_command(
@@ -226,7 +230,7 @@ class SpotAgent(AbstractAgent):
 
         self._logger.info("Robot standing twisted.")
         start_time = time.time()
-        end_time = start_time + 5.0  # timeout is 5 seconds
+        end_time = start_time + 15.0  # timeout is 5 seconds
         while time.time() < end_time:
 
             cmd_status = (
@@ -407,7 +411,8 @@ def get_local_grid(spot: SpotAgent):
     # # negative distance value in a grid cell, and the outside of an obstacle is determined by a positive distance value in a
     # # grid cell. The border of an obstacle is considered a distance of [0,.33] meters for a grid cell value.
 
-    OBSTACLE_DISTANCE_TRESHOLD = 0.3
+    # OBSTACLE_DISTANCE_TRESHOLD = 0.3
+    OBSTACLE_DISTANCE_TRESHOLD = 0.1
 
     colored_pts = np.ones([cell_count, 3], dtype=np.uint8)
     colored_pts[:, 0] = cells_obstacle_dist <= 0.0
@@ -496,7 +501,7 @@ def move_to_sampled_point_usecase():
 
         lg = LocalGrid((0, 0), grid_img, 3.84, 0.03)
         print(lg)
-        frontiers = lg.sample_frontiers_on_cellmap(60, 50)
+        frontiers = lg.los_sample_frontiers_on_cellmap(60, 50)
         print(frontiers)
 
         plt.imshow(grid_img, origin="lower")
