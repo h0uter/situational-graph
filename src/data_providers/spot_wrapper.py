@@ -197,7 +197,7 @@ class AsyncIdle(AsyncPeriodicQuery):
                 self._spot_wrapper._last_command = None
 
 
-def create_mobility_params(body_height=0.0,
+def create_mobility_params(body_height=1.0,
                            footprint_R_body=EulerZXY(),
                            locomotion_hint=spot_command_pb2.HINT_AUTO,
                            stair_hint=False,
@@ -781,7 +781,7 @@ class SpotWrapper():
         return True, 'Success'
 
     def set_mobility_params(self,
-                            body_height=0,
+                            body_height=0.0,
                             footprint_R_body=EulerZXY(),
                             locomotion_hint=1,
                             stair_hint=False,

@@ -1,8 +1,17 @@
 import time
+
 from matplotlib import pyplot as plt
 import numpy as np
-
-# import all the boston shite
+import logging
+import numpy.typing as npt
+from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder
+from bosdyn.client import create_standard_sdk, ResponseError, RpcError
+from bosdyn.client.lease import Error as LeaseBaseError
+from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
+from bosdyn.api import world_object_pb2, basic_command_pb2, local_grid_pb2
+from bosdyn.api.geometry_pb2 import Quaternion
+from bosdyn.client import util
+from bosdyn.client.frame_helpers import *
 from bosdyn.client.frame_helpers import (
     BODY_FRAME_NAME,
     VISION_FRAME_NAME,
@@ -12,48 +21,41 @@ from bosdyn.client.frame_helpers import (
     get_vision_tform_body,
 )
 
-from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder
-from bosdyn.client import create_standard_sdk, ResponseError, RpcError
-from bosdyn.client.lease import Error as LeaseBaseError
-from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
-from bosdyn.api.geometry_pb2 import Quaternion
-from bosdyn.client import util
-
-# local grid stuff
-from bosdyn.api import local_grid_pb2
-from bosdyn.client.frame_helpers import *
-
-
+from src.data_providers.fiducial_2_world_object_labels import create_wo_from_fiducial
 from src.data_providers.spot_wrapper import SpotWrapper
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.local_grid import LocalGrid
 from src.utils.get_login_config import get_login_config
-
-import logging
-import numpy.typing as npt
+# from src.entities.world_object import WorldObject
+from src.utils.config import Config
 
 
 class SpotAgent(AbstractAgent):
-    def __init__(self, start_pos: tuple = (0, 0)):
+    def __init__(self, cfg: Config):
         """
         Main function for the SpotROS class.
         Gets config from ROS and initializes the wrapper.
         Holds lease from wrapper and updates all async tasks at the ROS rate
         """
-        super().__init__(start_pos)
+        super().__init__(cfg)
 
         # self._logger = logging.getLogger(__name__)
         self._logger = util.get_logger()
         # logging.basicConfig(level=logging.INFO)
-        
-        self._logger.setLevel(level=logging.WARNING)
+
+        # self._logger.setLevel(level=logging.WARNING)
+        self._logger.setLevel(level=logging.INFO)
 
         self.mobility_parameters = {
             "obstacle_padding": 0.1,  # [m]
-            "speed_limit_x": 0.7,  # [m/s]
-            "speed_limit_y": 0.7,  # [m/s]
-            "speed_limit_angular": 0.8,  # [rad/s]
-            "body_height": 0.0,  # [m]
+            # "speed_limit_x": 0.7,  # [m/s]
+            "speed_limit_x": 1.5,  # [m/s]
+            # "speed_limit_x": 1,  # [m/s]
+            # "speed_limit_y": 0.7,  # [m/s]
+            # "speed_limit_y": 1,  # [m/s]
+            "speed_limit_y": 1.5,  # [m/s]
+            "speed_limit_angular": 1,  # [rad/s]
+            "body_height": 1.0,  # [m]
             "gait": spot_command_pb2.HINT_AUTO,
         }
 
@@ -62,12 +64,12 @@ class SpotAgent(AbstractAgent):
         self.auto_stand = True
         self.timer_period = 0.1  # [second]
 
-        cfg = get_login_config()
+        login_cfg = get_login_config()
 
         self.spot_wrapper = SpotWrapper(
-            username=cfg.username,
-            password=cfg.password,
-            hostname=cfg.wifi_hostname,
+            username=login_cfg.username,
+            password=login_cfg.password,
+            hostname=login_cfg.wifi_hostname,
             logger=self._logger,
         )
 
@@ -89,19 +91,20 @@ class SpotAgent(AbstractAgent):
         else:
             self._logger.warning("Spot wrapper is not valid!")
 
-        time.sleep(5)
+        time.sleep(10)
 
         self.pos = self.get_localization()
         # self.pos = start_pos
 
     def move_to_pos(self, pos: tuple):
-        # self.spot_move_to_pos(pos)
+        # self.move_vision_frame(pos)
+        # time.sleep(5)
+        target_heading = self.calc_heading_to_target(pos)
+        self.blocking_move_vision_frame(pos, target_heading)
 
-        self.move_vision_frame(pos)
-        time.sleep(5)
         self.previous_pos = self.pos
-        # self.pos = pos
         self.pos = self.get_localization()
+        self.heading = target_heading
         self.steps_taken += 1
 
     def get_local_grid_img(self) -> npt.NDArray:
@@ -118,9 +121,60 @@ class SpotAgent(AbstractAgent):
         # return odom_tform_body.position.x, odom_tform_body.position.y, odom_tform_body.position.z
         # pos = self.pos
         pos = tform_body.position.x, tform_body.position.y
-        print(f"tform_body.position = {pos}")
+        # print(f"tform_body.position = {pos}")
 
         return pos
+
+    def look_for_world_objects_in_perception_scene(self):
+        max_attempts = 10
+        attempts = 0
+        while attempts <= max_attempts:
+            detected_fiducial = False
+            fiducial_rt_world = None
+            # Get the first fiducial object Spot detects with the world object service.
+            fiducial = self.get_fiducial_objects()
+            if fiducial is not None:
+                vision_tform_fiducial = get_a_tform_b(
+                    fiducial.transforms_snapshot,
+                    VISION_FRAME_NAME,
+                    fiducial.apriltag_properties.frame_name_fiducial,
+                ).to_proto()
+                if vision_tform_fiducial is not None:
+                    detected_fiducial = True
+                    fiducial_rt_world = vision_tform_fiducial.position
+
+            if detected_fiducial:
+                # Go to the tag and stop within a certain distance
+                # self.go_to_tag(fiducial_rt_world)
+                # print(f"fiducial_rt_world = {fiducial_rt_world}")
+
+                # wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
+                wo = create_wo_from_fiducial(
+                    (fiducial_rt_world.x, fiducial_rt_world.y),
+                    fiducial.apriltag_properties.tag_id,
+                )
+                return [wo]
+            else:
+                # print("No fiducials found")
+                pass
+
+            attempts += 1  # increment attempts at finding a fiducial
+
+    def get_fiducial_objects(self):
+        """Get all fiducials that Spot detects with its perception system."""
+        # Get all fiducial objects (an object of a specific type).
+        request_fiducials = [world_object_pb2.WORLD_OBJECT_APRILTAG]
+        # fiducial_objects = self._world_object_client.list_world_objects(
+        fiducial_objects = (
+            self.spot_wrapper._clients["world_object"]
+            .list_world_objects(object_type=request_fiducials)
+            .world_objects
+        )
+        if len(fiducial_objects) > 0:
+            # Return the first detected fiducial.
+            return fiducial_objects[0]
+        # Return none if no fiducials are found.
+        return None
 
     def _apply_mobility_parameters(self, quaternion=None):
         if quaternion is None:
@@ -158,6 +212,46 @@ class SpotAgent(AbstractAgent):
 
         self._try_grpc(desc, _start_command)
 
+    def blocking_move_vision_frame(self, pos, goal_heading=0.0):
+        # goal_heading = heading
+        frame_name = VISION_FRAME_NAME
+
+        cmd = RobotCommandBuilder.synchro_se2_trajectory_point_command(
+                goal_x=pos[0],
+                goal_y=pos[1],
+                goal_heading=goal_heading,
+                frame_name=frame_name,
+                params=self.spot_wrapper._mobility_params,
+            )
+
+        cmd_duration = 30
+        end_time = time.time() + cmd_duration
+        cmd_id = self.spot_wrapper._clients["robot_command"].robot_command(cmd, end_time_secs=end_time)
+
+        self._logger.info("Robot standing twisted.")
+        start_time = time.time()
+        end_time = start_time + 15.0  # timeout is 5 seconds
+        while time.time() < end_time:
+
+            cmd_status = (
+                self.spot_wrapper._clients["robot_command"]
+                .robot_command_feedback_async(cmd_id)
+                .result()
+                .feedback.synchronized_feedback.mobility_command_feedback.se2_trajectory_feedback.status
+            )
+            if (
+                cmd_status
+                == basic_command_pb2.SE2TrajectoryCommand.Feedback.STATUS_AT_GOAL
+            ):
+                self._logger.info("Arrived at goal")
+                break
+            time.sleep(0.01)  # wait 100ms before the next check
+        else:
+            self._logger.info("Timeout!")
+
+    # do this instead of the wait timer
+    # https://khssnv.medium.com/spot-sdk-blocking-robot-commands-3d6902cfb403
+
     def move_vision_frame(self, pos: tuple, heading=0.0):
         """ROS service handler"""
         self._logger.info("Executing move_vision action")
@@ -168,28 +262,27 @@ class SpotAgent(AbstractAgent):
                 pos[1],
                 heading,
                 frame_name=VISION_FRAME_NAME,
-                cmd_duration=30
-                # frame_name=BODY_FRAME_NAME
+                cmd_duration=30,
+                # frame_name=BODY_FRAME_NAME,
+                # frame_name=ODOM_FRAME_NAME
             )
         except Exception as e:
             self._logger.error(f"Move vision frame action error: {e}")
             # goal_handle.abort()
             # return result
 
-        # TODO: make it await completion
+    def move_odom_frame(self, pos: tuple, heading=0.0):
+        """ROS service handler"""
+        self._logger.info("Executing move_vision action")
 
-    # def move_vision_frame2(self, pos, heading = 0.0):
-    #     while not response
-    #     response = self.spot_wrapper._robot_command(
-    #         RobotCommandBuilder.synchro_se2_trajectory_point_command(
-    #             goal_x=goal_x,
-    #             goal_y=goal_y,
-    #             goal_heading=goal_heading,
-    #             frame_name=frame_name,
-    #             params=self._mobility_params,
-    #         ),
-    #         end_time_secs=end_time,
-    #     )
+        try:
+            self.spot_wrapper.trajectory_cmd(
+                pos[0], pos[1], heading, cmd_duration=30, frame_name=ODOM_FRAME_NAME
+            )
+        except Exception as e:
+            self._logger.error(f"Move vision frame action error: {e}")
+            # goal_handle.abort()
+            # return result
 
     def move_body_frame(self, pos: tuple, heading=0.0):
         frame_tree = self.spot_wrapper._robot.get_frame_tree_snapshot()
@@ -318,7 +411,8 @@ def get_local_grid(spot: SpotAgent):
     # # negative distance value in a grid cell, and the outside of an obstacle is determined by a positive distance value in a
     # # grid cell. The border of an obstacle is considered a distance of [0,.33] meters for a grid cell value.
 
-    OBSTACLE_DISTANCE_TRESHOLD = 0.3
+    # OBSTACLE_DISTANCE_TRESHOLD = 0.3
+    OBSTACLE_DISTANCE_TRESHOLD = 0.1
 
     colored_pts = np.ones([cell_count, 3], dtype=np.uint8)
     colored_pts[:, 0] = cells_obstacle_dist <= 0.0
@@ -407,7 +501,7 @@ def move_to_sampled_point_usecase():
 
         lg = LocalGrid((0, 0), grid_img, 3.84, 0.03)
         print(lg)
-        frontiers = lg.sample_frontiers_on_cellmap(60, 50)
+        frontiers = lg.los_sample_frontiers_on_cellmap(60, 50)
         print(frontiers)
 
         plt.imshow(grid_img, origin="lower")
@@ -418,7 +512,6 @@ def move_to_sampled_point_usecase():
 
         x, y, z = spot.get_localization()
 
-        # TODO: integrate this
         x_goal = x + (frontiers[0, 0] - 64) * 0.03
         y_goal = y + (frontiers[0, 1] - 64) * 0.03
         print(f"ima at {x}, {y}, moving to: {x_goal}, {y_goal}")
@@ -427,7 +520,41 @@ def move_to_sampled_point_usecase():
         time.sleep(5)
 
 
+def movement_square_VISION_test(spot):
+    spot.move_vision_frame((0, -6), 0)
+    time.sleep(10)
+    spot.move_vision_frame((3.5, -6), 0)
+    time.sleep(10)
+    spot.move_vision_frame((3.5, 0), 0)
+    time.sleep(10)
+    spot.move_vision_frame((0, 0), 0)
+    time.sleep(10)
+
+
+def movement_square_ODOM_test(spot):
+    # spot.move_odom_frame((0, -6), 0)
+    spot.move_odom_frame((6, 0), 0)
+    time.sleep(10)
+    # spot.move_odom_frame((3.5, -6), 0)
+    spot.move_odom_frame((6, 3.5), 0)
+    time.sleep(10)
+    # spot.move_odom_frame((3.5, 0), 0)
+    spot.move_odom_frame((0, 3.5), 0)
+    time.sleep(10)
+    # spot.move_odom_frame((0, 0), 0)
+    spot.move_odom_frame((0, 0), 0)
+    time.sleep(10)
+
+
 if __name__ == "__main__":
     # move_demo_usecase()
     # move_vision_demo_usecase()
-    move_to_sampled_point_usecase()
+    # move_to_sampled_point_usecase()
+
+    spot = SpotAgent()
+
+    # movement_square_VISION_test(spot)
+    # movement_square_ODOM_test(spot)
+
+    spot.move_odom_frame((0, 0), np.pi)
+
