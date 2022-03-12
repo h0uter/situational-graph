@@ -11,7 +11,7 @@ def load_something(name):
 
 
 def save_something(obj, prefix=""):
-    name = f"{prefix}_{datetime.now().strftime('%Y%m%d-%H%M')}"
+    name = f"{prefix}_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
     full_path = os.path.join("saved_data", f"{name}.p")
 
     with open(full_path, "wb") as f:

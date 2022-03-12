@@ -501,7 +501,7 @@ def move_to_sampled_point_usecase():
 
         lg = LocalGrid((0, 0), grid_img, 3.84, 0.03)
         print(lg)
-        frontiers = lg.sample_frontiers_on_cellmap(60, 50)
+        frontiers = lg.los_sample_frontiers_on_cellmap(60, 50)
         print(frontiers)
 
         plt.imshow(grid_img, origin="lower")

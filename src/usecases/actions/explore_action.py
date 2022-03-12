@@ -5,6 +5,7 @@ from src.utils.config import Config
 from src.entities.local_grid import LocalGrid
 from src.utils.event import post_event
 from src.utils.my_types import NodeType, Node
+from src.utils.saving_data_objects import load_something, save_something
 
 
 class ExploreAction(AbstractAction):
@@ -121,7 +122,7 @@ class ExploreAction(AbstractAction):
     def sample_new_frontiers_and_add_to_krm(
         self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
     ) -> None:
-        new_frontier_cells = lg.sample_frontiers_on_cellmap(
+        new_frontier_cells = lg.los_sample_frontiers_on_cellmap(
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
             num_frontiers_to_sample=self.cfg.N_SAMPLES,
         )
@@ -169,6 +170,7 @@ class ExploreAction(AbstractAction):
     ############################################################################################
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:
         lg_img = agent.get_local_grid_img()
+        # save_something(lg_img, "lg_img")
         lg = LocalGrid(
             world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
         )
