@@ -10,8 +10,12 @@ import gtts as gTTS
 def main():
     # play_follow_me()
     # play_whatever_offline()
-    generate_or_play_audio(
-        "commencing_search.mp3", "ALERT: commencing search for survivors."
+    # generate_or_play_audio(
+    #     "commencing_search.mp3", "ALERT: commencing search for survivors."
+    # )
+    generate_and_overwrite_audio(
+        "exploration_complete.mp3",
+        "ALERT: All frontiers have been exhausted, exploration is complete."
     )
 
 
@@ -32,13 +36,16 @@ def generate_or_play_audio(filename, text="holla amigo, yo soy Pablo."):
     if os.path.exists(path):
         playsound(path)
     else:
-        generate_and_overwrite_audio(path, text)
-        playsound(path)
+        generate_and_overwrite_audio(filename, text)
 
 
-def generate_and_overwrite_audio(path, text):
+def generate_and_overwrite_audio(filename, text):
+    path = os.path.join("resource", "audio", filename)
+
     tts = gTTS.gTTS(text=text, lang="en")
     tts.save(path)
+    playsound(path)
+
 
 
 def play_file(filename):

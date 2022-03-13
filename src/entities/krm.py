@@ -195,13 +195,13 @@ class KRM:
         """ checks if the given node exists in the graph"""
         return node in self.graph.nodes
 
-    def set_frontier_edge_weight(self, node_a: Node, weight: float):
-        """ sets the weight of the edge between two nodes"""
-        predecessors = self.graph.predecessors(node_a)
-        for predecessor in predecessors:
-            if self.graph.edges[predecessor, node_a]["type"] == EdgeType.FRONTIER_EDGE:
-                self.graph.edges[predecessor, node_a]["cost"] = weight
-                print(f"setting edge between {predecessor} and {node_a} to {weight}")
+    # def set_frontier_edge_weight(self, node_a: Node, weight: float):
+    #     """ sets the weight of the edge between two nodes"""
+    #     predecessors = self.graph.predecessors(node_a)
+    #     for predecessor in predecessors:
+    #         if self.graph.edges[predecessor, node_a]["type"] == EdgeType.FRONTIER_EDGE:
+    #             self.graph.edges[predecessor, node_a]["cost"] = weight
+    #             print(f"setting edge between {predecessor} and {node_a} to {weight}")
 
     def shortest_path(self, source: Node, target: Node):
 
