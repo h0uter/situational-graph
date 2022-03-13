@@ -14,6 +14,7 @@ import src.utils.event as event
 from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
 from src.entrypoints.vizualisation_listener import VizualisationListener
 from src.utils.krm_stats import KRMStats
+from src.utils.audio_feedback import play_file
 
 
 def main(cfg: Config):
@@ -52,6 +53,9 @@ def run_demo(
     step, start = 0, time.perf_counter()
     krm_stats = KRMStats()
     my_logger = logging.getLogger(__name__)
+
+    if cfg.AUDIO_FEEDBACK:
+        play_file("commencing_search.mp3")
 
     """ Main Logic"""
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")

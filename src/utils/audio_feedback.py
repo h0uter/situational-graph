@@ -1,0 +1,50 @@
+from playsound import playsound
+import os
+
+import pyttsx3
+import gtts as gTTS
+
+
+
+
+def main():
+    # play_follow_me()
+    # play_whatever_offline()
+    generate_or_play_audio(
+        "commencing_search.mp3", "ALERT: commencing search for survivors."
+    )
+
+
+def play_hi_follow_me():
+    hi_follow_me = os.path.join("resource", "audio", "hi_follow_me.mp3")
+    playsound(hi_follow_me, False)
+
+
+def generate_and_play_audio_offline(text="holla amigo, yo soy Pablo."):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
+
+def generate_or_play_audio(filename, text="holla amigo, yo soy Pablo."):
+    path = os.path.join("resource", "audio", filename)
+
+    if os.path.exists(path):
+        playsound(path)
+    else:
+        generate_and_overwrite_audio(path, text)
+        playsound(path)
+
+
+def generate_and_overwrite_audio(path, text):
+    tts = gTTS.gTTS(text=text, lang="en")
+    tts.save(path)
+
+
+def play_file(filename):
+    path = os.path.join("resource", "audio", filename)
+    playsound(path, False)
+
+
+if __name__ == "__main__":
+    main()
