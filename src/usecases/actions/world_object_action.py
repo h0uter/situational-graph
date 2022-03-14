@@ -1,5 +1,6 @@
 from src.usecases.actions.abstract_action import AbstractAction
 from src.utils.config import Config
+from src.utils.audio_feedback import play_hi_follow_me
 import time
 
 
@@ -16,6 +17,10 @@ class WorldObjectAction(AbstractAction):
 
     def guide_victim_home(self, agent, krm, action_path):
         start_node = 0
+
+        if self.cfg.AUDIO_FEEDBACK:
+            play_hi_follow_me()
+
         self._log.debug(
             f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1]} from graph."
         )

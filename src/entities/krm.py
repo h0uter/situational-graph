@@ -11,7 +11,7 @@ from src.utils.config import Config
 class KRM:
     """
     An agent implements a Knowledge Roadmap to keep track of the
-    world beliefs which are relevant for navigating during his mission.
+    world beliefs which are relevant executing its mission.
     A KRM is a graph with 3 distinct node and corresponding edge types.
     - Waypoint Nodes:: correspond to places the robot has been and can go to.
     - Frontier Nodes:: correspond to places the robot has not been but expects it can go to.
@@ -195,13 +195,13 @@ class KRM:
         """ checks if the given node exists in the graph"""
         return node in self.graph.nodes
 
-    def set_frontier_edge_weight(self, node_a: Node, weight: float):
-        """ sets the weight of the edge between two nodes"""
-        predecessors = self.graph.predecessors(node_a)
-        for predecessor in predecessors:
-            if self.graph.edges[predecessor, node_a]["type"] == EdgeType.FRONTIER_EDGE:
-                self.graph.edges[predecessor, node_a]["cost"] = weight
-                print(f"setting edge between {predecessor} and {node_a} to {weight}")
+    # def set_frontier_edge_weight(self, node_a: Node, weight: float):
+    #     """ sets the weight of the edge between two nodes"""
+    #     predecessors = self.graph.predecessors(node_a)
+    #     for predecessor in predecessors:
+    #         if self.graph.edges[predecessor, node_a]["type"] == EdgeType.FRONTIER_EDGE:
+    #             self.graph.edges[predecessor, node_a]["cost"] = weight
+    #             print(f"setting edge between {predecessor} and {node_a} to {weight}")
 
     def shortest_path(self, source: Node, target: Node):
 

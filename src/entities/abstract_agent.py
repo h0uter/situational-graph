@@ -9,6 +9,8 @@ from src.utils.my_types import Node, NodeType
 
 
 class AbstractAgent(ABC):
+    """"This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
+
     @abstractmethod
     def __init__(self, cfg: Config, name: int = 0) -> None:
         self.name = name
