@@ -250,18 +250,19 @@ class KRM:
     def shortest_path_len(self, source: Node, target: Node):
 
         # TODO: create this dictionary in a smarter way.
+        # BUG: this makes the agent continue exploration in the area where it found the victim
 
-        if target in self.path_len_dict.keys() and source in self.prev_source_set:
-            return self.path_len_dict[target]
-        else:
-            self.path_len_dict = nx.shortest_path_length(
-                self.graph,
-                source=source,
-                weight="cost",
-                method=self.cfg.PATH_FINDING_METHOD,
-            )
-            self.prev_source_set.add(source)
-            return self.path_len_dict[target]
+        # if target in self.path_len_dict.keys() and source in self.prev_source_set:
+        #     return self.path_len_dict[target]
+        # else:
+        #     self.path_len_dict = nx.shortest_path_length(
+        #         self.graph,
+        #         source=source,
+        #         weight="cost",
+        #         method=self.cfg.PATH_FINDING_METHOD,
+        #     )
+        #     self.prev_source_set.add(source)
+        #     return self.path_len_dict[target]
 
         # TODO: use the reconstruct path function
         # with an all pairs algorithms that also returns a predecessor dict.
@@ -272,12 +273,12 @@ class KRM:
 
         # TODO: track how often these funcs are called in a single run.
 
-        #     path_len = nx.shortest_path_length(
-        #         self.graph,
-        #         source=source,
-        #         target=target,
-        #         weight="cost",
-        #         method=self.cfg.PATH_FINDING_METHOD,
-        #     )
+        path_len = nx.shortest_path_length(
+            self.graph,
+            source=source,
+            target=target,
+            weight="cost",
+            method=self.cfg.PATH_FINDING_METHOD,
+        )
 
-        # return path_len
+        return path_len
