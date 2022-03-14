@@ -14,6 +14,7 @@ import src.utils.event as event
 from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
 from src.entrypoints.vizualisation_listener import VizualisationListener
 from src.utils.krm_stats import KRMStats
+from src.utils.audio_feedback import play_file
 
 
 def main(cfg: Config):
@@ -52,6 +53,9 @@ def run_demo(
     step, start = 0, time.perf_counter()
     krm_stats = KRMStats()
     my_logger = logging.getLogger(__name__)
+
+    if cfg.AUDIO_FEEDBACK:
+        play_file("commencing_search.mp3")
 
     """ Main Logic"""
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
@@ -92,6 +96,9 @@ def run_demo(
         """
     )
 
+    if cfg.AUDIO_FEEDBACK:
+        play_file("exploration_complete.mp3")
+
     event.post_event(
         "figure final result", {"krm": krm, "agents": agents, "usecases": usecases},
     )
@@ -119,7 +126,7 @@ if __name__ == "__main__":
 
     cfg = Config()
     # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
-    # cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
+    cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(num_agents=2)
     # cfg = Config(num_agents=10, scenario=Scenario.SIM_MAZE_MEDIUM)
     # cfg = Config(plot_lvl=PlotLvl.NONE)

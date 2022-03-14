@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
 
-from src.utils.my_types import NodeType
+from src.utils.my_types import NodeType, EdgeType
 from src.utils.saving_data_objects import load_something, save_something
 
 
@@ -11,6 +11,7 @@ class KRMStats:
         self.num_nodes = [0]
         self.num_edges = [0]
         self.num_waypoint_nodes = [0]
+        self.num_waypoint_edges = [0]
         self.num_frontier_nodes = [0]
         self.num_world_object_nodes = [0]
         self.step_duration = [0]
@@ -27,6 +28,15 @@ class KRMStats:
                     n
                     for n in krm.graph.nodes()
                     if krm.graph.nodes[n]["type"] == NodeType.WAYPOINT
+                ]
+            )
+        )
+        self.num_waypoint_edges.append(
+            len(
+                [
+                    e
+                    for e in krm.graph.edges()
+                    if krm.graph.edges[e]["type"] == EdgeType.WAYPOINT_EDGE
                 ]
             )
         )
@@ -58,18 +68,32 @@ class KRMStats:
         ax.set(xlabel="Step", ylabel="Step duration (seconds)")
         ax.legend()
 
-    def subplot_step_vs_num_nodes(self, ax):
+    def subplot_step_vs_num_nodes(self, ax: plt.Axes):
         ax.set_title("Step vs size of the KRM")
         ax.set(xlabel="Step", ylabel="# of nodes")
 
-        ax.step(range(len(self.num_nodes)), self.num_nodes, label="Total nodes")
-        ax.step(range(len(self.num_edges)), self.num_edges, label="Total edges")
+        ax.step(range(len(self.num_nodes)), self.num_nodes, label="Total nodes", c="b")
+        ax.step(
+            range(len(self.num_edges)),
+            self.num_edges,
+            label="Total edges",
+            linestyle="--",
+            c="b",
+        )
 
         ax.step(
             range(len(self.num_waypoint_nodes)),
             self.num_waypoint_nodes,
             label="Waypoint nodes",
             c="r",
+        )
+        ax.step(
+            range(len(self.num_waypoint_edges)),
+            self.num_waypoint_edges,
+            label="Waypoint edges",
+            c="r",
+            # marker=".",
+            linestyle="--",
         )
         ax.step(
             range(len(self.num_frontier_nodes)),
