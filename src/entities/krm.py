@@ -23,6 +23,7 @@ class KRM:
         self._log = logging.getLogger(__name__)
 
         self.graph = nx.DiGraph()  # Knowledge Road Map
+        # self.graph = nx.MultiDiGraph()  # Knowledge Road Map
         self.cfg = cfg
         self.next_wp_idx = 0
 
@@ -57,9 +58,11 @@ class KRM:
 
     def add_waypoint(self, pos: tuple, prev_wp) -> None:
         """ adds new waypoints and increments wp the idx"""
+
         self.graph.add_node(
             self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
         )
+
         self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
         self.next_wp_idx += 1
 
@@ -69,11 +72,25 @@ class KRM:
             "type": EdgeType.WAYPOINT_EDGE,
             "cost": self.calc_edge_len(node_a, node_b),
         }
+        if self.check_if_edge_exists(node_a, node_b):
+            self._log.warning(f"Edge between a:{node_a} and b:{node_b} already exists")
+            return
+        if self.check_if_edge_exists(node_b, node_a):
+            self._log.warning(f"Edge between b:{node_b} and a:{node_a} already exists")
+            return
+
         self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
 
     def add_world_object(self, pos: tuple, label: str) -> None:
         """ adds a world object to the graph"""
         self.graph.add_node(label, pos=pos, type=NodeType.WORLD_OBJECT, id=uuid.uuid4())
+
+        if self.check_if_edge_exists(label, self.next_wp_idx - 1):
+            self._log.warning(
+                f"Edge between {label} and {self.next_wp_idx - 1} already exists"
+            )
+            return
+
         # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
         self.graph.add_edge(
             self.next_wp_idx - 1,
@@ -83,7 +100,13 @@ class KRM:
             cost=-100,
         )
 
-    # TODO: remove the agent_at_wp parameter requirement
+    # TODO: add function to add world object edges, for example the guide action
+    # todo: add function to check if edge exists already
+
+    def check_if_edge_exists(self, node_a: Node, node_b: Node):
+        """ checks if an edge between two nodes exists """
+        return self.graph.has_edge(node_a, node_b)
+
     def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
         """ adds a frontier to the graph"""
         self.graph.add_node(
@@ -95,6 +118,12 @@ class KRM:
             cost = 1 / edge_len  # Prefer the longest waypoints
         else:
             cost = edge_len
+
+        if self.check_if_edge_exists(agent_at_wp, self.next_frontier_idx):
+            self._log.warning(
+                f"add_frontier(): Edge between {agent_at_wp} and {self.next_frontier_idx} already exists"
+            )
+            return
 
         self.graph.add_edge(
             agent_at_wp,
@@ -113,6 +142,7 @@ class KRM:
             self.graph.remove_node(target_frontier_idx)  # also removes the edge
 
     # TODO: this should be invalidate, so that we change its alpha or smth
+    # e.g. a method to invalidate a world object for planning, but still maintain it for vizualisation
     def remove_world_object(self, idx) -> None:
         """ removes a frontier from the graph"""
         removal_target = self.get_node_data_by_node(idx)

@@ -148,7 +148,8 @@ class ExploreAction(AbstractAction):
                     from_wp = agent.at_wp
                     to_wp = krm.get_node_by_pos(point)
 
-                    krm.add_waypoint_diedge(from_wp, to_wp)
+                    if not krm.check_if_edge_exists(from_wp, to_wp):
+                        krm.add_waypoint_diedge(from_wp, to_wp)
 
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:
         lg_img = agent.get_local_grid_img()

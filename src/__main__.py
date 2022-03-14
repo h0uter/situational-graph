@@ -15,6 +15,7 @@ from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
 from src.entrypoints.vizualisation_listener import VizualisationListener
 from src.utils.krm_stats import KRMStats
 from src.utils.audio_feedback import play_file
+from src.utils.sanity_checks import check_no_duplicate_wp_edges
 
 
 def main(cfg: Config):
@@ -69,6 +70,7 @@ def run_demo(
             if usecases[agent_idx].main_loop(agents[agent_idx], krm):
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
+            check_no_duplicate_wp_edges(krm)
 
         """Data collection"""
         step_duration = time.perf_counter() - step_start
