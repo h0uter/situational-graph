@@ -36,13 +36,14 @@ class Config:
         vizualiser: Vizualiser = Vizualiser.VEDO,
         num_agents: int = 1,
         max_steps: float = math.inf,
+        audio_feedback: bool = False,
     ):
         self.MAX_STEPS = max_steps
         self.PLOT_LVL = plot_lvl
         self.SCENARIO = scenario
         self.VIZUALISER = vizualiser
 
-        self.AUDIO_FEEDBACK = True
+        self.AUDIO_FEEDBACK = audio_feedback
 
         # self.PRUNE_RADIUS_FACTOR = 0.20  # too low (<0.20) and we get dense graph, too high (>0.25) and corners are pruned from inside rooms
         self.PRUNE_RADIUS_FACTOR = 0.18  # too low and we get dense graph, too high and corners are pruned from inside rooms

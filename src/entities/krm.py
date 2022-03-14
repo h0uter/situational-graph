@@ -11,7 +11,7 @@ from src.utils.config import Config
 class KRM:
     """
     An agent implements a Knowledge Roadmap to keep track of the
-    world beliefs which are relevant for navigating during his mission.
+    world beliefs which are relevant executing its mission.
     A KRM is a graph with 3 distinct node and corresponding edge types.
     - Waypoint Nodes:: correspond to places the robot has been and can go to.
     - Frontier Nodes:: correspond to places the robot has not been but expects it can go to.
