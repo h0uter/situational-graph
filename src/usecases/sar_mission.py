@@ -66,7 +66,8 @@ class SARMission(AbstractMission):
         self._log.debug(f"{agent.name}: action_path: {action_path}")
         print(f"action_path: {action_path}")
         # current_edge_type = krm.graph.edges[action_path[0], action_path[1]]["type"]
-        current_edge_type = krm.graph.edges[action_path[0]]["type"]
+        # current_edge_type = krm.graph.edges[action_path[0]]["type"]
+        current_edge_type = krm.get_type_of_edge(action_path[0])
         self._log.debug(f"{agent.name}: current_edge_type: {current_edge_type}")
 
         if current_edge_type == EdgeType.FRONTIER_EDGE:

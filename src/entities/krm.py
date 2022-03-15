@@ -4,7 +4,7 @@ import uuid
 import networkx as nx
 import logging
 
-from src.utils.my_types import EdgeType, Node, NodeType
+from src.utils.my_types import Edge, EdgeType, Node, NodeType
 from src.utils.config import Config
 
 
@@ -22,8 +22,8 @@ class KRM:
     def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
         self._log = logging.getLogger(__name__)
 
-        self.graph = nx.DiGraph()  # Knowledge Road Map
-        # self.graph = nx.MultiDiGraph()  # Knowledge Road Map
+        # self.graph = nx.DiGraph()  # Knowledge Road Map
+        self.graph = nx.MultiDiGraph()  # Knowledge Road Map
         self.cfg = cfg
         self.next_wp_idx = 0
 
@@ -220,6 +220,11 @@ class KRM:
                     close_nodes.append(node)
 
         return close_nodes
+
+    def get_type_of_edge(self, edge: Edge) -> EdgeType:
+        """ returns the type of the edge between two nodes """
+        node_a, node_b = edge
+        return self.graph.edges[node_a, node_b]["type"]
 
     def check_node_exists(self, node: Node):
         """ checks if the given node exists in the graph"""
