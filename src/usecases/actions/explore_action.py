@@ -95,7 +95,7 @@ class ExploreAction(AbstractAction):
             return
         elif len(wp_at_previous_pos_candidates) >= 1:
             self._log.debug(
-                f"{agent.name}: Multiple waypoints at previous pos, taking first one."
+                f"{agent.name}: Multiple waypoints at previous pos, taking first one: {wp_at_previous_pos_candidates[0]}."
             )
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
 
@@ -149,6 +149,7 @@ class ExploreAction(AbstractAction):
                     to_wp = krm.get_node_by_pos(point)
 
                     if not krm.check_if_edge_exists(from_wp, to_wp):
+                        self._log.error(f"{agent.name}: Adding shortcut from {from_wp} to {to_wp}.")
                         krm.add_waypoint_diedge(from_wp, to_wp)
 
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:

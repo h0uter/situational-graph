@@ -17,7 +17,7 @@ class ExtractionAction(AbstractAction):
         # Should I allow an action to set a different action path?
         extraction_goal_node = self.find_best_exit(agent, krm)
 
-        action_path = self.update_krm_with_guide_actions(krm, agent, extraction_goal_node)
+        action_path = self.update_krm_with_guide_actions(agent, krm, extraction_goal_node)
 
         return action_path
 
@@ -31,12 +31,9 @@ class ExtractionAction(AbstractAction):
         """
         path = krm.shortest_path(agent.at_wp, exit_node)
         krm.add_guide_action_edges(path)
-        
+        action_path = krm.node_list_to_edge_list(path)
 
-        return
-
-
-        
+        return action_path
 
     def find_best_exit(self, agent, krm):
         """
@@ -46,30 +43,30 @@ class ExtractionAction(AbstractAction):
         best_exit = 0
         return best_exit
 
-    def guide_victim_home_old(self, agent, krm, action_path):
+    # def guide_victim_home_old(self, agent, krm, action_path):
 
-        if self.cfg.AUDIO_FEEDBACK:
-            play_hi_follow_me()
+    #     if self.cfg.AUDIO_FEEDBACK:
+    #         play_hi_follow_me()
 
-        self._log.debug(
-            f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1][-1]} from graph."
-        )
+    #     self._log.debug(
+    #         f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1][-1]} from graph."
+    #     )
 
-        # calc the shortest path
-        # add guide action edges along the path
-        # set_target to the start node
-        # perhaps add a droppoff action to the last node.
+    #     # calc the shortest path
+    #     # add guide action edges along the path
+    #     # set_target to the start node
+    #     # perhaps add a droppoff action to the last node.
 
-        time.sleep(2)
-        krm.remove_world_object(action_path[-1][1])
+    #     time.sleep(2)
+    #     krm.remove_world_object(action_path[-1][1])
 
-        # TODO: can actions change the action path and/or the target_node?
-        # action_path = krm.shortest_path(agent.at_wp, start_node)
-        # self._log.debug(
-        #     f"{agent.name}: world_object_action_edge():: action_path: {action_path}"
-        # )
-        # return action_path
-        # self.target_node = start_node
+    #     # TODO: can actions change the action path and/or the target_node?
+    #     # action_path = krm.shortest_path(agent.at_wp, start_node)
+    #     # self._log.debug(
+    #     #     f"{agent.name}: world_object_action_edge():: action_path: {action_path}"
+    #     # )
+    #     # return action_path
+    #     # self.target_node = start_node
 
-        start_node = 0
-        return start_node
+    #     start_node = 0
+    #     return start_node

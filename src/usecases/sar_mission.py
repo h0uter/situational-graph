@@ -5,6 +5,7 @@ from src.entities.krm import KRM
 from src.usecases.abstract_mission import AbstractMission
 from src.usecases.actions.explore_action import ExploreAction
 from src.usecases.actions.goto_action import GotoAction
+from src.usecases.actions.guide_action import GuideAction
 from src.usecases.actions.extraction_action import ExtractionAction
 from src.utils.config import Config
 from src.utils.my_types import EdgeType, Node, Edge
@@ -87,9 +88,14 @@ class SARMission(AbstractMission):
                 return action_path
 
         elif current_edge_type == EdgeType.EXTRACTION_WO_EDGE:
-            action_path, self.target_node = ExtractionAction(self.cfg).run(
+            action_path = ExtractionAction(self.cfg).run(
                 agent, krm, action_path
             )
+            # Lets check if this is not neccesary
+            # self.target_node = action_path[-1][1]
+
+        elif current_edge_type is EdgeType.GUIDE_WP_EDGE:
+            action_path = GuideAction(self.cfg).run(agent, krm, action_path)
 
         return action_path
 

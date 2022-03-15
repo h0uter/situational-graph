@@ -1,6 +1,7 @@
 from src.usecases.actions.abstract_action import AbstractAction
 from src.utils.config import Config
 from src.utils.audio_feedback import play_hi_follow_me
+from src.usecases.actions.goto_action import GotoAction
 import time
 
 
@@ -11,27 +12,24 @@ class GuideAction(AbstractAction):
     def run(self, agent, krm, action_path):
         """Currently the world object action is guide victim home action"""
         # Should I allow an action to set a different action path?
-        start_node = self.guide_victim_home(agent, krm, action_path)
-
-        return [], start_node
-
-    def guide_victim_home(self, agent, krm, action_path):
-        start_node = 0
-
+        self._log.debug(
+            f"{agent.name}: GUiding  victim to next wp {action_path[0][1]}"
+        )
         if self.cfg.AUDIO_FEEDBACK:
             play_hi_follow_me()
+        # time.sleep(2)
 
-        self._log.debug(
-            f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1][-1]} from graph."
-        )
-        time.sleep(2)
-        krm.remove_world_object(action_path[-1][1])
+        action_path = GotoAction(self.cfg).run(agent, krm, action_path)
 
-        # TODO: can actions change the action path and/or the target_node?
-        # action_path = krm.shortest_path(agent.at_wp, start_node)
-        # self._log.debug(
-        #     f"{agent.name}: world_object_action_edge():: action_path: {action_path}"
-        # )
-        # return action_path
-        # self.target_node = start_node
-        return start_node
+        if self.check_if_victim_still_in_perception_scene(agent):
+            self._log.debug(f"{agent.name}: guide action succesfull victim is still in perception scene")
+            return action_path
+        else:
+            self._log.debug(f"{agent.name}: guide action failed victim is not in perception scene, going back")
+            return []  
+
+    def check_if_victim_still_in_perception_scene(self, agent) -> bool:
+        """
+        Check if the victim is still in the perception scene.
+        """
+        return True

@@ -41,74 +41,12 @@ class KRM:
         self.path_len_dict = dict()
         self.prev_source_set = set()
 
-    # add startpoints function
-    def add_start_waypoints(self, pos: tuple) -> None:
-        """ adds start points to the graph"""
-        self.graph.add_node(
-            self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
-        )
-        self.next_wp_idx += 1
-
-    def calc_edge_len(self, node_a, node_b):
-        """ calculates the distance between two nodes"""
-        return math.sqrt(
-            (self.graph.nodes[node_a]["pos"][0] - self.graph.nodes[node_b]["pos"][0])
-            ** 2
-            + (self.graph.nodes[node_a]["pos"][1] - self.graph.nodes[node_b]["pos"][1])
-            ** 2
-        )
-
-    def add_waypoint(self, pos: tuple, prev_wp) -> None:
-        """ adds new waypoints and increments wp the idx"""
-
-        self.graph.add_node(
-            self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
-        )
-
-        self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
-        self.next_wp_idx += 1
-
-    def add_waypoint_diedge(self, node_a, node_b) -> None:
-        """ adds a waypoint edge in both direction to the graph"""
-        d = {
-            "type": EdgeType.GOTO_WP_EDGE,
-            "cost": self.calc_edge_len(node_a, node_b),
-        }
-        if self.check_if_edge_exists(node_a, node_b):
-            self._log.warning(f"Edge between a:{node_a} and b:{node_b} already exists")
-            return
-        if self.check_if_edge_exists(node_b, node_a):
-            self._log.warning(f"Edge between b:{node_b} and a:{node_a} already exists")
-            return
-
-        self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
-
-    def add_world_object(self, pos: tuple, label: str) -> None:
-        """ adds a world object to the graph"""
-        self.graph.add_node(label, pos=pos, type=NodeType.WORLD_OBJECT, id=uuid.uuid4())
-
-        if self.check_if_edge_exists(label, self.next_wp_idx - 1):
-            self._log.warning(
-                f"Edge between {label} and {self.next_wp_idx - 1} already exists"
-            )
-            return
-
-        # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
-        self.graph.add_edge(
-            self.next_wp_idx - 1,
-            label,
-            type=EdgeType.EXTRACTION_WO_EDGE,
-            # id=uuid.uuid4(),
-            cost=-100,
-        )
-
     # TODO: add function to add world object edges, for example the guide action
     # todo: add function to check if edge exists already
 
     def check_if_edge_exists(self, node_a: Node, node_b: Node):
         """ checks if an edge between two nodes exists """
         return self.graph.has_edge(node_a, node_b)
-
 
     def check_node_exists(self, node: Node):
         """ checks if the given node exists in the graph"""
@@ -180,12 +118,73 @@ class KRM:
             min_cost_edge = self.get_edge_with_lowest_weight(
                 node_list[i], node_list[i + 1]
             )
-            self._log.debug(f"node_list_to_edge_list(): min_cost_edge: {min_cost_edge}")
+            # self._log.debug(f"node_list_to_edge_list(): min_cost_edge: {min_cost_edge}")
 
             # action_path.append((node_list[i], node_list[i + 1], edge_id))
             action_path.append(min_cost_edge)
         self._log.debug(f"node_list_to_edge_list(): action_path: {action_path}")
         return action_path
+
+    def calc_edge_len(self, node_a, node_b):
+        """ calculates the distance between two nodes"""
+        return math.sqrt(
+            (self.graph.nodes[node_a]["pos"][0] - self.graph.nodes[node_b]["pos"][0])
+            ** 2
+            + (self.graph.nodes[node_a]["pos"][1] - self.graph.nodes[node_b]["pos"][1])
+            ** 2
+        )
+
+    # add startpoints function
+    def add_start_waypoints(self, pos: tuple) -> None:
+        """ adds start points to the graph"""
+        self.graph.add_node(
+            self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
+        )
+        self.next_wp_idx += 1
+
+    def add_waypoint(self, pos: tuple, prev_wp) -> None:
+        """ adds new waypoints and increments wp the idx"""
+
+        self.graph.add_node(
+            self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
+        )
+
+        self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
+        self.next_wp_idx += 1
+
+    def add_waypoint_diedge(self, node_a, node_b) -> None:
+        """ adds a waypoint edge in both direction to the graph"""
+        d = {
+            "type": EdgeType.GOTO_WP_EDGE,
+            "cost": self.calc_edge_len(node_a, node_b),
+        }
+        if self.check_if_edge_exists(node_a, node_b):
+            self._log.warning(f"Edge between a:{node_a} and b:{node_b} already exists")
+            return
+        if self.check_if_edge_exists(node_b, node_a):
+            self._log.warning(f"Edge between b:{node_b} and a:{node_a} already exists")
+            return
+
+        self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
+
+    def add_world_object(self, pos: tuple, label: str) -> None:
+        """ adds a world object to the graph"""
+        self.graph.add_node(label, pos=pos, type=NodeType.WORLD_OBJECT, id=uuid.uuid4())
+
+        if self.check_if_edge_exists(label, self.next_wp_idx - 1):
+            self._log.warning(
+                f"Edge between {label} and {self.next_wp_idx - 1} already exists"
+            )
+            return
+
+        # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
+        self.graph.add_edge(
+            self.next_wp_idx - 1,
+            label,
+            type=EdgeType.EXTRACTION_WO_EDGE,
+            # id=uuid.uuid4(),
+            cost=-100,
+        )
 
     def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
         """ adds a frontier to the graph"""
@@ -219,12 +218,8 @@ class KRM:
         """ adds edges between the nodes in the path"""
         for i in range(len(path) - 1):
             self.graph.add_edge(
-                path[i],
-                path[i + 1],
-                type=EdgeType.GUIDE_WP_EDGE,
-                cost=0,
+                path[i], path[i + 1], type=EdgeType.GUIDE_WP_EDGE, cost=0,
             )
-
 
     def remove_frontier(self, target_frontier_idx) -> None:
         """ removes a frontier from the graph"""
@@ -314,17 +309,24 @@ class KRM:
 
     def get_edge_with_lowest_weight(self, node_a: Node, node_b: Node) -> Edge:
         """ returns the lowest weight edge between two nodes """
-        keys_of_parallel_edges = [key for key in self.graph.get_edge_data(node_a, node_b).keys()]
-        self._log.debug(f"get_edge_with_lowest_weight(): edges: {keys_of_parallel_edges}")
+        keys_of_parallel_edges = [
+            key for key in self.graph.get_edge_data(node_a, node_b).keys()
+        ]
+        # self._log.debug(
+        #     f"get_edge_with_lowest_weight(): edges: {keys_of_parallel_edges}"
+        # )
         if len(keys_of_parallel_edges) == 0:
             self._log.warning(
                 f"get_edge_with_lowest_weight(): No edge between {node_a} and {node_b}"
             )
             return None
 
-        key_of_edge_with_min_cost = min(keys_of_parallel_edges, key=lambda x: self.graph.edges[node_a, node_b, x]["cost"])
+        key_of_edge_with_min_cost = min(
+            keys_of_parallel_edges,
+            key=lambda x: self.graph.edges[node_a, node_b, x]["cost"],
+        )
 
-        return node_a, node_b, key_of_edge_with_min_cost 
+        return node_a, node_b, key_of_edge_with_min_cost
 
     def get_type_of_edge_triplet(self, edge: Edge) -> Optional[EdgeType]:
         """ returns the type of the edge between two nodes """
