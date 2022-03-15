@@ -13,7 +13,7 @@ class ExploreAction(AbstractAction):
         super().__init__(cfg)
 
     def run(self, agent: AbstractAgent, krm: KRM, action_path):
-        next_node = action_path[1]
+        next_node = action_path[0][1]
         next_node_pos = krm.get_node_data_by_node(next_node)["pos"]
 
         if agent.pos is not next_node_pos:
@@ -46,7 +46,7 @@ class ExploreAction(AbstractAction):
                 f"{agent.name}: did not reach destination during explore action."
             )
             krm.remove_frontier(next_node)
-            agent.move_to_pos(krm.get_node_data_by_node(action_path[0])["pos"])
+            agent.move_to_pos(krm.get_node_data_by_node(action_path[0][0])["pos"])
 
             return []
 

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Sequence
 
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
@@ -7,7 +7,7 @@ from src.usecases.actions.explore_action import ExploreAction
 from src.usecases.actions.goto_action import GotoAction
 from src.usecases.actions.world_object_action import WorldObjectAction
 from src.utils.config import Config
-from src.utils.my_types import EdgeType, Node
+from src.utils.my_types import EdgeType, Node, Edge
 
 
 class SARMission(AbstractMission):
@@ -27,16 +27,16 @@ class SARMission(AbstractMission):
                 f"{agent.name}: Could not select a frontier, when I should've."
             )
 
+        self._log.debug(f"{agent.name}: the agent is at {agent.at_wp}.")
         target_node = self.evaluate_potential_targets_based_on_path_cost(
             agent, target_nodes, krm
         )
-        self._log.debug(f"{agent.name}: Target frontier selected: {target_node}.")
 
         return target_node
 
     def path_generation(
         self, agent: AbstractAgent, krm: KRM, target_node: Node
-    ) -> list[Optional[Node]]:
+    ) -> Sequence[Optional[Edge]]:
 
         if not self.check_target_still_valid(krm, target_node):
             self._log.warning(
@@ -47,14 +47,15 @@ class SARMission(AbstractMission):
         action_path = list(krm.shortest_path(agent.at_wp, target_node))  # type: ignore
 
         if action_path:
+            action_path = self.node_list_to_edge_list(action_path)
             return action_path
         else:
             self._log.warning(f"{agent.name}: path_generation(): no path found")
             return []
 
     def path_execution(
-        self, agent: AbstractAgent, krm: KRM, action_path: list
-    ) -> list[Optional[Node]]:
+        self, agent: AbstractAgent, krm: KRM, action_path: Sequence[Edge]
+    ) -> Sequence[Optional[Edge]]:
         if not self.check_target_still_valid(krm, self.target_node):
             self._log.warning(
                 f"path_execution()::{agent.name}:: Target is no longer valid."
@@ -63,8 +64,9 @@ class SARMission(AbstractMission):
             return []
 
         self._log.debug(f"{agent.name}: action_path: {action_path}")
-
-        current_edge_type = krm.graph.edges[action_path[0], action_path[1]]["type"]
+        print(f"action_path: {action_path}")
+        # current_edge_type = krm.graph.edges[action_path[0], action_path[1]]["type"]
+        current_edge_type = krm.graph.edges[action_path[0]]["type"]
         self._log.debug(f"{agent.name}: current_edge_type: {current_edge_type}")
 
         if current_edge_type == EdgeType.FRONTIER_EDGE:
@@ -76,7 +78,8 @@ class SARMission(AbstractMission):
 
         elif current_edge_type == EdgeType.WAYPOINT_EDGE:
             action_path = GotoAction(self.cfg).run(agent, krm, action_path)
-            if len(action_path) < 2:
+            # if len(action_path) < 2:
+            if len(action_path) < 1:
                 self.clear_target()
                 return []
             else:
@@ -109,6 +112,8 @@ class SARMission(AbstractMission):
         Evaluate the frontiers and return the best one.
         this is the entrypoint for exploiting semantics
         """
+        self._log.debug(f"{agent.name}: evaluating {target_idxs} based on path cost.")
+
         shortest_path_len = float("inf")
         selected_target_idx: Optional[Node] = None
 
@@ -119,6 +124,9 @@ class SARMission(AbstractMission):
                 shortest_path_len = candidate_path_len
                 selected_target_idx = target_idx
 
+        self._log.debug(
+            f"{agent.name}: Shortest path found is: {candidate_path_len} for {selected_target_idx}."
+        )
         if not selected_target_idx:
             self._log.error(
                 f"{agent.name} at {agent.at_wp}: 1/2 No frontier can be selected from {len(target_idxs)} frontiers (0 candidate paths)."

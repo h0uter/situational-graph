@@ -3,13 +3,6 @@ from src.utils.my_types import EdgeType
 import networkx as nx
 
 
-# def filter_wp_edge(n1, n2):
-#     return G[n1][n2].get("type", EdgeType.WAYPOINT_EDGE)
-#     # return krm.graph[n1][n2].get("type", EdgeType.WAYPOINT_EDGE)
-# # def filter_wp_edge(n1, n2, n3):
-# #     return G[n1][n2][n3].get("type", EdgeType.WAYPOINT_EDGE)
-
-
 def check_no_duplicate_wp_edges(krm: KRM):
     """
     Check if there are no duplicate waypoint edges in the graph.
