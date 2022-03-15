@@ -44,7 +44,8 @@ class SARMission(AbstractMission):
                 f"path_execution()::{agent.name}:: Target is no longer valid."
             )
             return []
-
+        
+        self._log.debug(f"{agent.name}: target_node: {target_node}")
         action_path = list(krm.shortest_path(agent.at_wp, target_node))  # type: ignore
 
         if action_path:
@@ -91,11 +92,13 @@ class SARMission(AbstractMission):
             action_path = ExtractionAction(self.cfg).run(
                 agent, krm, action_path
             )
-            # Lets check if this is not neccesary
-            # self.target_node = action_path[-1][1]
+            # Lets check if this is not neccesary, it is necce
+            self.target_node = action_path[-1][1]
 
         elif current_edge_type is EdgeType.GUIDE_WP_EDGE:
             action_path = GuideAction(self.cfg).run(agent, krm, action_path)
+            if len(action_path) < 1:
+                self.clear_target()
 
         return action_path
 

@@ -34,6 +34,7 @@ class KRM:
         for start_pos in start_poses:
             if start_pos not in self.duplicate_start_poses:
                 self.add_start_waypoints(start_pos)
+                # HACK: 
                 self.duplicate_start_poses.append(start_pos)
         self.next_frontier_idx = 9000
         self.next_wo_idx = 90000

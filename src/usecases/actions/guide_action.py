@@ -15,18 +15,18 @@ class GuideAction(AbstractAction):
         self._log.debug(
             f"{agent.name}: GUiding  victim to next wp {action_path[0][1]}"
         )
-        if self.cfg.AUDIO_FEEDBACK:
-            play_hi_follow_me()
-        # time.sleep(2)
+        # if self.cfg.AUDIO_FEEDBACK:
+        #     play_hi_follow_me()
 
         action_path = GotoAction(self.cfg).run(agent, krm, action_path)
 
         if self.check_if_victim_still_in_perception_scene(agent):
+            # TODO: remove guide action edge
             self._log.debug(f"{agent.name}: guide action succesfull victim is still in perception scene")
             return action_path
         else:
             self._log.debug(f"{agent.name}: guide action failed victim is not in perception scene, going back")
-            return []  
+            return []
 
     def check_if_victim_still_in_perception_scene(self, agent) -> bool:
         """

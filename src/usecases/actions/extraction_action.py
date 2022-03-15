@@ -15,6 +15,12 @@ class ExtractionAction(AbstractAction):
     def run(self, agent: AbstractAgent, krm: KRM, action_path: Sequence[Edge]):
         """Currently the world object action is guide victim home action"""
         # Should I allow an action to set a different action path?
+        if self.cfg.AUDIO_FEEDBACK:
+            play_hi_follow_me()
+
+        # time.sleep(2)
+        krm.remove_world_object(action_path[-1][1])
+
         extraction_goal_node = self.find_best_exit(agent, krm)
 
         action_path = self.update_krm_with_guide_actions(agent, krm, extraction_goal_node)
