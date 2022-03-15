@@ -70,7 +70,7 @@ class AbstractAgent(ABC):
 
         elif len(loc_candidates) > 1:
             self._log.warning(
-                f"{self.name}: found multiple waypoints in the margin, picking the first one"
+                f"{self.name}: found multiple waypoints in the margin {loc_candidates}, picking the first one ({loc_candidates[0]}) for localization"
             )
             self.at_wp = loc_candidates[0]
 

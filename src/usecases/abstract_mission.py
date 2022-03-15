@@ -5,14 +5,14 @@ from typing import Optional, Sequence, Literal
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
 from src.utils.config import Config
-from src.utils.my_types import Node, EdgeType
+from src.utils.my_types import Node, EdgeType, Edge
 
 
 class AbstractMission(ABC):
     def __init__(self, cfg: Config) -> None:
         self.cfg = cfg
         self.completed = False
-        self.action_path: Sequence[Optional[Node]] = []
+        self.action_path: Sequence[Optional[Edge]] = []
         self.target_node: Optional[Node] = None
         self.init_flag = False
         self._log = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ class AbstractMission(ABC):
             something_was_done = True
 
         # if self.action_path:
-        if len(self.action_path) >= 2:
+        if len(self.action_path) >= 1:
             self._log.debug(f"{agent.name}: Action path set. Executing one.")
             self.action_path = self.path_execution(agent, krm, self.action_path)
             if not self.action_path:
@@ -73,10 +73,10 @@ class AbstractMission(ABC):
         self.target_node = None
         # self.action_path = []
 
-    def setup_target_initialisation(self, krm: KRM) -> tuple[Sequence[Node], Literal[0]]:
+    def setup_target_initialisation(self, krm: KRM) -> tuple[Sequence[Edge], Literal[0]]:
         # Add a frontier edge self loop on the start node to ensure a exploration sampling action
         krm.graph.add_edge(0, 0, type=EdgeType.FRONTIER_EDGE)
-        action_path: list[Node] = [0, 0]
+        action_path: list[Edge] = [(0, 0)]
         target_node: Node = 0
         return action_path, target_node
 
@@ -85,6 +85,13 @@ class AbstractMission(ABC):
             return False
         return krm.check_node_exists(target_node)
 
+    def node_list_to_edge_list(self, node_list: Sequence[Node]) -> Sequence[Edge]:
+        # TODO: make this support multigraph
+        action_path: list[Edge] = []
+        for i in range(len(node_list) - 1):
+            action_path.append((node_list[i], node_list[i + 1]))
+        return action_path
+
     @abstractmethod
     def target_selection(self, agent: AbstractAgent, krm: KRM) -> Node:
         pass
@@ -92,13 +99,13 @@ class AbstractMission(ABC):
     @abstractmethod
     def path_generation(
         self, agent: AbstractAgent, krm: KRM, target_node: Node
-    ) -> list[Optional[Node]]:
+    ) -> Sequence[Optional[Edge]]:
         pass
 
     @abstractmethod
     def path_execution(
-        self, agent: AbstractAgent, krm: KRM, action_path: Sequence[Optional[Node]]
-    ) -> Sequence[Optional[Node]]:
+        self, agent: AbstractAgent, krm: KRM, action_path: Sequence[Optional[Edge]]
+    ) -> Sequence[Optional[Edge]]:
         pass
 
     @abstractmethod

@@ -9,12 +9,12 @@ class GotoAction(AbstractAction):
         super().__init__(cfg)
 
     def run(self, agent: AbstractAgent, krm: KRM, action_path) -> list:
-        if len(action_path) < 2:
+        if len(action_path) < 1:
             raise Exception(
                 f"{agent.name}: Trying to perform action_path step with empty action_path {action_path}."
             )
 
-        node_data = krm.get_node_data_by_node(action_path[1])
+        node_data = krm.get_node_data_by_node(action_path[0][1])
         agent.move_to_pos(node_data["pos"])
         agent.localize_to_waypoint(krm)
 

@@ -146,12 +146,18 @@ class VedoVisualisation(AbstractVizualisation):
             if mission.action_path:
                 action_path = mission.action_path
 
-                # HACK TO fix frontier already being removed from krm by one agent in final step
-                for node in action_path:
-                    if node not in pos_dict:
-                        return
+                # HACK TO fix crash caused by frontier already being removed from krm by one agent in final step
+                # for node in action_path:
+                #     if node not in pos_dict:
+                #         return
+                for edge in action_path:
+                    for node in edge:
+                        if node not in pos_dict:
+                            return
 
-                ed_ls = [action_path[i : i + 2] for i in range(len(action_path) - 1)]
+                # TODO: make it actually plot based on type of action
+                # ed_ls = [action_path[i : i + 2] for i in range(len(action_path) - 1)]
+                ed_ls = action_path
                 raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
                 frontier_edge = raw_lines.pop()
                 wp_edge_actors = (

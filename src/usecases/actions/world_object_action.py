@@ -22,10 +22,10 @@ class WorldObjectAction(AbstractAction):
             play_hi_follow_me()
 
         self._log.debug(
-            f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1]} from graph."
+            f"{agent.name}: world_object_action_edge():: removing world object {action_path[-1][-1]} from graph."
         )
         time.sleep(2)
-        krm.remove_world_object(action_path[-1])
+        krm.remove_world_object(action_path[-1][-1])
 
         # TODO: can actions change the action path and/or the target_node?
         # action_path = krm.shortest_path(agent.at_wp, start_node)
