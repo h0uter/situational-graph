@@ -14,6 +14,7 @@ class NodeType(Enum):
 
 # this is the start for my knowledge base action types domain.pddl etc
 class EdgeType(Enum):
-    WAYPOINT_EDGE = auto()
-    FRONTIER_EDGE = auto()
-    WORLD_OBJECT_EDGE = auto()
+    GOTO_WP_EDGE = auto()
+    EXPLORE_FT_EDGE = auto()
+    EXTRACTION_WO_EDGE = auto()
+    GUIDE_WP_EDGE = auto()

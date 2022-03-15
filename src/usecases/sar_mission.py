@@ -5,7 +5,7 @@ from src.entities.krm import KRM
 from src.usecases.abstract_mission import AbstractMission
 from src.usecases.actions.explore_action import ExploreAction
 from src.usecases.actions.goto_action import GotoAction
-from src.usecases.actions.world_object_action import WorldObjectAction
+from src.usecases.actions.extraction_action import ExtractionAction
 from src.utils.config import Config
 from src.utils.my_types import EdgeType, Node, Edge
 
@@ -70,14 +70,14 @@ class SARMission(AbstractMission):
         current_edge_type = krm.get_type_of_edge_triplet(action_path[0])
         self._log.debug(f"{agent.name}: current_edge_type: {current_edge_type}")
 
-        if current_edge_type == EdgeType.FRONTIER_EDGE:
+        if current_edge_type == EdgeType.EXPLORE_FT_EDGE:
             action_path = ExploreAction(self.cfg).run(agent, krm, action_path)
             self.clear_target()
 
             # either a reset function
             # or pass and return the action path continuously
 
-        elif current_edge_type == EdgeType.WAYPOINT_EDGE:
+        elif current_edge_type == EdgeType.GOTO_WP_EDGE:
             action_path = GotoAction(self.cfg).run(agent, krm, action_path)
             # if len(action_path) < 2:
             if len(action_path) < 1:
@@ -86,8 +86,8 @@ class SARMission(AbstractMission):
             else:
                 return action_path
 
-        elif current_edge_type == EdgeType.WORLD_OBJECT_EDGE:
-            action_path, self.target_node = WorldObjectAction(self.cfg).run(
+        elif current_edge_type == EdgeType.EXTRACTION_WO_EDGE:
+            action_path, self.target_node = ExtractionAction(self.cfg).run(
                 agent, krm, action_path
             )
 

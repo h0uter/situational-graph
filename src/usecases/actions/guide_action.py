@@ -4,7 +4,7 @@ from src.utils.audio_feedback import play_hi_follow_me
 import time
 
 
-class WorldObjectAction(AbstractAction):
+class GuideAction(AbstractAction):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 

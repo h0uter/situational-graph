@@ -71,7 +71,7 @@ class KRM:
     def add_waypoint_diedge(self, node_a, node_b) -> None:
         """ adds a waypoint edge in both direction to the graph"""
         d = {
-            "type": EdgeType.WAYPOINT_EDGE,
+            "type": EdgeType.GOTO_WP_EDGE,
             "cost": self.calc_edge_len(node_a, node_b),
         }
         if self.check_if_edge_exists(node_a, node_b):
@@ -97,7 +97,7 @@ class KRM:
         self.graph.add_edge(
             self.next_wp_idx - 1,
             label,
-            type=EdgeType.WORLD_OBJECT_EDGE,
+            type=EdgeType.EXTRACTION_WO_EDGE,
             # id=uuid.uuid4(),
             cost=-100,
         )
@@ -187,8 +187,6 @@ class KRM:
         self._log.debug(f"node_list_to_edge_list(): action_path: {action_path}")
         return action_path
 
-
-
     def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
         """ adds a frontier to the graph"""
         self.graph.add_node(
@@ -210,12 +208,23 @@ class KRM:
         self.graph.add_edge(
             agent_at_wp,
             self.next_frontier_idx,
-            type=EdgeType.FRONTIER_EDGE,
+            type=EdgeType.EXPLORE_FT_EDGE,
             # id=uuid.uuid4(),
             cost=cost,
         )
 
         self.next_frontier_idx += 1
+
+    def add_guide_action_edges(self, path: Sequence[Node]):
+        """ adds edges between the nodes in the path"""
+        for i in range(len(path) - 1):
+            self.graph.add_edge(
+                path[i],
+                path[i + 1],
+                type=EdgeType.GUIDE_WP_EDGE,
+                cost=0,
+            )
+
 
     def remove_frontier(self, target_frontier_idx) -> None:
         """ removes a frontier from the graph"""
@@ -336,9 +345,9 @@ if __name__ == "__main__":
     """some quick experiments"""
     G = nx.MultiDiGraph()
 
-    G.add_edge(1, 2, weight=1, type=EdgeType.FRONTIER_EDGE)
-    G.add_edge(1, 2, weight=5, type=EdgeType.WAYPOINT_EDGE)
-    G.add_edge(2, 1, weight=10, type=EdgeType.WAYPOINT_EDGE)
+    G.add_edge(1, 2, weight=1, type=EdgeType.EXPLORE_FT_EDGE)
+    G.add_edge(1, 2, weight=5, type=EdgeType.GOTO_WP_EDGE)
+    G.add_edge(2, 1, weight=10, type=EdgeType.GOTO_WP_EDGE)
 
     print(G.edges((1), keys=True))
     print([key for key in G.get_edge_data(1, 2).keys()])

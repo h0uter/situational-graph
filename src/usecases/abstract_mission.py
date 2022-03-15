@@ -75,7 +75,7 @@ class AbstractMission(ABC):
 
     def setup_target_initialisation(self, krm: KRM) -> tuple[Sequence[Edge], Literal[0]]:
         # Add a frontier edge self loop on the start node to ensure a exploration sampling action
-        edge_id = krm.graph.add_edge(0, 0, type=EdgeType.FRONTIER_EDGE)
+        edge_id = krm.graph.add_edge(0, 0, type=EdgeType.EXPLORE_FT_EDGE)
         self._log.debug(f"{self.__class__.__name__}: Adding frontier edge self loop. {krm.graph.edges()}")
         action_path: list[Edge] = [(0, 0, edge_id)]
         target_node: Node = 0
