@@ -1,4 +1,6 @@
 import math
+from typing import Optional, Sequence
+from unicodedata import name
 import uuid
 
 import networkx as nx
@@ -221,10 +223,33 @@ class KRM:
 
         return close_nodes
 
-    def get_type_of_edge(self, edge: Edge) -> EdgeType:
+    def get_edge_with_lowest_weight(self, node_a: Node, node_b: Node) -> Edge:
+        """ returns the lowest weight edge between two nodes """
+        keys_of_parallel_edges = [key for key in self.graph.get_edge_data(node_a, node_b).keys()]
+        self._log.debug(f"get_edge_with_lowest_weight(): edges: {keys_of_parallel_edges}")
+        if len(keys_of_parallel_edges) == 0:
+            self._log.warning(
+                f"get_edge_with_lowest_weight(): No edge between {node_a} and {node_b}"
+            )
+            return None
+
+        key_of_edge_with_min_cost = min(keys_of_parallel_edges, key=lambda x: self.graph.edges[node_a, node_b, x]["cost"])
+
+        return node_a, node_b, key_of_edge_with_min_cost 
+
+    def get_type_of_edge_triplet(self, edge: Edge) -> Optional[EdgeType]:
         """ returns the type of the edge between two nodes """
-        node_a, node_b = edge
-        return self.graph.edges[node_a, node_b]["type"]
+        self._log.debug(f"get_type_of_edge(): edge: {edge}")
+        if len(edge) == 2:
+            # return self.graph.edges[edge]["type"]
+            yolo = self.graph.edges[edge]["type"]
+            print(yolo)
+            return yolo
+        elif len(edge) == 3:
+            node_a, node_b, edge_id = edge
+            return self.graph.edges[node_a, node_b, edge_id]["type"]
+        else:
+            self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
 
     def check_node_exists(self, node: Node):
         """ checks if the given node exists in the graph"""
@@ -287,3 +312,28 @@ class KRM:
         )
 
         return path_len
+
+    def node_list_to_edge_list(self, node_list: Sequence[Node]) -> Sequence[Edge]:
+        # TODO: make this support multigraph
+        action_path: list[Edge] = []
+        for i in range(len(node_list) - 1):
+            # action_path.append((node_list[i], node_list[i + 1]))
+            min_cost_edge = self.get_edge_with_lowest_weight(
+                node_list[i], node_list[i + 1]
+            )
+            self._log.debug(f"node_list_to_edge_list(): min_cost_edge: {min_cost_edge}")
+
+            # action_path.append((node_list[i], node_list[i + 1], edge_id))
+            action_path.append(min_cost_edge)
+        self._log.debug(f"node_list_to_edge_list(): action_path: {action_path}")
+        return action_path
+
+if __name__ == "__main__":
+    G = nx.MultiDiGraph()
+
+    G.add_edge(1, 2, weight=1, type=EdgeType.FRONTIER_EDGE)
+    G.add_edge(1, 2, weight=5, type=EdgeType.WAYPOINT_EDGE)
+    G.add_edge(2, 1, weight=10, type=EdgeType.WAYPOINT_EDGE)
+
+    print(G.edges((1), keys=True))
+    print([key for key in G.get_edge_data(1, 2).keys()])

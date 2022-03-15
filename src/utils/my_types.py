@@ -2,8 +2,8 @@ from typing import Union
 from enum import Enum, auto
 
 Node = Union[str, int]
-Edge = tuple[Union[str, int], Union[str, int]]
-MultiEdge = tuple[Union[str, int], Union[str, int], int]
+# Edge = tuple[Union[str, int], Union[str, int]]
+Edge = tuple[Union[str, int], Union[str, int], int]
 
 
 class NodeType(Enum):

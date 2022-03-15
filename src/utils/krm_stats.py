@@ -35,7 +35,8 @@ class KRMStats:
             len(
                 [
                     e
-                    for e in krm.graph.edges()
+                    # for e in krm.graph.edges()
+                    for e in krm.graph.edges
                     if krm.graph.edges[e]["type"] == EdgeType.WAYPOINT_EDGE
                 ]
             )

@@ -9,8 +9,10 @@ def check_no_duplicate_wp_edges(krm: KRM):
     """
     G = krm.graph
 
-    def filter_wp_edge(n1, n2):
-        return G[n1][n2].get("type", EdgeType.WAYPOINT_EDGE)
+    # def filter_wp_edge(n1, n2):
+    #     return G[n1][n2].get("type", EdgeType.WAYPOINT_EDGE)
+    def filter_wp_edge(n1, n2, n3):
+        return G[n1][n2][n3].get("type", EdgeType.WAYPOINT_EDGE)
 
     view = nx.subgraph_view(G, filter_edge=filter_wp_edge)
 
