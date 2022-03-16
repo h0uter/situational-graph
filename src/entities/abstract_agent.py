@@ -20,12 +20,13 @@ class AbstractAgent(ABC):
         self.pos = cfg.AGENT_START_POS
         self.heading = 0.0
         self.previous_pos = self.pos
+        self.init = False
 
         self.steps_taken: int = 0
         self._log = logging.getLogger(__name__)
 
     @abstractmethod
-    def move_to_pos(self, pos: tuple) -> None:
+    def move_to_pos(self, pos: tuple, heading=None) -> None:
         """
         Move the agent to a new position.
 
@@ -63,7 +64,7 @@ class AbstractAgent(ABC):
         )
 
         if len(loc_candidates) == 0:
-            self._log.warning(f"{self.name}: could not find a waypoint in the margin")
+            self._log.error(f"{self.name}: could not find a waypoint in the margin to localize to")
             # self.at_wp = None
         elif len(loc_candidates) == 1:
             self.at_wp = loc_candidates[0]
@@ -91,3 +92,6 @@ class AbstractAgent(ABC):
         heading = (ang) % (2 * np.pi)
         
         return heading
+
+    def set_init(self):
+        self.init = True

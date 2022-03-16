@@ -90,7 +90,7 @@ class VedoVisualisation(AbstractVizualisation):
 
         # TODO: implement coloration for the different line types
         if len(ed_ls) > 1:
-            raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
+            raw_lines = [(pos_dict[node_a], pos_dict[node_b]) for node_a, node_b, _ in ed_ls]
             raw_edg = vedo.Lines(raw_lines).lw(2)
             actors.append(raw_edg)
 
@@ -158,7 +158,8 @@ class VedoVisualisation(AbstractVizualisation):
                 # TODO: make it actually plot based on type of action
                 # ed_ls = [action_path[i : i + 2] for i in range(len(action_path) - 1)]
                 ed_ls = action_path
-                raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
+                # raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
+                raw_lines = [(pos_dict[node_a], pos_dict[node_b]) for node_a, node_b, _ in ed_ls]
                 frontier_edge = raw_lines.pop()
                 wp_edge_actors = (
                     vedo.Lines(raw_lines, c="r", alpha=0.5)

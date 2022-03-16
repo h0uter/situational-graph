@@ -16,6 +16,13 @@ class ExploreAction(AbstractAction):
         next_node = action_path[0][1]
         next_node_pos = krm.get_node_data_by_node(next_node)["pos"]
 
+        # special case: initialization
+        if len(krm.get_all_frontiers_idxs()) <= 1:
+            lg = self.get_lg(agent)
+            self.sample_new_frontiers_and_add_to_krm(agent, krm, lg)
+            agent.set_init()
+            return []
+
         if agent.pos is not next_node_pos:
             agent.move_to_pos(next_node_pos)
         else:
@@ -26,9 +33,12 @@ class ExploreAction(AbstractAction):
                 f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
             )
             krm.remove_frontier(next_node)
-            self.sample_waypoint_from_pose(agent, krm)
-
             lg = self.get_lg(agent)
+
+            # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
+            if not self.sample_waypoint_from_pose(agent, krm):
+                return []
+
             # XXX: this is my 2nd  most expensive function, so I should try to optimize it
             self.sample_new_frontiers_and_add_to_krm(agent, krm, lg)
 
@@ -46,7 +56,12 @@ class ExploreAction(AbstractAction):
                 f"{agent.name}: did not reach destination during explore action."
             )
             krm.remove_frontier(next_node)
-            agent.move_to_pos(krm.get_node_data_by_node(action_path[0][0])["pos"])
+            # maintain the previous heading to stop tedious turning
+            agent.move_to_pos(
+                krm.get_node_data_by_node(action_path[0][0])["pos"], agent.heading
+            )
+
+            self.prune_frontiers(krm)
 
             return []
 
@@ -68,9 +83,7 @@ class ExploreAction(AbstractAction):
         destination_node_type = krm.get_node_data_by_node(destination_node)["type"]
 
         nodes_near_where_i_ended_up = krm.get_nodes_of_type_in_margin(
-            agent.get_localization(),
-            self.cfg.ARRIVAL_MARGIN,
-            destination_node_type,
+            agent.get_localization(), self.cfg.ARRIVAL_MARGIN, destination_node_type,
         )
 
         if destination_node in nodes_near_where_i_ended_up:
@@ -81,7 +94,7 @@ class ExploreAction(AbstractAction):
 
     """Path Execution"""
     #############################################################################################
-    def sample_waypoint_from_pose(self, agent: AbstractAgent, krm: KRM) -> None:
+    def sample_waypoint_from_pose(self, agent: AbstractAgent, krm: KRM) -> bool:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         """
@@ -91,17 +104,32 @@ class ExploreAction(AbstractAction):
         )
 
         if len(wp_at_previous_pos_candidates) == 0:
-            self._log.debug(f"{agent.name}: No waypoint at previous pos.")
-            return
-        elif len(wp_at_previous_pos_candidates) >= 1:
-            self._log.debug(
-                f"{agent.name}: Multiple waypoints at previous pos, taking first one."
+            self._log.error(
+                f"{agent.name}: No waypoint at previous pos {agent.previous_pos}, no wp added."
+            )
+            self._log.error(
+                f"{agent.name}: {agent.pos=} and {agent.get_localization()=}."
+            )
+            agent.localize_to_waypoint(krm)
+
+            return False
+
+        elif len(wp_at_previous_pos_candidates) > 1:
+            self._log.warning(
+                f"{agent.name}: Multiple waypoints at previous pos, taking first one: {wp_at_previous_pos_candidates[0]}."
             )
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
-
             krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
+            agent.localize_to_waypoint(krm)
 
-        agent.localize_to_waypoint(krm)
+            return True
+        elif len(wp_at_previous_pos_candidates) == 1:
+            wp_at_previous_pos = wp_at_previous_pos_candidates[0]
+            krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
+            agent.localize_to_waypoint(krm)
+            return True
+
+        # agent.localize_to_waypoint(krm)
 
     def sample_new_frontiers_and_add_to_krm(
         self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
@@ -149,6 +177,9 @@ class ExploreAction(AbstractAction):
                     to_wp = krm.get_node_by_pos(point)
 
                     if not krm.check_if_edge_exists(from_wp, to_wp):
+                        self._log.debug(
+                            f"{agent.name}: Adding shortcut from {from_wp} to {to_wp}."
+                        )
                         krm.add_waypoint_diedge(from_wp, to_wp)
 
     def get_lg(self, agent: AbstractAgent) -> LocalGrid:

@@ -96,16 +96,22 @@ class SpotAgent(AbstractAgent):
         self.pos = self.get_localization()
         # self.pos = start_pos
 
-    def move_to_pos(self, pos: tuple):
+    def move_to_pos(self, pos: tuple, heading=None):
         # self.move_vision_frame(pos)
         # time.sleep(5)
-        target_heading = self.calc_heading_to_target(pos)
+        if not heading:
+            target_heading = self.calc_heading_to_target(pos)
+        else:
+            target_heading = heading
+
         self.blocking_move_vision_frame(pos, target_heading)
 
         self.previous_pos = self.pos
         self.pos = self.get_localization()
         self.heading = target_heading
         self.steps_taken += 1
+
+        # TODO: this should return a succes/ failure bool
 
     def get_local_grid_img(self) -> npt.NDArray:
         return get_local_grid(self)
@@ -153,7 +159,10 @@ class SpotAgent(AbstractAgent):
                     (fiducial_rt_world.x, fiducial_rt_world.y),
                     fiducial.apriltag_properties.tag_id,
                 )
-                return [wo]
+                if wo:
+                    return [wo]
+                else:
+                    self._log.warning(f"unknown fiducial detected {fiducial.apriltag_properties.tag_id}")
             else:
                 # print("No fiducials found")
                 pass
@@ -412,7 +421,7 @@ def get_local_grid(spot: SpotAgent):
     # # grid cell. The border of an obstacle is considered a distance of [0,.33] meters for a grid cell value.
 
     # OBSTACLE_DISTANCE_TRESHOLD = 0.3
-    OBSTACLE_DISTANCE_TRESHOLD = 0.1
+    OBSTACLE_DISTANCE_TRESHOLD = 0.0
 
     colored_pts = np.ones([cell_count, 3], dtype=np.uint8)
     colored_pts[:, 0] = cells_obstacle_dist <= 0.0
