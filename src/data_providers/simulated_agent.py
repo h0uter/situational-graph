@@ -18,10 +18,10 @@ class SimulatedAgent(AbstractAgent):
         self.world_object_spoofer = WorldObjectSpoofer(cfg)
 
     def move_to_pos(self, pos: tuple[float, float], heading=None) -> None:
-        if not heading:
-            self.heading = self.calc_heading_to_target(pos)
-        else:
-            self.heading = heading
+        # if not heading:
+        #     self.heading = self.calc_heading_to_target(pos)
+        # else:
+        #     self.heading = heading
         self.teleport_to_pos(pos)
 
     def get_local_grid_img(self) -> npt.NDArray:
@@ -30,6 +30,9 @@ class SimulatedAgent(AbstractAgent):
     def get_localization(self) -> tuple[float, float]:
         return self.pos
 
+    def move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
+        self.teleport_to_pos(target_pos)
+
     def teleport_to_pos(self, pos: tuple[float, float]) -> None:
         """
         Teleport the agent to a new position.
@@ -37,9 +40,9 @@ class SimulatedAgent(AbstractAgent):
         :param pos: the position of the agent
         :return: None
         """
-        self.previous_pos = self.pos
-        self.pos = pos
-        self.steps_taken += 1
+        # self.previous_pos = self.pos
+        self.pos = pos  # teleport
+        # self.steps_taken += 1
 
     def look_for_world_objects_in_perception_scene(self) -> list:
         w_os = self.world_object_spoofer.spoof_world_objects_from_position(self.pos)

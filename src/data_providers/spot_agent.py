@@ -96,22 +96,25 @@ class SpotAgent(AbstractAgent):
         self.pos = self.get_localization()
         # self.pos = start_pos
 
-    def move_to_pos(self, pos: tuple, heading=None):
-        # self.move_vision_frame(pos)
-        # time.sleep(5)
-        if not heading:
-            target_heading = self.calc_heading_to_target(pos)
-        else:
-            target_heading = heading
+    def move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
+        self.blocking_move_vision_frame(target_pos, target_heading)
 
-        self.blocking_move_vision_frame(pos, target_heading)
+    # def move_to_pos(self, pos: tuple, heading=None):
+    #     # self.move_vision_frame(pos)
+    #     # time.sleep(5)
+    #     # if not heading:
+    #     #     target_heading = self.calc_heading_to_target(pos)
+    #     # else:
+    #     #     target_heading = heading
 
-        self.previous_pos = self.pos
-        self.pos = self.get_localization()
-        self.heading = target_heading
-        self.steps_taken += 1
+    #     self.move_to_pos_implementation(pos, target_heading)
 
-        # TODO: this should return a succes/ failure bool
+    #     # self.previous_pos = self.pos
+    #     self.pos = self.get_localization()
+    #     self.heading = target_heading
+    #     self.steps_taken += 1
+
+    #     # TODO: this should return a succes/ failure bool
 
     def get_local_grid_img(self) -> npt.NDArray:
         return get_local_grid(self)
@@ -176,7 +179,10 @@ class SpotAgent(AbstractAgent):
         # fiducial_objects = self._world_object_client.list_world_objects(
         fiducial_objects = (
             self.spot_wrapper._clients["world_object"]
-            .list_world_objects(object_type=request_fiducials)
+            .list_world_objects(
+                object_type=request_fiducials,
+                time_start_point=time.time()
+                )
             .world_objects
         )
         if len(fiducial_objects) > 0:
