@@ -179,7 +179,10 @@ class SpotAgent(AbstractAgent):
         # fiducial_objects = self._world_object_client.list_world_objects(
         fiducial_objects = (
             self.spot_wrapper._clients["world_object"]
-            .list_world_objects(object_type=request_fiducials)
+            .list_world_objects(
+                object_type=request_fiducials,
+                time_start_point=time.time()
+                )
             .world_objects
         )
         if len(fiducial_objects) > 0:

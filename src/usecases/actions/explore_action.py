@@ -17,7 +17,7 @@ class ExploreAction(AbstractAction):
         next_node_pos = krm.get_node_data_by_node(next_node)["pos"]
 
         # special case: initialization
-        if len(krm.get_all_frontiers_idxs()) <= 1:
+        if len(krm.get_all_frontiers_idxs()) <= 1 and not agent.init:
             lg = self.get_lg(agent)
             self.sample_new_frontiers_and_add_to_krm(agent, krm, lg)
             agent.set_init()
@@ -25,6 +25,7 @@ class ExploreAction(AbstractAction):
 
         if agent.pos is not next_node_pos:
             agent.move_to_pos(next_node_pos)
+            self._log.debug(f"{agent.name}: moving to {next_node_pos}")
         else:
             self._log.warning(f"{agent.name}: already at next node")
 
@@ -37,6 +38,7 @@ class ExploreAction(AbstractAction):
 
             # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
             if not self.sample_waypoint_from_pose(agent, krm):
+                self._log.error(f"sampling waypoint failed")
                 return []
 
             # XXX: this is my 2nd  most expensive function, so I should try to optimize it
@@ -60,6 +62,7 @@ class ExploreAction(AbstractAction):
             agent.move_to_pos(
                 krm.get_node_data_by_node(action_path[0][0])["pos"], agent.heading
             )
+            agent.previous_pos = agent.get_localization()
 
             self.prune_frontiers(krm)
 

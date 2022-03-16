@@ -22,6 +22,7 @@ class AbstractAgent(ABC):
         self.heading = 0.0
         self.previous_pos = self.pos
         self.init = False
+        self.assigned_victim = None
 
         self.steps_taken: int = 0
         self._log = logging.getLogger(__name__)

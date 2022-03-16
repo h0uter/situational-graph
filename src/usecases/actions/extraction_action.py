@@ -19,6 +19,7 @@ class ExtractionAction(AbstractAction):
             play_hi_follow_me()
 
         # time.sleep(2)
+        agent.assigned_victim = action_path[-1][1]
         krm.remove_world_object(action_path[-1][1])
 
         extraction_goal_node = self.find_best_exit(agent, krm)
