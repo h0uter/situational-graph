@@ -14,7 +14,7 @@ world_object_id_to_name_mapping = {
 
 def create_wo_from_fiducial(pos, fiducial_id):
 
-    if fiducial_id in world_object_id_to_name_mapping:
+    if str(fiducial_id) in world_object_id_to_name_mapping:
         name = world_object_id_to_name_mapping[str(fiducial_id)]
         return WorldObject(pos, name)
     else:
