@@ -159,7 +159,10 @@ class SpotAgent(AbstractAgent):
                     (fiducial_rt_world.x, fiducial_rt_world.y),
                     fiducial.apriltag_properties.tag_id,
                 )
-                return [wo]
+                if wo:
+                    return [wo]
+                else:
+                    self._log.warning(f"unknown fiducial detected {fiducial.apriltag_properties.tag_id}")
             else:
                 # print("No fiducials found")
                 pass

@@ -20,6 +20,7 @@ class ExploreAction(AbstractAction):
         if len(krm.get_all_frontiers_idxs()) <= 1:
             lg = self.get_lg(agent)
             self.sample_new_frontiers_and_add_to_krm(agent, krm, lg)
+            agent.set_init()
             return []
 
         if agent.pos is not next_node_pos:
@@ -59,6 +60,8 @@ class ExploreAction(AbstractAction):
             agent.move_to_pos(
                 krm.get_node_data_by_node(action_path[0][0])["pos"], agent.heading
             )
+
+            self.prune_frontiers(krm)
 
             return []
 

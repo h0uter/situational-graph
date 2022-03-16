@@ -21,12 +21,13 @@ class AbstractMission(ABC):
     def main_loop(self, agent: AbstractAgent, krm: KRM) -> bool:
         something_was_done = False
 
-        if not self.check_target_available(krm) and not self.init_flag:
+        # if not self.check_target_available(krm) and not self.init_flag:
+        if not self.check_target_available(krm) and not agent.init:
             self._log.debug(
                 f"{agent.name}: No targets available. Performing initialization."
             )
             self.action_path, self.target_node = self.setup_target_initialisation(krm)
-            self.init_flag = True
+            # self.init_flag = True
 
         if self.target_node is None:
             self._log.debug(f"{agent.name}: No target node set. Setting one.")

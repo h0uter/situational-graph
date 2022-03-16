@@ -20,6 +20,7 @@ class AbstractAgent(ABC):
         self.pos = cfg.AGENT_START_POS
         self.heading = 0.0
         self.previous_pos = self.pos
+        self.init = False
 
         self.steps_taken: int = 0
         self._log = logging.getLogger(__name__)
@@ -91,3 +92,6 @@ class AbstractAgent(ABC):
         heading = (ang) % (2 * np.pi)
         
         return heading
+
+    def set_init(self):
+        self.init = True
