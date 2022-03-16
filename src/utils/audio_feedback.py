@@ -13,9 +13,13 @@ def main():
     # generate_or_play_audio(
     #     "commencing_search.mp3", "ALERT: commencing search for survivors."
     # )
+    # generate_and_overwrite_audio(
+    #     "exploration_complete.mp3",
+    #     "ALERT: All frontiers have been exhausted, exploration is complete."
+    # )
     generate_and_overwrite_audio(
-        "exploration_complete.mp3",
-        "ALERT: All frontiers have been exhausted, exploration is complete."
+        "guide_victim_out_of_view.mp3",
+        "ALERT: The person I am guiding is no longer in view, going back!"
     )
 
 
@@ -46,7 +50,6 @@ def generate_and_overwrite_audio(filename, text):
     tts = gTTS.gTTS(text=text, lang="en")
     tts.save(path)
     playsound(path)
-
 
 
 def play_file(filename):

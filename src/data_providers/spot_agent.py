@@ -137,35 +137,45 @@ class SpotAgent(AbstractAgent):
     def look_for_world_objects_in_perception_scene(self):
         max_attempts = 10
         attempts = 0
+        wos = []
         while attempts <= max_attempts:
             detected_fiducial = False
             fiducial_rt_world = None
             # Get the first fiducial object Spot detects with the world object service.
-            fiducial = self.get_fiducial_objects()
-            if fiducial is not None:
-                vision_tform_fiducial = get_a_tform_b(
-                    fiducial.transforms_snapshot,
-                    VISION_FRAME_NAME,
-                    fiducial.apriltag_properties.frame_name_fiducial,
-                ).to_proto()
-                if vision_tform_fiducial is not None:
-                    detected_fiducial = True
-                    fiducial_rt_world = vision_tform_fiducial.position
+            fiducials = self.get_fiducial_objects()
+            if not fiducials:
+                return []
+            for fiducial in fiducials:
+                if fiducial is not None:
+                    vision_tform_fiducial = get_a_tform_b(
+                        fiducial.transforms_snapshot,
+                        VISION_FRAME_NAME,
+                        fiducial.apriltag_properties.frame_name_fiducial,
+                    ).to_proto()
+                    if vision_tform_fiducial is not None:
+                        detected_fiducial = True
+                        fiducial_rt_world = vision_tform_fiducial.position
 
-            if detected_fiducial:
-                # Go to the tag and stop within a certain distance
-                # self.go_to_tag(fiducial_rt_world)
-                # print(f"fiducial_rt_world = {fiducial_rt_world}")
+                if detected_fiducial:
+                    # Go to the tag and stop within a certain distance
+                    # self.go_to_tag(fiducial_rt_world)
+                    # print(f"fiducial_rt_world = {fiducial_rt_world}")
 
-                # wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
-                wo = create_wo_from_fiducial(
-                    (fiducial_rt_world.x, fiducial_rt_world.y),
-                    fiducial.apriltag_properties.tag_id,
-                )
+                    # wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
+                    wo = create_wo_from_fiducial(
+                        (fiducial_rt_world.x, fiducial_rt_world.y),
+                        fiducial.apriltag_properties.tag_id,
+                    )
+                else:
+                    self._log.debug(f"no fiducial detected")
+                    continue
+
                 if wo:
-                    return [wo]
+                    wos.append(wo)
                 else:
                     self._log.warning(f"unknown fiducial detected {fiducial.apriltag_properties.tag_id}")
+            if wos:
+                return wos
             else:
                 # print("No fiducials found")
                 pass
@@ -181,13 +191,13 @@ class SpotAgent(AbstractAgent):
             self.spot_wrapper._clients["world_object"]
             .list_world_objects(
                 object_type=request_fiducials,
-                time_start_point=time.time()
+                time_start_point=time.time() - 1.0 # not sure if this is correct time
                 )
             .world_objects
         )
         if len(fiducial_objects) > 0:
             # Return the first detected fiducial.
-            return fiducial_objects[0]
+            return fiducial_objects
         # Return none if no fiducials are found.
         return None
 
