@@ -65,7 +65,10 @@ class AbstractAgent(ABC):
             target_heading = self.calc_heading_to_target(target_pos)
         else:
             target_heading = heading
-        self.previous_pos = self.pos
+
+        # self.previous_pos = self.pos
+        self.previous_pos = self.get_localization()
+
         self.move_to_pos_implementation(target_pos, target_heading)
 
         # TODO: check if we arrived to set prev_wp
@@ -76,13 +79,18 @@ class AbstractAgent(ABC):
             abs(target_pos[0] - actual_pos[0]) <= self.cfg.ARRIVAL_MARGIN
             and abs(target_pos[1] - actual_pos[1]) <= self.cfg.ARRIVAL_MARGIN
         ):
+            # SUCCESS
             self.prev_wp = self.at_wp
-        self.previous_pos = self.pos  # can also put this in the condition
+            # BUG: need to set self.pos for real agent.... do I need to?
+            self.steps_taken += 1
+            self.heading = target_heading
+            self.pos = actual_pos
 
-        self.pos = self.get_localization()
-        self.heading = target_heading
-
-        self.steps_taken += 1
+        else:
+            # FAILURE
+            self.move_to_pos_implementation(self.previous_pos, self.heading)
+            # self.previous_pos = self.get_localization()  # can also put this in the condition
+            self.pos = self.get_localization()  # dont make sense for sim agent.
 
     # perhaps something like this should go into robot services, to not murk the dependencies.
     def localize_to_waypoint(self, krm: KRM):
@@ -114,7 +122,7 @@ class AbstractAgent(ABC):
         :return: The heading to the target in radians.
         """
         p1 = target_pos
-        p2 = self.pos
+        p2 = self.get_localization()
         dx = p1[0] - p2[0]
         dy = p1[1] - p2[1]
         ang = np.arctan2(dy, dx)

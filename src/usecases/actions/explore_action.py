@@ -23,7 +23,7 @@ class ExploreAction(AbstractAction):
             agent.set_init()
             return []
 
-        if agent.pos is not next_node_pos:
+        if agent.get_localization() is not next_node_pos:
             agent.move_to_pos(next_node_pos)
             self._log.debug(f"{agent.name}: moving to {next_node_pos}")
         else:

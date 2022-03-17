@@ -349,7 +349,7 @@ class MplVizualisation(AbstractVizualisation):
 
         for agent in agents:
             self.draw_agent_and_sensor_range(
-                agent.pos, self.ax2, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.8
+                agent.get_localization(), self.ax2, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.8
             )
             if timer:
                 print(
@@ -364,7 +364,7 @@ class MplVizualisation(AbstractVizualisation):
 
         for agent in agents:
             self.draw_agent_and_sensor_range(
-                agent.pos, self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.2
+                agent.get_localization(), self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.2
             )
             if timer:
                 print(
