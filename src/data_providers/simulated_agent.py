@@ -17,18 +17,18 @@ class SimulatedAgent(AbstractAgent):
         self.lgs = LocalGridImageSpoofer(cfg)
         self.world_object_spoofer = WorldObjectSpoofer(cfg)
 
-    def move_to_pos(self, pos: tuple[float, float], heading=None) -> None:
-        # if not heading:
-        #     self.heading = self.calc_heading_to_target(pos)
-        # else:
-        #     self.heading = heading
-        self.teleport_to_pos(pos)
-
     def get_local_grid_img(self) -> npt.NDArray:
         return self.lgs.sim_spoof_local_grid_from_img_world(self.pos)
 
     def get_localization(self) -> tuple[float, float]:
         return self.pos
+
+    # def move_to_pos(self, pos: tuple[float, float], heading=None) -> None:
+    #     # if not heading:
+    #     #     self.heading = self.calc_heading_to_target(pos)
+    #     # else:
+    #     #     self.heading = heading
+    #     self.teleport_to_pos(pos)
 
     def move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
         self.teleport_to_pos(target_pos)

@@ -101,7 +101,7 @@ class ExploreAction(AbstractAction):
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         """
-
+        print(agent.previous_pos)
         wp_at_previous_pos_candidates = krm.get_nodes_of_type_in_margin(
             agent.previous_pos, self.cfg.PREV_POS_MARGIN, NodeType.WAYPOINT
         )
