@@ -50,5 +50,6 @@ class GuideAction(AbstractAction):
             for wo in wos:
                 if wo == agent.assigned_victim:
                     return True
+            return False
         else:
             return True

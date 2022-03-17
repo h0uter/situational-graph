@@ -40,11 +40,13 @@ class SpotAgent(AbstractAgent):
         super().__init__(cfg)
 
         # self._logger = logging.getLogger(__name__)
-        self._logger = util.get_logger()
+        # self._logger = util.get_logger()
+        # self._log = logging.getLogger(__name__)
         # logging.basicConfig(level=logging.INFO)
 
         # self._logger.setLevel(level=logging.WARNING)
-        self._logger.setLevel(level=logging.INFO)
+        # self._logger.setLevel(level=logging.INFO)
+        self._log.setLevel(level=logging.DEBUG)
 
         self.mobility_parameters = {
             "obstacle_padding": 0.1,  # [m]
@@ -70,26 +72,26 @@ class SpotAgent(AbstractAgent):
             username=login_cfg.username,
             password=login_cfg.password,
             hostname=login_cfg.wifi_hostname,
-            logger=self._logger,
+            logger=self._log,
         )
 
         if self.spot_wrapper.is_valid:
-            self._logger.info("Spot wrapper is valid")
+            self._log.info("Spot wrapper is valid")
 
             self._apply_mobility_parameters()
 
             if self.auto_claim:
                 claim_status = self.spot_wrapper.claim()
-                self._logger.info(f"claim_status: {claim_status}")
+                self._log.info(f"claim_status: {claim_status}")
                 if self.auto_power_on:
                     power_on_status = self.spot_wrapper.power_on()
-                    self._logger.info(f"power_on_status: {power_on_status}")
+                    self._log.info(f"power_on_status: {power_on_status}")
                     if self.auto_stand:
                         stand_status = self.spot_wrapper.stand()
-                        self._logger.info(f"stand_status: {stand_status}")
+                        self._log.info(f"stand_status: {stand_status}")
 
         else:
-            self._logger.warning("Spot wrapper is not valid!")
+            self._log.warning("Spot wrapper is not valid!")
 
         time.sleep(10)
 
@@ -173,9 +175,11 @@ class SpotAgent(AbstractAgent):
                 if wo:
                     wos.append(wo)
                 else:
-                    self._log.warning(f"unknown fiducial detected {fiducial.apriltag_properties.tag_id}")
+                    self._log.debug(f"unknown fiducial detected {fiducial.apriltag_properties.tag_id}")
             if wos:
+                self._log.debug(f"detected wos are {wos}")
                 return wos
+
             else:
                 # print("No fiducials found")
                 pass
@@ -253,7 +257,7 @@ class SpotAgent(AbstractAgent):
         end_time = time.time() + cmd_duration
         cmd_id = self.spot_wrapper._clients["robot_command"].robot_command(cmd, end_time_secs=end_time)
 
-        self._logger.info("Robot standing twisted.")
+        self._log.info("Robot standing twisted.")
         start_time = time.time()
         end_time = start_time + 15.0  # timeout is 5 seconds
         while time.time() < end_time:
@@ -268,18 +272,18 @@ class SpotAgent(AbstractAgent):
                 cmd_status
                 == basic_command_pb2.SE2TrajectoryCommand.Feedback.STATUS_AT_GOAL
             ):
-                self._logger.info("Arrived at goal")
+                self._log.info("Arrived at goal")
                 break
             time.sleep(0.01)  # wait 100ms before the next check
         else:
-            self._logger.info("Timeout!")
+            self._log.info("Timeout!")
 
     # do this instead of the wait timer
     # https://khssnv.medium.com/spot-sdk-blocking-robot-commands-3d6902cfb403
 
     def move_vision_frame(self, pos: tuple, heading=0.0):
         """ROS service handler"""
-        self._logger.info("Executing move_vision action")
+        self._log.info("Executing move_vision action")
 
         try:
             self.spot_wrapper.trajectory_cmd(
@@ -292,20 +296,20 @@ class SpotAgent(AbstractAgent):
                 # frame_name=ODOM_FRAME_NAME
             )
         except Exception as e:
-            self._logger.error(f"Move vision frame action error: {e}")
+            self._log.error(f"Move vision frame action error: {e}")
             # goal_handle.abort()
             # return result
 
     def move_odom_frame(self, pos: tuple, heading=0.0):
         """ROS service handler"""
-        self._logger.info("Executing move_vision action")
+        self._log.info("Executing move_vision action")
 
         try:
             self.spot_wrapper.trajectory_cmd(
                 pos[0], pos[1], heading, cmd_duration=30, frame_name=ODOM_FRAME_NAME
             )
         except Exception as e:
-            self._logger.error(f"Move vision frame action error: {e}")
+            self._log.error(f"Move vision frame action error: {e}")
             # goal_handle.abort()
             # return result
 
