@@ -100,6 +100,8 @@ def run_demo(
 
     if cfg.AUDIO_FEEDBACK:
         play_file("exploration_complete.mp3")
+    # for agent_idx in range(len(agents)):
+    #     agents[agent_idx].
 
     event.post_event(
         "figure final result", {"krm": krm, "agents": agents, "usecases": usecases},

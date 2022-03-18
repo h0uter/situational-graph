@@ -5,22 +5,24 @@ import pyttsx3
 import gtts as gTTS
 
 
-
-
 def main():
     # play_follow_me()
     # play_whatever_offline()
     # generate_or_play_audio(
     #     "commencing_search.mp3", "ALERT: commencing search for survivors."
     # )
-    # generate_and_overwrite_audio(
-    #     "exploration_complete.mp3",
-    #     "ALERT: All frontiers have been exhausted, exploration is complete."
-    # )
     generate_and_overwrite_audio(
-        "guide_victim_out_of_view.mp3",
-        "ALERT: The person I am guiding is no longer in view, going back!"
+        "exploration_complete.mp3",
+        "UPDATE: All frontiers have been exhausted, exploration is complete."
     )
+    # generate_and_overwrite_audio(
+    #     "guide_victim_out_of_view.mp3",
+    #     "ALERT: The person I am guiding is no longer in view, going back!",
+    # )
+    # generate_and_overwrite_audio(
+    #     "arrived_at_exit.mp3",
+    #     "Dear human, you have been saved. exit here. ",
+    # )
 
 
 def play_hi_follow_me():

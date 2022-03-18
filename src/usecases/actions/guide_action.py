@@ -25,6 +25,9 @@ class GuideAction(AbstractAction):
             self._log.debug(
                 f"{agent.name}: guide action succesfull victim is still in perception scene"
             )
+            if not action_path and self.cfg.AUDIO_FEEDBACK:
+                play_file("arrived_at_exit.mp3")
+
             return action_path
         else:
             self._log.debug(
