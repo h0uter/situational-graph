@@ -45,8 +45,8 @@ class SpotAgent(AbstractAgent):
         # logging.basicConfig(level=logging.INFO)
 
         # self._logger.setLevel(level=logging.WARNING)
-        # self._logger.setLevel(level=logging.INFO)
-        self._log.setLevel(level=logging.DEBUG)
+        self._log.setLevel(level=logging.INFO)
+        # self._log.setLevel(level=logging.DEBUG)
 
         self.mobility_parameters = {
             "obstacle_padding": 0.1,  # [m]

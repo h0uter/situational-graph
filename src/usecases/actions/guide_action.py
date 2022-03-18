@@ -43,13 +43,14 @@ class GuideAction(AbstractAction):
         """
         Check if the victim is still in the perception scene.
         """
-        if self.cfg.SCENARIO == Scenario.REAL:
-            wos = agent.look_for_world_objects_in_perception_scene()
-            if not wos:
-                return False
-            for wo in wos:
-                if wo == agent.assigned_victim:
-                    return True
-            return False
-        else:
-            return True
+        return True
+        # if self.cfg.SCENARIO == Scenario.REAL:
+        #     wos = agent.look_for_world_objects_in_perception_scene()
+        #     if not wos:
+        #         return False
+        #     for wo in wos:
+        #         if wo == agent.assigned_victim:
+        #             return True
+        #     return False
+        # else:
+        #     return True
