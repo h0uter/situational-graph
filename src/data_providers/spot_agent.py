@@ -57,7 +57,8 @@ class SpotAgent(AbstractAgent):
             # "speed_limit_y": 1,  # [m/s]
             "speed_limit_y": 1.5,  # [m/s]
             "speed_limit_angular": 1,  # [rad/s]
-            "body_height": 1.0,  # [m]
+            "body_height": 0.0,  # [m]
+            # "body_height": 1.0,  # [m]
             "gait": spot_command_pb2.HINT_AUTO,
         }
 
