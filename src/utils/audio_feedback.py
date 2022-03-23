@@ -13,7 +13,7 @@ def main():
     # )
     generate_and_overwrite_audio(
         "exploration_complete.mp3",
-        "UPDATE: All frontiers have been exhausted, exploration is complete."
+        "UPDATE: All frontiers have been exhausted, exploration is complete, going back to start"
     )
     # generate_and_overwrite_audio(
     #     "guide_victim_out_of_view.mp3",

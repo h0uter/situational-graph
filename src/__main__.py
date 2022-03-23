@@ -100,8 +100,20 @@ def run_demo(
 
     if cfg.AUDIO_FEEDBACK:
         play_file("exploration_complete.mp3")
-    # for agent_idx in range(len(agents)):
-    #     agents[agent_idx].
+    for agent_idx in range(len(agents)):
+        usecases[agent_idx].action_path = []
+        usecases[agent_idx].target_node = 0
+        while usecases[agent_idx].target_node is not None:
+            usecases[agent_idx].main_loop(agents[agent_idx], krm)
+            # """Data collection"""
+            # step_duration = time.perf_counter() - step_start
+            # krm_stats.update(krm, step_duration)
+
+            """ Visualisation """
+            # my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
+            event.post_event(
+                "figure update", {"krm": krm, "agents": agents, "usecases": usecases},
+            )
 
     event.post_event(
         "figure final result", {"krm": krm, "agents": agents, "usecases": usecases},
