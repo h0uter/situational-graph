@@ -147,8 +147,8 @@ class KRMStats:
 
         self.subplot_num_nodes_vs_step_duration(ax1)
 
-        mng = plt.get_current_fig_manager()
-        mng.window.showMaximized()
+        # mng = plt.get_current_fig_manager()
+        # mng.window.showMaximized()
 
         plt.show()
 

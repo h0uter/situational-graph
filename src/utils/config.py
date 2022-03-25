@@ -36,8 +36,8 @@ class Config:
         vizualiser: Vizualiser = Vizualiser.VEDO,
         num_agents: int = 1,
         max_steps: float = math.inf,
-        # audio_feedback: bool = False,
-        audio_feedback: bool = True,
+        audio_feedback: bool = False,
+        # audio_feedback: bool = True,
     ):
         self.MAX_STEPS = max_steps
         self.PLOT_LVL = plot_lvl
