@@ -134,8 +134,8 @@ def benchmark_func():
         scenario=Scenario.SIM_MAZE_MEDIUM,
         max_steps=400,
     )
-    main(cfg)
 
+    main(cfg)
 
 if __name__ == "__main__":
     # matplotlib.use("Qt5agg")
