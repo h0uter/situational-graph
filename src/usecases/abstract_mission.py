@@ -21,12 +21,13 @@ class AbstractMission(ABC):
     def main_loop(self, agent: AbstractAgent, krm: KRM) -> bool:
         something_was_done = False
 
-        if not self.check_target_available(krm) and not self.init_flag:
+        # if not self.check_target_available(krm) and not self.init_flag:
+        if not self.check_target_available(krm) and not agent.init:
             self._log.debug(
                 f"{agent.name}: No targets available. Performing initialization."
             )
             self.action_path, self.target_node = self.setup_target_initialisation(krm)
-            self.init_flag = True
+            # self.init_flag = True
 
         if self.target_node is None:
             self._log.debug(f"{agent.name}: No target node set. Setting one.")
@@ -75,8 +76,9 @@ class AbstractMission(ABC):
 
     def setup_target_initialisation(self, krm: KRM) -> tuple[Sequence[Edge], Literal[0]]:
         # Add a frontier edge self loop on the start node to ensure a exploration sampling action
-        krm.graph.add_edge(0, 0, type=EdgeType.FRONTIER_EDGE)
-        action_path: list[Edge] = [(0, 0)]
+        edge_id = krm.graph.add_edge(0, 0, type=EdgeType.EXPLORE_FT_EDGE)
+        self._log.debug(f"{self.__class__.__name__}: Adding frontier edge self loop. {krm.graph.edges()}")
+        action_path: list[Edge] = [(0, 0, edge_id)]
         target_node: Node = 0
         return action_path, target_node
 
@@ -85,12 +87,12 @@ class AbstractMission(ABC):
             return False
         return krm.check_node_exists(target_node)
 
-    def node_list_to_edge_list(self, node_list: Sequence[Node]) -> Sequence[Edge]:
-        # TODO: make this support multigraph
-        action_path: list[Edge] = []
-        for i in range(len(node_list) - 1):
-            action_path.append((node_list[i], node_list[i + 1]))
-        return action_path
+    # def node_list_to_edge_list(self, node_list: Sequence[Node]) -> Sequence[Edge]:
+    #     # TODO: make this support multigraph
+    #     action_path: list[Edge] = []
+    #     for i in range(len(node_list) - 1):
+    #         action_path.append((node_list[i], node_list[i + 1]))
+    #     return action_path
 
     @abstractmethod
     def target_selection(self, agent: AbstractAgent, krm: KRM) -> Node:

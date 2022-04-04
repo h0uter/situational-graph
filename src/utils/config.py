@@ -37,6 +37,7 @@ class Config:
         num_agents: int = 1,
         max_steps: float = math.inf,
         audio_feedback: bool = False,
+        # audio_feedback: bool = True,
     ):
         self.MAX_STEPS = max_steps
         self.PLOT_LVL = plot_lvl
@@ -75,7 +76,8 @@ class Config:
         self.N_SAMPLES = 30
         self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * self.PRUNE_RADIUS_FACTOR
         self.AT_WP_MARGIN = 0.25
-        self.PREV_POS_MARGIN = 0.15
+        # self.PREV_POS_MARGIN = 0.15
+        self.PREV_POS_MARGIN = 0.35
         self.ARRIVAL_MARGIN = 0.5
         self.WP_SHORTCUT_MARGIN = (self.LG_LENGTH_IN_M / 2) * self.WP_SHORTCUT_FACTOR
 
@@ -83,8 +85,8 @@ class Config:
         self.NUM_AGENTS = num_agents
 
         # logging
-        LOG_LVL = logging.DEBUG
-        # LOG_LVL = logging.INFO
+        # LOG_LVL = logging.DEBUG
+        LOG_LVL = logging.INFO
         logging.basicConfig(stream=sys.stdout, level=LOG_LVL)
         logging.getLogger("matplotlib").setLevel(logging.WARNING)
         logging.getLogger("PIL").setLevel(logging.WARNING)
@@ -106,6 +108,7 @@ class Config:
         self.SAMPLE_RING_WIDTH = 0.7
         self.SAMPLE_RADIUS_FACTOR = 1.0
         self.WP_SHORTCUT_FACTOR = 1.0
+        self.AT_WP_MARGIN = 0.35  # hopefully this makes it more robust on real spot in doorways
 
         self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
             self.LG_NUM_CELLS // 2

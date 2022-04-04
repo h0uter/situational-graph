@@ -5,8 +5,6 @@ import pyttsx3
 import gtts as gTTS
 
 
-
-
 def main():
     # play_follow_me()
     # play_whatever_offline()
@@ -15,13 +13,22 @@ def main():
     # )
     generate_and_overwrite_audio(
         "exploration_complete.mp3",
-        "ALERT: All frontiers have been exhausted, exploration is complete."
+        "UPDATE: All frontiers have been exhausted, exploration is complete, going back to start"
     )
+    # generate_and_overwrite_audio(
+    #     "guide_victim_out_of_view.mp3",
+    #     "ALERT: The person I am guiding is no longer in view, going back!",
+    # )
+    # generate_and_overwrite_audio(
+    #     "arrived_at_exit.mp3",
+    #     "Dear human, you have been saved. exit here. ",
+    # )
 
 
 def play_hi_follow_me():
     hi_follow_me = os.path.join("resource", "audio", "hi_follow_me.mp3")
-    playsound(hi_follow_me, False)
+    # playsound(hi_follow_me, False)
+    playsound(hi_follow_me)
 
 
 def generate_and_play_audio_offline(text="holla amigo, yo soy Pablo."):
@@ -45,7 +52,6 @@ def generate_and_overwrite_audio(filename, text):
     tts = gTTS.gTTS(text=text, lang="en")
     tts.save(path)
     playsound(path)
-
 
 
 def play_file(filename):

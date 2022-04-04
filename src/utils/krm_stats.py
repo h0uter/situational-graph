@@ -35,8 +35,9 @@ class KRMStats:
             len(
                 [
                     e
-                    for e in krm.graph.edges()
-                    if krm.graph.edges[e]["type"] == EdgeType.WAYPOINT_EDGE
+                    # for e in krm.graph.edges()
+                    for e in krm.graph.edges
+                    if krm.graph.edges[e]["type"] == EdgeType.GOTO_WP_EDGE
                 ]
             )
         )
@@ -146,8 +147,8 @@ class KRMStats:
 
         self.subplot_num_nodes_vs_step_duration(ax1)
 
-        mng = plt.get_current_fig_manager()
-        mng.window.showMaximized()
+        # mng = plt.get_current_fig_manager()
+        # mng.window.showMaximized()
 
         plt.show()
 

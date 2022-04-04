@@ -40,11 +40,13 @@ class SpotAgent(AbstractAgent):
         super().__init__(cfg)
 
         # self._logger = logging.getLogger(__name__)
-        self._logger = util.get_logger()
+        # self._logger = util.get_logger()
+        # self._log = logging.getLogger(__name__)
         # logging.basicConfig(level=logging.INFO)
 
         # self._logger.setLevel(level=logging.WARNING)
-        self._logger.setLevel(level=logging.INFO)
+        self._log.setLevel(level=logging.INFO)
+        # self._log.setLevel(level=logging.DEBUG)
 
         self.mobility_parameters = {
             "obstacle_padding": 0.1,  # [m]
@@ -55,7 +57,10 @@ class SpotAgent(AbstractAgent):
             # "speed_limit_y": 1,  # [m/s]
             "speed_limit_y": 1.5,  # [m/s]
             "speed_limit_angular": 1,  # [rad/s]
-            "body_height": 1.0,  # [m]
+            # "body_height": 0.0,  # [m]
+            "body_height": 0.1,  # [m]
+            # "body_height": 0.5,  # [m]
+            # "body_height": 1.0,  # [m]
             "gait": spot_command_pb2.HINT_AUTO,
         }
 
@@ -70,42 +75,51 @@ class SpotAgent(AbstractAgent):
             username=login_cfg.username,
             password=login_cfg.password,
             hostname=login_cfg.wifi_hostname,
-            logger=self._logger,
+            logger=self._log,
         )
 
         if self.spot_wrapper.is_valid:
-            self._logger.info("Spot wrapper is valid")
+            self._log.info("Spot wrapper is valid")
 
             self._apply_mobility_parameters()
 
             if self.auto_claim:
                 claim_status = self.spot_wrapper.claim()
-                self._logger.info(f"claim_status: {claim_status}")
+                self._log.info(f"claim_status: {claim_status}")
                 if self.auto_power_on:
                     power_on_status = self.spot_wrapper.power_on()
-                    self._logger.info(f"power_on_status: {power_on_status}")
+                    self._log.info(f"power_on_status: {power_on_status}")
                     if self.auto_stand:
                         stand_status = self.spot_wrapper.stand()
-                        self._logger.info(f"stand_status: {stand_status}")
+                        self._log.info(f"stand_status: {stand_status}")
 
         else:
-            self._logger.warning("Spot wrapper is not valid!")
+            self._log.warning("Spot wrapper is not valid!")
 
         time.sleep(10)
 
         self.pos = self.get_localization()
         # self.pos = start_pos
 
-    def move_to_pos(self, pos: tuple):
-        # self.move_vision_frame(pos)
-        # time.sleep(5)
-        target_heading = self.calc_heading_to_target(pos)
-        self.blocking_move_vision_frame(pos, target_heading)
+    def move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
+        self.blocking_move_vision_frame(target_pos, target_heading)
 
-        self.previous_pos = self.pos
-        self.pos = self.get_localization()
-        self.heading = target_heading
-        self.steps_taken += 1
+    # def move_to_pos(self, pos: tuple, heading=None):
+    #     # self.move_vision_frame(pos)
+    #     # time.sleep(5)
+    #     # if not heading:
+    #     #     target_heading = self.calc_heading_to_target(pos)
+    #     # else:
+    #     #     target_heading = heading
+
+    #     self.move_to_pos_implementation(pos, target_heading)
+
+    #     # self.previous_pos = self.pos
+    #     self.pos = self.get_localization()
+    #     self.heading = target_heading
+    #     self.steps_taken += 1
+
+    #     # TODO: this should return a succes/ failure bool
 
     def get_local_grid_img(self) -> npt.NDArray:
         return get_local_grid(self)
@@ -128,32 +142,47 @@ class SpotAgent(AbstractAgent):
     def look_for_world_objects_in_perception_scene(self):
         max_attempts = 10
         attempts = 0
+        wos = []
         while attempts <= max_attempts:
             detected_fiducial = False
             fiducial_rt_world = None
             # Get the first fiducial object Spot detects with the world object service.
-            fiducial = self.get_fiducial_objects()
-            if fiducial is not None:
-                vision_tform_fiducial = get_a_tform_b(
-                    fiducial.transforms_snapshot,
-                    VISION_FRAME_NAME,
-                    fiducial.apriltag_properties.frame_name_fiducial,
-                ).to_proto()
-                if vision_tform_fiducial is not None:
-                    detected_fiducial = True
-                    fiducial_rt_world = vision_tform_fiducial.position
+            fiducials = self.get_fiducial_objects()
+            if not fiducials:
+                return []
+            for fiducial in fiducials:
+                if fiducial is not None:
+                    vision_tform_fiducial = get_a_tform_b(
+                        fiducial.transforms_snapshot,
+                        VISION_FRAME_NAME,
+                        fiducial.apriltag_properties.frame_name_fiducial,
+                    ).to_proto()
+                    if vision_tform_fiducial is not None:
+                        detected_fiducial = True
+                        fiducial_rt_world = vision_tform_fiducial.position
 
-            if detected_fiducial:
-                # Go to the tag and stop within a certain distance
-                # self.go_to_tag(fiducial_rt_world)
-                # print(f"fiducial_rt_world = {fiducial_rt_world}")
+                if detected_fiducial:
+                    # Go to the tag and stop within a certain distance
+                    # self.go_to_tag(fiducial_rt_world)
+                    # print(f"fiducial_rt_world = {fiducial_rt_world}")
 
-                # wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
-                wo = create_wo_from_fiducial(
-                    (fiducial_rt_world.x, fiducial_rt_world.y),
-                    fiducial.apriltag_properties.tag_id,
-                )
-                return [wo]
+                    # wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
+                    wo = create_wo_from_fiducial(
+                        (fiducial_rt_world.x, fiducial_rt_world.y),
+                        fiducial.apriltag_properties.tag_id,
+                    )
+                else:
+                    self._log.debug(f"no fiducial detected")
+                    continue
+
+                if wo:
+                    wos.append(wo)
+                else:
+                    self._log.debug(f"unknown fiducial detected {fiducial.apriltag_properties.tag_id}")
+            if wos:
+                self._log.debug(f"detected wos are {wos}")
+                return wos
+
             else:
                 # print("No fiducials found")
                 pass
@@ -167,12 +196,15 @@ class SpotAgent(AbstractAgent):
         # fiducial_objects = self._world_object_client.list_world_objects(
         fiducial_objects = (
             self.spot_wrapper._clients["world_object"]
-            .list_world_objects(object_type=request_fiducials)
+            .list_world_objects(
+                object_type=request_fiducials,
+                time_start_point=time.time() - 1.0 # not sure if this is correct time
+                )
             .world_objects
         )
         if len(fiducial_objects) > 0:
             # Return the first detected fiducial.
-            return fiducial_objects[0]
+            return fiducial_objects
         # Return none if no fiducials are found.
         return None
 
@@ -228,7 +260,7 @@ class SpotAgent(AbstractAgent):
         end_time = time.time() + cmd_duration
         cmd_id = self.spot_wrapper._clients["robot_command"].robot_command(cmd, end_time_secs=end_time)
 
-        self._logger.info("Robot standing twisted.")
+        self._log.info("Robot standing twisted.")
         start_time = time.time()
         end_time = start_time + 15.0  # timeout is 5 seconds
         while time.time() < end_time:
@@ -243,18 +275,18 @@ class SpotAgent(AbstractAgent):
                 cmd_status
                 == basic_command_pb2.SE2TrajectoryCommand.Feedback.STATUS_AT_GOAL
             ):
-                self._logger.info("Arrived at goal")
+                self._log.info("Arrived at goal")
                 break
             time.sleep(0.01)  # wait 100ms before the next check
         else:
-            self._logger.info("Timeout!")
+            self._log.info("Timeout!")
 
     # do this instead of the wait timer
     # https://khssnv.medium.com/spot-sdk-blocking-robot-commands-3d6902cfb403
 
     def move_vision_frame(self, pos: tuple, heading=0.0):
         """ROS service handler"""
-        self._logger.info("Executing move_vision action")
+        self._log.info("Executing move_vision action")
 
         try:
             self.spot_wrapper.trajectory_cmd(
@@ -267,20 +299,20 @@ class SpotAgent(AbstractAgent):
                 # frame_name=ODOM_FRAME_NAME
             )
         except Exception as e:
-            self._logger.error(f"Move vision frame action error: {e}")
+            self._log.error(f"Move vision frame action error: {e}")
             # goal_handle.abort()
             # return result
 
     def move_odom_frame(self, pos: tuple, heading=0.0):
         """ROS service handler"""
-        self._logger.info("Executing move_vision action")
+        self._log.info("Executing move_vision action")
 
         try:
             self.spot_wrapper.trajectory_cmd(
                 pos[0], pos[1], heading, cmd_duration=30, frame_name=ODOM_FRAME_NAME
             )
         except Exception as e:
-            self._logger.error(f"Move vision frame action error: {e}")
+            self._log.error(f"Move vision frame action error: {e}")
             # goal_handle.abort()
             # return result
 
@@ -412,7 +444,7 @@ def get_local_grid(spot: SpotAgent):
     # # grid cell. The border of an obstacle is considered a distance of [0,.33] meters for a grid cell value.
 
     # OBSTACLE_DISTANCE_TRESHOLD = 0.3
-    OBSTACLE_DISTANCE_TRESHOLD = 0.1
+    OBSTACLE_DISTANCE_TRESHOLD = 0.0
 
     colored_pts = np.ones([cell_count, 3], dtype=np.uint8)
     colored_pts[:, 0] = cells_obstacle_dist <= 0.0
