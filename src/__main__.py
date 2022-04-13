@@ -79,7 +79,8 @@ def run_demo(
         """ Visualisation """
         my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
         event.post_event(
-            "figure update", {"krm": krm, "agents": agents, "usecases": usecases},
+            "figure update",
+            {"krm": krm, "agents": agents, "usecases": usecases},
         )
 
         if step % 50 == 0:
@@ -112,11 +113,13 @@ def run_demo(
             """ Visualisation """
             # my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
             event.post_event(
-                "figure update", {"krm": krm, "agents": agents, "usecases": usecases},
+                "figure update",
+                {"krm": krm, "agents": agents, "usecases": usecases},
             )
 
     event.post_event(
-        "figure final result", {"krm": krm, "agents": agents, "usecases": usecases},
+        "figure final result",
+        {"krm": krm, "agents": agents, "usecases": usecases},
     )
 
     if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
@@ -136,6 +139,7 @@ def benchmark_func():
     )
 
     main(cfg)
+
 
 if __name__ == "__main__":
     # matplotlib.use("Qt5agg")
