@@ -14,20 +14,17 @@ class AbstractMission(ABC):
         self.completed = False
         self.action_path: Sequence[Optional[Edge]] = []
         self.target_node: Optional[Node] = None
-        self.init_flag = False
         self._log = logging.getLogger(__name__)
 
     # CONTEXT
     def main_loop(self, agent: AbstractAgent, krm: KRM) -> bool:
         something_was_done = False
 
-        # if not self.check_target_available(krm) and not self.init_flag:
         if not self.check_target_available(krm) and not agent.init:
             self._log.debug(
                 f"{agent.name}: No targets available. Performing initialization."
             )
             self.action_path, self.target_node = self.setup_target_initialisation(krm)
-            # self.init_flag = True
 
         if self.target_node is None:
             self._log.debug(f"{agent.name}: No target node set. Setting one.")
@@ -71,7 +68,6 @@ class AbstractMission(ABC):
 
     def clear_target(self) -> None:
         self.target_node = None
-        # self.action_path = []
 
     def setup_target_initialisation(self, krm: KRM) -> tuple[Sequence[Edge], Literal[0]]:
         # Add a frontier edge self loop on the start node to ensure a exploration sampling action
@@ -85,13 +81,6 @@ class AbstractMission(ABC):
         if target_node is None:
             return False
         return krm.check_node_exists(target_node)
-
-    # def node_list_to_edge_list(self, node_list: Sequence[Node]) -> Sequence[Edge]:
-    #     # TODO: make this support multigraph
-    #     action_path: list[Edge] = []
-    #     for i in range(len(node_list) - 1):
-    #         action_path.append((node_list[i], node_list[i + 1]))
-    #     return action_path
 
     @abstractmethod
     def target_selection(self, agent: AbstractAgent, krm: KRM) -> Node:
