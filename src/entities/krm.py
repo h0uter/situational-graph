@@ -36,14 +36,11 @@ class KRM:
                 self.add_start_waypoints(start_pos)
                 # HACK: 
                 self.duplicate_start_poses.append(start_pos)
-        self.next_frontier_idx = 9000
-        self.next_wo_idx = 90000
+        self.next_frontier_idx = cfg.FRONTIER_INDEX_START
+        self.next_wo_idx = cfg.WORLD_OBJECT_INDEX_START
 
-        self.path_len_dict = dict()
-        self.prev_source_set = set()
 
     # TODO: add function to add world object edges, for example the guide action
-    # todo: add function to check if edge exists already
 
     def check_if_edge_exists(self, node_a: Node, node_b: Node):
         """ checks if an edge between two nodes exists """
@@ -52,14 +49,6 @@ class KRM:
     def check_node_exists(self, node: Node):
         """ checks if the given node exists in the graph"""
         return node in self.graph.nodes
-
-    # def set_frontier_edge_weight(self, node_a: Node, weight: float):
-    #     """ sets the weight of the edge between two nodes"""
-    #     predecessors = self.graph.predecessors(node_a)
-    #     for predecessor in predecessors:
-    #         if self.graph.edges[predecessor, node_a]["type"] == EdgeType.FRONTIER_EDGE:
-    #             self.graph.edges[predecessor, node_a]["cost"] = weight
-    #             print(f"setting edge between {predecessor} and {node_a} to {weight}")
 
     def shortest_path(self, source: Node, target: Node):
 
@@ -76,30 +65,8 @@ class KRM:
             self._log.error(f": No path found from {source} to {target}.")
 
     def shortest_path_len(self, source: Node, target: Node):
-
-        # TODO: create this dictionary in a smarter way.
-        # BUG: this makes the agent continue exploration in the area where it found the victim
-
-        # if target in self.path_len_dict.keys() and source in self.prev_source_set:
-        #     return self.path_len_dict[target]
-        # else:
-        #     self.path_len_dict = nx.shortest_path_length(
-        #         self.graph,
-        #         source=source,
-        #         weight="cost",
-        #         method=self.cfg.PATH_FINDING_METHOD,
-        #     )
-        #     self.prev_source_set.add(source)
-        #     return self.path_len_dict[target]
-
         # TODO: use the reconstruct path function
         # with an all pairs algorithms that also returns a predecessor dict.
-
-        # TODO: identify what is most expensive
-        # - checking the path lengths
-        # - finding the paths
-
-        # TODO: track how often these funcs are called in a single run.
 
         path_len = nx.shortest_path_length(
             self.graph,
@@ -112,18 +79,14 @@ class KRM:
         return path_len
 
     def node_list_to_edge_list(self, node_list: Sequence[Node]) -> Sequence[Edge]:
-        # TODO: make this support multigraph
         action_path: list[Edge] = []
         for i in range(len(node_list) - 1):
-            # action_path.append((node_list[i], node_list[i + 1]))
             min_cost_edge = self.get_edge_with_lowest_weight(
                 node_list[i], node_list[i + 1]
             )
-            # self._log.debug(f"node_list_to_edge_list(): min_cost_edge: {min_cost_edge}")
-
-            # action_path.append((node_list[i], node_list[i + 1], edge_id))
             action_path.append(min_cost_edge)
         self._log.debug(f"node_list_to_edge_list(): action_path: {action_path}")
+        
         return action_path
 
     def calc_edge_len(self, node_a, node_b):
@@ -135,7 +98,6 @@ class KRM:
             ** 2
         )
 
-    # add startpoints function
     def add_start_waypoints(self, pos: tuple) -> None:
         """ adds start points to the graph"""
         self.graph.add_node(
@@ -212,7 +174,6 @@ class KRM:
             # id=uuid.uuid4(),
             cost=cost,
         )
-
         self.next_frontier_idx += 1
 
     def add_guide_action_edges(self, path: Sequence[Node]):
@@ -314,9 +275,7 @@ class KRM:
         keys_of_parallel_edges = [
             key for key in self.graph.get_edge_data(node_a, node_b).keys()
         ]
-        # self._log.debug(
-        #     f"get_edge_with_lowest_weight(): edges: {keys_of_parallel_edges}"
-        # )
+
         if len(keys_of_parallel_edges) == 0:
             self._log.warning(
                 f"get_edge_with_lowest_weight(): No edge between {node_a} and {node_b}"
@@ -343,15 +302,3 @@ class KRM:
             return self.graph.edges[node_a, node_b, edge_id]["type"]
         else:
             self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
-
-
-if __name__ == "__main__":
-    """some quick experiments"""
-    G = nx.MultiDiGraph()
-
-    G.add_edge(1, 2, weight=1, type=EdgeType.EXPLORE_FT_EDGE)
-    G.add_edge(1, 2, weight=5, type=EdgeType.GOTO_WP_EDGE)
-    G.add_edge(2, 1, weight=10, type=EdgeType.GOTO_WP_EDGE)
-
-    print(G.edges((1), keys=True))
-    print([key for key in G.get_edge_data(1, 2).keys()])
