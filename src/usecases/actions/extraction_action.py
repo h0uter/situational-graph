@@ -8,7 +8,7 @@ from src.utils.audio_feedback import play_hi_follow_me
 import time
 
 
-class ExtractionAction(AbstractAction):
+class PlanExtractionAction(AbstractAction):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 

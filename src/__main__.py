@@ -4,8 +4,8 @@ from typing import Sequence
 
 import matplotlib
 
-from src.data_providers.simulated_agent import SimulatedAgent
-from src.data_providers.spot_agent import SpotAgent
+from src.data_providers.sim.simulated_agent import SimulatedAgent
+from src.data_providers.real.spot_agent import SpotAgent
 from src.entities.krm import KRM
 from src.entities.abstract_agent import AbstractAgent
 from src.usecases.abstract_mission import AbstractMission

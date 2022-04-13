@@ -16,5 +16,5 @@ class NodeType(Enum):
 class EdgeType(Enum):
     GOTO_WP_EDGE = auto()
     EXPLORE_FT_EDGE = auto()
-    EXTRACTION_WO_EDGE = auto()
+    PLAN_EXTRACTION_WO_EDGE = auto()
     GUIDE_WP_EDGE = auto()

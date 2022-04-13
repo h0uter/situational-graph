@@ -119,7 +119,7 @@ class MplVizualisation(AbstractVizualisation):
         world_object_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == EdgeType.EXTRACTION_WO_EDGE
+            if d["type"] == EdgeType.PLAN_EXTRACTION_WO_EDGE
         )
         waypoint_edges = dict(
             (e, d["type"])

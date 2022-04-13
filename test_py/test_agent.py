@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.data_providers.simulated_agent import SimulatedAgent
+from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.utils.config import Config, Scenario, PlotLvl
 
 

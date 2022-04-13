@@ -21,8 +21,8 @@ from bosdyn.client.frame_helpers import (
     get_vision_tform_body,
 )
 
-from src.data_providers.fiducial_2_world_object_labels import create_wo_from_fiducial
-from src.data_providers.spot_wrapper import SpotWrapper
+from src.utils.fiducial_2_world_object_labels import create_wo_from_fiducial
+from src.data_providers.real.spot_wrapper import SpotWrapper
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.local_grid import LocalGrid
 from src.utils.get_login_config import get_login_config

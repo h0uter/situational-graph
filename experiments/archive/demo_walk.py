@@ -1,4 +1,4 @@
-from src.data_providers.spot_agent import SpotAgent
+from src.data_providers.real.spot_agent import SpotAgent
 import time
 
 def main():

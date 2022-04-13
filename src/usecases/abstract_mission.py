@@ -41,7 +41,6 @@ class AbstractMission(ABC):
             self.action_path = self.path_generation(agent, krm, self.target_node)
             something_was_done = True
 
-        # if self.action_path:
         if len(self.action_path) >= 1:
             self._log.debug(f"{agent.name}: Action path set. Executing one.")
             self.action_path = self.path_execution(agent, krm, self.action_path)

@@ -182,7 +182,7 @@ class KRM:
         self.graph.add_edge(
             self.next_wp_idx - 1,
             label,
-            type=EdgeType.EXTRACTION_WO_EDGE,
+            type=EdgeType.PLAN_EXTRACTION_WO_EDGE,
             # id=uuid.uuid4(),
             cost=-100,
         )
@@ -217,6 +217,7 @@ class KRM:
 
     def add_guide_action_edges(self, path: Sequence[Node]):
         """ adds edges between the nodes in the path"""
+        # TODO: make these edge costs super explicit
         for i in range(len(path) - 1):
             self.graph.add_edge(
                 path[i], path[i + 1], type=EdgeType.GUIDE_WP_EDGE, cost=0,

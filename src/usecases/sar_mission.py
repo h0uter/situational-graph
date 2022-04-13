@@ -6,7 +6,7 @@ from src.usecases.abstract_mission import AbstractMission
 from src.usecases.actions.explore_action import ExploreAction
 from src.usecases.actions.goto_action import GotoAction
 from src.usecases.actions.guide_action import GuideAction
-from src.usecases.actions.extraction_action import ExtractionAction
+from src.usecases.actions.extraction_action import PlanExtractionAction
 from src.utils.config import Config
 from src.utils.my_types import EdgeType, Node, Edge
 
@@ -88,8 +88,8 @@ class SARMission(AbstractMission):
             else:
                 return action_path
 
-        elif current_edge_type == EdgeType.EXTRACTION_WO_EDGE:
-            action_path = ExtractionAction(self.cfg).run(
+        elif current_edge_type == EdgeType.PLAN_EXTRACTION_WO_EDGE:
+            action_path = PlanExtractionAction(self.cfg).run(
                 agent, krm, action_path
             )
             # Lets check if this is not neccesary, it is necce
