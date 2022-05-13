@@ -157,6 +157,7 @@ class ExploreAction(AbstractAction):
             for frontier in close_frontiers:
                 krm.remove_frontier(frontier)
 
+    # BUG: on the real robot sometimes impossible shortcuts are added.
     def find_shortcuts_between_wps(self, lg: LocalGrid, krm: KRM, agent: AbstractAgent):
         close_nodes = krm.get_nodes_of_type_in_margin(
             lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, NodeType.WAYPOINT

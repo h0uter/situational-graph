@@ -103,6 +103,7 @@ def run_demo(
         play_file("exploration_complete.mp3")
     for agent_idx in range(len(agents)):
         usecases[agent_idx].action_path = []
+        # here we tell the agent to go back to the start
         usecases[agent_idx].target_node = 0
         while usecases[agent_idx].target_node is not None:
             usecases[agent_idx].main_loop(agents[agent_idx], krm)
@@ -156,7 +157,7 @@ if __name__ == "__main__":
     # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, scenario=Scenario.SIM_MAZE_MEDIUM)
 
     # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
-    # cfg = Config(scenario=Scenario.REAL)
+    cfg = Config(scenario=Scenario.REAL)
 
     # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
     # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)

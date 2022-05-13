@@ -69,13 +69,13 @@ class AbstractAgent(ABC):
         # self.previous_pos = self.pos
         # BUG: previous_pos never changes
         self.previous_pos = self.get_localization()
-        print(f"self previous pos: {self.previous_pos}")
+        # print(f"self previous pos: {self.previous_pos}")
 
         self.move_to_pos_implementation(target_pos, target_heading)
 
         # TODO: check if we arrived to set prev_wp
         actual_pos = self.get_localization()
-        print(f"actual pos: {actual_pos}")
+        # print(f"actual pos: {actual_pos}")
 
         # this is to prevent the prev pos being messed up by a failed explore action
         if (

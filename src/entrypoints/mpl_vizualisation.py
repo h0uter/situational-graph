@@ -441,3 +441,7 @@ class MplVizualisation(AbstractVizualisation):
     def viz_point(self, data):
         # TODO: not implemented yet
         pass
+
+    def viz_start_point(self, pos):
+        # TODO: not implemented yet
+        pass
