@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
 from src.usecases.abstract_mission import AbstractMission
-from src.usecases.actions.explore_action import ExploreBehavior
+from src.usecases.actions.explore_behavior import ExploreBehavior
 from src.usecases.actions.goto_behavior import GotoBehavior
 from src.usecases.actions.guide_behavior import GuideBehavior
 from src.usecases.actions.plan_extraction_behavior import PlanExtractionBehavior
