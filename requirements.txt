@@ -1,6 +1,6 @@
-bosdyn-client==3.0.3 
-bosdyn-mission==3.0.3 
-bosdyn-choreography-client==3.0.3
+bosdyn-client==3.1.2.1 
+bosdyn-mission==3.1.2.1 
+bosdyn-choreography-client==3.1.2.1
 coloredlogs==15.0.1
 matplotlib==3.5.1
 networkx==2.7.1
