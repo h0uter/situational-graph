@@ -7,9 +7,9 @@ def test_demo_villa_closed_room_completes():
     assert main(cfg) is True
 
 
-def test_demo_villa_completes():
-    cfg = Config(PlotLvl.NONE, Scenario.SIM_VILLA)
-    assert main(cfg) is True
+# def test_demo_villa_completes():
+#     cfg = Config(PlotLvl.NONE, Scenario.SIM_VILLA)
+#     assert main(cfg) is True
 
 
 def test_main_maze_completes():
@@ -17,6 +17,6 @@ def test_main_maze_completes():
     assert main(cfg) is True
 
 
-def test_main_villa_completes_multi_agent():
-    cfg = Config(PlotLvl.NONE, Scenario.SIM_VILLA, num_agents=10)
-    assert main(cfg) is True
+# def test_main_villa_completes_multi_agent():
+#     cfg = Config(PlotLvl.NONE, Scenario.SIM_VILLA, num_agents=10)
+#     assert main(cfg) is True
