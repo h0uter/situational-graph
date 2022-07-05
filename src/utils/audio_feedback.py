@@ -28,7 +28,7 @@ def main():
 def play_hi_follow_me():
     hi_follow_me = os.path.join("resource", "audio", "hi_follow_me.mp3")
     # playsound(hi_follow_me, False)
-    playsound(hi_follow_me)
+    playsound(hi_follow_me, False)
 
 
 def generate_and_play_audio_offline(text="holla amigo, yo soy Pablo."):

@@ -24,7 +24,7 @@ class VedoVisualisation(AbstractVizualisation):
         self.cfg = cfg
         self.factor = 1 / self.cfg.LG_CELL_SIZE_M
 
-        self.plt = vedo.Plotter(axes=13, interactive=False, resetcam=True, title="Knowledge Roadmap")
+        self.plt = vedo.Plotter(axes=13, interactive=False, resetcam=True, title="Knowledge Roadmap", size=(3456, 2234))
 
         # NOTE: perhaps I just should not instantiate viz classes if we run headless
         if self.cfg.PLOT_LVL is not PlotLvl.NONE:
@@ -122,7 +122,8 @@ class VedoVisualisation(AbstractVizualisation):
             actors.extend(self.debug_actors)
 
         self.plt.show(
-            actors
+            actors,
+            # rate=15 # limit rendering
         )
         self.plt.render()  # this makes it work with REAL scenario
         self.clear_annoying_captions() 
