@@ -1,14 +1,14 @@
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
-from src.usecases.actions.abstract_action import AbstractAction
-from src.utils.config import Config
 from src.entities.local_grid import LocalGrid
+from src.usecases.actions.abstract_behavior import AbstractBehavior
+from src.utils.config import Config
 from src.utils.event import post_event
-from src.utils.my_types import NodeType, Node
+from src.utils.my_types import Node, NodeType
 from src.utils.saving_data_objects import load_something, save_something
 
 
-class ExploreAction(AbstractAction):
+class ExploreBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
@@ -86,7 +86,9 @@ class ExploreAction(AbstractAction):
         destination_node_type = krm.get_node_data_by_node(destination_node)["type"]
 
         nodes_near_where_i_ended_up = krm.get_nodes_of_type_in_margin(
-            agent.get_localization(), self.cfg.ARRIVAL_MARGIN, destination_node_type,
+            agent.get_localization(),
+            self.cfg.ARRIVAL_MARGIN,
+            destination_node_type,
         )
 
         if destination_node in nodes_near_where_i_ended_up:
@@ -135,7 +137,10 @@ class ExploreAction(AbstractAction):
         # agent.localize_to_waypoint(krm)
 
     def sample_new_frontiers_and_add_to_krm(
-        self, agent: AbstractAgent, krm: KRM, lg: LocalGrid,
+        self,
+        agent: AbstractAgent,
+        krm: KRM,
+        lg: LocalGrid,
     ) -> None:
         new_frontier_cells = lg.los_sample_frontiers_on_cellmap(
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
@@ -190,7 +195,9 @@ class ExploreAction(AbstractAction):
         lg_img = agent.get_local_grid_img()
         # save_something(lg_img, "lg_img")
         lg = LocalGrid(
-            world_pos=agent.get_localization(), img_data=lg_img, cfg=self.cfg,
+            world_pos=agent.get_localization(),
+            img_data=lg_img,
+            cfg=self.cfg,
         )
         post_event("new lg", lg)
 

@@ -4,7 +4,7 @@ from src.utils.config import Config
 import logging
 
 
-class AbstractAction(ABC):
+class AbstractBehavior(ABC):
     def __init__(self, cfg: Config):
         self.cfg = cfg
         self._log = logging.getLogger(__name__)

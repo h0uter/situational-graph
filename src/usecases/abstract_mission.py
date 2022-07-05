@@ -40,7 +40,7 @@ class AbstractMission(ABC):
 
         if len(self.action_path) >= 1:
             self._log.debug(f"{agent.name}: Action path set. Executing one.")
-            self.action_path = self.path_execution(agent, krm, self.action_path)
+            self.action_path = self.plan_execution(agent, krm, self.action_path)
             if not self.action_path:
                 self._log.debug(f"{agent.name}: Action path execution finished.")
             something_was_done = True
@@ -69,10 +69,14 @@ class AbstractMission(ABC):
     def clear_target(self) -> None:
         self.target_node = None
 
-    def setup_target_initialisation(self, krm: KRM) -> tuple[Sequence[Edge], Literal[0]]:
+    def setup_target_initialisation(
+        self, krm: KRM
+    ) -> tuple[Sequence[Edge], Literal[0]]:
         # Add a frontier edge self loop on the start node to ensure a exploration sampling action
         edge_id = krm.graph.add_edge(0, 0, type=EdgeType.EXPLORE_FT_EDGE)
-        self._log.debug(f"{self.__class__.__name__}: Adding frontier edge self loop. {krm.graph.edges()}")
+        self._log.debug(
+            f"{self.__class__.__name__}: Adding frontier edge self loop. {krm.graph.edges()}"
+        )
         action_path: list[Edge] = [(0, 0, edge_id)]
         target_node: Node = 0
         return action_path, target_node
@@ -93,7 +97,7 @@ class AbstractMission(ABC):
         pass
 
     @abstractmethod
-    def path_execution(
+    def plan_execution(
         self, agent: AbstractAgent, krm: KRM, action_path: Sequence[Optional[Edge]]
     ) -> Sequence[Optional[Edge]]:
         pass

@@ -3,12 +3,12 @@ from typing import Optional, Sequence
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
 from src.usecases.abstract_mission import AbstractMission
-from src.usecases.actions.explore_action import ExploreAction
-from src.usecases.actions.goto_action import GotoAction
-from src.usecases.actions.guide_action import GuideAction
-from src.usecases.actions.plan_extraction_action import PlanExtractionAction
+from src.usecases.actions.explore_action import ExploreBehavior
+from src.usecases.actions.goto_behavior import GotoBehavior
+from src.usecases.actions.guide_behavior import GuideBehavior
+from src.usecases.actions.plan_extraction_behavior import PlanExtractionBehavior
 from src.utils.config import Config
-from src.utils.my_types import EdgeType, Node, Edge
+from src.utils.my_types import Edge, EdgeType, Node
 
 
 class SARMission(AbstractMission):
@@ -18,6 +18,8 @@ class SARMission(AbstractMission):
     def target_selection(self, agent: AbstractAgent, krm: KRM) -> Optional[Node]:
         self._log.debug(f"{agent.name}: Selecting target frontier and finding path.")
 
+        # here I scramble it but this should really be the tasks
+        # really this is all the edges which have been instantiated with an affordance.
         target_nodes = []
         frontier_idxs = krm.get_all_frontiers_idxs()
         target_nodes.extend(frontier_idxs)
@@ -44,7 +46,7 @@ class SARMission(AbstractMission):
                 f"path_execution()::{agent.name}:: Target is no longer valid."
             )
             return []
-        
+
         self._log.debug(f"{agent.name}: target_node: {target_node}")
         action_path = list(krm.shortest_path(agent.at_wp, target_node))  # type: ignore
 
@@ -55,7 +57,7 @@ class SARMission(AbstractMission):
             self._log.warning(f"{agent.name}: path_generation(): no path found")
             return []
 
-    def path_execution(
+    def plan_execution(
         self, agent: AbstractAgent, krm: KRM, action_path: Sequence[Edge]
     ) -> Sequence[Optional[Edge]]:
         if not self.check_target_still_valid(krm, self.target_node):
@@ -73,14 +75,14 @@ class SARMission(AbstractMission):
         self._log.debug(f"{agent.name}: current_edge_type: {current_edge_type}")
 
         if current_edge_type == EdgeType.EXPLORE_FT_EDGE:
-            action_path = ExploreAction(self.cfg).run(agent, krm, action_path)
+            action_path = ExploreBehavior(self.cfg).run(agent, krm, action_path)
             self.clear_target()
 
             # either a reset function
             # or pass and return the action path continuously
 
         elif current_edge_type == EdgeType.GOTO_WP_EDGE:
-            action_path = GotoAction(self.cfg).run(agent, krm, action_path)
+            action_path = GotoBehavior(self.cfg).run(agent, krm, action_path)
             # if len(action_path) < 2:
             if len(action_path) < 1:
                 self.clear_target()
@@ -89,14 +91,12 @@ class SARMission(AbstractMission):
                 return action_path
 
         elif current_edge_type == EdgeType.PLAN_EXTRACTION_WO_EDGE:
-            action_path = PlanExtractionAction(self.cfg).run(
-                agent, krm, action_path
-            )
+            action_path = PlanExtractionBehavior(self.cfg).run(agent, krm, action_path)
             # Lets check if this is not neccesary, it is necce
             self.target_node = action_path[-1][1]
 
         elif current_edge_type is EdgeType.GUIDE_WP_EDGE:
-            action_path = GuideAction(self.cfg).run(agent, krm, action_path)
+            action_path = GuideBehavior(self.cfg).run(agent, krm, action_path)
             if len(action_path) < 1:
                 self.clear_target()
 

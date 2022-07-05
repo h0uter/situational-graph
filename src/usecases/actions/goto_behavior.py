@@ -1,10 +1,10 @@
 from src.entities.abstract_agent import AbstractAgent
-from src.usecases.actions.abstract_action import AbstractAction
 from src.entities.krm import KRM
+from src.usecases.actions.abstract_behavior import AbstractBehavior
 from src.utils.config import Config
 
 
-class GotoAction(AbstractAction):
+class GotoBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
