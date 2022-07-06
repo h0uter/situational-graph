@@ -12,61 +12,127 @@ class ExploreBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def run(self, agent: AbstractAgent, krm: KRM, action_path):
-        next_node = action_path[0][1]
-        next_node_pos = krm.get_node_data_by_node(next_node)["pos"]
+    def check_preconditions(self, agent, tosgraph, behavior_edge) -> bool:
+        return True
 
-        # special case: initialization
-        if len(krm.get_all_frontiers_idxs()) <= 1 and not agent.init:
-            lg = self.get_lg(agent)
-            self.sample_new_frontiers_and_add_to_krm(agent, krm, lg)
-            agent.set_init()
+    def check_postconditions(self, agent, tosgraph, result, plan):
+        """Check if the postconditions for the behavior are met."""
+        next_node = plan[0][1]
+        return self.check_at_destination(agent, tosgraph, next_node)
+
+    def mutate_graph_success(self, agent, tosgraph, next_node):
+        self._log.debug(
+            f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
+        )
+        # start mutate graph
+        tosgraph.remove_frontier(next_node)
+        lg = self.get_lg(agent)
+
+        # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
+        if not self.sample_waypoint_from_pose(agent, tosgraph):
+            self._log.error(f"sampling waypoint failed")
             return []
 
+        # XXX: this is my 2nd  most expensive function, so I should try to optimize it
+        self.sample_new_frontiers_and_add_to_krm(agent, tosgraph, lg)
+
+        # XXX: this is my 3nd expensive function, so I should try to optimize it
+        self.prune_frontiers(tosgraph)
+        self.find_shortcuts_between_wps(lg, tosgraph, agent)
+
+        self.process_world_objects(agent, tosgraph)
+        # end mutate graph
+
+        return tosgraph
+
+    def mutate_graph_failure(self, agent, tosgraph, behavior_edge):
+        # Recovery behaviour
+        self._log.warning(
+            f"{agent.name}: did not reach destination during explore action."
+        )
+        next_node = behavior_edge[1]
+        # START mutate failure
+        tosgraph.remove_frontier(next_node)
+        # maintain the previous heading to stop tedious turning
+        prev_node = behavior_edge[0]
+        agent.move_to_pos(
+            tosgraph.get_node_data_by_node(prev_node)["pos"], agent.heading
+        )
+        agent.previous_pos = agent.get_localization()
+
+        self.prune_frontiers(tosgraph)
+        # END mutate failure
+
+        return tosgraph
+
+        # return []
+
+    def run(self, agent: AbstractAgent, tosgraph: KRM, behavior_edge):
+        next_node = behavior_edge[1]
+        next_node_pos = tosgraph.get_node_data_by_node(next_node)["pos"]
+
+        # special case: initialization
+        if len(tosgraph.get_all_frontiers_idxs()) <= 1 and not agent.init:
+            lg = self.get_lg(agent)
+            self.sample_new_frontiers_and_add_to_krm(agent, tosgraph, lg)
+            agent.set_init()
+            return False
+
+        # the goto action
         if agent.get_localization() is not next_node_pos:
             agent.move_to_pos(next_node_pos)
             self._log.debug(f"{agent.name}: moving to {next_node_pos}")
+            return True
         else:
             self._log.warning(f"{agent.name}: already at next node")
+            self._log.warning(f"edge: {behavior_edge}")
 
-        if self.check_at_destination(agent, krm, next_node):
-            self._log.debug(
-                f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
-            )
-            krm.remove_frontier(next_node)
-            lg = self.get_lg(agent)
 
-            # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
-            if not self.sample_waypoint_from_pose(agent, krm):
-                self._log.error(f"sampling waypoint failed")
-                return []
 
-            # XXX: this is my 2nd  most expensive function, so I should try to optimize it
-            self.sample_new_frontiers_and_add_to_krm(agent, krm, lg)
+        # # the postcondition check
+        # if self.check_at_destination(agent, krm, next_node):
+        #     self._log.debug(
+        #         f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
+        #     )
+        #     # start mutate graph
+        #     krm.remove_frontier(next_node)
+        #     lg = self.get_lg(agent)
 
-            # XXX: this is my 3nd expensive function, so I should try to optimize it
-            self.prune_frontiers(krm)
-            self.find_shortcuts_between_wps(lg, krm, agent)
+        #     # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
+        #     if not self.sample_waypoint_from_pose(agent, krm):
+        #         self._log.error(f"sampling waypoint failed")
+        #         return []
 
-            self.process_world_objects(agent, krm)
+        #     # XXX: this is my 2nd  most expensive function, so I should try to optimize it
+        #     self.sample_new_frontiers_and_add_to_krm(agent, krm, lg)
 
-            return []
+        #     # XXX: this is my 3nd expensive function, so I should try to optimize it
+        #     self.prune_frontiers(krm)
+        #     self.find_shortcuts_between_wps(lg, krm, agent)
 
-        else:
-            # Recovery behaviour
-            self._log.warning(
-                f"{agent.name}: did not reach destination during explore action."
-            )
-            krm.remove_frontier(next_node)
-            # maintain the previous heading to stop tedious turning
-            agent.move_to_pos(
-                krm.get_node_data_by_node(action_path[0][0])["pos"], agent.heading
-            )
-            agent.previous_pos = agent.get_localization()
+        #     self.process_world_objects(agent, krm)
+        #     # end mutate graph
 
-            self.prune_frontiers(krm)
+        #     return []
 
-            return []
+        # else:
+        #     # Recovery behaviour
+        #     self._log.warning(
+        #         f"{agent.name}: did not reach destination during explore action."
+        #     )
+
+        #     # START mutate failure
+        #     tosgraph.remove_frontier(next_node)
+        #     # maintain the previous heading to stop tedious turning
+        #     agent.move_to_pos(
+        #         tosgraph.get_node_data_by_node(action_path[0][0])["pos"], agent.heading
+        #     )
+        #     agent.previous_pos = agent.get_localization()
+
+        #     self.prune_frontiers(tosgraph)
+        #     # END mutate failure
+
+        #     return []
 
     # TODO: move this to agent services or smth
     def process_world_objects(self, agent: AbstractAgent, krm: KRM) -> None:

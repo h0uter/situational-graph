@@ -9,23 +9,23 @@ class GotoBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def execute_pipeline(self, agent, tosgraph, plan) -> Sequence:
-        """Execute the behavior pipeline."""
+    # def execute_pipeline(self, agent, tosgraph, plan) -> Sequence:
+    #     """Execute the behavior pipeline."""
 
-        behavior_edge = plan[0]
-        if not self.check_preconditions(agent, tosgraph, behavior_edge):
-            return []
+    #     behavior_edge = plan[0]
+    #     if not self.check_preconditions(agent, tosgraph, behavior_edge):
+    #         return []
 
-        result = self.run(agent, tosgraph, behavior_edge)
+    #     result = self.run(agent, tosgraph, behavior_edge)
 
-        if self.check_postconditions(agent, result):
-            tosgraph = self.mutate_graph_success(agent, tosgraph)
-            plan.pop(0)
-        else:
-            tosgraph = self.mutate_graph_failure(agent, tosgraph)
-            plan = []
+    #     if self.check_postconditions(agent, result):
+    #         tosgraph = self.mutate_graph_success(agent, tosgraph)
+    #         plan.pop(0)
+    #     else:
+    #         tosgraph = self.mutate_graph_failure(agent, tosgraph)
+    #         plan = []
 
-        return plan
+    #     return plan
 
     def check_preconditions(self, agent, tosgraph, behavior_edge) -> bool:
         return True
@@ -36,7 +36,7 @@ class GotoBehavior(AbstractBehavior):
         agent.localize_to_waypoint(tosgraph)
         return {}
 
-    def check_postconditions(self, agent, tosgraph) -> bool:
+    def check_postconditions(self, agent, tosgraph, result, plan) -> bool:
         """Check if the postconditions for the behavior are met."""
         return True
 

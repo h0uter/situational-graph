@@ -10,47 +10,53 @@ class AbstractBehavior(ABC):
         self.cfg = cfg
         self._log = logging.getLogger(__name__)
 
-    # def execute_pipeline(self, agent, TOSgraph, plan) -> Sequence:
-    #     """Execute the behavior pipeline."""
-    #     if not self.check_preconditions(agent, TOSgraph):
-    #         return []
+    def execute_pipeline(self, agent, tosgraph, plan) -> Sequence:
+        """Execute the behavior pipeline."""
 
-    #     result = self.run(agent, TOSgraph, plan)
+        behavior_edge = plan[0]
+        if not self.check_preconditions(agent, tosgraph, behavior_edge):
+            return []
 
-    #     plan = self.run(agent, TOSgraph, plan)
-    #     if self.check_postconditions(agent, result):
-    #         plan = self.mutate_graph_success(agent, TOSgraph)
-    #     else:
-    #         plan = self.mutate_graph_failure(agent, TOSgraph)
+        result = self.run(agent, tosgraph, behavior_edge)
+        if not result:
+            plan = []
+            return plan
 
-    #     return plan
+        if self.check_postconditions(agent, tosgraph, result, plan):
+            tosgraph = self.mutate_graph_success(agent, tosgraph, behavior_edge[1])
+            plan.pop(0)
+        else:
+            tosgraph = self.mutate_graph_failure(agent, tosgraph, behavior_edge)
+            plan = []
 
-    # @abstractmethod
-    # def check_preconditions(self, agent, krm) -> bool:
-    #     pass
+        return plan
 
     @abstractmethod
-    def run(self, agent, krm, action_path):
+    def check_preconditions(self, agent, tosgraph, behavior_edge) -> bool:
         pass
 
-    # @abstractmethod
-    # def check_postconditions(self, agent, krm):
-    #     """Check if the postconditions for the behavior are met."""
-    #     pass
+    @abstractmethod
+    def run(self, agent, tosgraph, action_path):
+        pass
+
+    @abstractmethod
+    def check_postconditions(self, agent, tosgraph, result, plan) -> bool:
+        """Check if the postconditions for the behavior are met."""
+        pass
 
     # @abstractmethod
     # def perception_to_tasks(self):  # -> list[Object]
     #     pass
 
-    # @abstractmethod
-    # def mutate_graph_success(self, agent, krm):
-    #     """Mutate the graph according to the behavior."""
-    #     pass
+    @abstractmethod
+    def mutate_graph_success(self, agent, tosgraph, next_node):
+        """Mutate the graph according to the behavior."""
+        pass
 
-    # @abstractmethod
-    # def mutate_graph_failure(self, agent, krm):
-    #     """Mutate the graph according to the behavior."""
-    #     pass
+    @abstractmethod
+    def mutate_graph_failure(self, agent, tosgraph, action_path):
+        """Mutate the graph according to the behavior."""
+        pass
 
 
 
