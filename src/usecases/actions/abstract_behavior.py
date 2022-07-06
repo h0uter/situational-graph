@@ -10,31 +10,31 @@ class AbstractBehavior(ABC):
         self.cfg = cfg
         self._log = logging.getLogger(__name__)
 
-    def execute_pipeline(self, agent, TOSgraph, plan) -> Sequence:
-        """Execute the behavior pipeline."""
-        if not self.check_preconditions(agent, TOSgraph):
-            return []
+    # def execute_pipeline(self, agent, TOSgraph, plan) -> Sequence:
+    #     """Execute the behavior pipeline."""
+    #     if not self.check_preconditions(agent, TOSgraph):
+    #         return []
 
-        result = self.run(agent, TOSgraph, plan)
+    #     result = self.run(agent, TOSgraph, plan)
 
-        plan = self.run(agent, TOSgraph, plan)
-        if self.check_postconditions(agent, result):
-            plan = self.mutate_graph_success(agent, TOSgraph)
-        else:
-            plan = self.mutate_graph_failure(agent, TOSgraph)
+    #     plan = self.run(agent, TOSgraph, plan)
+    #     if self.check_postconditions(agent, result):
+    #         plan = self.mutate_graph_success(agent, TOSgraph)
+    #     else:
+    #         plan = self.mutate_graph_failure(agent, TOSgraph)
 
-        return plan
+    #     return plan
 
     # @abstractmethod
     # def check_preconditions(self, agent, krm) -> bool:
     #     pass
 
-    # @abstractmethod
-    # def run(self, agent, krm, action_path) -> list:
-    #     pass
+    @abstractmethod
+    def run(self, agent, krm, action_path):
+        pass
 
     # @abstractmethod
-    # def check_postconditions(self, agent, krm) -> bool:
+    # def check_postconditions(self, agent, krm):
     #     """Check if the postconditions for the behavior are met."""
     #     pass
 
@@ -43,12 +43,12 @@ class AbstractBehavior(ABC):
     #     pass
 
     # @abstractmethod
-    # def mutate_graph_success(self, agent, krm) -> Sequence:
+    # def mutate_graph_success(self, agent, krm):
     #     """Mutate the graph according to the behavior."""
     #     pass
 
     # @abstractmethod
-    # def mutate_graph_failure(self, agent, krm) -> Sequence:
+    # def mutate_graph_failure(self, agent, krm):
     #     """Mutate the graph according to the behavior."""
     #     pass
 

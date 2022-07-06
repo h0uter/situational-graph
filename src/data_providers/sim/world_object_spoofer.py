@@ -8,15 +8,15 @@ class WorldObjectSpoofer:
 
         if cfg.SCENARIO == Scenario.SIM_VILLA:
             self.world_object_list = [
-                WorldObject((-15.5, 14), "victim1"),
-                # WorldObject((14, -14), "fire1"),
-                # WorldObject((9.5, 8), "closed door1"),
-                # WorldObject((13, 0), "victim2"),
-                WorldObject((14, -14), "victim2"),
-                WorldObject((-15.5, -14.5), "victim3"),
-                WorldObject((-2, 14), "victim4"),
-                # WorldObject((-2, 12), "victim5"),
-                WorldObject((0, 14), "victim5"),
+                # WorldObject((-15.5, 14), "victim1"),
+                # # WorldObject((14, -14), "fire1"),
+                # # WorldObject((9.5, 8), "closed door1"),
+                # # WorldObject((13, 0), "victim2"),
+                # WorldObject((14, -14), "victim2"),
+                # WorldObject((-15.5, -14.5), "victim3"),
+                # WorldObject((-2, 14), "victim4"),
+                # # WorldObject((-2, 12), "victim5"),
+                # WorldObject((0, 14), "victim5"),
             ]
 
     def spoof_world_objects_from_position(self, agent_pos: tuple[float, float]) -> list[WorldObject]:

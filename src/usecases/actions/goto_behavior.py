@@ -1,3 +1,4 @@
+from typing import Sequence
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
 from src.usecases.actions.abstract_behavior import AbstractBehavior
@@ -8,17 +9,41 @@ class GotoBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def run(self, agent: AbstractAgent, krm: KRM, action_path) -> list:
-        if len(action_path) < 1:
-            raise Exception(
-                f"{agent.name}: Trying to perform action_path step with empty action_path {action_path}."
-            )
+    def execute_pipeline(self, agent, tosgraph, plan) -> Sequence:
+        """Execute the behavior pipeline."""
 
-        node_data = krm.get_node_data_by_node(action_path[0][1])
+        behavior_edge = plan[0]
+        if not self.check_preconditions(agent, tosgraph, behavior_edge):
+            return []
+
+        result = self.run(agent, tosgraph, behavior_edge)
+
+        if self.check_postconditions(agent, result):
+            tosgraph = self.mutate_graph_success(agent, tosgraph)
+            plan.pop(0)
+        else:
+            tosgraph = self.mutate_graph_failure(agent, tosgraph)
+            plan = []
+
+        return plan
+
+    def check_preconditions(self, agent, tosgraph, behavior_edge) -> bool:
+        return True
+
+    def run(self, agent, tosgraph, behavior_edge):
+        node_data = tosgraph.get_node_data_by_node(behavior_edge[1])
         agent.move_to_pos(node_data["pos"])
-        agent.localize_to_waypoint(krm)
+        agent.localize_to_waypoint(tosgraph)
+        return {}
 
-        action_path.pop(0)
-        return action_path
+    def check_postconditions(self, agent, tosgraph) -> bool:
+        """Check if the postconditions for the behavior are met."""
+        return True
 
-    
+    def mutate_graph_success(self, agent, tosgraph) -> Sequence:
+        """Mutate the graph according to the behavior."""
+        return tosgraph
+
+    def mutate_graph_failure(self, agent, tosgraph) -> Sequence:
+        """Mutate the graph according to the behavior."""
+        return tosgraph

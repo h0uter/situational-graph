@@ -82,7 +82,8 @@ class SARMission(AbstractMission):
             # or pass and return the action path continuously
 
         elif current_edge_type == EdgeType.GOTO_WP_EDGE:
-            action_path = GotoBehavior(self.cfg).run(agent, krm, action_path)
+            # action_path = GotoBehavior(self.cfg).run(agent, krm, action_path)
+            action_path = GotoBehavior(self.cfg).execute_pipeline(agent, krm, action_path)
             # if len(action_path) < 2:
             if len(action_path) < 1:
                 self.clear_target()
