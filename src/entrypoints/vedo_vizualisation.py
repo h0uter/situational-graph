@@ -7,7 +7,7 @@ import numpy as np
 import vedo
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import TOSG
+from src.entities.tosg import TOSG
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.usecases.planning_pipeline import PlanningPipeline

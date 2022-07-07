@@ -4,7 +4,7 @@ import numpy as np
 import logging
 
 from src.utils.config import Config
-from src.entities.krm import TOSG
+from src.entities.tosg import TOSG
 from src.utils.my_types import Node, NodeType
 
 

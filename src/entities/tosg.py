@@ -6,7 +6,7 @@ from typing import Optional, Sequence
 import networkx as nx
 from src.utils.config import Config
 from src.utils.my_types import Edge, EdgeType, Node, NodeType
-
+from src.entities.dynamic_data.task import Task
 
 class TOSG:
     # TODO: adress local vs global KRM
@@ -17,6 +17,8 @@ class TOSG:
         self.graph = nx.MultiDiGraph()  # Knowledge Road Map
         self.cfg = cfg
         self.next_wp_idx = 0
+
+        self.tasks: Sequence[Task] = []
 
         # This is ugly
         self.duplicate_start_poses = []

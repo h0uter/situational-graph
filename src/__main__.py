@@ -4,18 +4,17 @@ from typing import Sequence
 
 import matplotlib
 
-from src.data_providers.sim.simulated_agent import SimulatedAgent
-from src.data_providers.real.spot_agent import SpotAgent
-from src.entities.krm import TOSG
-from src.entities.abstract_agent import AbstractAgent
-from src.usecases.planning_pipeline import PlanningPipeline
-
 # from src.usecases.sar_mission import SARMission
 import src.utils.event as event
-from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
+from src.data_providers.real.spot_agent import SpotAgent
+from src.data_providers.sim.simulated_agent import SimulatedAgent
+from src.entities.abstract_agent import AbstractAgent
+from src.entities.tosg import TOSG
 from src.entrypoints.vizualisation_listener import VizualisationListener
-from src.utils.krm_stats import KRMStats
+from src.usecases.planning_pipeline import PlanningPipeline
 from src.utils.audio_feedback import play_file
+from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
+from src.utils.krm_stats import TOSGStats
 from src.utils.sanity_checks import check_no_duplicate_wp_edges
 
 
@@ -31,64 +30,59 @@ def init_entities(cfg: Config):
     else:
         agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
 
-    krm = TOSG(cfg, start_poses=[agent.pos for agent in agents])
-    missions = [PlanningPipeline(cfg) for i in range(cfg.NUM_AGENTS)]
+    tosg = TOSG(cfg, start_poses=[agent.pos for agent in agents])
+    planning_pipelines = [PlanningPipeline(cfg, tosg) for i in range(cfg.NUM_AGENTS)]
+    
     tasks = []
 
     VizualisationListener(cfg).setup_event_handler()
 
     """setup"""
     for agent in agents:
-        agent.localize_to_waypoint(krm)
+        agent.localize_to_waypoint(tosg)
         event.post_event("viz point", agent.pos)  # viz start position
 
-    return agents, krm, missions
+    return agents, tosg, planning_pipelines
 
 
 # TODO: cleanup all the stuff not neccesary to understand the code high level
 def run_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],
-    krm: TOSG,
-    missions: Sequence[PlanningPipeline],
+    tosg: TOSG,
+    planning_pipelines: Sequence[PlanningPipeline],
 ):
 
     step, start = 0, time.perf_counter()
-    krm_stats = KRMStats()
+    tosg_stats = TOSGStats()
     my_logger = logging.getLogger(__name__)
 
     if cfg.AUDIO_FEEDBACK:
         play_file("commencing_search.mp3")
 
-
     """ Main Logic"""
-
-    # # initialization
-    # for planning_pipeline in missions:
-    #     planning_pipeline.init_mission(krm)
-
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
     while (
-        not any(mission.completed is True for mission in missions)
+        not any(mission.completed is True for mission in planning_pipelines)
         and step < cfg.MAX_STEPS
     ):
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
-            if missions[agent_idx].main_loop(agents[agent_idx], krm):
+            if planning_pipelines[agent_idx].main_loop(agents[agent_idx], tosg):
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
-            check_no_duplicate_wp_edges(krm)
+            check_no_duplicate_wp_edges(tosg)
 
         """Data collection"""
         step_duration = time.perf_counter() - step_start
-        krm_stats.update(krm, step_duration)
+        tosg_stats.update(tosg, step_duration)
 
         """ Visualisation """
         my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
         event.post_event(
             "figure update",
-            {"krm": krm, "agents": agents, "usecases": missions},
+            {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
         )
 
         if step % 50 == 0:
@@ -110,11 +104,11 @@ def run_demo(
     if cfg.AUDIO_FEEDBACK:
         play_file("exploration_complete.mp3")
     for agent_idx in range(len(agents)):
-        missions[agent_idx].plan.edge_sequence = []
+        planning_pipelines[agent_idx].plan.edge_sequence = []
         # here we tell the agent to go back to the start
-        missions[agent_idx].target_node = 0
-        while missions[agent_idx].target_node is not None:
-            missions[agent_idx].main_loop(agents[agent_idx], krm)
+        planning_pipelines[agent_idx].target_node = 0
+        while planning_pipelines[agent_idx].target_node is not None:
+            planning_pipelines[agent_idx].main_loop(agents[agent_idx], tosg)
             # """Data collection"""
             # step_duration = time.perf_counter() - step_start
             # krm_stats.update(krm, step_duration)
@@ -123,20 +117,20 @@ def run_demo(
             # my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
             event.post_event(
                 "figure update",
-                {"krm": krm, "agents": agents, "usecases": missions},
+                {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
             )
 
     event.post_event(
         "figure final result",
-        {"krm": krm, "agents": agents, "usecases": missions},
+        {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
     )
 
     if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
-        krm_stats.plot_krm_stats()
+        tosg_stats.plot_krm_stats()
 
     # krm_stats.save()
 
-    return any(mission.completed is True for mission in missions)
+    return any(mission.completed is True for mission in planning_pipelines)
 
 
 def benchmark_func():

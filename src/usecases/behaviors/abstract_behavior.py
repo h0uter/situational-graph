@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from typing import Sequence
-from src.entities.krm import TOSG
+from src.entities.tosg import TOSG
 
 from src.utils.config import Config
 

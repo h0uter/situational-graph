@@ -2,7 +2,7 @@ import time
 from typing import Sequence
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import TOSG
+from src.entities.tosg import TOSG
 from src.usecases.behaviors.abstract_behavior import AbstractBehavior
 from src.utils.audio_feedback import play_hi_follow_me
 from src.utils.config import Config

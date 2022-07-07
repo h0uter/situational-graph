@@ -6,7 +6,7 @@ from src.utils.saving_data_objects import load_something, save_something
 
 
 @dataclass
-class KRMStats:
+class TOSGStats:
     def __init__(self) -> None:
         self.num_nodes = [0]
         self.num_edges = [0]

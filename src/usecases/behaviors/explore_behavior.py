@@ -1,6 +1,6 @@
 from typing import Sequence
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import TOSG
+from src.entities.tosg import TOSG
 from src.entities.local_grid import LocalGrid
 from src.usecases.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.utils.config import Config

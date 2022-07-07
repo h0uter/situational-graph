@@ -1,7 +1,7 @@
 import time
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import TOSG
+from src.entities.tosg import TOSG
 from src.usecases.behaviors.abstract_behavior import AbstractBehavior
 from src.usecases.behaviors.goto_behavior import GotoBehavior
 from src.utils.audio_feedback import play_file, play_hi_follow_me

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Literal, Optional, Sequence, Tuple
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import TOSG
+from src.entities.tosg import TOSG
 from src.entities.plan import Plan
 from src.utils.config import Config
 from src.entities.dynamic_data.task import Task
@@ -12,40 +12,48 @@ from src.usecases.behaviors.goto_behavior import GotoBehavior
 from src.usecases.behaviors.explore_behavior import ExploreBehavior
 
 
-
-def select_optimal_task(agent: AbstractAgent, tosgraph: TOSG, tasks: Sequence[Task]) -> Optional[Task]:
+def select_optimal_task(
+    agent: AbstractAgent, tosgraph: TOSG, tasks: Sequence[Task]
+) -> Optional[Task]:
     # this should be a method of the agent
     pass
+
 
 def find_plan(agent: AbstractAgent, tosgraph: TOSG, task: Task) -> Plan:
     """Find a plan for the agent."""
     pass
 
-def execute_edge(agent: AbstractAgent, tosgraph: TOSG, plan: Plan, tasks: Sequence[Task]) -> Tuple[Plan, Sequence[Task]]:
+
+def execute_edge(
+    agent: AbstractAgent, tosgraph: TOSG, plan: Plan, tasks: Sequence[Task]
+) -> Tuple[Plan, Sequence[Task]]:
     """Execute the plan."""
     pass
 
 
 class PlanningPipeline:
-    def __init__(self, cfg: Config) -> None:
+    def __init__(self, cfg: Config, tosg: TOSG) -> None:
         self.cfg = cfg
         self.completed = False
         self.plan: Plan = Plan()
         self.target_node: Optional[Node] = None
         self._log = logging.getLogger(__name__)
 
+        self.initialize(tosg)
+
+    # HACK: initialization should add this edge to the tasks,
+    # FIXME: this is the start, here I will add the tasks and see them work instantly
+    def initialize(self, tosg: TOSG):
+        # Add a frontier edge self loop on the start node to ensure a exploration sampling action
+        edge_id = tosg.graph.add_edge(0, 0, type=EdgeType.EXPLORE_FT_EDGE)
+        # tosg.tasks.append(Task(edge_id))
+        
+        self.plan.edge_sequence = [(0, 0, edge_id)]
+        self.target_node = 0
+
     # CONTEXT
     def main_loop(self, agent: AbstractAgent, krm: TOSG) -> bool:
         something_was_done = False
-
-        if not self.check_target_available(krm) and not agent.init:
-            self._log.debug(
-                f"{agent.name}: No targets available. Performing initialization."
-            )
-            (
-                self.plan.edge_sequence,
-                self.target_node,
-            ) = self.setup_target_initialisation(krm)
 
         if self.target_node is None:
             self._log.debug(f"{agent.name}: No target node set. Setting one.")
@@ -93,19 +101,6 @@ class PlanningPipeline:
 
     def clear_target(self) -> None:
         self.target_node = None
-
-    # HACK: initialisation should be done in one place only
-    def setup_target_initialisation(
-        self, krm: TOSG
-    ) -> tuple[Sequence[Edge], Literal[0]]:
-        # Add a frontier edge self loop on the start node to ensure a exploration sampling action
-        edge_id = krm.graph.add_edge(0, 0, type=EdgeType.EXPLORE_FT_EDGE)
-        self._log.debug(
-            f"{self.__class__.__name__}: Adding frontier edge self loop. {krm.graph.edges()}"
-        )
-        action_path: list[Edge] = [(0, 0, edge_id)]
-        target_node: Node = 0
-        return action_path, target_node
 
     def check_target_still_valid(self, krm: TOSG, target_node: Optional[Node]) -> bool:
         if target_node is None:

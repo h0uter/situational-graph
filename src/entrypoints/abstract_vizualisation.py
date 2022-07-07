@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Union, Sequence
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import TOSG
+from src.entities.tosg import TOSG
 from src.usecases.planning_pipeline import PlanningPipeline
 
 # from src.usecases.exploration_usecase import ExplorationUsecase
