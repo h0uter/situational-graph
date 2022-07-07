@@ -1,5 +1,7 @@
+from enum import Enum, auto
 import logging
 from abc import ABC, abstractmethod
+from tkinter import E
 from typing import Literal, Optional, Sequence, Tuple
 
 from src.entities.abstract_agent import AbstractAgent
@@ -31,6 +33,10 @@ def execute_edge(
     pass
 
 
+class Objective(Enum):
+    EXPLORE = 10
+
+
 class PlanningPipeline:
     def __init__(self, cfg: Config, tosg: TOSG) -> None:
         self.cfg = cfg
@@ -45,10 +51,15 @@ class PlanningPipeline:
     # FIXME: this is the start, here I will add the tasks and see them work instantly
     def initialize(self, tosg: TOSG):
         # Add a frontier edge self loop on the start node to ensure a exploration sampling action
-        edge_id = tosg.graph.add_edge(0, 0, type=EdgeType.EXPLORE_FT_EDGE)
-        # tosg.tasks.append(Task(edge_id))
-        
-        self.plan.edge_sequence = [(0, 0, edge_id)]
+        edge_id = tosg.add_my_edge(0, 0, EdgeType.EXPLORE_FT_EDGE)
+
+        tosg.tasks.append(Task(edge_id, Objective.EXPLORE))
+
+        init_explore_edge = tosg.get_edge_by_UUID(edge_id)
+        print(f"hello {init_explore_edge}")
+
+        # self.plan.edge_sequence = [(0, 0, tosg.tasks[0].edge_id)]
+        self.plan.edge_sequence = [init_explore_edge]
         self.target_node = 0
 
     # CONTEXT

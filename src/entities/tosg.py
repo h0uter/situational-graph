@@ -1,12 +1,13 @@
 import logging
 import math
 import uuid
-from typing import Optional, Sequence
+from typing import List, Optional, Sequence
 
 import networkx as nx
 from src.utils.config import Config
 from src.utils.my_types import Edge, EdgeType, Node, NodeType
 from src.entities.dynamic_data.task import Task
+
 
 class TOSG:
     # TODO: adress local vs global KRM
@@ -18,7 +19,7 @@ class TOSG:
         self.cfg = cfg
         self.next_wp_idx = 0
 
-        self.tasks: Sequence[Task] = []
+        self.tasks: List[Task] = []
 
         # This is ugly
         self.duplicate_start_poses = []
@@ -119,6 +120,17 @@ class TOSG:
 
         self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
 
+    def add_my_edge(self, node_a, node_b, edge_type):
+        my_id = uuid.uuid4(),
+        self.graph.add_edge(
+            node_a,
+            node_b,
+            type=edge_type,
+            cost=self.calc_edge_len(node_a, node_b),
+            id=my_id
+        )
+        return my_id
+
     def add_world_object(self, pos: tuple, label: str) -> None:
         """adds a world object to the graph"""
         self.graph.add_node(label, pos=pos, type=NodeType.WORLD_OBJECT, id=uuid.uuid4())
@@ -134,7 +146,7 @@ class TOSG:
             self.next_wp_idx - 1,
             label,
             type=EdgeType.PLAN_EXTRACTION_WO_EDGE,
-            # id=uuid.uuid4(),
+            id=uuid.uuid4(),
             cost=-100,
         )
 
@@ -160,7 +172,7 @@ class TOSG:
             agent_at_wp,
             self.next_frontier_idx,
             type=EdgeType.EXPLORE_FT_EDGE,
-            # id=uuid.uuid4(),
+            id=uuid.uuid4(),
             cost=cost,
         )
         self.next_frontier_idx += 1
@@ -173,6 +185,7 @@ class TOSG:
                 path[i],
                 path[i + 1],
                 type=EdgeType.GUIDE_WP_EDGE,
+                id=uuid.uuid4(),
                 cost=0,
             )
 
@@ -201,6 +214,12 @@ class TOSG:
         for node in self.graph.nodes():
             if self.graph.nodes[node]["id"] == UUID:
                 return node
+
+    def get_edge_by_UUID(self, UUID):
+        """returns the edge idx with the given UUID"""
+        for edge in self.graph.edges(keys=True):
+            if self.graph.edges[edge]["id"] == UUID:
+                return edge
 
     def get_node_data_by_node(self, node: Node) -> dict:
         """returns the node corresponding to the given index"""
