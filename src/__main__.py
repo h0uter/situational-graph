@@ -6,10 +6,11 @@ import matplotlib
 
 from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.data_providers.real.spot_agent import SpotAgent
-from src.entities.krm import KRM
+from src.entities.krm import TOSG
 from src.entities.abstract_agent import AbstractAgent
-from src.usecases.abstract_mission import AbstractMission
-from src.usecases.sar_mission import SARMission
+from src.usecases.planning_pipeline import PlanningPipeline
+
+# from src.usecases.sar_mission import SARMission
 import src.utils.event as event
 from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
 from src.entrypoints.vizualisation_listener import VizualisationListener
@@ -30,8 +31,8 @@ def init_entities(cfg: Config):
     else:
         agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
 
-    krm = KRM(cfg, start_poses=[agent.pos for agent in agents])
-    usecases = [SARMission(cfg) for i in range(cfg.NUM_AGENTS)]
+    krm = TOSG(cfg, start_poses=[agent.pos for agent in agents])
+    missions = [PlanningPipeline(cfg) for i in range(cfg.NUM_AGENTS)]
     tasks = []
 
     VizualisationListener(cfg).setup_event_handler()
@@ -41,15 +42,15 @@ def init_entities(cfg: Config):
         agent.localize_to_waypoint(krm)
         event.post_event("viz point", agent.pos)  # viz start position
 
-    return agents, krm, usecases
+    return agents, krm, missions
 
 
 # TODO: cleanup all the stuff not neccesary to understand the code high level
 def run_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],
-    krm: KRM,
-    usecases: Sequence[AbstractMission],
+    krm: TOSG,
+    missions: Sequence[PlanningPipeline],
 ):
 
     step, start = 0, time.perf_counter()
@@ -59,16 +60,22 @@ def run_demo(
     if cfg.AUDIO_FEEDBACK:
         play_file("commencing_search.mp3")
 
+
     """ Main Logic"""
+
+    # # initialization
+    # for planning_pipeline in missions:
+    #     planning_pipeline.init_mission(krm)
+
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
     while (
-        not any(mission.completed is True for mission in usecases)
+        not any(mission.completed is True for mission in missions)
         and step < cfg.MAX_STEPS
     ):
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
-            if usecases[agent_idx].main_loop(agents[agent_idx], krm):
+            if missions[agent_idx].main_loop(agents[agent_idx], krm):
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
             check_no_duplicate_wp_edges(krm)
@@ -81,7 +88,7 @@ def run_demo(
         my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
         event.post_event(
             "figure update",
-            {"krm": krm, "agents": agents, "usecases": usecases},
+            {"krm": krm, "agents": agents, "usecases": missions},
         )
 
         if step % 50 == 0:
@@ -103,11 +110,11 @@ def run_demo(
     if cfg.AUDIO_FEEDBACK:
         play_file("exploration_complete.mp3")
     for agent_idx in range(len(agents)):
-        usecases[agent_idx].action_path = []
+        missions[agent_idx].plan.edge_sequence = []
         # here we tell the agent to go back to the start
-        usecases[agent_idx].target_node = 0
-        while usecases[agent_idx].target_node is not None:
-            usecases[agent_idx].main_loop(agents[agent_idx], krm)
+        missions[agent_idx].target_node = 0
+        while missions[agent_idx].target_node is not None:
+            missions[agent_idx].main_loop(agents[agent_idx], krm)
             # """Data collection"""
             # step_duration = time.perf_counter() - step_start
             # krm_stats.update(krm, step_duration)
@@ -116,12 +123,12 @@ def run_demo(
             # my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
             event.post_event(
                 "figure update",
-                {"krm": krm, "agents": agents, "usecases": usecases},
+                {"krm": krm, "agents": agents, "usecases": missions},
             )
 
     event.post_event(
         "figure final result",
-        {"krm": krm, "agents": agents, "usecases": usecases},
+        {"krm": krm, "agents": agents, "usecases": missions},
     )
 
     if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
@@ -129,7 +136,7 @@ def run_demo(
 
     # krm_stats.save()
 
-    return any(mission.completed is True for mission in usecases)
+    return any(mission.completed is True for mission in missions)
 
 
 def benchmark_func():

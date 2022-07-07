@@ -1,9 +1,9 @@
 import time
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import KRM
-from src.usecases.actions.abstract_behavior import AbstractBehavior
-from src.usecases.actions.goto_behavior import GotoBehavior
+from src.entities.krm import TOSG
+from src.usecases.behaviors.abstract_behavior import AbstractBehavior
+from src.usecases.behaviors.goto_behavior import GotoBehavior
 from src.utils.audio_feedback import play_file, play_hi_follow_me
 from src.utils.config import Config, Scenario
 
@@ -12,7 +12,7 @@ class GuideBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def run_implementation(self, agent: AbstractAgent, krm: KRM, action_path):
+    def run_implementation(self, agent: AbstractAgent, krm: TOSG, action_path):
         """Currently the world object action is guide victim home action"""
         # Should I allow an action to set a different action path?
         self._log.debug(f"{agent.name}: Guiding  victim to next wp {action_path[0][1]}")

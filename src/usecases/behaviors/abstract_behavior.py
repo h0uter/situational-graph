@@ -1,9 +1,11 @@
 import logging
 from abc import ABC, abstractmethod
 from typing import Sequence
-from src.entities.krm import KRM
+from src.entities.krm import TOSG
 
 from src.utils.config import Config
+
+AFFORDANCES = {}
 
 
 class BehaviorResult:
@@ -16,21 +18,23 @@ class AbstractBehavior(ABC):
         self.cfg = cfg
         self._log = logging.getLogger(__name__)
 
-    def execute_pipeline(self, agent, tosgraph, plan) -> Sequence:
+    def execute_pipeline(self, agent, tosg: TOSG, plan) -> Sequence:
         """Execute the behavior pipeline."""
 
         behavior_edge = plan[0]
 
-        result = self.run_implementation(agent, tosgraph, behavior_edge)
+        result = self.run_implementation(agent, tosg, behavior_edge)
         if not result.success:
             plan = []
             return plan
 
-        if self.check_postconditions(agent, tosgraph, result, plan):
-            tosgraph = self.mutate_graph_success(agent, tosgraph, behavior_edge[1])
+        if self.check_postconditions(agent, tosg, result, plan):
+            tosg = self.mutate_graph_success(
+                agent, tosg, behavior_edge[1], AFFORDANCES
+            )
             plan.pop(0)
         else:
-            tosgraph = self.mutate_graph_failure(agent, tosgraph, behavior_edge)
+            tosg = self.mutate_graph_failure(agent, tosg, behavior_edge)
             plan = []
 
         return plan
@@ -49,7 +53,7 @@ class AbstractBehavior(ABC):
     #     pass
 
     @abstractmethod
-    def mutate_graph_success(self, agent, tosgraph, next_node):
+    def mutate_graph_success(self, agent, tosgraph, next_node, affordances):
         """Mutate the graph according to the behavior."""
         pass
 

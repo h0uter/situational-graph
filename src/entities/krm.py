@@ -1,15 +1,14 @@
+import logging
 import math
-from typing import Optional, Sequence
 import uuid
+from typing import Optional, Sequence
 
 import networkx as nx
-import logging
-
-from src.utils.my_types import Edge, EdgeType, Node, NodeType
 from src.utils.config import Config
+from src.utils.my_types import Edge, EdgeType, Node, NodeType
 
 
-class KRM:
+class TOSG:
     # TODO: adress local vs global KRM
     def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
         self._log = logging.getLogger(__name__)

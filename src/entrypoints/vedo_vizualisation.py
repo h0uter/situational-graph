@@ -7,10 +7,10 @@ import numpy as np
 import vedo
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import KRM
+from src.entities.krm import TOSG
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.usecases.abstract_mission import AbstractMission
+from src.usecases.planning_pipeline import PlanningPipeline
 from src.utils.config import Config, PlotLvl, Scenario
 from src.utils.my_types import NodeType
 
@@ -24,7 +24,13 @@ class VedoVisualisation(AbstractVizualisation):
         self.cfg = cfg
         self.factor = 1 / self.cfg.LG_CELL_SIZE_M
 
-        self.plt = vedo.Plotter(axes=13, interactive=False, resetcam=True, title="Knowledge Roadmap", size=(3456, 2234))
+        self.plt = vedo.Plotter(
+            axes=13,
+            interactive=False,
+            resetcam=True,
+            title="Knowledge Roadmap",
+            size=(3456, 2234),
+        )
 
         # NOTE: perhaps I just should not instantiate viz classes if we run headless
         if self.cfg.PLOT_LVL is not PlotLvl.NONE:
@@ -47,16 +53,16 @@ class VedoVisualisation(AbstractVizualisation):
 
     def figure_update(
         self,
-        krm: KRM,
+        krm: TOSG,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
-        usecases: Sequence[AbstractMission],
+        usecases: Sequence[PlanningPipeline],
     ) -> None:
         self.viz_all(krm, agents, usecases)
 
     def figure_final_result(
         self,
-        krm: KRM,
+        krm: TOSG,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
         usecases,
@@ -90,7 +96,9 @@ class VedoVisualisation(AbstractVizualisation):
 
         # TODO: implement coloration for the different line types
         if len(ed_ls) > 1:
-            raw_lines = [(pos_dict[node_a], pos_dict[node_b]) for node_a, node_b, _ in ed_ls]
+            raw_lines = [
+                (pos_dict[node_a], pos_dict[node_b]) for node_a, node_b, _ in ed_ls
+            ]
             raw_edg = vedo.Lines(raw_lines).lw(2)
             actors.append(raw_edg)
 
@@ -126,7 +134,7 @@ class VedoVisualisation(AbstractVizualisation):
             # rate=15 # limit rendering
         )
         self.plt.render()  # this makes it work with REAL scenario
-        self.clear_annoying_captions() 
+        self.clear_annoying_captions()
 
     def clear_annoying_captions(self):
         """Captions apparently are persistent, so we need to clear them."""
@@ -136,16 +144,16 @@ class VedoVisualisation(AbstractVizualisation):
     def viz_action_graph(
         self,
         actors: list,
-        krm: KRM,
-        usecases: Sequence[AbstractMission],
+        krm: TOSG,
+        usecases: Sequence[PlanningPipeline],
         pos_dict: dict,
     ):
         # FIXME: this is way too high in real scenario
         action_path_offset = self.factor * 5
 
         for mission in usecases:
-            if mission.action_path:
-                action_path = mission.action_path
+            if mission.plan.valid:
+                action_path = mission.plan.edge_sequence
 
                 # HACK TO fix crash caused by frontier already being removed from krm by one agent in final step
                 # for node in action_path:
@@ -160,20 +168,20 @@ class VedoVisualisation(AbstractVizualisation):
                 # ed_ls = [action_path[i : i + 2] for i in range(len(action_path) - 1)]
                 ed_ls = action_path
                 # raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
-                raw_lines = [(pos_dict[node_a], pos_dict[node_b]) for node_a, node_b, _ in ed_ls]
+                raw_lines = [
+                    (pos_dict[node_a], pos_dict[node_b]) for node_a, node_b, _ in ed_ls
+                ]
                 frontier_edge = raw_lines.pop()
                 wp_edge_actors = (
-                    vedo.Lines(raw_lines, c="r", alpha=0.5)
-                    .lw(10)
-                    .z(action_path_offset)
+                    vedo.Lines(raw_lines, c="r", alpha=0.5).lw(10).z(action_path_offset)
                 )
                 actors.append(wp_edge_actors)
 
                 arrow_start = (frontier_edge[0][0], frontier_edge[0][1], 0)
                 arrow_end = (frontier_edge[1][0], frontier_edge[1][1], 0)
-                ft_edge_actor = vedo.Arrow(arrow_start, arrow_end, c="g", s=self.factor*0.037).z(
-                    action_path_offset
-                )
+                ft_edge_actor = vedo.Arrow(
+                    arrow_start, arrow_end, c="g", s=self.factor * 0.037
+                ).z(action_path_offset)
                 actors.append(ft_edge_actor)
 
     def add_agents(self, agents, actors):
@@ -188,7 +196,7 @@ class VedoVisualisation(AbstractVizualisation):
             agent_dir_vec = (np.cos(agent.heading), np.sin(agent.heading), 0)
 
             cone_r = self.factor * 1.35
-            cone_height = self.factor*3.1
+            cone_height = self.factor * 3.1
             # FIXME: this is inconsistent
             if self.cfg.SCENARIO == Scenario.REAL:
                 cone_r *= 0.4
@@ -207,21 +215,27 @@ class VedoVisualisation(AbstractVizualisation):
             wo_pos = pos_dict[wo]
             wo_point = vedo.Point(wo_pos, r=20, c="magenta")
             actors.append(wo_point)
-            
+
             wo_vig = wo_point.vignette(
-                wo, offset=[0, 0, 5 * self.factor], s=self.factor,
+                wo,
+                offset=[0, 0, 5 * self.factor],
+                s=self.factor,
             )
             actors.append(wo_vig)
 
         return actors
 
     def viz_start_point(self, pos):
-        point = vedo.Point((pos[0]*self.factor, pos[1]*self.factor, 0), r=35, c="blue")
+        point = vedo.Point(
+            (pos[0] * self.factor, pos[1] * self.factor, 0), r=35, c="blue"
+        )
         print(f"adding point {pos} to debug actors")
         self.debug_actors.append(point)
 
         # FIXME: this is way to big in real scenario
         start_vig = point.vignette(
-                "Start", offset=[0, 0, 5 * self.factor], s=self.factor,
-            )
+            "Start",
+            offset=[0, 0, 5 * self.factor],
+            s=self.factor,
+        )
         self.debug_actors.append(start_vig)

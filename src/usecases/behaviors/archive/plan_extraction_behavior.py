@@ -2,8 +2,8 @@ import time
 from typing import Sequence
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import KRM
-from src.usecases.actions.abstract_behavior import AbstractBehavior
+from src.entities.krm import TOSG
+from src.usecases.behaviors.abstract_behavior import AbstractBehavior
 from src.utils.audio_feedback import play_hi_follow_me
 from src.utils.config import Config
 from src.utils.my_types import Edge, EdgeType, Node
@@ -14,7 +14,7 @@ class PlanExtractionBehavior(AbstractBehavior):
         super().__init__(cfg)
 
     def run_implementation(
-        self, agent: AbstractAgent, krm: KRM, action_path: Sequence[Edge]
+        self, agent: AbstractAgent, krm: TOSG, action_path: Sequence[Edge]
     ):
         """Currently the world object action is guide victim home action"""
         # Should I allow an action to set a different action path?
@@ -38,7 +38,7 @@ class PlanExtractionBehavior(AbstractBehavior):
         # return action_path, start_node
 
     def update_krm_with_guide_actions(
-        self, agent: AbstractAgent, krm: KRM, exit_node: Node
+        self, agent: AbstractAgent, krm: TOSG, exit_node: Node
     ) -> Sequence[Edge]:
         """
         Add guide actions to the krm.

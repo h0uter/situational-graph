@@ -7,10 +7,7 @@ from src.utils.config import Config
 
 
 class SimulatedAgent(AbstractAgent):
-    """
-    The goal of this method is to
-    - provide a simulated agent
-    """
+    """provide a simulated agent"""
 
     def __init__(self, cfg: Config, name: int = 0) -> None:
         super().__init__(cfg, name)

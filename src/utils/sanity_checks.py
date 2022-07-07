@@ -1,14 +1,14 @@
-from src.entities.krm import KRM
+from src.entities.krm import TOSG
 from src.utils.my_types import EdgeType
 import networkx as nx
 
 
-def check_no_duplicate_wp_edges(krm: KRM):
+def check_no_duplicate_wp_edges(krm: TOSG):
     """
     Check if there are no duplicate waypoint edges in the graph.
     """
     G = krm.graph
-    
+
     def filter_wp_edge(n1, n2, n3):
         return G.edges[n1, n2, n3]["type"] == EdgeType.GOTO_WP_EDGE
 

@@ -4,12 +4,12 @@ import numpy as np
 import logging
 
 from src.utils.config import Config
-from src.entities.krm import KRM
+from src.entities.krm import TOSG
 from src.utils.my_types import Node, NodeType
 
 
 class AbstractAgent(ABC):
-    """"This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
+    """ "This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
     @abstractmethod
     def __init__(self, cfg: Config, name: int = 0) -> None:
@@ -96,7 +96,7 @@ class AbstractAgent(ABC):
             self.pos = self.get_localization()  # dont make sense for sim agent.
 
     # perhaps something like this should go into robot services, to not murk the dependencies.
-    def localize_to_waypoint(self, krm: KRM):
+    def localize_to_waypoint(self, krm: TOSG):
         loc_candidates = krm.get_nodes_of_type_in_margin(
             self.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
         )

@@ -1,7 +1,7 @@
 from typing import Sequence
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import KRM
-from src.usecases.actions.abstract_behavior import AbstractBehavior, BehaviorResult
+from src.entities.krm import TOSG
+from src.usecases.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.utils.config import Config
 
 
@@ -19,7 +19,7 @@ class GotoBehavior(AbstractBehavior):
         """Check if the postconditions for the behavior are met."""
         return True
 
-    def mutate_graph_success(self, agent, tosgraph, next_node) -> Sequence:
+    def mutate_graph_success(self, agent, tosgraph, next_node, affordances) -> Sequence:
         """Mutate the graph according to the behavior."""
         return tosgraph
 
