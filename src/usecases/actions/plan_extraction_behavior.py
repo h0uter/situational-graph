@@ -13,7 +13,9 @@ class PlanExtractionBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def run(self, agent: AbstractAgent, krm: KRM, action_path: Sequence[Edge]):
+    def run_implementation(
+        self, agent: AbstractAgent, krm: KRM, action_path: Sequence[Edge]
+    ):
         """Currently the world object action is guide victim home action"""
         # Should I allow an action to set a different action path?
         if self.cfg.AUDIO_FEEDBACK:

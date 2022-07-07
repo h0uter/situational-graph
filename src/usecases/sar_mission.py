@@ -48,9 +48,10 @@ class SARMission(AbstractMission):
             return []
 
         self._log.debug(f"{agent.name}: target_node: {target_node}")
-        action_path = list(krm.shortest_path(agent.at_wp, target_node))  # type: ignore
+        action_path = krm.shortest_path(agent.at_wp, target_node)  # type: ignore
 
         if action_path:
+            action_path = list(action_path)
             action_path = krm.node_list_to_edge_list(action_path)
             return action_path
         else:
@@ -76,7 +77,9 @@ class SARMission(AbstractMission):
 
         if current_edge_type == EdgeType.EXPLORE_FT_EDGE:
             # action_path = ExploreBehavior(self.cfg).run(agent, krm, action_path)
-            action_path = ExploreBehavior(self.cfg).execute_pipeline(agent, krm, action_path)
+            action_path = ExploreBehavior(self.cfg).execute_pipeline(
+                agent, krm, action_path
+            )
             self.clear_target()
 
             # either a reset function
@@ -84,7 +87,9 @@ class SARMission(AbstractMission):
 
         elif current_edge_type == EdgeType.GOTO_WP_EDGE:
             # action_path = GotoBehavior(self.cfg).run(agent, krm, action_path)
-            action_path = GotoBehavior(self.cfg).execute_pipeline(agent, krm, action_path)
+            action_path = GotoBehavior(self.cfg).execute_pipeline(
+                agent, krm, action_path
+            )
             # if len(action_path) < 2:
             if len(action_path) < 1:
                 self.clear_target()
@@ -92,15 +97,19 @@ class SARMission(AbstractMission):
             else:
                 return action_path
 
-        elif current_edge_type == EdgeType.PLAN_EXTRACTION_WO_EDGE:
-            action_path = PlanExtractionBehavior(self.cfg).run(agent, krm, action_path)
-            # Lets check if this is not neccesary, it is necce
-            self.target_node = action_path[-1][1]
+        # elif current_edge_type == EdgeType.PLAN_EXTRACTION_WO_EDGE:
+        #     action_path = PlanExtractionBehavior(self.cfg).run_implementation(
+        #         agent, krm, action_path
+        #     )
+        #     # Lets check if this is not neccesary, it is necce
+        #     self.target_node = action_path[-1][1]
 
-        elif current_edge_type is EdgeType.GUIDE_WP_EDGE:
-            action_path = GuideBehavior(self.cfg).run(agent, krm, action_path)
-            if len(action_path) < 1:
-                self.clear_target()
+        # elif current_edge_type is EdgeType.GUIDE_WP_EDGE:
+        #     action_path = GuideBehavior(self.cfg).run_implementation(
+        #         agent, krm, action_path
+        #     )
+        #     if len(action_path) < 1:
+        #         self.clear_target()
 
         return action_path
 

@@ -1,7 +1,8 @@
+from typing import Sequence
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.krm import KRM
 from src.entities.local_grid import LocalGrid
-from src.usecases.actions.abstract_behavior import AbstractBehavior
+from src.usecases.actions.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.utils.config import Config
 from src.utils.event import post_event
 from src.utils.my_types import Node, NodeType
@@ -11,9 +12,6 @@ from src.utils.saving_data_objects import load_something, save_something
 class ExploreBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
-
-    def check_preconditions(self, agent, tosgraph, behavior_edge) -> bool:
-        return True
 
     def check_postconditions(self, agent, tosgraph, result, plan):
         """Check if the postconditions for the behavior are met."""
@@ -30,18 +28,20 @@ class ExploreBehavior(AbstractBehavior):
 
         # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
         if not self.sample_waypoint_from_pose(agent, tosgraph):
-            self._log.error(f"sampling waypoint failed")
+            self._log.error("sampling waypoint failed")
             return []
 
         # XXX: this is my 2nd  most expensive function, so I should try to optimize it
-        self.sample_new_frontiers_and_add_to_krm(agent, tosgraph, lg)
+        new_frontier_cells = self.sample_new_frontiers(agent, tosgraph, lg)
+        self.add_new_frontiers_to_tosg(new_frontier_cells, lg, tosgraph, agent)
 
         # XXX: this is my 3nd expensive function, so I should try to optimize it
         self.prune_frontiers(tosgraph)
         self.find_shortcuts_between_wps(lg, tosgraph, agent)
 
         self.process_world_objects(agent, tosgraph)
-        # end mutate graph
+
+        # TODO: add a function which adds the new frontiers as tasks
 
         return tosgraph
 
@@ -50,89 +50,43 @@ class ExploreBehavior(AbstractBehavior):
         self._log.warning(
             f"{agent.name}: did not reach destination during explore action."
         )
-        next_node = behavior_edge[1]
-        # START mutate failure
-        tosgraph.remove_frontier(next_node)
+        # this is the actual mutation of the grpah on failure
+        tosgraph.remove_frontier(behavior_edge[1])
         # maintain the previous heading to stop tedious turning
-        prev_node = behavior_edge[0]
+        # TODO: this move to pos is the recovery of the behavior, it should be in the run method.
         agent.move_to_pos(
-            tosgraph.get_node_data_by_node(prev_node)["pos"], agent.heading
+            tosgraph.get_node_data_by_node(behavior_edge[0])["pos"], agent.heading
         )
         agent.previous_pos = agent.get_localization()
 
+        # this is the actual mutation of the grpah on failure
         self.prune_frontiers(tosgraph)
-        # END mutate failure
 
         return tosgraph
 
-        # return []
-
-    def run(self, agent: AbstractAgent, tosgraph: KRM, behavior_edge):
+    def run_implementation(self, agent: AbstractAgent, tosgraph: KRM, behavior_edge) -> BehaviorResult:
         next_node = behavior_edge[1]
         next_node_pos = tosgraph.get_node_data_by_node(next_node)["pos"]
 
         # special case: initialization
         if len(tosgraph.get_all_frontiers_idxs()) <= 1 and not agent.init:
             lg = self.get_lg(agent)
-            self.sample_new_frontiers_and_add_to_krm(agent, tosgraph, lg)
+            
+            new_frontier_cells = self.sample_new_frontiers(agent, tosgraph, lg)            
+            self.add_new_frontiers_to_tosg(new_frontier_cells, lg, tosgraph, agent)
+
             agent.set_init()
-            return False
+            return BehaviorResult(False)
 
         # the goto action
         if agent.get_localization() is not next_node_pos:
             agent.move_to_pos(next_node_pos)
             self._log.debug(f"{agent.name}: moving to {next_node_pos}")
-            return True
+            return BehaviorResult(True)
         else:
             self._log.warning(f"{agent.name}: already at next node")
             self._log.warning(f"edge: {behavior_edge}")
-
-
-
-        # # the postcondition check
-        # if self.check_at_destination(agent, krm, next_node):
-        #     self._log.debug(
-        #         f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
-        #     )
-        #     # start mutate graph
-        #     krm.remove_frontier(next_node)
-        #     lg = self.get_lg(agent)
-
-        #     # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
-        #     if not self.sample_waypoint_from_pose(agent, krm):
-        #         self._log.error(f"sampling waypoint failed")
-        #         return []
-
-        #     # XXX: this is my 2nd  most expensive function, so I should try to optimize it
-        #     self.sample_new_frontiers_and_add_to_krm(agent, krm, lg)
-
-        #     # XXX: this is my 3nd expensive function, so I should try to optimize it
-        #     self.prune_frontiers(krm)
-        #     self.find_shortcuts_between_wps(lg, krm, agent)
-
-        #     self.process_world_objects(agent, krm)
-        #     # end mutate graph
-
-        #     return []
-
-        # else:
-        #     # Recovery behaviour
-        #     self._log.warning(
-        #         f"{agent.name}: did not reach destination during explore action."
-        #     )
-
-        #     # START mutate failure
-        #     tosgraph.remove_frontier(next_node)
-        #     # maintain the previous heading to stop tedious turning
-        #     agent.move_to_pos(
-        #         tosgraph.get_node_data_by_node(action_path[0][0])["pos"], agent.heading
-        #     )
-        #     agent.previous_pos = agent.get_localization()
-
-        #     self.prune_frontiers(tosgraph)
-        #     # END mutate failure
-
-        #     return []
+            return BehaviorResult(False)
 
     # TODO: move this to agent services or smth
     def process_world_objects(self, agent: AbstractAgent, krm: KRM) -> None:
@@ -163,7 +117,6 @@ class ExploreBehavior(AbstractBehavior):
         self._log.debug(f"{agent.name}: at_destination: {at_destination}")
         return at_destination
 
-    """Path Execution"""
     #############################################################################################
     def sample_waypoint_from_pose(self, agent: AbstractAgent, krm: KRM) -> bool:
         """
@@ -194,25 +147,32 @@ class ExploreBehavior(AbstractBehavior):
             agent.localize_to_waypoint(krm)
 
             return True
+
         elif len(wp_at_previous_pos_candidates) == 1:
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
             krm.add_waypoint(agent.get_localization(), wp_at_previous_pos)
             agent.localize_to_waypoint(krm)
+
             return True
 
         # agent.localize_to_waypoint(krm)
 
-    def sample_new_frontiers_and_add_to_krm(
+    def sample_new_frontiers(
         self,
         agent: AbstractAgent,
         krm: KRM,
         lg: LocalGrid,
-    ) -> None:
+    ) -> Sequence:
         new_frontier_cells = lg.los_sample_frontiers_on_cellmap(
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
             num_frontiers_to_sample=self.cfg.N_SAMPLES,
         )
         self._log.debug(f"{agent.name}: found {len(new_frontier_cells)} new frontiers")
+        
+        return new_frontier_cells
+
+
+    def add_new_frontiers_to_tosg(self, new_frontier_cells, lg, krm, agent):
         for frontier_cell in new_frontier_cells:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             krm.add_frontier(frontier_pos_global, agent.at_wp)

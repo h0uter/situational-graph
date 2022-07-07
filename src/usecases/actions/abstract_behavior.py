@@ -1,8 +1,14 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Sequence
+from src.entities.krm import KRM
+
 from src.utils.config import Config
 
-import logging
+
+class BehaviorResult:
+    def __init__(self, success: bool):
+        self.success = success
 
 
 class AbstractBehavior(ABC):
@@ -14,11 +20,9 @@ class AbstractBehavior(ABC):
         """Execute the behavior pipeline."""
 
         behavior_edge = plan[0]
-        if not self.check_preconditions(agent, tosgraph, behavior_edge):
-            return []
 
-        result = self.run(agent, tosgraph, behavior_edge)
-        if not result:
+        result = self.run_implementation(agent, tosgraph, behavior_edge)
+        if not result.success:
             plan = []
             return plan
 
@@ -32,11 +36,7 @@ class AbstractBehavior(ABC):
         return plan
 
     @abstractmethod
-    def check_preconditions(self, agent, tosgraph, behavior_edge) -> bool:
-        pass
-
-    @abstractmethod
-    def run(self, agent, tosgraph, action_path):
+    def run_implementation(self, agent, tosgraph, plan) -> BehaviorResult:
         pass
 
     @abstractmethod
@@ -54,41 +54,38 @@ class AbstractBehavior(ABC):
         pass
 
     @abstractmethod
-    def mutate_graph_failure(self, agent, tosgraph, action_path):
+    def mutate_graph_failure(self, agent, tosgraph, plan):
         """Mutate the graph according to the behavior."""
         pass
-
-
-
 
     # 1. check_preconditions(agent, edge)
     # 2. results = run()
     # 3. if check_postconditions(result, sensors)
-        # graph, plan = mutate_success(graph, plan)
-        # tasks = check_perception_scene()
+    # graph, plan = mutate_success(graph, plan)
+    # tasks = check_perception_scene()
     # else:
-        # graph, plan = mutate_failure(graph, plan)
-    
+    # graph, plan = mutate_failure(graph, plan)
+
     # return plan
 
     # these should all be methods of the behavior, so the run method is then still a wrapper for the actual behavior implementation.
 
     ## concretely for goto
     # 1. localisation at source node
-    # 2. return success 
+    # 2. return success
     # 3. check localisation matches target node.
-        # - check perception scene and instantiate new tasks through affordances
-        # pop shit uit die plan
+    # - check perception scene and instantiate new tasks through affordances
+    # pop shit uit die plan
 
     ## concretely for explore
     # 1. localisation at source node
     # 2. return {frontiers, new world objects}
     # 3. check localisation matches target node, (check frontiers are valid with current local grid.)
-        # - remove current frontier and replace with wp
-        # - check perception scene and instantiate new tasks through affordances
+    # - remove current frontier and replace with wp
+    # - check perception scene and instantiate new tasks through affordances
 
     ## concretely for assess/inspect/whatever
     # 1. localisation at source node
     # 2. return {data collected}
     # 3. check localisation matches source node, (check data collected matches goal of behavior) (ex. picture contains class of object interested in.)
-        # - mark world object completed, mark task completed.
+    # - mark world object completed, mark task completed.

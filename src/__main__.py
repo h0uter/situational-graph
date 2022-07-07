@@ -32,6 +32,7 @@ def init_entities(cfg: Config):
 
     krm = KRM(cfg, start_poses=[agent.pos for agent in agents])
     usecases = [SARMission(cfg) for i in range(cfg.NUM_AGENTS)]
+    tasks = []
 
     VizualisationListener(cfg).setup_event_handler()
 
