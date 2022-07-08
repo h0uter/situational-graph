@@ -1,6 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from src.entities.plan import Plan
 
 from src.entities.static_data.affordances import AFFORDANCES
 from src.entities.tosg import TOSG
@@ -18,7 +19,7 @@ class AbstractBehavior(ABC):
         self.cfg = cfg
         self._log = logging.getLogger(__name__)
 
-    def execute_pipeline(self, agent, tosg: TOSG, plan) -> BehaviorResult:
+    def execute_pipeline(self, agent, tosg: TOSG, plan: Plan) -> BehaviorResult:
         """Execute the behavior pipeline."""
 
         # FIXME: make this use just the edge and present a result.
@@ -45,11 +46,11 @@ class AbstractBehavior(ABC):
         return result
 
     @abstractmethod
-    def run_implementation(self, agent, tosgraph, plan) -> BehaviorResult:
+    def run_implementation(self, agent, tosgraph: TOSG, plan: Plan) -> BehaviorResult:
         pass
 
     @abstractmethod
-    def check_postconditions(self, agent, tosgraph, result, plan) -> bool:
+    def check_postconditions(self, agent, tosgraph: TOSG, result, plan: Plan) -> bool:
         """Check if the postconditions for the behavior are met."""
         pass
 
@@ -58,12 +59,12 @@ class AbstractBehavior(ABC):
     #     pass
 
     @abstractmethod
-    def mutate_graph_and_tasks_success(self, agent, tosgraph, next_node, affordances):
+    def mutate_graph_and_tasks_success(self, agent, tosgraph: TOSG, next_node, affordances):
         """Mutate the graph according to the behavior."""
         pass
 
     @abstractmethod
-    def mutate_graph_and_tasks_failure(self, agent, tosgraph, plan):
+    def mutate_graph_and_tasks_failure(self, agent, tosgraph: TOSG, plan: Plan):
         """Mutate the graph according to the behavior."""
         pass
 

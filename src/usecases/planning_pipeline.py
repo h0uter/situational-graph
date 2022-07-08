@@ -17,6 +17,7 @@ class Planner:
     def __init__(self, cfg: Config, tosg: TOSG, agent) -> None:
         self.cfg = cfg
         self.completed = False  # TODO: remove this
+        # TODO: move the plan to the agent.
         self.plan: Optional[Plan]
         self._log = logging.getLogger(__name__)
 
