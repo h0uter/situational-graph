@@ -8,8 +8,8 @@ class Plan:
 
     #FIXME: make the plan be something that is generated and discarded.
     # make it destroy itself when it is empty or something fails.
-    def __init__(self) -> None:
-        self._edge_sequence = []
+    def __init__(self, edge_sequence) -> None:
+        self._edge_sequence = edge_sequence
         self.valid = False
 
     def invalidate(self) -> None:

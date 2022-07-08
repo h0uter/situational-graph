@@ -40,18 +40,19 @@ class TOSG:
         """checks if the given node exists in the graph"""
         return node in self.graph.nodes
 
-    def shortest_path(self, source: Node, target: Node):
-        path = nx.shortest_path(
+    def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
+        path_of_nodes = nx.shortest_path(
             self.graph,
             source=source,
             target=target,
             weight="cost",
             method=self.cfg.PATH_FINDING_METHOD,
         )
-        if len(path) > 1:
-            return path
+        if len(path_of_nodes) > 1:
+            return self.node_list_to_edge_list(path_of_nodes)
         else:
-            self._log.error(f": No path found from {source} to {target}.")
+            self._log.error(f"shortest_path: No path found from {source} to {target}.")
+            return None
 
     def shortest_path_len(self, source: Node, target: Node):
         # TODO: use the reconstruct path function

@@ -2,12 +2,13 @@ from dataclasses import dataclass
 from typing import Protocol
 from uuid import UUID, uuid4
 from src.entities.static_data.objective import Objective
-from src.utils.my_types import Edge
+from src.utils.my_types import Edge, Node
 
 
 class TOSG(Protocol):
     def get_edge_by_UUID(self, uuid) -> Edge:
         pass
+
 
 @dataclass
 class Task:
@@ -22,7 +23,11 @@ class Task:
     def get_edge(self, tosg: TOSG) -> Edge:
         return tosg.get_edge_by_UUID(self.edge_uuid)
 
-    def get_target_node(self, tosg: TOSG):
+    def get_target_node(self, tosg: TOSG) -> Node:
         edge = self.get_edge(tosg)
         if edge:
             return edge[1]
+        else:
+            # BUG: this often happens
+            # raise ValueError("Edge not found")
+            return None

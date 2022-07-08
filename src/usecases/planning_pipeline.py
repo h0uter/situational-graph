@@ -35,7 +35,7 @@ class Planner:
     def __init__(self, cfg: Config, tosg: TOSG, agent) -> None:
         self.cfg = cfg
         self.completed = False
-        self.plan: Plan = Plan()
+        self.plan: Optional[Plan]
         self._log = logging.getLogger(__name__)
 
         self.initialize(tosg, agent)
@@ -59,23 +59,21 @@ class Planner:
         # obtain the plan which corresponds to this edge.
         init_explore_edge = tosg.get_edge_by_UUID(agent.task.edge_uuid)
 
-        self.plan.edge_sequence = [init_explore_edge]
+        self.plan = Plan([init_explore_edge])
         self._log.debug(f"target node: {self.target_node}")
 
     # CONTEXT
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
-        """ select a task"""
-        if self.target_node is None:
+        """select a task"""
+        if not agent.task:
             agent.task = self.task_selection(agent, tosg)
 
         """ generate a plan"""
-        if not self.plan.valid:
-            target_node = agent.task.get_target_node(tosg)
-            edge_sequence = self.find_plan_for_task(agent, tosg, target_node)
-            self.plan.edge_sequence = edge_sequence
+        if not self.plan:
+            self.plan = self.find_plan_for_task(agent.at_wp, tosg, agent.task)
 
         """ execute the plan"""
-        if len(self.plan) >= 1:
+        if self.plan and len(self.plan) >= 1:
             mutated_plan = self.plan_execution(agent, tosg, self.plan.edge_sequence)
             self.plan.edge_sequence = mutated_plan
 
@@ -108,8 +106,8 @@ class Planner:
         optimal_task = None
 
         for task in tosg.tasks:
-            task_target_node = task.get_target_node(tosg)
 
+            task_target_node = task.get_target_node(tosg)
             # HACK: sometimes we get a task that does not exist anymore.
             if not task_target_node:
                 continue
@@ -131,27 +129,15 @@ class Planner:
         return optimal_task
 
     def find_plan_for_task(
-        self, agent: AbstractAgent, tosg: TOSG, target_node: Node
-    ) -> Sequence[Optional[Edge]]:
-
-        # FIXME: lets make the plan check its own validity
-        # fixme this should return a plan
+        self, agent_localized_to: Node, tosg: TOSG, task: Task
+    ) -> Optional[Plan]:
+        target_node = task.get_target_node(tosg)
         if not self.check_target_still_valid(tosg, target_node):
-            self._log.warning(
-                f"path_execution()::{agent.name}:: Target is no longer valid."
-            )
-            return []
+            return None
 
-        self._log.debug(f"{agent.name}: target_node: {target_node}")
-        node_path = tosg.shortest_path(agent.at_wp, target_node)  # type: ignore
+        edge_path = tosg.shortest_path(agent_localized_to, target_node)
 
-        if node_path:
-            node_path = list(node_path)
-            edge_path = tosg.node_list_to_edge_list(node_path)
-            return edge_path
-        else:
-            self._log.warning(f"{agent.name}: path_generation(): no path found")
-            return []
+        return Plan(edge_path)
 
     # this is the plan executor, maybe make it its own class.
     def plan_execution(
