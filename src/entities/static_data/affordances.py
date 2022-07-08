@@ -1,12 +1,13 @@
+from src.entities.static_data.behaviors import Behavior
 from src.entities.static_data.objective import Objective
-from src.utils.my_types import Behavior, ObjectType
+from src.entities.static_data.objects import ObjectTypes
 
 
-Affordance = tuple[ObjectType, Behavior, Objective]
+Affordance = tuple[ObjectTypes, Behavior, Objective]
 
 AFFORDANCES = [
-    (ObjectType.WAYPOINT, Behavior.GOTO, None),
-    (ObjectType.HOTSPOT, Behavior.VISIT, Objective.VISIT_ALL_HOTSPOTS),
-    (ObjectType.FRONTIER, Behavior.EXPLORE, Objective.EXPLORE_ALL_FTS),
-    (ObjectType.DOOR, Behavior.OPEN_DOOR, Objective.OPEN_ALL_DOORS),
+    (ObjectTypes.WAYPOINT, Behavior.GOTO, None),
+    (ObjectTypes.HOTSPOT, Behavior.VISIT, Objective.VISIT_ALL_HOTSPOTS),
+    (ObjectTypes.FRONTIER, Behavior.EXPLORE, Objective.EXPLORE_ALL_FTS),
+    (ObjectTypes.DOOR, Behavior.OPEN_DOOR, Objective.OPEN_ALL_DOORS),
 ]

@@ -1,5 +1,5 @@
+from src.entities.static_data.behaviors import Behavior
 from src.entities.tosg import TOSG
-from src.utils.my_types import Behavior
 import networkx as nx
 
 

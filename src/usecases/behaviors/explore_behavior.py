@@ -1,11 +1,12 @@
 from typing import Sequence
 from src.entities.abstract_agent import AbstractAgent
+from src.entities.static_data.objects import ObjectTypes
 from src.entities.tosg import TOSG
 from src.entities.local_grid import LocalGrid
 from src.usecases.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.utils.config import Config
 from src.utils.event import post_event
-from src.utils.my_types import Node, ObjectType
+from src.utils.my_types import Node
 from src.utils.saving_data_objects import load_something, save_something
 
 
@@ -121,7 +122,7 @@ class ExploreBehavior(AbstractBehavior):
         """
         print(agent.previous_pos)
         wp_at_previous_pos_candidates = tosg.get_nodes_of_type_in_margin(
-            agent.previous_pos, self.cfg.PREV_POS_MARGIN, ObjectType.WAYPOINT
+            agent.previous_pos, self.cfg.PREV_POS_MARGIN, ObjectTypes.WAYPOINT
         )
 
         if len(wp_at_previous_pos_candidates) == 0:
@@ -179,7 +180,7 @@ class ExploreBehavior(AbstractBehavior):
         for wp in waypoints:
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]
             close_frontiers = tosg.get_nodes_of_type_in_margin(
-                wp_pos, self.cfg.PRUNE_RADIUS, ObjectType.FRONTIER
+                wp_pos, self.cfg.PRUNE_RADIUS, ObjectTypes.FRONTIER
             )
             for frontier in close_frontiers:
                 tosg.remove_frontier(frontier)
@@ -189,7 +190,7 @@ class ExploreBehavior(AbstractBehavior):
         self, lg: LocalGrid, tosg: TOSG, agent: AbstractAgent
     ):
         close_nodes = tosg.get_nodes_of_type_in_margin(
-            lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, ObjectType.WAYPOINT
+            lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, ObjectTypes.WAYPOINT
         )
         shortcut_candidate_positions = []
         for node in close_nodes:

@@ -5,9 +5,11 @@ from typing import List, Optional, Sequence
 
 import networkx as nx
 from src.entities.dynamic_data.task import Task
+from src.entities.static_data.behaviors import Behavior
 from src.entities.static_data.objective import Objective
+from src.entities.static_data.objects import ObjectTypes
 from src.utils.config import Config
-from src.utils.my_types import Behavior, Edge, Node, ObjectType
+from src.utils.my_types import Edge, Node
 
 
 class TOSG:
@@ -91,7 +93,7 @@ class TOSG:
     def add_start_waypoints(self, pos: tuple) -> None:
         """adds start points to the graph"""
         self.graph.add_node(
-            self.next_wp_idx, pos=pos, type=ObjectType.WAYPOINT, id=uuid.uuid4()
+            self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid.uuid4()
         )
         self.next_wp_idx += 1
 
@@ -99,7 +101,7 @@ class TOSG:
         """adds new waypoints and increments wp the idx"""
 
         self.graph.add_node(
-            self.next_wp_idx, pos=pos, type=ObjectType.WAYPOINT, id=uuid.uuid4()
+            self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid.uuid4()
         )
 
         self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
@@ -136,7 +138,7 @@ class TOSG:
     def add_world_object(self, pos: tuple, label: str) -> None:
         """adds a world object to the graph"""
         self.graph.add_node(
-            label, pos=pos, type=ObjectType.WORLD_OBJECT, id=uuid.uuid4()
+            label, pos=pos, type=ObjectTypes.WORLD_OBJECT, id=uuid.uuid4()
         )
 
         if self.check_if_edge_exists(label, self.next_wp_idx - 1):
@@ -157,7 +159,7 @@ class TOSG:
     def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
         """adds a frontier to the graph"""
         self.graph.add_node(
-            self.next_frontier_idx, pos=pos, type=ObjectType.FRONTIER, id=uuid.uuid4()
+            self.next_frontier_idx, pos=pos, type=ObjectTypes.FRONTIER, id=uuid.uuid4()
         )
 
         edge_len = self.calc_edge_len(agent_at_wp, self.next_frontier_idx)
@@ -199,7 +201,7 @@ class TOSG:
     def remove_frontier(self, target_frontier_idx) -> None:
         """removes a frontier from the graph"""
         target_frontier = self.get_node_data_by_node(target_frontier_idx)
-        if target_frontier["type"] == ObjectType.FRONTIER:
+        if target_frontier["type"] == ObjectTypes.FRONTIER:
             self.graph.remove_node(target_frontier_idx)  # also removes the edge
 
     # TODO: this should be invalidate, so that we change its alpha or smth
@@ -207,7 +209,7 @@ class TOSG:
     def remove_world_object(self, idx) -> None:
         """removes a frontier from the graph"""
         removal_target = self.get_node_data_by_node(idx)
-        if removal_target["type"] == ObjectType.WORLD_OBJECT:
+        if removal_target["type"] == ObjectTypes.WORLD_OBJECT:
             self.graph.remove_node(idx)  # also removes the edge
 
     def get_node_by_pos(self, pos: tuple):
@@ -239,7 +241,7 @@ class TOSG:
         return [
             self.graph.nodes[node]
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == ObjectType.WAYPOINT
+            if self.graph.nodes[node]["type"] == ObjectTypes.WAYPOINT
         ]
 
     def get_all_waypoint_idxs(self) -> list:
@@ -247,7 +249,7 @@ class TOSG:
         return [
             node
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == ObjectType.WAYPOINT
+            if self.graph.nodes[node]["type"] == ObjectTypes.WAYPOINT
         ]
 
     def get_all_frontiers_idxs(self) -> list:
@@ -255,7 +257,7 @@ class TOSG:
         return [
             node
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == ObjectType.FRONTIER
+            if self.graph.nodes[node]["type"] == ObjectTypes.FRONTIER
         ]
 
     def get_all_world_object_idxs(self) -> list:
@@ -263,11 +265,11 @@ class TOSG:
         return [
             node
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == ObjectType.WORLD_OBJECT
+            if self.graph.nodes[node]["type"] == ObjectTypes.WORLD_OBJECT
         ]
 
     def get_nodes_of_type_in_margin(
-        self, pos: tuple, margin: float, node_type: ObjectType
+        self, pos: tuple, margin: float, node_type: ObjectTypes
     ) -> list:
         """
         Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.

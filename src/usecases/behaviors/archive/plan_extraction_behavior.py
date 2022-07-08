@@ -6,7 +6,7 @@ from src.entities.tosg import TOSG
 from src.usecases.behaviors.abstract_behavior import AbstractBehavior
 from src.utils.audio_feedback import play_hi_follow_me
 from src.utils.config import Config
-from src.utils.my_types import Edge, Behavior, Node
+from src.utils.my_types import Edge, Node
 
 
 class PlanExtractionBehavior(AbstractBehavior):

@@ -7,12 +7,12 @@ import numpy as np
 import vedo
 
 from src.entities.abstract_agent import AbstractAgent
+from src.entities.static_data.objects import ObjectTypes
 from src.entities.tosg import TOSG
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.usecases.planning_pipeline import Planner
 from src.utils.config import Config, PlotLvl, Scenario
-from src.utils.my_types import ObjectType
 
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
@@ -102,20 +102,20 @@ class VedoVisualisation(AbstractVizualisation):
             raw_edg = vedo.Lines(raw_lines).lw(2)
             actors.append(raw_edg)
 
-        waypoint_nodes = self.get_nodes_by_type(krm, ObjectType.WAYPOINT)
+        waypoint_nodes = self.get_nodes_by_type(krm, ObjectTypes.WAYPOINT)
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         self.wp_counter.append(len(wps))
         # waypoints = vedo.Points(wps, r=8, c="r")
         waypoints = vedo.Points(wps, r=8, c="FireBrick")
         actors.append(waypoints)
 
-        frontier_nodes = self.get_nodes_by_type(krm, ObjectType.FRONTIER)
+        frontier_nodes = self.get_nodes_by_type(krm, ObjectTypes.FRONTIER)
         fts = [pos_dict[f] for f in frontier_nodes]
         self.ft_counter.append(len(fts))
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
-        world_object_nodes = self.get_nodes_by_type(krm, ObjectType.WORLD_OBJECT)
+        world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict)
         actors = self.add_agents(agents, actors)
 

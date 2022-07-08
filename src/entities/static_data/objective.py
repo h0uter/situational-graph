@@ -1,5 +1,4 @@
-from enum import Enum, auto
-from uuid import uuid4
+from enum import Enum
 
 
 class Objective(Enum):

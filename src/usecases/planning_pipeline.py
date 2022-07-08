@@ -1,15 +1,16 @@
 import logging
-from typing import Optional, Sequence, Tuple
+from typing import Optional
 
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.dynamic_data.task import Task
 from src.entities.plan import Plan
+from src.entities.static_data.behaviors import Behavior
 from src.entities.static_data.objective import Objective
 from src.entities.tosg import TOSG
 from src.usecases.behaviors.explore_behavior import ExploreBehavior
 from src.usecases.behaviors.goto_behavior import GotoBehavior
 from src.utils.config import Config
-from src.utils.my_types import Behavior, Edge, Node
+from src.utils.my_types import Edge, Node
 
 
 class Planner:
