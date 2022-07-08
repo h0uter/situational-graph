@@ -1,14 +1,28 @@
-from uuid import uuid4
+from dataclasses import dataclass
+from typing import Protocol
+from uuid import UUID, uuid4
+from src.entities.static_data.objective import Objective
+from src.utils.my_types import Edge
 
-OBJECTIVES = {}
 
+class TOSG(Protocol):
+    def get_edge_by_UUID(self, uuid):
+        pass
 
+@dataclass
 class Task:
-    def __init__(self, edge_uuid, objective_id):
-        self.uuid = uuid4()
-        self.edge_uuid = edge_uuid
-        self.objective_id = objective_id
+    uuid = uuid4()
+    edge_uuid: UUID
+    objective_enum: Objective
 
+    @property
     def reward(self):
-        # return OBJECTIVES[self.objective_id]
-        return 100
+        return self.objective_enum.reward
+
+    def get_edge(self, tosg: TOSG) -> Edge:
+        return tosg.get_edge_by_UUID(self.edge_uuid)
+
+    def get_target_node(self, tosg: TOSG):
+        edge = self.get_edge(tosg)
+        if edge:
+            return edge[1]

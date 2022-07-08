@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 import numpy.typing as npt
 import numpy as np
 import logging
+from src.entities.dynamic_data.task import Task
 
 from src.utils.config import Config
 from src.entities.tosg import TOSG
@@ -23,6 +25,8 @@ class AbstractAgent(ABC):
         self.previous_pos = self.pos
         self.init = False
         self.assigned_victim = None
+
+        self.task: Optional[Task] = None
 
         self.steps_taken: int = 0
         self._log = logging.getLogger(__name__)
@@ -135,3 +139,6 @@ class AbstractAgent(ABC):
 
     def set_init(self):
         self.init = True
+
+    def clear_task(self):
+        self.task = None

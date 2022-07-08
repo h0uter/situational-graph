@@ -32,10 +32,17 @@ class AbstractBehavior(ABC):
             tosg = self.mutate_graph_success(
                 agent, tosg, behavior_edge[1], AFFORDANCES
             )
+            self._log.debug(f"postconditions satisfied")
+
             plan.pop(0)
         else:
+            self._log.debug(f"postconditions not satisfied")
+
             tosg = self.mutate_graph_failure(agent, tosg, behavior_edge)
             plan = []
+
+        
+        tosg.remove_invalid_tasks()
 
         return plan
 

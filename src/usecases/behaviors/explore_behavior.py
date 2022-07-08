@@ -35,6 +35,13 @@ class ExploreBehavior(AbstractBehavior):
         new_frontier_cells = self.sample_new_frontiers(agent, tosg, lg)
         self.add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
 
+        # need to track task list, this used to be just the edges, now its a separate data structure.
+        # or can do validation on tasks after each iteration.
+        # can make tasks a property of the graph, edges for which a certain condition holds.
+        # -> lets try to keep it in sync and validate it nonetheless.
+        # add tasks in the krm, not here.
+
+
         # XXX: this is my 3nd expensive function, so I should try to optimize it
         self.prune_frontiers(tosg)
         self.find_shortcuts_between_wps(lg, tosg, agent)
@@ -174,7 +181,7 @@ class ExploreBehavior(AbstractBehavior):
 
         return new_frontier_cells
 
-    def add_new_frontiers_to_tosg(self, new_frontier_cells, lg, tosg, agent):
+    def add_new_frontiers_to_tosg(self, new_frontier_cells, lg, tosg: TOSG, agent):
         for frontier_cell in new_frontier_cells:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             tosg.add_frontier(frontier_pos_global, agent.at_wp)

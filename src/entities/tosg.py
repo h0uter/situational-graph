@@ -7,6 +7,7 @@ import networkx as nx
 from src.utils.config import Config
 from src.utils.my_types import Edge, EdgeType, Node, NodeType
 from src.entities.dynamic_data.task import Task
+from src.entities.static_data.objective import Objective
 
 
 class TOSG:
@@ -109,6 +110,7 @@ class TOSG:
         """adds a waypoint edge in both direction to the graph"""
         d = {
             "type": EdgeType.GOTO_WP_EDGE,
+            "id": uuid.uuid4(),
             "cost": self.calc_edge_len(node_a, node_b),
         }
         if self.check_if_edge_exists(node_a, node_b):
@@ -168,13 +170,16 @@ class TOSG:
             )
             return
 
+        edge_uuid = uuid.uuid4()
         self.graph.add_edge(
             agent_at_wp,
             self.next_frontier_idx,
             type=EdgeType.EXPLORE_FT_EDGE,
-            id=uuid.uuid4(),
+            id=edge_uuid,
             cost=cost,
         )
+        self.tasks.append(Task(edge_uuid, Objective.EXPLORE))
+
         self.next_frontier_idx += 1
 
     def add_guide_action_edges(self, path: Sequence[Node]):
@@ -220,6 +225,8 @@ class TOSG:
         for edge in self.graph.edges(keys=True):
             if self.graph.edges[edge]["id"] == UUID:
                 return edge
+
+        # raise ValueError(f"No edge with UUID {UUID} found")
 
     def get_node_data_by_node(self, node: Node) -> dict:
         """returns the node corresponding to the given index"""
@@ -313,3 +320,9 @@ class TOSG:
             return self.graph.edges[node_a, node_b, edge_id]["type"]
         else:
             self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
+
+    def remove_invalid_tasks(self):
+        for task in self.tasks:
+            if task.edge_uuid not in [ddict["id"] for u, v, ddict in self.graph.edges(data=True)]:
+                self.tasks.remove(task)
+                print(f"removed task {task}")

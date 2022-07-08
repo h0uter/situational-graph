@@ -31,10 +31,8 @@ def init_entities(cfg: Config):
         agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
 
     tosg = TOSG(cfg, start_poses=[agent.pos for agent in agents])
-    planning_pipelines = [PlanningPipeline(cfg, tosg) for i in range(cfg.NUM_AGENTS)]
+    planning_pipelines = [PlanningPipeline(cfg, tosg, agents[i]) for i in range(cfg.NUM_AGENTS)]
     
-    tasks = []
-
     VizualisationListener(cfg).setup_event_handler()
 
     """setup"""
@@ -74,6 +72,8 @@ def run_demo(
                 break
             check_no_duplicate_wp_edges(tosg)
 
+        my_logger.debug(f"{tosg.tasks=}")
+
         """Data collection"""
         step_duration = time.perf_counter() - step_start
         tosg_stats.update(tosg, step_duration)
@@ -103,24 +103,6 @@ def run_demo(
 
     if cfg.AUDIO_FEEDBACK:
         play_file("exploration_complete.mp3")
-
-    # HACK: this makes the agent return to the start
-    for agent_idx in range(len(agents)):
-        planning_pipelines[agent_idx].plan.edge_sequence = []
-        # here we tell the agent to go back to the start
-        planning_pipelines[agent_idx].target_node = 0
-        while planning_pipelines[agent_idx].target_node is not None:
-            planning_pipelines[agent_idx].main_loop(agents[agent_idx], tosg)
-            # """Data collection"""
-            # step_duration = time.perf_counter() - step_start
-            # krm_stats.update(krm, step_duration)
-
-            """ Visualisation """
-            # my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
-            event.post_event(
-                "figure update",
-                {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
-            )
 
     event.post_event(
         "figure final result",
