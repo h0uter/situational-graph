@@ -45,7 +45,7 @@ class Planner:
         if len(self.plan) >= 1:
             return self.plan[-1][1]
         else:
-            self.plan.invalidate
+            self.plan.invalidate()
             return None
 
     def initialize(self, tosg: TOSG, agent):
@@ -74,10 +74,11 @@ class Planner:
 
         """ execute the plan"""
         if self.plan and len(self.plan) >= 1:
-            mutated_plan = self.plan_execution(agent, tosg, self.plan.edge_sequence)
-            self.plan.edge_sequence = mutated_plan
+            # mutated_plan = self.plan_execution(agent, tosg, self.plan.edge_sequence)
+            self.plan = self.plan_execution(agent, tosg, self.plan)
+            # self.plan.edge_sequence = mutated_plan
 
-            if len(mutated_plan) == 0:
+            if self.plan and len(self.plan) == 0:
                 self.destroy_task(agent, tosg)
 
         """check completion of mission"""
@@ -142,39 +143,35 @@ class Planner:
 
     # this is the plan executor, maybe make it its own class.
     def plan_execution(
-        self, agent: AbstractAgent, tosg: TOSG, edge_path: Sequence[Edge]
-    ) -> Sequence[Optional[Edge]]:
+        self, agent: AbstractAgent, tosg: TOSG, plan: Plan
+    ) -> Optional[Plan]:
 
-        # FIXME: this should be a method of the plan
-        if not self.check_target_still_valid(tosg, self.target_node):
-            self._log.warning(
-                f"path_execution()::{agent.name}:: Target is no longer valid."
-            )
-            self.destroy_task(agent, tosg)
+        if not plan.validate(tosg):
+            return None
 
-            return []
+        # current_edge_type = tosg.get_behavior_of_edge(edge_path[0])
+        current_edge_type = plan.next_behavior(tosg)
 
-        current_edge_type = tosg.get_behavior_of_edge(edge_path[0])
         if current_edge_type == Behavior.EXPLORE_FT_EDGE:
             '''exploration'''
             edge_path = ExploreBehavior(self.cfg).execute_pipeline(
-                agent, tosg, edge_path
+                agent, tosg, plan.edge_sequence
             )
             self.destroy_task(agent, tosg)
-            return []
+            return None
 
         elif current_edge_type == Behavior.GOTO_WP_EDGE:
             '''goto'''
-            edge_path = GotoBehavior(self.cfg).execute_pipeline(agent, tosg, edge_path)
+            edge_path = GotoBehavior(self.cfg).execute_pipeline(agent, tosg, plan.edge_sequence)
             if len(edge_path) < 1:
                 self.destroy_task(agent, tosg)
 
-                return []
+                return None
             else:
                 # TODO: here we should execute the plan as a method of the plan.
-                return edge_path
+                return Plan(edge_path)
 
-        return edge_path
+        # return Plan(edge_path)
 
     def check_if_tasks_exhausted(self, tosg: TOSG) -> bool:
         num_of_frontiers = len(tosg.get_all_frontiers_idxs())

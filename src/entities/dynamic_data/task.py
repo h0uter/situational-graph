@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Optional, Protocol
 from uuid import UUID, uuid4
 from src.entities.static_data.objective import Objective
 from src.utils.my_types import Edge, Node

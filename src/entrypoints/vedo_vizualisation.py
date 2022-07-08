@@ -152,7 +152,8 @@ class VedoVisualisation(AbstractVizualisation):
         action_path_offset = self.factor * 5
 
         for mission in usecases:
-            if mission.plan.valid:
+            # if mission.plan.valid:
+            if mission.plan:
                 action_path = mission.plan.edge_sequence
 
                 # HACK TO fix crash caused by frontier already being removed from krm by one agent in final step
