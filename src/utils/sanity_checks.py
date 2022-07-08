@@ -10,7 +10,7 @@ def check_no_duplicate_wp_edges(krm: TOSG):
     G = krm.graph
 
     def filter_wp_edge(n1, n2, n3):
-        return G.edges[n1, n2, n3]["type"] == Behavior.GOTO_WP_EDGE
+        return G.edges[n1, n2, n3]["type"] == Behavior.GOTO
 
     view = nx.subgraph_view(G, filter_edge=filter_wp_edge)
 

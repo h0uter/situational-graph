@@ -50,7 +50,7 @@ class Planner:
 
     def initialize(self, tosg: TOSG, agent):
         # Add an explore self edge on the start node to ensure a exploration sampling action
-        edge_uuid = tosg.add_my_edge(0, 0, Behavior.EXPLORE_FT_EDGE)
+        edge_uuid = tosg.add_my_edge(0, 0, Behavior.EXPLORE)
         tosg.tasks.append(Task(edge_uuid, Objective.EXPLORE))
 
         # spoof the task selection, just select the first one.
@@ -74,9 +74,7 @@ class Planner:
 
         """ execute the plan"""
         if self.plan and len(self.plan) >= 1:
-            # mutated_plan = self.plan_execution(agent, tosg, self.plan.edge_sequence)
             self.plan = self.plan_execution(agent, tosg, self.plan)
-            # self.plan.edge_sequence = mutated_plan
 
             if self.plan and len(self.plan) == 0:
                 self.destroy_task(agent, tosg)
@@ -132,7 +130,7 @@ class Planner:
     def find_plan_for_task(
         self, agent_localized_to: Node, tosg: TOSG, task: Task
     ) -> Optional[Plan]:
-        
+
         target_node = task.get_target_node(tosg)
         if not self.check_target_still_valid(tosg, target_node):
             return None
@@ -149,31 +147,34 @@ class Planner:
         if not plan.validate(tosg):
             return None
 
-        # current_edge_type = tosg.get_behavior_of_edge(edge_path[0])
-        current_edge_type = plan.next_behavior(tosg)
+        behavior_of_current_edge = plan.pop_behavior(tosg)
 
-        if current_edge_type == Behavior.EXPLORE_FT_EDGE:
-            '''exploration'''
+        # FIXME: this needs to be setup to handle an arbitrary number of edges.
+        # like using a strategy pattern or something
+        if behavior_of_current_edge == Behavior.EXPLORE:
+            """exploration"""
             edge_path = ExploreBehavior(self.cfg).execute_pipeline(
                 agent, tosg, plan.edge_sequence
             )
             self.destroy_task(agent, tosg)
             return None
 
-        elif current_edge_type == Behavior.GOTO_WP_EDGE:
-            '''goto'''
-            edge_path = GotoBehavior(self.cfg).execute_pipeline(agent, tosg, plan.edge_sequence)
+        elif behavior_of_current_edge == Behavior.GOTO:
+            """goto"""
+            edge_path = GotoBehavior(self.cfg).execute_pipeline(
+                agent, tosg, plan.edge_sequence
+            )
+            # these checks should not be done here
             if len(edge_path) < 1:
                 self.destroy_task(agent, tosg)
 
                 return None
             else:
-                # TODO: here we should execute the plan as a method of the plan.
                 return Plan(edge_path)
-
-        # return Plan(edge_path)
+    
 
     def check_if_tasks_exhausted(self, tosg: TOSG) -> bool:
+        # HACK: we just check the fronteirs, not the tasks.
         num_of_frontiers = len(tosg.get_all_frontiers_idxs())
         if num_of_frontiers < 1:
             return True
@@ -186,14 +187,14 @@ class Planner:
     ############################################################################################
 
     # FIXME: task selector, needs to use list of tasks
-    def evaluate_potential_targets_based_on_path_cost(
-        self, agent: AbstractAgent, target_idxs: list, tosg: TOSG
+    def evaluate_potential_target_nodes_based_on_path_cost(
+        self, agent: AbstractAgent, target_nodes: list[Node], tosg: TOSG
     ) -> Optional[Node]:
 
         shortest_path_len = float("inf")
         selected_target_idx: Optional[Node] = None
 
-        for target_idx in target_idxs:
+        for target_idx in target_nodes:
             candidate_path_len: float = tosg.shortest_path_len(agent.at_wp, target_idx)  # type: ignore
 
             if candidate_path_len < shortest_path_len and candidate_path_len != 0:
@@ -203,6 +204,6 @@ class Planner:
         if not selected_target_idx:
             return
 
-        assert selected_target_idx is not None
+        # assert selected_target_idx is not None
 
         return selected_target_idx

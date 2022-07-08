@@ -37,7 +37,7 @@ class TOSGStats:
                     e
                     # for e in krm.graph.edges()
                     for e in krm.graph.edges
-                    if krm.graph.edges[e]["type"] == Behavior.GOTO_WP_EDGE
+                    if krm.graph.edges[e]["type"] == Behavior.GOTO
                 ]
             )
         )

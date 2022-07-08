@@ -124,12 +124,12 @@ class MplVizualisation(AbstractVizualisation):
         waypoint_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == Behavior.GOTO_WP_EDGE
+            if d["type"] == Behavior.GOTO
         )
         frontier_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == Behavior.EXPLORE_FT_EDGE
+            if d["type"] == Behavior.EXPLORE
         )
 
         """draw the nodes, edges and labels separately"""

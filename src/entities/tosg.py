@@ -108,7 +108,7 @@ class TOSG:
     def add_waypoint_diedge(self, node_a, node_b) -> None:
         """adds a waypoint edge in both direction to the graph"""
         d = {
-            "type": Behavior.GOTO_WP_EDGE,
+            "type": Behavior.GOTO,
             "id": uuid.uuid4(),
             "cost": self.calc_edge_len(node_a, node_b),
         }
@@ -174,7 +174,7 @@ class TOSG:
         self.graph.add_edge(
             agent_at_wp,
             self.next_frontier_idx,
-            type=Behavior.EXPLORE_FT_EDGE,
+            type=Behavior.EXPLORE,
             id=edge_uuid,
             cost=cost,
         )

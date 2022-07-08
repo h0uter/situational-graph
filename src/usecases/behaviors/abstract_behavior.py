@@ -1,11 +1,10 @@
 import logging
 from abc import ABC, abstractmethod
 from typing import Sequence
+from src.entities.static_data.affordances import AFFORDANCES
 from src.entities.tosg import TOSG
 
 from src.utils.config import Config
-
-AFFORDANCES = {}
 
 
 class BehaviorResult:
@@ -21,6 +20,7 @@ class AbstractBehavior(ABC):
     def execute_pipeline(self, agent, tosg: TOSG, plan) -> Sequence:
         """Execute the behavior pipeline."""
 
+        # FIXME: make this use just the edge and present a result.
         behavior_edge = plan[0]
 
         result = self.run_implementation(agent, tosg, behavior_edge)
@@ -29,9 +29,7 @@ class AbstractBehavior(ABC):
             return plan
 
         if self.check_postconditions(agent, tosg, result, plan):
-            tosg = self.mutate_graph_success(
-                agent, tosg, behavior_edge[1], AFFORDANCES
-            )
+            tosg = self.mutate_graph_success(agent, tosg, behavior_edge[1], AFFORDANCES)
             self._log.debug(f"postconditions satisfied")
 
             plan.pop(0)
@@ -41,7 +39,6 @@ class AbstractBehavior(ABC):
             tosg = self.mutate_graph_failure(agent, tosg, behavior_edge)
             plan = []
 
-        
         tosg.remove_invalid_tasks()
 
         return plan

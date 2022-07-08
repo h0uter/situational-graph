@@ -7,7 +7,7 @@ class Plan:
     _edge_sequence: Sequence[Optional[Edge]]
     valid: bool
 
-    #FIXME: make the plan be something that is generated and discarded.
+    # FIXME: make the plan be something that is generated and discarded.
     # make it destroy itself when it is empty or something fails.
     def __init__(self, edge_sequence: Sequence[Optional[Edge]]) -> None:
         self._edge_sequence = edge_sequence
@@ -36,7 +36,7 @@ class Plan:
         else:
             self.invalidate()
 
-    def next_behavior(self, tosg: TOSG) -> Behavior:
+    def pop_behavior(self, tosg: TOSG) -> Behavior:
         if self.edge_sequence:
             # return self._edge_sequence[0]
             return tosg.get_behavior_of_edge(self._edge_sequence[0])
