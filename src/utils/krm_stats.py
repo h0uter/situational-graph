@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
 
-from src.utils.my_types import NodeType, Behavior
+from src.utils.my_types import ObjectType, Behavior
 from src.utils.saving_data_objects import load_something, save_something
 
 
@@ -27,7 +27,7 @@ class TOSGStats:
                 [
                     n
                     for n in krm.graph.nodes()
-                    if krm.graph.nodes[n]["type"] == NodeType.WAYPOINT
+                    if krm.graph.nodes[n]["type"] == ObjectType.WAYPOINT
                 ]
             )
         )
@@ -46,7 +46,7 @@ class TOSGStats:
                 [
                     n
                     for n in krm.graph.nodes()
-                    if krm.graph.nodes[n]["type"] == NodeType.FRONTIER
+                    if krm.graph.nodes[n]["type"] == ObjectType.FRONTIER
                 ]
             )
         )
@@ -55,7 +55,7 @@ class TOSGStats:
                 [
                     n
                     for n in krm.graph.nodes()
-                    if krm.graph.nodes[n]["type"] == NodeType.WORLD_OBJECT
+                    if krm.graph.nodes[n]["type"] == ObjectType.WORLD_OBJECT
                 ]
             )
         )

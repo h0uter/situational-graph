@@ -19,10 +19,12 @@ class GotoBehavior(AbstractBehavior):
         """Check if the postconditions for the behavior are met."""
         return True
 
-    def mutate_graph_success(self, agent, tosgraph, next_node, affordances) -> Sequence:
+    def mutate_graph_and_tasks_success(self, agent, tosgraph, next_node, affordances):
         """Mutate the graph according to the behavior."""
-        return tosgraph
+        # return tosgraph
+        pass
 
-    def mutate_graph_failure(self, agent, tosgraph, behavior_edge) -> Sequence:
+    def mutate_graph_and_tasks_failure(self, agent, tosgraph, behavior_edge):
         """Mutate the graph according to the behavior."""
-        return tosgraph
+        # return tosgraph
+        pass

@@ -1,15 +1,16 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Sequence
+from dataclasses import dataclass
+
 from src.entities.static_data.affordances import AFFORDANCES
 from src.entities.tosg import TOSG
-
 from src.utils.config import Config
 
 
+@dataclass
 class BehaviorResult:
-    def __init__(self, success: bool):
-        self.success = success
+    success: bool
+    # can_task_be_cleared: bool
 
 
 class AbstractBehavior(ABC):
@@ -17,31 +18,31 @@ class AbstractBehavior(ABC):
         self.cfg = cfg
         self._log = logging.getLogger(__name__)
 
-    def execute_pipeline(self, agent, tosg: TOSG, plan) -> Sequence:
+    def execute_pipeline(self, agent, tosg: TOSG, plan) -> BehaviorResult:
         """Execute the behavior pipeline."""
 
         # FIXME: make this use just the edge and present a result.
         behavior_edge = plan[0]
 
         result = self.run_implementation(agent, tosg, behavior_edge)
+
         if not result.success:
-            plan = []
-            return plan
+            return result
 
         if self.check_postconditions(agent, tosg, result, plan):
-            tosg = self.mutate_graph_success(agent, tosg, behavior_edge[1], AFFORDANCES)
             self._log.debug(f"postconditions satisfied")
-
-            plan.pop(0)
+            # TODO: make it actually mutate tasks
+            self.mutate_graph_and_tasks_success(
+                agent, tosg, behavior_edge[1], AFFORDANCES
+            )
         else:
+            # TODO: make it actually mutate tasks
             self._log.debug(f"postconditions not satisfied")
-
-            tosg = self.mutate_graph_failure(agent, tosg, behavior_edge)
-            plan = []
+            self.mutate_graph_and_tasks_failure(agent, tosg, behavior_edge)
 
         tosg.remove_invalid_tasks()
 
-        return plan
+        return result
 
     @abstractmethod
     def run_implementation(self, agent, tosgraph, plan) -> BehaviorResult:
@@ -57,12 +58,12 @@ class AbstractBehavior(ABC):
     #     pass
 
     @abstractmethod
-    def mutate_graph_success(self, agent, tosgraph, next_node, affordances):
+    def mutate_graph_and_tasks_success(self, agent, tosgraph, next_node, affordances):
         """Mutate the graph according to the behavior."""
         pass
 
     @abstractmethod
-    def mutate_graph_failure(self, agent, tosgraph, plan):
+    def mutate_graph_and_tasks_failure(self, agent, tosgraph, plan):
         """Mutate the graph according to the behavior."""
         pass
 

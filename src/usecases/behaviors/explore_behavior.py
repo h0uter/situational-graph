@@ -5,7 +5,7 @@ from src.entities.local_grid import LocalGrid
 from src.usecases.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.utils.config import Config
 from src.utils.event import post_event
-from src.utils.my_types import Node, NodeType
+from src.utils.my_types import Node, ObjectType
 from src.utils.saving_data_objects import load_something, save_something
 
 
@@ -18,7 +18,7 @@ class ExploreBehavior(AbstractBehavior):
         next_node = plan[0][1]
         return self.check_at_destination(agent, tosg, next_node)
 
-    def mutate_graph_success(self, agent, tosg, next_node, affordances):
+    def mutate_graph_and_tasks_success(self, agent, tosg, next_node, affordances):
         self._log.debug(
             f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
         )
@@ -29,18 +29,11 @@ class ExploreBehavior(AbstractBehavior):
         # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
         if not self.sample_waypoint_from_pose(agent, tosg):
             self._log.error("sampling waypoint failed")
-            return []
+            # return []
 
         # XXX: this is my 2nd  most expensive function, so I should try to optimize it
         new_frontier_cells = self.sample_new_frontiers(agent, tosg, lg)
         self.add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
-
-        # need to track task list, this used to be just the edges, now its a separate data structure.
-        # or can do validation on tasks after each iteration.
-        # can make tasks a property of the graph, edges for which a certain condition holds.
-        # -> lets try to keep it in sync and validate it nonetheless.
-        # add tasks in the krm, not here.
-
 
         # XXX: this is my 3nd expensive function, so I should try to optimize it
         self.prune_frontiers(tosg)
@@ -48,11 +41,7 @@ class ExploreBehavior(AbstractBehavior):
 
         self.process_world_objects(agent, tosg)
 
-        # TODO: add a function which adds the new frontiers as tasks
-
-        return tosg
-
-    def mutate_graph_failure(self, agent, tosg, behavior_edge):
+    def mutate_graph_and_tasks_failure(self, agent, tosg, behavior_edge):
         # Recovery behaviour
         self._log.warning(
             f"{agent.name}: did not reach destination during explore action."
@@ -68,8 +57,6 @@ class ExploreBehavior(AbstractBehavior):
 
         # this is the actual mutation of the grpah on failure
         self.prune_frontiers(tosg)
-
-        return tosg
 
     def run_implementation(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge
@@ -134,7 +121,7 @@ class ExploreBehavior(AbstractBehavior):
         """
         print(agent.previous_pos)
         wp_at_previous_pos_candidates = tosg.get_nodes_of_type_in_margin(
-            agent.previous_pos, self.cfg.PREV_POS_MARGIN, NodeType.WAYPOINT
+            agent.previous_pos, self.cfg.PREV_POS_MARGIN, ObjectType.WAYPOINT
         )
 
         if len(wp_at_previous_pos_candidates) == 0:
@@ -192,7 +179,7 @@ class ExploreBehavior(AbstractBehavior):
         for wp in waypoints:
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]
             close_frontiers = tosg.get_nodes_of_type_in_margin(
-                wp_pos, self.cfg.PRUNE_RADIUS, NodeType.FRONTIER
+                wp_pos, self.cfg.PRUNE_RADIUS, ObjectType.FRONTIER
             )
             for frontier in close_frontiers:
                 tosg.remove_frontier(frontier)
@@ -202,7 +189,7 @@ class ExploreBehavior(AbstractBehavior):
         self, lg: LocalGrid, tosg: TOSG, agent: AbstractAgent
     ):
         close_nodes = tosg.get_nodes_of_type_in_margin(
-            lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, NodeType.WAYPOINT
+            lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, ObjectType.WAYPOINT
         )
         shortcut_candidate_positions = []
         for node in close_nodes:

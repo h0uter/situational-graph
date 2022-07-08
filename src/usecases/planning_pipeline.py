@@ -12,25 +12,6 @@ from src.utils.config import Config
 from src.utils.my_types import Behavior, Edge, Node
 
 
-def select_optimal_task(
-    agent: AbstractAgent, tosgraph: TOSG, tasks: Sequence[Task]
-) -> Optional[Task]:
-    # this should be a method of the agent
-    pass
-
-
-def find_plan(agent: AbstractAgent, tosgraph: TOSG, task: Task) -> Plan:
-    """Find a plan for the agent."""
-    pass
-
-
-def execute_edge(
-    agent: AbstractAgent, tosgraph: TOSG, plan: Plan, tasks: Sequence[Task]
-) -> Tuple[Plan, Sequence[Task]]:
-    """Execute the plan."""
-    pass
-
-
 class Planner:
     def __init__(self, cfg: Config, tosg: TOSG, agent) -> None:
         self.cfg = cfg
@@ -51,7 +32,7 @@ class Planner:
     def initialize(self, tosg: TOSG, agent):
         # Add an explore self edge on the start node to ensure a exploration sampling action
         edge_uuid = tosg.add_my_edge(0, 0, Behavior.EXPLORE)
-        tosg.tasks.append(Task(edge_uuid, Objective.EXPLORE))
+        tosg.tasks.append(Task(edge_uuid, Objective.EXPLORE_ALL_FTS))
 
         # spoof the task selection, just select the first one.
         agent.task = tosg.tasks[0]
@@ -147,31 +128,37 @@ class Planner:
         if not plan.validate(tosg):
             return None
 
-        behavior_of_current_edge = plan.pop_behavior(tosg)
+        behavior_of_current_edge = plan.upcoming_behavior(tosg)
 
         # FIXME: this needs to be setup to handle an arbitrary number of edges.
         # like using a strategy pattern or something
         if behavior_of_current_edge == Behavior.EXPLORE:
             """exploration"""
-            edge_path = ExploreBehavior(self.cfg).execute_pipeline(
+            result = ExploreBehavior(self.cfg).execute_pipeline(
                 agent, tosg, plan.edge_sequence
             )
-            self.destroy_task(agent, tosg)
-            return None
+            self._log.debug(f"exploration result: {result}")
+            # self.destroy_task(agent, tosg)
+            # return result
 
         elif behavior_of_current_edge == Behavior.GOTO:
             """goto"""
-            edge_path = GotoBehavior(self.cfg).execute_pipeline(
+            result = GotoBehavior(self.cfg).execute_pipeline(
                 agent, tosg, plan.edge_sequence
             )
-            # these checks should not be done here
-            if len(edge_path) < 1:
-                self.destroy_task(agent, tosg)
+            self._log.debug(f"goto result: {result}")
 
+        # FIXME: this can be shorter
+        if result.success:
+            self._log.debug(f"the plan is {plan}")
+            plan.mutate()
+            if len(plan) == 0:
+                self.destroy_task(agent, tosg)
                 return None
-            else:
-                return Plan(edge_path)
-    
+            return plan
+        else:
+            self.destroy_task(agent, tosg)
+            return None
 
     def check_if_tasks_exhausted(self, tosg: TOSG) -> bool:
         # HACK: we just check the fronteirs, not the tasks.

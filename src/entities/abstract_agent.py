@@ -7,7 +7,7 @@ from src.entities.dynamic_data.task import Task
 
 from src.utils.config import Config
 from src.entities.tosg import TOSG
-from src.utils.my_types import Node, NodeType
+from src.utils.my_types import Node, ObjectType
 
 
 class AbstractAgent(ABC):
@@ -102,7 +102,7 @@ class AbstractAgent(ABC):
     # perhaps something like this should go into robot services, to not murk the dependencies.
     def localize_to_waypoint(self, krm: TOSG):
         loc_candidates = krm.get_nodes_of_type_in_margin(
-            self.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
+            self.get_localization(), self.cfg.AT_WP_MARGIN, ObjectType.WAYPOINT
         )
 
         if len(loc_candidates) == 0:

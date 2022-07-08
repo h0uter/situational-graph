@@ -1,6 +1,7 @@
 from typing import Optional, Sequence
+
 from src.entities.tosg import TOSG
-from src.utils.my_types import Edge, Behavior, Node
+from src.utils.my_types import Behavior, Edge, Node
 
 
 class Plan:
@@ -36,7 +37,7 @@ class Plan:
         else:
             self.invalidate()
 
-    def pop_behavior(self, tosg: TOSG) -> Behavior:
+    def upcoming_behavior(self, tosg: TOSG) -> Behavior:
         if self.edge_sequence:
             # return self._edge_sequence[0]
             return tosg.get_behavior_of_edge(self._edge_sequence[0])
@@ -49,5 +50,5 @@ class Plan:
     def __getitem__(self, index: int) -> Optional[Edge]:
         return self.edge_sequence[index]
 
-    def execute_step(self, edge: Edge) -> None:
+    def mutate(self) -> None:
         self.edge_sequence.pop(0)
