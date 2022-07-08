@@ -1,5 +1,5 @@
 from typing import Optional, Sequence
-from src.entities.static_data.behaviors import Behavior
+from src.entities.static_data.behaviors import Behaviors
 
 from src.entities.tosg import TOSG
 from src.utils.my_types import Edge, Node
@@ -38,7 +38,7 @@ class Plan:
         else:
             self.invalidate()
 
-    def upcoming_behavior(self, tosg: TOSG) -> Behavior:
+    def upcoming_behavior(self, tosg: TOSG) -> Behaviors:
         if self.edge_sequence:
             # return self._edge_sequence[0]
             return tosg.get_behavior_of_edge(self._edge_sequence[0])

@@ -5,9 +5,9 @@ from typing import List, Optional, Sequence
 
 import networkx as nx
 from src.entities.dynamic_data.task import Task
-from src.entities.static_data.behaviors import Behavior
-from src.entities.static_data.objective import Objective
-from src.entities.static_data.objects import ObjectTypes
+from src.entities.static_data.behaviors import Behaviors
+from src.entities.static_data.objectives import Objectives
+from src.entities.static_data.object_types import ObjectTypes
 from src.utils.config import Config
 from src.utils.my_types import Edge, Node
 
@@ -110,7 +110,7 @@ class TOSG:
     def add_waypoint_diedge(self, node_a, node_b) -> None:
         """adds a waypoint edge in both direction to the graph"""
         d = {
-            "type": Behavior.GOTO,
+            "type": Behaviors.GOTO,
             "id": uuid.uuid4(),
             "cost": self.calc_edge_len(node_a, node_b),
         }
@@ -151,7 +151,7 @@ class TOSG:
         self.graph.add_edge(
             self.next_wp_idx - 1,
             label,
-            type=Behavior.PLAN_EXTRACTION_WO_EDGE,
+            type=Behaviors.PLAN_EXTRACTION_WO_EDGE,
             id=uuid.uuid4(),
             cost=-100,
         )
@@ -178,11 +178,11 @@ class TOSG:
         self.graph.add_edge(
             agent_at_wp,
             self.next_frontier_idx,
-            type=Behavior.EXPLORE,
+            type=Behaviors.EXPLORE,
             id=edge_uuid,
             cost=cost,
         )
-        self.tasks.append(Task(edge_uuid, Objective.EXPLORE_ALL_FTS))
+        self.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
 
         self.next_frontier_idx += 1
 
@@ -193,7 +193,7 @@ class TOSG:
             self.graph.add_edge(
                 path[i],
                 path[i + 1],
-                type=Behavior.GUIDE_WP_EDGE,
+                type=Behaviors.GUIDE_WP_EDGE,
                 id=uuid.uuid4(),
                 cost=0,
             )
@@ -311,7 +311,7 @@ class TOSG:
 
         return node_a, node_b, key_of_edge_with_min_cost
 
-    def get_behavior_of_edge(self, edge: Edge) -> Optional[Behavior]:
+    def get_behavior_of_edge(self, edge: Edge) -> Optional[Behaviors]:
         """returns the type of the edge between two nodes"""
         if len(edge) == 2:
             # return self.graph.edges[edge]["type"]

@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 
-class Behavior(Enum):
+class Behaviors(Enum):
     GOTO = auto()
     EXPLORE = auto()
     VISIT = auto()

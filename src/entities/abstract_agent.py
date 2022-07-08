@@ -4,7 +4,7 @@ import numpy.typing as npt
 import numpy as np
 import logging
 from src.entities.dynamic_data.task import Task
-from src.entities.static_data.objects import ObjectTypes
+from src.entities.static_data.object_types import ObjectTypes
 
 from src.utils.config import Config
 from src.entities.tosg import TOSG

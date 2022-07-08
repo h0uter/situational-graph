@@ -4,8 +4,8 @@ from typing import Optional
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.dynamic_data.task import Task
 from src.entities.plan import Plan
-from src.entities.static_data.behaviors import Behavior
-from src.entities.static_data.objective import Objective
+from src.entities.static_data.behaviors import Behaviors
+from src.entities.static_data.objectives import Objectives
 from src.entities.tosg import TOSG
 from src.usecases.behaviors.explore_behavior import ExploreBehavior
 from src.usecases.behaviors.goto_behavior import GotoBehavior
@@ -32,8 +32,8 @@ class Planner:
 
     def initialize(self, tosg: TOSG, agent):
         # Add an explore self edge on the start node to ensure a exploration sampling action
-        edge_uuid = tosg.add_my_edge(0, 0, Behavior.EXPLORE)
-        tosg.tasks.append(Task(edge_uuid, Objective.EXPLORE_ALL_FTS))
+        edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
+        tosg.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
 
         # spoof the task selection, just select the first one.
         agent.task = tosg.tasks[0]
@@ -133,7 +133,7 @@ class Planner:
 
         # FIXME: this needs to be setup to handle an arbitrary number of edges.
         # like using a strategy pattern or something
-        if behavior_of_current_edge == Behavior.EXPLORE:
+        if behavior_of_current_edge == Behaviors.EXPLORE:
             """exploration"""
             result = ExploreBehavior(self.cfg).execute_pipeline(
                 agent, tosg, plan.edge_sequence
@@ -142,7 +142,7 @@ class Planner:
             # self.destroy_task(agent, tosg)
             # return result
 
-        elif behavior_of_current_edge == Behavior.GOTO:
+        elif behavior_of_current_edge == Behaviors.GOTO:
             """goto"""
             result = GotoBehavior(self.cfg).execute_pipeline(
                 agent, tosg, plan.edge_sequence

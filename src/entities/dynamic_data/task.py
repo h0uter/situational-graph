@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, Protocol
 from uuid import UUID, uuid4
-from src.entities.static_data.objective import Objective
+from src.entities.static_data.objectives import Objectives
 from src.utils.my_types import Edge, Node
 
 
@@ -14,7 +14,7 @@ class TOSG(Protocol):
 class Task:
     uuid = uuid4()
     edge_uuid: UUID
-    objective_enum: Objective
+    objective_enum: Objectives
 
     @property
     def reward(self):

@@ -6,8 +6,8 @@ import networkx as nx
 from PIL import Image
 
 from src.entities.abstract_agent import AbstractAgent
-from src.entities.static_data.behaviors import Behavior
-from src.entities.static_data.objects import ObjectTypes
+from src.entities.static_data.behaviors import Behaviors
+from src.entities.static_data.object_types import ObjectTypes
 from src.entities.tosg import TOSG
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
@@ -120,17 +120,17 @@ class MplVizualisation(AbstractVizualisation):
         world_object_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == Behavior.PLAN_EXTRACTION_WO_EDGE
+            if d["type"] == Behaviors.PLAN_EXTRACTION_WO_EDGE
         )
         waypoint_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == Behavior.GOTO
+            if d["type"] == Behaviors.GOTO
         )
         frontier_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == Behavior.EXPLORE
+            if d["type"] == Behaviors.EXPLORE
         )
 
         """draw the nodes, edges and labels separately"""
