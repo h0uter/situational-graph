@@ -103,6 +103,8 @@ def run_demo(
 
     if cfg.AUDIO_FEEDBACK:
         play_file("exploration_complete.mp3")
+
+    # HACK: this makes the agent return to the start
     for agent_idx in range(len(agents)):
         planning_pipelines[agent_idx].plan.edge_sequence = []
         # here we tell the agent to go back to the start

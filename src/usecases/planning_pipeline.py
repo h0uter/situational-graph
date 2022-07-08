@@ -47,19 +47,27 @@ class PlanningPipeline:
 
         self.initialize(tosg)
 
+    # @property
+    # def target_node(self):
+    #     return self.plan.edge_sequence[-1][1]
+
     # HACK: initialization should add this edge to the tasks,
     # FIXME: this is the start, here I will add the tasks and see them work instantly
     def initialize(self, tosg: TOSG):
         # Add a frontier edge self loop on the start node to ensure a exploration sampling action
-        edge_id = tosg.add_my_edge(0, 0, EdgeType.EXPLORE_FT_EDGE)
+        edge_uuid = tosg.add_my_edge(0, 0, EdgeType.EXPLORE_FT_EDGE)
 
-        tosg.tasks.append(Task(edge_id, Objective.EXPLORE))
+        tosg.tasks.append(Task(edge_uuid, Objective.EXPLORE))
 
-        init_explore_edge = tosg.get_edge_by_UUID(edge_id)
-        print(f"hello {init_explore_edge}")
+        # spoof the task selection, just select the first one.  
+        init_explore_task = tosg.tasks[0]
 
-        # self.plan.edge_sequence = [(0, 0, tosg.tasks[0].edge_id)]
+        # obtain the plan which corresponds to this edge.
+        init_explore_edge_uuid = init_explore_task.edge_uuid
+        init_explore_edge = tosg.get_edge_by_UUID(init_explore_edge_uuid)
         self.plan.edge_sequence = [init_explore_edge]
+
+        # we also need a target node, what is the role of the plan and the target node both?
         self.target_node = 0
 
     # CONTEXT
