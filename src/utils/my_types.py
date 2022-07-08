@@ -1,5 +1,5 @@
-from typing import Union
 from enum import Enum, auto
+from typing import Union
 
 Node = Union[str, int]
 # Edge = tuple[Union[str, int], Union[str, int]]
@@ -13,7 +13,7 @@ class NodeType(Enum):
 
 
 # this is the start for my knowledge base action types domain.pddl etc
-class EdgeType(Enum):
+class Behavior(Enum):
     GOTO_WP_EDGE = auto()
     EXPLORE_FT_EDGE = auto()
     PLAN_EXTRACTION_WO_EDGE = auto()

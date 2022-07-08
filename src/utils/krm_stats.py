@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
 
-from src.utils.my_types import NodeType, EdgeType
+from src.utils.my_types import NodeType, Behavior
 from src.utils.saving_data_objects import load_something, save_something
 
 
@@ -37,7 +37,7 @@ class TOSGStats:
                     e
                     # for e in krm.graph.edges()
                     for e in krm.graph.edges
-                    if krm.graph.edges[e]["type"] == EdgeType.GOTO_WP_EDGE
+                    if krm.graph.edges[e]["type"] == Behavior.GOTO_WP_EDGE
                 ]
             )
         )

@@ -4,10 +4,10 @@ import uuid
 from typing import List, Optional, Sequence
 
 import networkx as nx
-from src.utils.config import Config
-from src.utils.my_types import Edge, EdgeType, Node, NodeType
 from src.entities.dynamic_data.task import Task
 from src.entities.static_data.objective import Objective
+from src.utils.config import Config
+from src.utils.my_types import Behavior, Edge, Node, NodeType
 
 
 class TOSG:
@@ -31,8 +31,6 @@ class TOSG:
                 self.duplicate_start_poses.append(start_pos)
         self.next_frontier_idx = cfg.FRONTIER_INDEX_START
         self.next_wo_idx = cfg.WORLD_OBJECT_INDEX_START
-
-    # TODO: add function to add world object edges, for example the guide action
 
     def check_if_edge_exists(self, node_a: Node, node_b: Node):
         """checks if an edge between two nodes exists"""
@@ -109,7 +107,7 @@ class TOSG:
     def add_waypoint_diedge(self, node_a, node_b) -> None:
         """adds a waypoint edge in both direction to the graph"""
         d = {
-            "type": EdgeType.GOTO_WP_EDGE,
+            "type": Behavior.GOTO_WP_EDGE,
             "id": uuid.uuid4(),
             "cost": self.calc_edge_len(node_a, node_b),
         }
@@ -123,13 +121,14 @@ class TOSG:
         self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
 
     def add_my_edge(self, node_a, node_b, edge_type):
-        my_id = uuid.uuid4(),
+        # my_id = (uuid.uuid4(),)
+        my_id = uuid.uuid4()
         self.graph.add_edge(
             node_a,
             node_b,
             type=edge_type,
             cost=self.calc_edge_len(node_a, node_b),
-            id=my_id
+            id=my_id,
         )
         return my_id
 
@@ -147,7 +146,7 @@ class TOSG:
         self.graph.add_edge(
             self.next_wp_idx - 1,
             label,
-            type=EdgeType.PLAN_EXTRACTION_WO_EDGE,
+            type=Behavior.PLAN_EXTRACTION_WO_EDGE,
             id=uuid.uuid4(),
             cost=-100,
         )
@@ -174,7 +173,7 @@ class TOSG:
         self.graph.add_edge(
             agent_at_wp,
             self.next_frontier_idx,
-            type=EdgeType.EXPLORE_FT_EDGE,
+            type=Behavior.EXPLORE_FT_EDGE,
             id=edge_uuid,
             cost=cost,
         )
@@ -189,7 +188,7 @@ class TOSG:
             self.graph.add_edge(
                 path[i],
                 path[i + 1],
-                type=EdgeType.GUIDE_WP_EDGE,
+                type=Behavior.GUIDE_WP_EDGE,
                 id=uuid.uuid4(),
                 cost=0,
             )
@@ -307,9 +306,8 @@ class TOSG:
 
         return node_a, node_b, key_of_edge_with_min_cost
 
-    def get_type_of_edge_triplet(self, edge: Edge) -> Optional[EdgeType]:
+    def get_behavior_of_edge(self, edge: Edge) -> Optional[Behavior]:
         """returns the type of the edge between two nodes"""
-        self._log.debug(f"get_type_of_edge(): edge: {edge}")
         if len(edge) == 2:
             # return self.graph.edges[edge]["type"]
             yolo = self.graph.edges[edge]["type"]
@@ -323,6 +321,7 @@ class TOSG:
 
     def remove_invalid_tasks(self):
         for task in self.tasks:
-            if task.edge_uuid not in [ddict["id"] for u, v, ddict in self.graph.edges(data=True)]:
+            if task.edge_uuid not in [
+                ddict["id"] for u, v, ddict in self.graph.edges(data=True)
+            ]:
                 self.tasks.remove(task)
-                print(f"removed task {task}")

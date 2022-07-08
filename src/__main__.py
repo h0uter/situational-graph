@@ -4,16 +4,15 @@ from typing import Sequence
 
 import matplotlib
 
-# from src.usecases.sar_mission import SARMission
 import src.utils.event as event
 from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.tosg import TOSG
 from src.entrypoints.vizualisation_listener import VizualisationListener
-from src.usecases.planning_pipeline import PlanningPipeline
+from src.usecases.planning_pipeline import Planner
 from src.utils.audio_feedback import play_file
-from src.utils.config import Config, PlotLvl, Scenario, Vizualiser
+from src.utils.config import Config, PlotLvl, Scenario
 from src.utils.krm_stats import TOSGStats
 from src.utils.sanity_checks import check_no_duplicate_wp_edges
 
@@ -31,8 +30,8 @@ def init_entities(cfg: Config):
         agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
 
     tosg = TOSG(cfg, start_poses=[agent.pos for agent in agents])
-    planning_pipelines = [PlanningPipeline(cfg, tosg, agents[i]) for i in range(cfg.NUM_AGENTS)]
-    
+    planning_pipelines = [Planner(cfg, tosg, agents[i]) for i in range(cfg.NUM_AGENTS)]
+
     VizualisationListener(cfg).setup_event_handler()
 
     """setup"""
@@ -48,7 +47,7 @@ def run_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],
     tosg: TOSG,
-    planning_pipelines: Sequence[PlanningPipeline],
+    planning_pipelines: Sequence[Planner],
 ):
 
     step, start = 0, time.perf_counter()
@@ -67,12 +66,10 @@ def run_demo(
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
-            if planning_pipelines[agent_idx].main_loop(agents[agent_idx], tosg):
+            if planning_pipelines[agent_idx].pipeline(agents[agent_idx], tosg):
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
             check_no_duplicate_wp_edges(tosg)
-
-        my_logger.debug(f"{tosg.tasks=}")
 
         """Data collection"""
         step_duration = time.perf_counter() - step_start

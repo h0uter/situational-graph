@@ -10,7 +10,7 @@ from src.entities.abstract_agent import AbstractAgent
 from src.entities.tosg import TOSG
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.usecases.planning_pipeline import PlanningPipeline
+from src.usecases.planning_pipeline import Planner
 from src.utils.config import Config, PlotLvl, Scenario
 from src.utils.my_types import NodeType
 
@@ -56,7 +56,7 @@ class VedoVisualisation(AbstractVizualisation):
         krm: TOSG,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
-        usecases: Sequence[PlanningPipeline],
+        usecases: Sequence[Planner],
     ) -> None:
         self.viz_all(krm, agents, usecases)
 
@@ -145,7 +145,7 @@ class VedoVisualisation(AbstractVizualisation):
         self,
         actors: list,
         krm: TOSG,
-        usecases: Sequence[PlanningPipeline],
+        usecases: Sequence[Planner],
         pos_dict: dict,
     ):
         # FIXME: this is way too high in real scenario

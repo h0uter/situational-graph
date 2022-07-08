@@ -1,11 +1,13 @@
 from typing import Optional, Sequence
-from src.utils.my_types import Edge, EdgeType, Node
+from src.utils.my_types import Edge, Behavior, Node
 
 
 class Plan:
     _edge_sequence: Sequence[Optional[Edge]]
     valid: bool
 
+    #FIXME: make the plan be something that is generated and discarded.
+    # make it destroy itself when it is empty or something fails.
     def __init__(self) -> None:
         self._edge_sequence = []
         self.valid = False

@@ -6,7 +6,7 @@ from src.utils.my_types import Edge
 
 
 class TOSG(Protocol):
-    def get_edge_by_UUID(self, uuid):
+    def get_edge_by_UUID(self, uuid) -> Edge:
         pass
 
 @dataclass
