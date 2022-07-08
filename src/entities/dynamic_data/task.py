@@ -23,7 +23,7 @@ class Task:
     def get_edge(self, tosg: TOSG) -> Edge:
         return tosg.get_edge_by_UUID(self.edge_uuid)
 
-    def get_target_node(self, tosg: TOSG) -> Node:
+    def get_target_node(self, tosg: TOSG) -> Optional[Node]:
         edge = self.get_edge(tosg)
         if edge:
             return edge[1]

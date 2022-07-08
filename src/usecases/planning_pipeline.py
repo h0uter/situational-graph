@@ -34,7 +34,7 @@ def execute_edge(
 class Planner:
     def __init__(self, cfg: Config, tosg: TOSG, agent) -> None:
         self.cfg = cfg
-        self.completed = False
+        self.completed = False  # TODO: remove this
         self.plan: Optional[Plan]
         self._log = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class Planner:
                 self.destroy_task(agent, tosg)
 
         """check completion of mission"""
-        if self.check_completion(tosg):
+        if self.check_if_tasks_exhausted(tosg):
             self.completed = True
 
         return self.completed
@@ -131,6 +131,7 @@ class Planner:
     def find_plan_for_task(
         self, agent_localized_to: Node, tosg: TOSG, task: Task
     ) -> Optional[Plan]:
+        
         target_node = task.get_target_node(tosg)
         if not self.check_target_still_valid(tosg, target_node):
             return None
@@ -143,6 +144,8 @@ class Planner:
     def plan_execution(
         self, agent: AbstractAgent, tosg: TOSG, edge_path: Sequence[Edge]
     ) -> Sequence[Optional[Edge]]:
+
+        # FIXME: this should be a method of the plan
         if not self.check_target_still_valid(tosg, self.target_node):
             self._log.warning(
                 f"path_execution()::{agent.name}:: Target is no longer valid."
@@ -151,11 +154,9 @@ class Planner:
 
             return []
 
-        self._log.debug(f"{agent.name}: action_path: {edge_path}")
         current_edge_type = tosg.get_behavior_of_edge(edge_path[0])
-        self._log.debug(f"{agent.name}: current_edge_type: {current_edge_type}")
-
         if current_edge_type == Behavior.EXPLORE_FT_EDGE:
+            '''exploration'''
             edge_path = ExploreBehavior(self.cfg).execute_pipeline(
                 agent, tosg, edge_path
             )
@@ -163,17 +164,19 @@ class Planner:
             return []
 
         elif current_edge_type == Behavior.GOTO_WP_EDGE:
+            '''goto'''
             edge_path = GotoBehavior(self.cfg).execute_pipeline(agent, tosg, edge_path)
             if len(edge_path) < 1:
                 self.destroy_task(agent, tosg)
 
                 return []
             else:
+                # TODO: here we should execute the plan as a method of the plan.
                 return edge_path
 
         return edge_path
 
-    def check_completion(self, tosg: TOSG) -> bool:
+    def check_if_tasks_exhausted(self, tosg: TOSG) -> bool:
         num_of_frontiers = len(tosg.get_all_frontiers_idxs())
         if num_of_frontiers < 1:
             return True
