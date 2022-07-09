@@ -28,6 +28,7 @@ class AbstractAgent(ABC):
         self.assigned_victim = None
 
         self.task: Optional[Task] = None
+        self.plan: Optional[Plan]
 
         self.steps_taken: int = 0
         self._log = logging.getLogger(__name__)
@@ -143,3 +144,11 @@ class AbstractAgent(ABC):
 
     def clear_task(self):
         self.task = None
+
+    @property
+    def target_node(self) -> Optional[Node]:
+        if len(self.plan) >= 1:
+            return self.plan[-1][1]
+        else:
+            self.plan.invalidate()
+            return None

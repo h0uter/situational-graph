@@ -18,18 +18,18 @@ class Planner:
         self.cfg = cfg
         self.completed = False  # TODO: remove this
         # TODO: move the plan to the agent.
-        self.plan: Optional[Plan]
+        # self.plan: Optional[Plan]
         self._log = logging.getLogger(__name__)
 
         self.initialize(tosg, agent)
 
-    @property
-    def target_node(self) -> Optional[Node]:
-        if len(self.plan) >= 1:
-            return self.plan[-1][1]
-        else:
-            self.plan.invalidate()
-            return None
+    # @property
+    # def target_node(self) -> Optional[Node]:
+    #     if len(self.plan) >= 1:
+    #         return self.plan[-1][1]
+    #     else:
+    #         self.plan.invalidate()
+    #         return None
 
     def initialize(self, tosg: TOSG, agent):
         # Add an explore self edge on the start node to ensure a exploration sampling action
@@ -42,8 +42,8 @@ class Planner:
         # obtain the plan which corresponds to this edge.
         init_explore_edge = tosg.get_edge_by_UUID(agent.task.edge_uuid)
 
-        self.plan = Plan([init_explore_edge])
-        self._log.debug(f"target node: {self.target_node}")
+        agent.plan = Plan([init_explore_edge])
+        self._log.debug(f"target node: {agent.target_node}")
 
     # CONTEXT
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
@@ -52,14 +52,14 @@ class Planner:
             agent.task = self.task_selection(agent, tosg)
 
         """ generate a plan"""
-        if not self.plan:
-            self.plan = self.find_plan_for_task(agent.at_wp, tosg, agent.task)
+        if not agent.plan:
+            agent.plan = self.find_plan_for_task(agent.at_wp, tosg, agent.task)
 
         """ execute the plan"""
-        if self.plan and len(self.plan) >= 1:
-            self.plan = self.plan_execution(agent, tosg, self.plan)
+        if agent.plan and len(agent.plan) >= 1:
+            agent.plan = self.plan_execution(agent, tosg, agent.plan)
 
-            if self.plan and len(self.plan) == 0:
+            if agent.plan and len(agent.plan) == 0:
                 self.destroy_task(agent, tosg)
 
         """check completion of mission"""

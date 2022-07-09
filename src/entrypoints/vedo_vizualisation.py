@@ -120,7 +120,7 @@ class VedoVisualisation(AbstractVizualisation):
         actors = self.add_agents(agents, actors)
 
         if usecases is not None:
-            self.viz_action_graph(actors, krm, usecases, pos_dict)
+            self.viz_action_graph(actors, krm, usecases, pos_dict, agents)
 
         # TODO: add legend
         # lbox = vedo.LegendBox([world_objects], width=0.25)
@@ -147,13 +147,16 @@ class VedoVisualisation(AbstractVizualisation):
         krm: TOSG,
         usecases: Sequence[Planner],
         pos_dict: dict,
+        agents: Sequence[AbstractAgent],
     ):
         # FIXME: this is way too high in real scenario
         action_path_offset = self.factor * 5
 
-        for mission in usecases:
-            if mission.plan:
-                action_path = mission.plan.edge_sequence
+        # for mission in usecases:
+        #     if mission.plan:
+        for agent in agents:
+            if agent.plan:
+                action_path = agent.plan.edge_sequence
 
                 # HACK TO fix crash caused by frontier already being removed from krm by one agent in final step
                 for edge in action_path:
