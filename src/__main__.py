@@ -49,15 +49,16 @@ def run_demo(
     planning_pipelines: Sequence[Planner],
 ):
 
-    step, start = 0, time.perf_counter()
-    tosg_stats = TOSGStats()
+
+    """Logging start."""
+    step, start = 0, time.perf_counter()  # timing
+    tosg_stats = TOSGStats()  # statistics logging object
     my_logger = logging.getLogger(__name__)
-
-    if cfg.AUDIO_FEEDBACK:
-        play_file("commencing_search.mp3")
-
-    """ Main Logic"""
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
+    if cfg.AUDIO_FEEDBACK:
+        play_file("commencing_search.mp3")  # audio announcement of start
+
+    """ Main Logic Loop"""
     while (
         not any(mission.completed is True for mission in planning_pipelines)
         and step < cfg.MAX_STEPS
@@ -80,7 +81,7 @@ def run_demo(
     )
 
     # krm_stats.save()
-
+    # FIXME: make this check the tasks and remove this completed property
     return any(mission.completed is True for mission in planning_pipelines)
 
 
