@@ -3,7 +3,7 @@ from typing import Union, Sequence
 
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.tosg import TOSG
-from src.usecases.planning_pipeline import Planner
+from src.usecases.planner import Planner
 
 # from src.usecases.exploration_usecase import ExplorationUsecase
 from src.entities.local_grid import LocalGrid

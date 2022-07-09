@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from src.entities.plan import Plan
+from src.entities.dynamic_data.node_and_edge import Edge
 
 from src.entities.static_data.affordances import AFFORDANCES
 from src.entities.tosg import TOSG
@@ -19,23 +19,20 @@ class AbstractBehavior(ABC):
         self.cfg = cfg
         self._log = logging.getLogger(__name__)
 
-    def execute_pipeline(self, agent, tosg: TOSG, plan: Plan) -> BehaviorResult:
+    def execute_pipeline(
+        self, agent, tosg: TOSG, behavior_edge: Edge
+    ) -> BehaviorResult:
         """Execute the behavior pipeline."""
-
-        # FIXME: make this use just the edge and present a result.
-        behavior_edge = plan[0]
 
         result = self.run_implementation(agent, tosg, behavior_edge)
 
         if not result.success:
             return result
 
-        if self.check_postconditions(agent, tosg, result, plan):
+        if self.check_postconditions(agent, tosg, result, behavior_edge):
             self._log.debug(f"postconditions satisfied")
             # TODO: make it actually mutate tasks
-            self.mutate_graph_and_tasks_success(
-                agent, tosg, behavior_edge[1], AFFORDANCES
-            )
+            self.mutate_graph_and_tasks_success(agent, tosg, behavior_edge, AFFORDANCES)
         else:
             # TODO: make it actually mutate tasks
             self._log.debug(f"postconditions not satisfied")
@@ -46,11 +43,15 @@ class AbstractBehavior(ABC):
         return result
 
     @abstractmethod
-    def run_implementation(self, agent, tosgraph: TOSG, plan: Plan) -> BehaviorResult:
+    def run_implementation(
+        self, agent, tosgraph: TOSG, behavior_edge: Edge
+    ) -> BehaviorResult:
         pass
 
     @abstractmethod
-    def check_postconditions(self, agent, tosgraph: TOSG, result, plan: Plan) -> bool:
+    def check_postconditions(
+        self, agent, tosgraph: TOSG, result, behavior_edge: Edge
+    ) -> bool:
         """Check if the postconditions for the behavior are met."""
         pass
 
@@ -59,12 +60,16 @@ class AbstractBehavior(ABC):
     #     pass
 
     @abstractmethod
-    def mutate_graph_and_tasks_success(self, agent, tosgraph: TOSG, next_node, affordances):
+    def mutate_graph_and_tasks_success(
+        self, agent, tosgraph: TOSG, next_node, affordances
+    ):
         """Mutate the graph according to the behavior."""
         pass
 
     @abstractmethod
-    def mutate_graph_and_tasks_failure(self, agent, tosgraph: TOSG, plan: Plan):
+    def mutate_graph_and_tasks_failure(
+        self, agent, tosgraph: TOSG, behavior_edge: Edge
+    ):
         """Mutate the graph according to the behavior."""
         pass
 

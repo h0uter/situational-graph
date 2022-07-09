@@ -131,13 +131,14 @@ class Planner:
             return None
 
         behavior_of_current_edge = plan.upcoming_behavior(tosg)
+        current_edge = plan.upcoming_edge
 
         # FIXME: this needs to be setup to handle an arbitrary number of edges.
         # like using a strategy pattern or something
         if behavior_of_current_edge == Behaviors.EXPLORE:
             """exploration"""
             result = ExploreBehavior(self.cfg).execute_pipeline(
-                agent, tosg, plan.edge_sequence
+                agent, tosg, current_edge
             )
             self._log.debug(f"exploration result: {result}")
             # self.destroy_task(agent, tosg)
@@ -146,14 +147,14 @@ class Planner:
         elif behavior_of_current_edge == Behaviors.GOTO:
             """goto"""
             result = GotoBehavior(self.cfg).execute_pipeline(
-                agent, tosg, plan.edge_sequence
+                agent, tosg, current_edge
             )
             self._log.debug(f"goto result: {result}")
 
         # FIXME: this can be shorter
         if result.success:
             self._log.debug(f"the plan is {plan}")
-            plan.mutate()
+            plan.mutate_success()
             if len(plan) == 0:
                 self.destroy_task(agent, tosg)
                 return None

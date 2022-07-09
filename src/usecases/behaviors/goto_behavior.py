@@ -15,7 +15,7 @@ class GotoBehavior(AbstractBehavior):
         agent.localize_to_waypoint(tosgraph)
         return BehaviorResult(True)
 
-    def check_postconditions(self, agent, tosgraph, result, plan) -> bool:
+    def check_postconditions(self, agent, tosgraph, result, behavior_edge) -> bool:
         """Check if the postconditions for the behavior are met."""
         return True
 

@@ -10,7 +10,7 @@ from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.tosg import TOSG
 from src.entrypoints.vizualisation_listener import VizualisationListener
-from src.usecases.planning_pipeline import Planner
+from src.usecases.planner import Planner
 from src.utils.audio_feedback import play_file
 from src.utils.config import Config, PlotLvl, Scenario
 from src.utils.krm_stats import TOSGStats
@@ -71,12 +71,12 @@ def run_demo(
                 break
             check_no_duplicate_wp_edges(tosg)
 
-        single_step_logging_and_printing(
+        single_step_feedback_pipeline(
             step, step_start, agents, tosg, tosg_stats, planning_pipelines, my_logger
         )
         step += 1
 
-    completion_pipeline(
+    completion_feedback_pipeline(
         step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
     )
 
@@ -85,7 +85,7 @@ def run_demo(
     return any(mission.completed is True for mission in planning_pipelines)
 
 
-def single_step_logging_and_printing(
+def single_step_feedback_pipeline(
     step, step_start, agents, tosg, tosg_stats, planning_pipelines, my_logger
 ):
     """Data collection"""
@@ -104,7 +104,7 @@ def single_step_logging_and_printing(
         my_logger.info(s)
 
 
-def completion_pipeline(
+def completion_feedback_pipeline(
     step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
 ):
     """Results"""

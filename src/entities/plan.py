@@ -1,8 +1,8 @@
 from typing import Optional, Sequence
-from src.entities.static_data.behaviors import Behaviors
 
-from src.entities.tosg import TOSG
 from src.entities.dynamic_data.node_and_edge import Edge, Node
+from src.entities.static_data.behaviors import Behaviors
+from src.entities.tosg import TOSG
 
 
 class Plan:
@@ -14,6 +14,20 @@ class Plan:
     def __init__(self, edge_sequence: Sequence[Optional[Edge]]) -> None:
         self._edge_sequence = edge_sequence
         self.valid = False
+
+    def __len__(self) -> int:
+        return len(self.edge_sequence)
+
+    def __getitem__(self, index: int) -> Optional[Edge]:
+        return self.edge_sequence[index]
+
+    @property
+    def edge_sequence(self) -> Sequence[Optional[Edge]]:
+        return self._edge_sequence
+
+    @property
+    def upcoming_edge(self) -> None:
+        return self[0]
 
     def invalidate(self) -> None:
         self.valid = False
@@ -27,17 +41,6 @@ class Plan:
 
         return True
 
-    @property
-    def edge_sequence(self) -> Sequence[Optional[Edge]]:
-        return self._edge_sequence
-
-    @edge_sequence.setter
-    def edge_sequence(self, value: Sequence[Optional[Edge]]) -> None:
-        if self.validate(value):
-            self._edge_sequence = value
-        else:
-            self.invalidate()
-
     def upcoming_behavior(self, tosg: TOSG) -> Behaviors:
         if self.edge_sequence:
             # return self._edge_sequence[0]
@@ -45,11 +48,5 @@ class Plan:
         else:
             raise Exception("No next behavior")
 
-    def __len__(self) -> int:
-        return len(self.edge_sequence)
-
-    def __getitem__(self, index: int) -> Optional[Edge]:
-        return self.edge_sequence[index]
-
-    def mutate(self) -> None:
-        self.edge_sequence.pop(0)
+    def mutate_success(self) -> None:
+        self._edge_sequence.pop(0)

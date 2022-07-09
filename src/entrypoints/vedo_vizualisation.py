@@ -11,7 +11,7 @@ from src.entities.static_data.object_types import ObjectTypes
 from src.entities.tosg import TOSG
 from src.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.usecases.planning_pipeline import Planner
+from src.usecases.planner import Planner
 from src.utils.config import Config, PlotLvl, Scenario
 
 
