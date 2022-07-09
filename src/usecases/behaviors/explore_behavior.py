@@ -6,7 +6,7 @@ from src.entities.local_grid import LocalGrid
 from src.usecases.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.utils.config import Config
 from src.utils.event import post_event
-from src.utils.my_types import Node
+from src.entities.dynamic_data.node_and_edge import Node
 from src.utils.saving_data_objects import load_something, save_something
 
 

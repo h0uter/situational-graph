@@ -9,7 +9,7 @@ from src.entities.static_data.behaviors import Behaviors
 from src.entities.static_data.objectives import Objectives
 from src.entities.static_data.object_types import ObjectTypes
 from src.utils.config import Config
-from src.utils.my_types import Edge, Node
+from src.entities.dynamic_data.node_and_edge import Edge, Node
 
 
 class TOSG:

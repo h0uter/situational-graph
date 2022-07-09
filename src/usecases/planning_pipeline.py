@@ -10,7 +10,7 @@ from src.entities.tosg import TOSG
 from src.usecases.behaviors.explore_behavior import ExploreBehavior
 from src.usecases.behaviors.goto_behavior import GotoBehavior
 from src.utils.config import Config
-from src.utils.my_types import Edge, Node
+from src.entities.dynamic_data.node_and_edge import Edge, Node
 
 
 class Planner:

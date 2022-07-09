@@ -8,7 +8,7 @@ from src.entities.static_data.object_types import ObjectTypes
 
 from src.utils.config import Config
 from src.entities.tosg import TOSG
-from src.utils.my_types import Node
+from src.entities.dynamic_data.node_and_edge import Node
 
 
 class AbstractAgent(ABC):

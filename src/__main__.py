@@ -42,7 +42,6 @@ def init_entities(cfg: Config):
     return agents, tosg, planning_pipelines
 
 
-# TODO: cleanup all the stuff not neccesary to understand the code high level
 def run_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],
@@ -71,23 +70,42 @@ def run_demo(
                 break
             check_no_duplicate_wp_edges(tosg)
 
-        """Data collection"""
-        step_duration = time.perf_counter() - step_start
-        tosg_stats.update(tosg, step_duration)
-
-        """ Visualisation """
-        my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
-        event.post_event(
-            "figure update",
-            {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
+        single_step_logging_and_printing(
+            step, step_start, agents, tosg, tosg_stats, planning_pipelines, my_logger
         )
-
-        if step % 50 == 0:
-            s = f"sim step = {step} took {step_duration:.4f}s, with {agents[0].steps_taken} move actions"
-            my_logger.info(s)
-
         step += 1
 
+    completion_pipeline(
+        step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
+    )
+
+    # krm_stats.save()
+
+    return any(mission.completed is True for mission in planning_pipelines)
+
+
+def single_step_logging_and_printing(
+    step, step_start, agents, tosg, tosg_stats, planning_pipelines, my_logger
+):
+    """Data collection"""
+    step_duration = time.perf_counter() - step_start
+    tosg_stats.update(tosg, step_duration)
+
+    """ Visualisation """
+    my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
+    event.post_event(
+        "figure update",
+        {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
+    )
+
+    if step % 50 == 0:
+        s = f"sim step = {step} took {step_duration:.4f}s, with {agents[0].steps_taken} move actions"
+        my_logger.info(s)
+
+
+def completion_pipeline(
+    step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
+):
     """Results"""
     my_logger.info(
         f"""
@@ -108,10 +126,6 @@ def run_demo(
 
     if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
         tosg_stats.plot_krm_stats()
-
-    # krm_stats.save()
-
-    return any(mission.completed is True for mission in planning_pipelines)
 
 
 def benchmark_func():

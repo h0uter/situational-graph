@@ -2,7 +2,7 @@ from typing import Optional, Sequence
 from src.entities.static_data.behaviors import Behaviors
 
 from src.entities.tosg import TOSG
-from src.utils.my_types import Edge, Node
+from src.entities.dynamic_data.node_and_edge import Edge, Node
 
 
 class Plan:
