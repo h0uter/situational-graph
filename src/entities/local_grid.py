@@ -4,7 +4,6 @@ from typing import Optional
 import numpy as np
 import numpy.typing as npt
 from skimage import draw
-
 from src.utils.config import Config, Scenario
 
 
@@ -54,7 +53,7 @@ class LocalGrid:
         )
         return x_idx, y_idx
 
-    def cell_idx2world_coords(self, idxs: tuple) -> tuple:
+    def _cell_idx2world_coords(self, idxs: tuple) -> tuple:
         """
         Convert the cell indices to the world coordinates.
         """
@@ -80,27 +79,27 @@ class LocalGrid:
             )
         return x_coord, y_coord
 
-    # TODO: optimize this function for speed
-    def cell_idxs2world_coords(self, idxs: tuple) -> tuple:
-        """
-        Convert the cell indices to the world coordinates.
-        """
-        x_coords = []
-        y_coords = []
-        for i in range(len(idxs[0])):
-            x_coords.append(
-                self.world_pos[0]
-                + idxs[1][i] * self.cell_size_in_m
-                - self.length_in_m / 2
-            )
-            y_coords.append(
-                self.world_pos[1]
-                + idxs[0][i] * self.cell_size_in_m
-                - self.length_in_m / 2
-            )
-        return x_coords, y_coords
+    # # TODO: optimize this function for speed
+    # def cell_idxs2world_coords(self, idxs: tuple) -> tuple:
+    #     """
+    #     Convert the cell indices to the world coordinates.
+    #     """
+    #     x_coords = []
+    #     y_coords = []
+    #     for i in range(len(idxs[0])):
+    #         x_coords.append(
+    #             self.world_pos[0]
+    #             + idxs[1][i] * self.cell_size_in_m
+    #             - self.length_in_m / 2
+    #         )
+    #         y_coords.append(
+    #             self.world_pos[1]
+    #             + idxs[0][i] * self.cell_size_in_m
+    #             - self.length_in_m / 2
+    #         )
+    #     return x_coords, y_coords
 
-    def get_cells_under_line(self, a: tuple, b: tuple) -> tuple:
+    def _get_cells_under_line(self, a: tuple, b: tuple) -> tuple:
         rr, cc = draw.line(int(a[0]), int(a[1]), int(b[0]), int(b[1]))
 
         return rr, cc
@@ -111,13 +110,13 @@ class LocalGrid:
         # FIXME: make my loaded images consistent with the spot local grid somehow
         if self.cfg.SCENARIO == Scenario.REAL:
             # FIXME: spot obstacle map has rr and cc flipped somehow
-            rr, cc = self.get_cells_under_line(at, to)
+            rr, cc = self._get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
                 if np.greater(
                     self.data[r, c][0:2],
                     [self.pixel_occupied_treshold, self.pixel_occupied_treshold],
                 ).any():
-                    x, y = self.cell_idx2world_coords((c, r))
+                    x, y = self._cell_idx2world_coords((c, r))
                     collision_point = (x, y)
                     # print(f"collision at : {collision_point}")
 
@@ -125,19 +124,19 @@ class LocalGrid:
             return True, None
 
         if self.cfg.SCENARIO == Scenario.SIM_MAZE_MEDIUM:
-            rr, cc = self.get_cells_under_line(at, to)
+            rr, cc = self._get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
                 if np.greater(
                     self.data[c, r][3], [self.pixel_occupied_treshold],
                 ).any():
-                    x, y = self.cell_idx2world_coords((c, r))
+                    x, y = self._cell_idx2world_coords((c, r))
                     collision_point = (x, y)
 
                     return False, collision_point
             return True, None
 
         else:
-            rr, cc = self.get_cells_under_line(at, to)
+            rr, cc = self._get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
                 if np.less(
                     self.data[c, r],
@@ -148,13 +147,13 @@ class LocalGrid:
                         self.pixel_occupied_treshold,
                     ],
                 ).any():
-                    x, y = self.cell_idx2world_coords((c, r))
+                    x, y = self._cell_idx2world_coords((c, r))
                     collision_point = (x, y)
 
                     return False, collision_point
             return True, None
 
-    def sample_cell_around_other_cell(self, x: int, y: int, radius: int) -> Optional[tuple]:
+    def _sample_cell_around_other_cell(self, x: int, y: int, radius: int) -> Optional[tuple]:
         sample_valid = False
         attempts = 0
         x_sample, y_sample = None, None
@@ -192,7 +191,7 @@ class LocalGrid:
             x_center = self.length_num_cells // 2
             y_center = self.length_num_cells // 2
 
-            sample = self.sample_cell_around_other_cell(
+            sample = self._sample_cell_around_other_cell(
                 x_center, y_center, radius=radius,
             )
             if sample:

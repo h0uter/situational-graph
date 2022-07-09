@@ -12,7 +12,7 @@ class GuideBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def run_implementation(self, agent: AbstractAgent, krm: TOSG, action_path):
+    def _run_implementation(self, agent: AbstractAgent, krm: TOSG, action_path):
         """Currently the world object action is guide victim home action"""
         # Should I allow an action to set a different action path?
         self._log.debug(f"{agent.name}: Guiding  victim to next wp {action_path[0][1]}")
@@ -22,9 +22,7 @@ class GuideBehavior(AbstractBehavior):
 
         if self.check_if_victim_still_in_perception_scene(agent):
             # action_path = GotoBehavior(self.cfg).run(agent, krm, action_path)
-            action_path = GotoBehavior(self.cfg).execute_pipeline(
-                agent, krm, action_path
-            )
+            action_path = GotoBehavior(self.cfg).pipeline(agent, krm, action_path)
             # TODO: remove guide action edge
             self._log.debug(
                 f"{agent.name}: guide action succesfull victim is still in perception scene"

@@ -17,21 +17,11 @@ class Planner:
     def __init__(self, cfg: Config, tosg: TOSG, agent) -> None:
         self.cfg = cfg
         self.completed = False  # TODO: remove this
-        # TODO: move the plan to the agent.
-        # self.plan: Optional[Plan]
         self._log = logging.getLogger(__name__)
 
-        self.initialize(tosg, agent)
+        self._initialize(tosg, agent)
 
-    # @property
-    # def target_node(self) -> Optional[Node]:
-    #     if len(self.plan) >= 1:
-    #         return self.plan[-1][1]
-    #     else:
-    #         self.plan.invalidate()
-    #         return None
-
-    def initialize(self, tosg: TOSG, agent):
+    def _initialize(self, tosg: TOSG, agent):
         # Add an explore self edge on the start node to ensure a exploration sampling action
         edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
         tosg.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
@@ -45,30 +35,29 @@ class Planner:
         agent.plan = Plan([init_explore_edge])
         self._log.debug(f"target node: {agent.target_node}")
 
-    # CONTEXT
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
         """select a task"""
         if not agent.task:
-            agent.task = self.task_selection(agent, tosg)
+            agent.task = self._task_selection(agent, tosg)
 
         """ generate a plan"""
         if not agent.plan:
-            agent.plan = self.find_plan_for_task(agent.at_wp, tosg, agent.task)
+            agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
 
         """ execute the plan"""
         if agent.plan and len(agent.plan) >= 1:
-            agent.plan = self.plan_execution(agent, tosg, agent.plan)
+            agent.plan = self._plan_execution(agent, tosg, agent.plan)
 
             if agent.plan and len(agent.plan) == 0:
-                self.destroy_task(agent, tosg)
+                self._destroy_task(agent, tosg)
 
         """check completion of mission"""
-        if self.check_if_tasks_exhausted(tosg):
+        if self._check_if_tasks_exhausted(tosg):
             self.completed = True
 
         return self.completed
 
-    def destroy_task(self, agent: AbstractAgent, tosg: TOSG):
+    def _destroy_task(self, agent: AbstractAgent, tosg: TOSG):
         self._log.debug(f"{agent.name}:  has a task  {agent.task}")
 
         if agent.task:
@@ -78,12 +67,14 @@ class Planner:
 
         agent.clear_task()
 
-    def check_target_still_valid(self, tosg: TOSG, target_node: Optional[Node]) -> bool:
+    def _check_target_still_valid(
+        self, tosg: TOSG, target_node: Optional[Node]
+    ) -> bool:
         if target_node is None:
             return False
         return tosg.check_node_exists(target_node)
 
-    def task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
+    def _task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
         highest_utility = 0
         optimal_task = None
 
@@ -110,12 +101,12 @@ class Planner:
 
         return optimal_task
 
-    def find_plan_for_task(
+    def _find_plan_for_task(
         self, agent_localized_to: Node, tosg: TOSG, task: Task
     ) -> Optional[Plan]:
 
         target_node = task.get_target_node(tosg)
-        if not self.check_target_still_valid(tosg, target_node):
+        if not self._check_target_still_valid(tosg, target_node):
             return None
 
         edge_path = tosg.shortest_path(agent_localized_to, target_node)
@@ -123,7 +114,7 @@ class Planner:
         return Plan(edge_path)
 
     # this is the plan executor, maybe make it its own class.
-    def plan_execution(
+    def _plan_execution(
         self, agent: AbstractAgent, tosg: TOSG, plan: Plan
     ) -> Optional[Plan]:
 
@@ -137,18 +128,14 @@ class Planner:
         # like using a strategy pattern or something
         if behavior_of_current_edge == Behaviors.EXPLORE:
             """exploration"""
-            result = ExploreBehavior(self.cfg).execute_pipeline(
-                agent, tosg, current_edge
-            )
+            result = ExploreBehavior(self.cfg).pipeline(agent, tosg, current_edge)
             self._log.debug(f"exploration result: {result}")
             # self.destroy_task(agent, tosg)
             # return result
 
         elif behavior_of_current_edge == Behaviors.GOTO:
             """goto"""
-            result = GotoBehavior(self.cfg).execute_pipeline(
-                agent, tosg, current_edge
-            )
+            result = GotoBehavior(self.cfg).pipeline(agent, tosg, current_edge)
             self._log.debug(f"goto result: {result}")
 
         # FIXME: this can be shorter
@@ -156,14 +143,14 @@ class Planner:
             self._log.debug(f"the plan is {plan}")
             plan.mutate_success()
             if len(plan) == 0:
-                self.destroy_task(agent, tosg)
+                self._destroy_task(agent, tosg)
                 return None
             return plan
         else:
-            self.destroy_task(agent, tosg)
+            self._destroy_task(agent, tosg)
             return None
 
-    def check_if_tasks_exhausted(self, tosg: TOSG) -> bool:
+    def _check_if_tasks_exhausted(self, tosg: TOSG) -> bool:
         # HACK: we just check the fronteirs, not the tasks.
         num_of_frontiers = len(tosg.get_all_frontiers_idxs())
         if num_of_frontiers < 1:
@@ -177,7 +164,7 @@ class Planner:
     ############################################################################################
 
     # FIXME: task selector, needs to use list of tasks
-    def evaluate_potential_target_nodes_based_on_path_cost(
+    def _evaluate_potential_target_nodes_based_on_path_cost(
         self, agent: AbstractAgent, target_nodes: list[Node], tosg: TOSG
     ) -> Optional[Node]:
 

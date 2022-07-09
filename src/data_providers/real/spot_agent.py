@@ -26,6 +26,7 @@ from src.data_providers.real.spot_wrapper import SpotWrapper
 from src.entities.abstract_agent import AbstractAgent
 from src.entities.local_grid import LocalGrid
 from src.utils.get_login_config import get_login_config
+
 # from src.entities.world_object import WorldObject
 from src.utils.config import Config
 
@@ -101,7 +102,7 @@ class SpotAgent(AbstractAgent):
         self.pos = self.get_localization()
         # self.pos = start_pos
 
-    def move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
+    def _move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
         self.blocking_move_vision_frame(target_pos, target_heading)
 
     # def move_to_pos(self, pos: tuple, heading=None):
@@ -178,7 +179,9 @@ class SpotAgent(AbstractAgent):
                 if wo:
                     wos.append(wo)
                 else:
-                    self._log.debug(f"unknown fiducial detected {fiducial.apriltag_properties.tag_id}")
+                    self._log.debug(
+                        f"unknown fiducial detected {fiducial.apriltag_properties.tag_id}"
+                    )
             if wos:
                 self._log.debug(f"detected wos are {wos}")
                 return wos
@@ -198,8 +201,8 @@ class SpotAgent(AbstractAgent):
             self.spot_wrapper._clients["world_object"]
             .list_world_objects(
                 object_type=request_fiducials,
-                time_start_point=time.time() - 1.0 # not sure if this is correct time
-                )
+                time_start_point=time.time() - 1.0,  # not sure if this is correct time
+            )
             .world_objects
         )
         if len(fiducial_objects) > 0:
@@ -249,16 +252,18 @@ class SpotAgent(AbstractAgent):
         frame_name = VISION_FRAME_NAME
 
         cmd = RobotCommandBuilder.synchro_se2_trajectory_point_command(
-                goal_x=pos[0],
-                goal_y=pos[1],
-                goal_heading=goal_heading,
-                frame_name=frame_name,
-                params=self.spot_wrapper._mobility_params,
-            )
+            goal_x=pos[0],
+            goal_y=pos[1],
+            goal_heading=goal_heading,
+            frame_name=frame_name,
+            params=self.spot_wrapper._mobility_params,
+        )
 
         cmd_duration = 30
         end_time = time.time() + cmd_duration
-        cmd_id = self.spot_wrapper._clients["robot_command"].robot_command(cmd, end_time_secs=end_time)
+        cmd_id = self.spot_wrapper._clients["robot_command"].robot_command(
+            cmd, end_time_secs=end_time
+        )
 
         self._log.info("Robot standing twisted.")
         start_time = time.time()
@@ -589,4 +594,3 @@ if __name__ == "__main__":
     # movement_square_ODOM_test(spot)
 
     spot.move_odom_frame((0, 0), np.pi)
-

@@ -14,7 +14,7 @@ class ExploreBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def run_implementation(
+    def _run_implementation(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge
     ) -> BehaviorResult:
         target_node = behavior_edge[1]
@@ -23,10 +23,10 @@ class ExploreBehavior(AbstractBehavior):
         # FIXME: move this to the initialize behavior
         # special case: initialization
         if len(tosg.get_all_frontiers_idxs()) <= 1 and not agent.init:
-            lg = self._get_lg(agent)
+            lg = self.__get_lg(agent)
 
-            new_frontier_cells = self._sample_new_frontiers(agent, tosg, lg)
-            self._add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
+            new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
+            self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
 
             agent.set_init()
             return BehaviorResult(False)
@@ -41,7 +41,7 @@ class ExploreBehavior(AbstractBehavior):
             self._log.warning(f"edge: {behavior_edge}")
             return BehaviorResult(False)
 
-    def check_postconditions(
+    def _check_postconditions(
         self,
         agent: AbstractAgent,
         tosg: TOSG,
@@ -50,9 +50,9 @@ class ExploreBehavior(AbstractBehavior):
     ):
         """Check if the postconditions for the behavior are met."""
         next_node = behavior_edge[1]
-        return self._check_at_destination(agent, tosg, next_node)
+        return self.__check_at_destination(agent, tosg, next_node)
 
-    def mutate_graph_and_tasks_success(
+    def _mutate_graph_and_tasks_success(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge, affordances
     ):
         next_node = behavior_edge[1]
@@ -61,24 +61,24 @@ class ExploreBehavior(AbstractBehavior):
         )
         # start mutate graph
         tosg.remove_frontier(next_node)
-        lg = self._get_lg(agent)
+        lg = self.__get_lg(agent)
 
         # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
-        if not self._sample_waypoint_from_pose(agent, tosg):
+        if not self.__sample_waypoint_from_pose(agent, tosg):
             self._log.error("sampling waypoint failed")
             # return []
 
         # XXX: this is my 2nd  most expensive function, so I should try to optimize it
-        new_frontier_cells = self._sample_new_frontiers(agent, tosg, lg)
-        self._add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
+        new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
+        self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
 
         # XXX: this is my 3nd expensive function, so I should try to optimize it
-        self._prune_frontiers(tosg)
-        self._find_shortcuts_between_wps(lg, tosg, agent)
+        self.__prune_frontiers(tosg)
+        self.__find_shortcuts_between_wps(lg, tosg, agent)
 
-        self._process_world_objects(agent, tosg)
+        self.__process_world_objects(agent, tosg)
 
-    def mutate_graph_and_tasks_failure(
+    def _mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
     ):
         # Recovery behaviour
@@ -95,20 +95,20 @@ class ExploreBehavior(AbstractBehavior):
         agent.previous_pos = agent.get_localization()
 
         # this is the actual mutation of the grpah on failure
-        self._prune_frontiers(tosg)
+        self.__prune_frontiers(tosg)
 
     ##############################################################################################
     # exploration specific functions
     ##############################################################################################
 
     # TODO: move this to agent services or smth
-    def _process_world_objects(self, agent: AbstractAgent, tosg: TOSG) -> None:
+    def __process_world_objects(self, agent: AbstractAgent, tosg: TOSG) -> None:
         w_os = agent.look_for_world_objects_in_perception_scene()
         if w_os:
             for w_o in w_os:
                 tosg.add_world_object(w_o.pos, w_o.name)
 
-    def _check_at_destination(
+    def __check_at_destination(
         self, agent: AbstractAgent, tosg: TOSG, destination_node: Node
     ) -> bool:
         """
@@ -130,7 +130,7 @@ class ExploreBehavior(AbstractBehavior):
         self._log.debug(f"{agent.name}: at_destination: {at_destination}")
         return at_destination
 
-    def _sample_waypoint_from_pose(self, agent: AbstractAgent, tosg: TOSG) -> bool:
+    def __sample_waypoint_from_pose(self, agent: AbstractAgent, tosg: TOSG) -> bool:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         """
@@ -169,7 +169,7 @@ class ExploreBehavior(AbstractBehavior):
 
         # agent.localize_to_waypoint(krm)
 
-    def _sample_new_frontiers(
+    def __sample_new_frontiers(
         self,
         agent: AbstractAgent,
         tosg: TOSG,
@@ -183,12 +183,12 @@ class ExploreBehavior(AbstractBehavior):
 
         return new_frontier_cells
 
-    def _add_new_frontiers_to_tosg(self, new_frontier_cells, lg, tosg: TOSG, agent):
+    def __add_new_frontiers_to_tosg(self, new_frontier_cells, lg, tosg: TOSG, agent):
         for frontier_cell in new_frontier_cells:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             tosg.add_frontier(frontier_pos_global, agent.at_wp)
 
-    def _prune_frontiers(self, tosg: TOSG) -> None:
+    def __prune_frontiers(self, tosg: TOSG) -> None:
         waypoints = tosg.get_all_waypoint_idxs()
 
         for wp in waypoints:
@@ -200,7 +200,7 @@ class ExploreBehavior(AbstractBehavior):
                 tosg.remove_frontier(frontier)
 
     # BUG: on the real robot sometimes impossible shortcuts are added.
-    def _find_shortcuts_between_wps(
+    def __find_shortcuts_between_wps(
         self, lg: LocalGrid, tosg: TOSG, agent: AbstractAgent
     ):
         close_nodes = tosg.get_nodes_of_type_in_margin(
@@ -230,7 +230,7 @@ class ExploreBehavior(AbstractBehavior):
                         )
                         tosg.add_waypoint_diedge(from_wp, to_wp)
 
-    def _get_lg(self, agent: AbstractAgent) -> LocalGrid:
+    def __get_lg(self, agent: AbstractAgent) -> LocalGrid:
         lg_img = agent.get_local_grid_img()
         # save_something(lg_img, "lg_img")
         lg = LocalGrid(

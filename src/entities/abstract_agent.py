@@ -1,14 +1,15 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Optional
-import numpy.typing as npt
-import numpy as np
-import logging
-from src.entities.dynamic_data.task import Task
-from src.entities.static_data.object_types import ObjectTypes
 
-from src.utils.config import Config
-from src.entities.tosg import TOSG
+import numpy as np
+import numpy.typing as npt
 from src.entities.dynamic_data.node_and_edge import Node
+from src.entities.dynamic_data.task import Task
+from src.entities.plan import Plan
+from src.entities.static_data.object_types import ObjectTypes
+from src.entities.tosg import TOSG
+from src.utils.config import Config
 
 
 class AbstractAgent(ABC):
@@ -28,7 +29,7 @@ class AbstractAgent(ABC):
         self.assigned_victim = None
 
         self.task: Optional[Task] = None
-        self.plan: Optional[Plan]
+        self.plan: Optional[Plan] = None
 
         self.steps_taken: int = 0
         self._log = logging.getLogger(__name__)
@@ -56,7 +57,7 @@ class AbstractAgent(ABC):
         pass
 
     @abstractmethod
-    def move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
+    def _move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
         """
         Move the agent to a new position.
 
@@ -77,7 +78,7 @@ class AbstractAgent(ABC):
         self.previous_pos = self.get_localization()
         # print(f"self previous pos: {self.previous_pos}")
 
-        self.move_to_pos_implementation(target_pos, target_heading)
+        self._move_to_pos_implementation(target_pos, target_heading)
 
         # TODO: check if we arrived to set prev_wp
         actual_pos = self.get_localization()
@@ -97,7 +98,7 @@ class AbstractAgent(ABC):
 
         else:
             # FAILURE
-            self.move_to_pos_implementation(self.previous_pos, self.heading)
+            self._move_to_pos_implementation(self.previous_pos, self.heading)
             # self.previous_pos = self.get_localization()  # can also put this in the condition
             self.pos = self.get_localization()  # dont make sense for sim agent.
 

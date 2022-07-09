@@ -24,11 +24,13 @@ class VedoVisualisation(AbstractVizualisation):
         self.cfg = cfg
         self.factor = 1 / self.cfg.LG_CELL_SIZE_M
 
+        TITLE = f"{self.cfg.SCENARIO} - {self.cfg.PLOT_LVL}"
+
         self.plt = vedo.Plotter(
             axes=13,
             interactive=False,
             resetcam=True,
-            title="Knowledge Roadmap",
+            title=TITLE,
             size=(3456, 2234),
         )
 

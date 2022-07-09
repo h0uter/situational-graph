@@ -20,7 +20,7 @@ class SimulatedAgent(AbstractAgent):
     def get_localization(self) -> tuple[float, float]:
         return self.pos
 
-    def move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
+    def _move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
         self.teleport_to_pos(target_pos)
 
     def teleport_to_pos(self, pos: tuple[float, float]) -> None:

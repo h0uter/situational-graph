@@ -13,7 +13,7 @@ class PlanExtractionBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def run_implementation(
+    def _run_implementation(
         self, agent: AbstractAgent, krm: TOSG, action_path: Sequence[Edge]
     ):
         """Currently the world object action is guide victim home action"""

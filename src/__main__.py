@@ -49,7 +49,6 @@ def run_demo(
     planning_pipelines: Sequence[Planner],
 ):
 
-
     """Logging start."""
     step, start = 0, time.perf_counter()  # timing
     tosg_stats = TOSGStats()  # statistics logging object
