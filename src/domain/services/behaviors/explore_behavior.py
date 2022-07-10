@@ -2,31 +2,31 @@ from typing import Sequence
 
 from src.configuration.config import Config
 from src.domain.abstract_agent import AbstractAgent
-from src.domain import LocalGrid, Edge, Node, ObjectTypes, AbstractBehavior, BehaviorResult, TOSG
-from src.entrypoints.utils.event import post_event
+from src.domain import (
+    LocalGrid,
+    Edge,
+    Node,
+    ObjectTypes,
+    AbstractBehavior,
+    BehaviorResult,
+    TOSG,
+)
 from src.utils.saving_data_objects import load_something, save_something
 
 
 class ExploreBehavior(AbstractBehavior):
-    def __init__(self, cfg: Config):
-        super().__init__(cfg)
-
     def _run_behavior_implementation(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge
     ) -> BehaviorResult:
         target_node = behavior_edge[1]
         target_node_pos = tosg.get_node_data_by_node(target_node)["pos"]
 
-        # FIXME: move this to the initialize behavior
-        # special case: initialization
-        if len(tosg.get_all_frontiers_idxs()) <= 1 and not agent.init:
-            lg = self.__get_lg(agent)
-
+        """The first exploration step is just sampling in place."""
+        if not agent.init:
+            lg = agent.get_lg()
             new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
             self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
-
             agent.set_init()
-            return BehaviorResult(False)
 
         # the goto action
         if agent.get_localization() is not target_node_pos:
@@ -58,12 +58,11 @@ class ExploreBehavior(AbstractBehavior):
         )
         # start mutate graph
         tosg.remove_frontier(next_node)
-        lg = self.__get_lg(agent)
+        lg = agent.get_lg()
 
         # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
         if not self.__sample_waypoint_from_pose(agent, tosg):
             self._log.error("sampling waypoint failed")
-            # return []
 
         # XXX: this is my 2nd  most expensive function, so I should try to optimize it
         new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
@@ -226,15 +225,3 @@ class ExploreBehavior(AbstractBehavior):
                             f"{agent.name}: Adding shortcut from {from_wp} to {to_wp}."
                         )
                         tosg.add_waypoint_diedge(from_wp, to_wp)
-
-    def __get_lg(self, agent: AbstractAgent) -> LocalGrid:
-        lg_img = agent.get_local_grid_img()
-        # save_something(lg_img, "lg_img")
-        lg = LocalGrid(
-            world_pos=agent.get_localization(),
-            img_data=lg_img,
-            cfg=self.cfg,
-        )
-        post_event("new lg", lg)
-
-        return lg

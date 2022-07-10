@@ -4,9 +4,12 @@ from typing import Optional
 
 import numpy as np
 import numpy.typing as npt
-
 from src.configuration.config import Config
-from src.domain import Task, ObjectTypes, Node, Plan, TOSG
+from src.domain import TOSG, Node, ObjectTypes, Plan, Task
+from src.domain.entities.behaviors import Behaviors
+from src.domain.entities.local_grid import LocalGrid
+from src.domain.entities.objectives import Objectives
+from src.entrypoints.utils.event import post_event
 
 
 class AbstractAgent(ABC):
@@ -23,7 +26,6 @@ class AbstractAgent(ABC):
         self.heading = 0.0
         self.previous_pos = self.pos
         self.init = False
-        self.assigned_victim = None
 
         self.task: Optional[Task] = None
         self.plan: Optional[Plan] = None
@@ -31,8 +33,42 @@ class AbstractAgent(ABC):
         self.steps_taken: int = 0
         self._log = logging.getLogger(__name__)
 
+    @property
+    def target_node(self) -> Optional[Node]:
+        if len(self.plan) >= 1:
+            return self.plan[-1][1]
+        else:
+            self.plan.invalidate()
+            return None
+
+    def initialize(self, tosg):
+        """init for task and plan system. manually set first task to exploring current position."""
+        # Add an explore self edge on the start node to ensure a exploration sampling action
+        edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
+        tosg.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
+
+        # spoof the task selection, just select the first one.
+        self.task = tosg.tasks[0]
+
+        # obtain the plan which corresponds to this edge.
+        init_explore_edge = tosg.get_task_edge(self.task)
+
+        self.plan = Plan([init_explore_edge])
+
+    def get_lg(self) -> LocalGrid:
+        lg_img = self._get_local_grid_img()
+        # save_something(lg_img, "lg_img")
+        lg = LocalGrid(
+            world_pos=self.get_localization(),
+            img_data=lg_img,
+            cfg=self.cfg,
+        )
+        post_event("new lg", lg)
+
+        return lg
+
     @abstractmethod
-    def get_local_grid_img(self) -> npt.NDArray:
+    def _get_local_grid_img(self) -> npt.NDArray:
         """
         Return the local grid image around the agent.
 
@@ -64,7 +100,7 @@ class AbstractAgent(ABC):
         pass
 
     # TODO: this should return a succes/ failure bool
-    def move_to_pos(self, target_pos: tuple, heading=None) -> None:
+    def move_to_pos(self, target_pos: tuple, heading=None) -> bool:
         if not heading:
             target_heading = self.calc_heading_to_target(target_pos)
         else:
@@ -92,12 +128,14 @@ class AbstractAgent(ABC):
             self.steps_taken += 1
             self.heading = target_heading
             self.pos = actual_pos
+            return True
 
         else:
             # FAILURE
             self._move_to_pos_implementation(self.previous_pos, self.heading)
             # self.previous_pos = self.get_localization()  # can also put this in the condition
             self.pos = self.get_localization()  # dont make sense for sim agent.
+            return False
 
     # perhaps something like this should go into robot services, to not murk the dependencies.
     def localize_to_waypoint(self, krm: TOSG):
@@ -142,11 +180,3 @@ class AbstractAgent(ABC):
 
     def clear_task(self):
         self.task = None
-
-    @property
-    def target_node(self) -> Optional[Node]:
-        if len(self.plan) >= 1:
-            return self.plan[-1][1]
-        else:
-            self.plan.invalidate()
-            return None

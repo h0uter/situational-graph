@@ -1,7 +1,7 @@
 from typing import Optional, Sequence
 
 from src.domain import Edge, Behaviors
-from src.domain.services.tosg import TOSG
+# from src.domain.services.tosg import TOSG
 
 
 class Plan:
@@ -31,21 +31,6 @@ class Plan:
     def invalidate(self) -> None:
         self.valid = False
         self._edge_sequence = []
-
-    def validate(self, tosg: TOSG) -> bool:
-        if len(self) < 1:
-            return False
-        if not tosg.check_node_exists(self[-1][1]):
-            return False
-
-        return True
-
-    def upcoming_behavior(self, tosg: TOSG) -> Behaviors:
-        if self.edge_sequence:
-            # return self._edge_sequence[0]
-            return tosg.get_behavior_of_edge(self._edge_sequence[0])
-        else:
-            raise Exception("No next behavior")
 
     def mutate_success(self) -> None:
         self._edge_sequence.pop(0)

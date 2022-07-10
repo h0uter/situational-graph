@@ -3,6 +3,7 @@ __all__ = [
     "Node",
     "Task",
     "LocalGrid",
+    "Affordance",
     "Behaviors",
     "Objectives",
     "ObjectTypes",
@@ -19,8 +20,9 @@ from src.domain.entities.objectives import Objectives
 from src.domain.entities.object_types import ObjectTypes
 from src.domain.entities.task import Task
 from src.domain.entities.local_grid import LocalGrid
+from src.domain.entities.affordance import Affordance
 
 from src.domain.services.tosg import TOSG
-from src.domain.services.plan import Plan
+from src.domain.entities.plan import Plan
 from src.domain.services.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.domain.services.planner import Planner

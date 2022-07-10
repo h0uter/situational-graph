@@ -1,11 +1,10 @@
+from typing import Sequence
+from src.domain.entities.affordance import Affordance
 from src.domain.services.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.configuration.config import Config
 
 
 class GotoBehavior(AbstractBehavior):
-    def __init__(self, cfg: Config):
-        super().__init__(cfg)
-
     def _run_behavior_implementation(
         self, agent, tosgraph, behavior_edge
     ) -> BehaviorResult:

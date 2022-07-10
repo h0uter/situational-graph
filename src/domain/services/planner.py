@@ -1,42 +1,24 @@
 import logging
-from typing import Optional, Mapping
+from typing import Optional, Mapping, Sequence, Type
 
 from src.domain.abstract_agent import AbstractAgent
-from src.domain import Node, Behaviors, Objectives, Task, AbstractBehavior
+from src.domain import Node, Behaviors, Task, AbstractBehavior, Plan, TOSG, Affordance
 
-from src.domain.services.plan import Plan
-from src.domain.services.tosg import TOSG
 from src.configuration.config import Config
 
 
+# FIXME: split into planner and plan executor. Unless I go the MPC esque route
 class Planner:
     def __init__(
         self,
         cfg: Config,
-        tosg: TOSG,
-        agent: AbstractAgent,
-        domain_behaviors: Mapping[Behaviors, AbstractBehavior],
+        domain_behaviors: Mapping[Behaviors, Type[AbstractBehavior]],
+        affordances: Sequence[Affordance],
     ) -> None:
         self.cfg = cfg
-        self.completed = False  # TODO: remove this
         self._log = logging.getLogger(__name__)
         self.DOMAIN_BEHAVIORS = domain_behaviors
-
-        self._initialize(tosg, agent)
-
-    def _initialize(self, tosg: TOSG, agent):
-        # Add an explore self edge on the start node to ensure a exploration sampling action
-        edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
-        tosg.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
-
-        # spoof the task selection, just select the first one.
-        agent.task = tosg.tasks[0]
-
-        # obtain the plan which corresponds to this edge.
-        init_explore_edge = tosg.get_task_edge(agent.task)
-
-        agent.plan = Plan([init_explore_edge])
-        self._log.debug(f"target node: {agent.target_node}")
+        self.AFFORDANCES = affordances
 
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
         """select a task"""
@@ -56,9 +38,9 @@ class Planner:
 
         """check completion of mission"""
         if self._check_if_tasks_exhausted(tosg):
-            self.completed = True
+            return True
 
-        return self.completed
+        return False
 
     def _destroy_task(self, agent: AbstractAgent, tosg: TOSG):
         self._log.debug(f"{agent.name}:  has a task  {agent.task}")
@@ -121,15 +103,16 @@ class Planner:
         self, agent: AbstractAgent, tosg: TOSG, plan: Plan
     ) -> Optional[Plan]:
 
-        if not plan.validate(tosg):
+        if not tosg.validate_plan(plan):
             return None
 
-        behavior_of_current_edge = plan.upcoming_behavior(tosg)
+        # behavior_of_current_edge = plan.upcoming_behavior(tosg)
+        behavior_of_current_edge = tosg.get_behavior_of_edge(plan.upcoming_edge)
+
         current_edge = plan.upcoming_edge
 
-        # FIXME: this should be dependency injected.
         """Execute the behavior of the current edge"""
-        result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](self.cfg).pipeline(
+        result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](self.cfg, self.AFFORDANCES).pipeline(
             agent, tosg, current_edge
         )
 
@@ -152,30 +135,3 @@ class Planner:
             return True
         else:
             return False
-
-    """Target Selection"""
-    ############################################################################################
-    # ENTRYPOINT FOR GUIDING EXPLORATION WITH SEMANTICS ########################################
-    ############################################################################################
-
-    # FIXME: task selector, needs to use list of tasks
-    def _evaluate_potential_target_nodes_based_on_path_cost(
-        self, agent: AbstractAgent, target_nodes: list[Node], tosg: TOSG
-    ) -> Optional[Node]:
-
-        shortest_path_len = float("inf")
-        selected_target_idx: Optional[Node] = None
-
-        for target_idx in target_nodes:
-            candidate_path_len: float = tosg.shortest_path_len(agent.at_wp, target_idx)  # type: ignore
-
-            if candidate_path_len < shortest_path_len and candidate_path_len != 0:
-                shortest_path_len = candidate_path_len
-                selected_target_idx = target_idx
-
-        if not selected_target_idx:
-            return
-
-        # assert selected_target_idx is not None
-
-        return selected_target_idx

@@ -8,15 +8,15 @@ import src.entrypoints.utils.event as event
 from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.domain.abstract_agent import AbstractAgent
-from src.domain.services.tosg import TOSG
+from src.domain import TOSG, Planner
 from src.entrypoints.utils.vizualisation_listener import VizualisationListener
-from src.domain.services.planner import Planner
 from src.utils.audio_feedback import play_file
 from src.configuration.config import Config, PlotLvl, Scenario
 from src.utils.krm_stats import TOSGStats
 from src.utils.sanity_checks import check_no_duplicate_wp_edges
 
 from src.usecases.sar_behaviors import SAR_BEHAVIORS
+from src.usecases.sar_affordances import SAR_AFFORDANCES
 
 
 def main(cfg: Config):
@@ -25,6 +25,7 @@ def main(cfg: Config):
     return success
 
 
+# make different versions of this function for different scenarios
 def init_entities(cfg: Config):
     if cfg.SCENARIO == Scenario.REAL:
         agents = [SpotAgent(cfg)]
@@ -32,8 +33,13 @@ def init_entities(cfg: Config):
         agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
 
     tosg = TOSG(cfg, start_poses=[agent.pos for agent in agents])
+
+    for agent in agents:
+        agent.initialize(tosg)
+
     domain_behaviors = SAR_BEHAVIORS
-    planning_pipelines = [Planner(cfg, tosg, agents[i], domain_behaviors) for i in range(cfg.NUM_AGENTS)]
+    affordances = SAR_AFFORDANCES
+    planner = Planner(cfg, domain_behaviors, affordances)
 
     VizualisationListener(cfg).setup_event_handler()
 
@@ -42,14 +48,15 @@ def init_entities(cfg: Config):
         agent.localize_to_waypoint(tosg)
         event.post_event("viz point", agent.pos)  # viz start position
 
-    return agents, tosg, planning_pipelines
+    return agents, tosg, planner
 
 
+# TODO: move this to usecases
 def run_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],
     tosg: TOSG,
-    planning_pipelines: Sequence[Planner],
+    planner: Planner,
 ):
 
     """Logging start."""
@@ -61,30 +68,29 @@ def run_demo(
         play_file("commencing_search.mp3")  # audio announcement of start
 
     """ Main Logic Loop"""
-    while (
-        not any(mission.completed is True for mission in planning_pipelines)
-        and step < cfg.MAX_STEPS
-    ):
+    mission_completed = False
+    while not mission_completed and step < cfg.MAX_STEPS:
         step_start = time.perf_counter()
 
         for agent_idx in range(len(agents)):
-            if planning_pipelines[agent_idx].pipeline(agents[agent_idx], tosg):
+            if planner.pipeline(agents[agent_idx], tosg):
+                mission_completed = True
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
+
             check_no_duplicate_wp_edges(tosg)
 
         feedback_pipeline_single_step(
-            step, step_start, agents, tosg, tosg_stats, planning_pipelines, my_logger
+            step, step_start, agents, tosg, tosg_stats, planner, my_logger
         )
         step += 1
 
     feedback_pipeline_completion(
-        step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
+        step, agents, tosg, tosg_stats, planner, my_logger, start
     )
 
     # krm_stats.save()
-    # FIXME: make this check the tasks and remove this completed property
-    return any(mission.completed is True for mission in planning_pipelines)
+    return mission_completed
 
 
 def feedback_pipeline_single_step(

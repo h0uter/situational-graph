@@ -14,7 +14,7 @@ class SimulatedAgent(AbstractAgent):
         self.lgs = LocalGridImageSpoofer(cfg)
         self.world_object_spoofer = WorldObjectSpoofer(cfg)
 
-    def get_local_grid_img(self) -> npt.NDArray:
+    def _get_local_grid_img(self) -> npt.NDArray:
         return self.lgs.sim_spoof_local_grid_from_img_world(self.pos)
 
     def get_localization(self) -> tuple[float, float]:

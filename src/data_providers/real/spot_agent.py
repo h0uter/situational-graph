@@ -122,7 +122,7 @@ class SpotAgent(AbstractAgent):
 
     #     # TODO: this should return a succes/ failure bool
 
-    def get_local_grid_img(self) -> npt.NDArray:
+    def _get_local_grid_img(self) -> npt.NDArray:
         return get_local_grid(self)
 
     def get_localization(self) -> tuple:

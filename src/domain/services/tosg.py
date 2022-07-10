@@ -6,6 +6,7 @@ from typing import List, Optional, Sequence
 import networkx as nx
 from src.domain import Behaviors, Edge, Node, Objectives, ObjectTypes, Task
 from src.configuration.config import Config
+from src.domain.entities.plan import Plan
 
 
 # FIXME: refactor this class a lot
@@ -14,7 +15,6 @@ class TOSG:
     def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
         self._log = logging.getLogger(__name__)
 
-        # self.graph = nx.DiGraph()  # Knowledge Road Map
         self.graph = nx.MultiDiGraph()  # Knowledge Road Map
         self.cfg = cfg
         self.next_wp_idx = 0
@@ -130,26 +130,26 @@ class TOSG:
         )
         return my_id
 
-    def add_world_object(self, pos: tuple, label: str) -> None:
-        """adds a world object to the graph"""
-        self.graph.add_node(
-            label, pos=pos, type=ObjectTypes.WORLD_OBJECT, id=uuid.uuid4()
-        )
+    # def add_world_object(self, pos: tuple, label: str) -> None:
+    #     """adds a world object to the graph"""
+    #     self.graph.add_node(
+    #         label, pos=pos, type=ObjectTypes.WORLD_OBJECT, id=uuid.uuid4()
+    #     )
 
-        if self.check_if_edge_exists(label, self.next_wp_idx - 1):
-            self._log.warning(
-                f"Edge between {label} and {self.next_wp_idx - 1} already exists"
-            )
-            return
+    #     if self.check_if_edge_exists(label, self.next_wp_idx - 1):
+    #         self._log.warning(
+    #             f"Edge between {label} and {self.next_wp_idx - 1} already exists"
+    #         )
+    #         return
 
-        # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
-        self.graph.add_edge(
-            self.next_wp_idx - 1,
-            label,
-            type=Behaviors.PLAN_EXTRACTION_WO_EDGE,
-            id=uuid.uuid4(),
-            cost=-100,
-        )
+    #     # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
+    #     self.graph.add_edge(
+    #         self.next_wp_idx - 1,
+    #         label,
+    #         type=Behaviors.PLAN_EXTRACTION_WO_EDGE,
+    #         id=uuid.uuid4(),
+    #         cost=-100,
+    #     )
 
     def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
         """adds a frontier to the graph"""
@@ -349,4 +349,11 @@ class TOSG:
     - asking the tosg which target node corresponds to a task
     - or asking the task what its target node is?
     """
-    
+
+    def validate_plan(self, plan: Plan) -> bool:
+        if len(plan) < 1:
+            return False
+        if not self.check_node_exists(plan[-1][1]):
+            return False
+
+        return True

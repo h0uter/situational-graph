@@ -1,9 +1,9 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Sequence
 
-from src.domain import TOSG, Edge
-from src.usecases.sar_affordances import SAR_AFFORDANCES
+from src.domain import TOSG, Edge, Affordance
 from src.configuration.config import Config
 
 
@@ -14,9 +14,10 @@ class BehaviorResult:
 
 
 class AbstractBehavior(ABC):
-    def __init__(self, cfg: Config):
+    def __init__(self, cfg: Config, affordances: Sequence[Affordance]) -> None:
         self.cfg = cfg
         self._log = logging.getLogger(__name__)
+        self.AFFORDANCES = affordances
 
     def pipeline(self, agent, tosg: TOSG, behavior_edge: Edge) -> BehaviorResult:
         """Execute the behavior pipeline."""
@@ -30,7 +31,7 @@ class AbstractBehavior(ABC):
             self._log.debug(f"postconditions satisfied")
             # TODO: make it actually mutate tasks
             self._mutate_graph_and_tasks_success(
-                agent, tosg, behavior_edge, SAR_AFFORDANCES
+                agent, tosg, behavior_edge, self.AFFORDANCES
             )
         else:
             # TODO: make it actually mutate tasks
