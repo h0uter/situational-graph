@@ -5,10 +5,8 @@ from typing import Optional
 import numpy as np
 import numpy.typing as npt
 
-from src.utils.config import Config
-from src.entities import Task, ObjectTypes, Node
-from src.usecases.plan import Plan
-from src.usecases.tosg import TOSG
+from src.configuration.config import Config
+from src.domain import Task, ObjectTypes, Node, Plan, TOSG
 
 
 class AbstractAgent(ABC):

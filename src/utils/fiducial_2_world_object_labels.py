@@ -1,5 +1,5 @@
 # 202==201
-from src.entities.world_object import WorldObject
+from src.domain.entities.world_object import WorldObject
 
 
 WORLD_OBJECT_ID_TO_NAME_MAPPING = {

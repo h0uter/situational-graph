@@ -1,5 +1,5 @@
 from src.__main__ import main
-from src.utils.config import Config, Scenario, PlotLvl
+from src.configuration.config import Config, Scenario, PlotLvl
 
 
 def test_demo_villa_closed_room_completes():

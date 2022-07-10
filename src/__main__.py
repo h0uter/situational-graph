@@ -4,15 +4,15 @@ from typing import Sequence
 
 import matplotlib
 
-import src.utils.event as event
+import src.entrypoints.utils.event as event
 from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
-from src.data_providers.abstract_agent import AbstractAgent
-from src.usecases.tosg import TOSG
-from src.entrypoints.vizualisation_listener import VizualisationListener
-from src.usecases.planner import Planner
+from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.tosg import TOSG
+from src.entrypoints.utils.vizualisation_listener import VizualisationListener
+from src.domain.services.planner import Planner
 from src.utils.audio_feedback import play_file
-from src.utils.config import Config, PlotLvl, Scenario
+from src.configuration.config import Config, PlotLvl, Scenario
 from src.utils.krm_stats import TOSGStats
 from src.utils.sanity_checks import check_no_duplicate_wp_edges
 

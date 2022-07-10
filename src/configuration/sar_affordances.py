@@ -1,4 +1,4 @@
-from src.entities import ObjectTypes, Behaviors, Objectives
+from src.domain import ObjectTypes, Behaviors, Objectives
 
 SAR_AFFORDANCES = [
     (ObjectTypes.WAYPOINT, Behaviors.GOTO, None),

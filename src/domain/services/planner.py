@@ -1,14 +1,14 @@
 import logging
 from typing import Optional
 
-from src.data_providers.abstract_agent import AbstractAgent
-from src.entities import Node, Behaviors, Objectives, Task
+from src.domain.abstract_agent import AbstractAgent
+from src.domain import Node, Behaviors, Objectives, Task
 
-from src.usecases.plan import Plan
-from src.usecases.tosg import TOSG
-from src.utils.config import Config
+from src.domain.services.plan import Plan
+from src.domain.services.tosg import TOSG
+from src.configuration.config import Config
 
-from src.usecases.behaviors.behavior_implementations import BEHAVIOR_IMPLEMENTATIONS
+from src.configuration.behavior_implementations import BEHAVIOR_IMPLEMENTATIONS
 
 
 class Planner:

@@ -1,5 +1,5 @@
-from src.utils.config import Config, Scenario
-from src.entities.world_object import WorldObject
+from src.configuration.config import Config, Scenario
+from src.domain.entities.world_object import WorldObject
 
 
 class WorldObjectSpoofer:

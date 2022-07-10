@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from PIL import Image
 
-from src.data_providers.abstract_agent import AbstractAgent
-from src.entities.static_data.behaviors import Behaviors
-from src.entities.static_data.object_types import ObjectTypes
-from src.usecases.tosg import TOSG
-from src.entities.dynamic_data.local_grid import LocalGrid
+from src.domain.abstract_agent import AbstractAgent
+from src.domain.entities.behaviors import Behaviors
+from src.domain.entities.object_types import ObjectTypes
+from src.domain.services.tosg import TOSG
+from src.domain.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.utils.config import Config
+from src.configuration.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 

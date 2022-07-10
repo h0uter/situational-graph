@@ -1,14 +1,14 @@
 from typing import Sequence
 
-from src.data_providers.abstract_agent import AbstractAgent
-from src.entities.dynamic_data.node_and_edge import Edge, Node
-from src.entities.dynamic_data.local_grid import LocalGrid
-from src.entities.static_data.object_types import ObjectTypes
-from src.usecases.tosg import TOSG
-from src.usecases.behaviors.abstract_behavior import (AbstractBehavior,
+from src.domain.abstract_agent import AbstractAgent
+from src.domain.entities.node_and_edge import Edge, Node
+from src.domain.entities.local_grid import LocalGrid
+from src.domain.entities.object_types import ObjectTypes
+from src.domain.services.tosg import TOSG
+from src.domain.services.behaviors.abstract_behavior import (AbstractBehavior,
                                                       BehaviorResult)
-from src.utils.config import Config
-from src.utils.event import post_event
+from src.configuration.config import Config
+from src.entrypoints.utils.event import post_event
 from src.utils.saving_data_objects import load_something, save_something
 
 

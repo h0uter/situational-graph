@@ -1,9 +1,9 @@
-from src.entities.dynamic_data.local_grid import LocalGrid
+from src.domain.entities.local_grid import LocalGrid
 
 import numpy as np
 import pytest
 
-from src.utils.config import Config
+from src.configuration.config import Config
 
 
 def test_local_grid_init():

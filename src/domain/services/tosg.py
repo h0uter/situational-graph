@@ -4,8 +4,8 @@ import uuid
 from typing import List, Optional, Sequence
 
 import networkx as nx
-from src.entities import Behaviors, Edge, Node, Objectives, ObjectTypes, Task
-from src.utils.config import Config
+from src.domain import Behaviors, Edge, Node, Objectives, ObjectTypes, Task
+from src.configuration.config import Config
 
 
 # FIXME: refactor this class a lot

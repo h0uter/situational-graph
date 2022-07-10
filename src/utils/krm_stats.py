@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
-from src.entities.static_data.behaviors import Behaviors
-from src.entities.static_data.object_types import ObjectTypes
+from src.domain.entities.behaviors import Behaviors
+from src.domain.entities.object_types import ObjectTypes
 
 from src.utils.saving_data_objects import load_something, save_something
 

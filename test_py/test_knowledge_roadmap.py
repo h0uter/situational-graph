@@ -1,5 +1,5 @@
-from src.usecases.tosg import TOSG
-from src.utils.config import Config
+from src.domain.services.tosg import TOSG
+from src.configuration.config import Config
 
 
 def test_get_node_by_pos():

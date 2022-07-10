@@ -1,8 +1,8 @@
 from typing import Sequence
-from src.data_providers.abstract_agent import AbstractAgent
-from src.usecases.tosg import TOSG
-from src.usecases.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
-from src.utils.config import Config
+from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.tosg import TOSG
+from src.domain.services.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
+from src.configuration.config import Config
 
 
 class GotoBehavior(AbstractBehavior):

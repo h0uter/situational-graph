@@ -6,13 +6,13 @@ import networkx as nx
 import numpy as np
 import vedo
 
-from src.data_providers.abstract_agent import AbstractAgent
-from src.entities.static_data.object_types import ObjectTypes
-from src.usecases.tosg import TOSG
-from src.entities.dynamic_data.local_grid import LocalGrid
+from src.domain.abstract_agent import AbstractAgent
+from src.domain.entities.object_types import ObjectTypes
+from src.domain.services.tosg import TOSG
+from src.domain.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.usecases.planner import Planner
-from src.utils.config import Config, PlotLvl, Scenario
+from src.domain.services.planner import Planner
+from src.configuration.config import Config, PlotLvl, Scenario
 
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html

@@ -1,7 +1,7 @@
 from typing import Optional, Sequence
 
-from src.entities import Edge, Behaviors
-from src.usecases.tosg import TOSG
+from src.domain import Edge, Behaviors
+from src.domain.services.tosg import TOSG
 
 
 class Plan:

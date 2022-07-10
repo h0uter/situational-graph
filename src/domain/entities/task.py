@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
-from src.entities import Objectives
+from src.domain import Objectives
 
 
 @dataclass

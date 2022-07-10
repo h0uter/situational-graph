@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Union, Sequence
 
-from src.data_providers.abstract_agent import AbstractAgent
-from src.usecases.tosg import TOSG
-from src.usecases.planner import Planner
+from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.tosg import TOSG
+from src.domain.services.planner import Planner
 
 # from src.usecases.exploration_usecase import ExplorationUsecase
-from src.entities.dynamic_data.local_grid import LocalGrid
-from src.utils.config import Config
+from src.domain.entities.local_grid import LocalGrid
+from src.configuration.config import Config
 
 
 class AbstractVizualisation(ABC):
