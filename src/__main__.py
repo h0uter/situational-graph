@@ -16,6 +16,8 @@ from src.configuration.config import Config, PlotLvl, Scenario
 from src.utils.krm_stats import TOSGStats
 from src.utils.sanity_checks import check_no_duplicate_wp_edges
 
+from src.usecases.sar_behaviors import SAR_BEHAVIORS
+
 
 def main(cfg: Config):
     agents, krm, usecases = init_entities(cfg)
@@ -30,7 +32,8 @@ def init_entities(cfg: Config):
         agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
 
     tosg = TOSG(cfg, start_poses=[agent.pos for agent in agents])
-    planning_pipelines = [Planner(cfg, tosg, agents[i]) for i in range(cfg.NUM_AGENTS)]
+    domain_behaviors = SAR_BEHAVIORS
+    planning_pipelines = [Planner(cfg, tosg, agents[i], domain_behaviors) for i in range(cfg.NUM_AGENTS)]
 
     VizualisationListener(cfg).setup_event_handler()
 

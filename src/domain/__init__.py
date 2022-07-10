@@ -2,12 +2,15 @@ __all__ = [
     "Edge",
     "Node",
     "Task",
+    "LocalGrid",
     "Behaviors",
     "Objectives",
     "ObjectTypes",
     "Planner",
     "Plan",
     "TOSG",
+    "AbstractBehavior",
+    "BehaviorResult",
 ]
 
 from src.domain.entities.node_and_edge import Edge, Node
@@ -15,7 +18,9 @@ from src.domain.entities.behaviors import Behaviors
 from src.domain.entities.objectives import Objectives
 from src.domain.entities.object_types import ObjectTypes
 from src.domain.entities.task import Task
+from src.domain.entities.local_grid import LocalGrid
 
 from src.domain.services.tosg import TOSG
 from src.domain.services.plan import Plan
+from src.domain.services.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.domain.services.planner import Planner

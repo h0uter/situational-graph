@@ -7,11 +7,8 @@ import numpy as np
 import vedo
 
 from src.domain.abstract_agent import AbstractAgent
-from src.domain.entities.object_types import ObjectTypes
-from src.domain.services.tosg import TOSG
-from src.domain.entities.local_grid import LocalGrid
+from src.domain import TOSG, ObjectTypes, LocalGrid, Planner
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.domain.services.planner import Planner
 from src.configuration.config import Config, PlotLvl, Scenario
 
 

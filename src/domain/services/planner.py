@@ -1,21 +1,26 @@
 import logging
-from typing import Optional
+from typing import Optional, Mapping
 
 from src.domain.abstract_agent import AbstractAgent
-from src.domain import Node, Behaviors, Objectives, Task
+from src.domain import Node, Behaviors, Objectives, Task, AbstractBehavior
 
 from src.domain.services.plan import Plan
 from src.domain.services.tosg import TOSG
 from src.configuration.config import Config
 
-from src.configuration.behavior_implementations import BEHAVIOR_IMPLEMENTATIONS
-
 
 class Planner:
-    def __init__(self, cfg: Config, tosg: TOSG, agent) -> None:
+    def __init__(
+        self,
+        cfg: Config,
+        tosg: TOSG,
+        agent: AbstractAgent,
+        domain_behaviors: Mapping[Behaviors, AbstractBehavior],
+    ) -> None:
         self.cfg = cfg
         self.completed = False  # TODO: remove this
         self._log = logging.getLogger(__name__)
+        self.DOMAIN_BEHAVIORS = domain_behaviors
 
         self._initialize(tosg, agent)
 
@@ -122,8 +127,9 @@ class Planner:
         behavior_of_current_edge = plan.upcoming_behavior(tosg)
         current_edge = plan.upcoming_edge
 
+        # FIXME: this should be dependency injected.
         """Execute the behavior of the current edge"""
-        result = BEHAVIOR_IMPLEMENTATIONS[behavior_of_current_edge](self.cfg).pipeline(
+        result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](self.cfg).pipeline(
             agent, tosg, current_edge
         )
 

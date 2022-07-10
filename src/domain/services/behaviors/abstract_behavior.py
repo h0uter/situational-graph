@@ -2,9 +2,8 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from src.domain.entities.node_and_edge import Edge
-from src.configuration.sar_affordances import SAR_AFFORDANCES
-from src.domain.services.tosg import TOSG
+from src.domain import TOSG, Edge
+from src.usecases.sar_affordances import SAR_AFFORDANCES
 from src.configuration.config import Config
 
 

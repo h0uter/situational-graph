@@ -4,6 +4,7 @@ from typing import Optional
 import numpy as np
 import numpy.typing as npt
 from skimage import draw
+
 from src.configuration.config import Config, Scenario
 
 

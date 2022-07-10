@@ -1,13 +1,8 @@
 from typing import Sequence
 
-from src.domain.abstract_agent import AbstractAgent
-from src.domain.entities.node_and_edge import Edge, Node
-from src.domain.entities.local_grid import LocalGrid
-from src.domain.entities.object_types import ObjectTypes
-from src.domain.services.tosg import TOSG
-from src.domain.services.behaviors.abstract_behavior import (AbstractBehavior,
-                                                      BehaviorResult)
 from src.configuration.config import Config
+from src.domain.abstract_agent import AbstractAgent
+from src.domain import LocalGrid, Edge, Node, ObjectTypes, AbstractBehavior, BehaviorResult, TOSG
 from src.entrypoints.utils.event import post_event
 from src.utils.saving_data_objects import load_something, save_something
 
