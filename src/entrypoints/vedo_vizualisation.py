@@ -6,10 +6,10 @@ import networkx as nx
 import numpy as np
 import vedo
 
-from src.entities.abstract_agent import AbstractAgent
+from src.data_providers.abstract_agent import AbstractAgent
 from src.entities.static_data.object_types import ObjectTypes
-from src.entities.tosg import TOSG
-from src.entities.local_grid import LocalGrid
+from src.usecases.tosg import TOSG
+from src.entities.dynamic_data.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.usecases.planner import Planner
 from src.utils.config import Config, PlotLvl, Scenario

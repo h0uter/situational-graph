@@ -1,16 +1,14 @@
 import logging
 from typing import Optional
 
-from src.entities.abstract_agent import AbstractAgent
-from src.entities.dynamic_data.task import Task
-from src.entities.plan import Plan
-from src.entities.static_data.behaviors import Behaviors
-from src.entities.static_data.objectives import Objectives
-from src.entities.tosg import TOSG
-from src.usecases.behaviors.explore_behavior import ExploreBehavior
-from src.usecases.behaviors.goto_behavior import GotoBehavior
+from src.data_providers.abstract_agent import AbstractAgent
+from src.entities import Node, Behaviors, Objectives, Task
+
+from src.usecases.plan import Plan
+from src.usecases.tosg import TOSG
 from src.utils.config import Config
-from src.entities.dynamic_data.node_and_edge import Edge, Node
+
+from src.usecases.behaviors.behavior_implementations import BEHAVIOR_IMPLEMENTATIONS
 
 
 class Planner:
@@ -30,7 +28,7 @@ class Planner:
         agent.task = tosg.tasks[0]
 
         # obtain the plan which corresponds to this edge.
-        init_explore_edge = tosg.get_edge_by_UUID(agent.task.edge_uuid)
+        init_explore_edge = tosg.get_task_edge(agent.task)
 
         agent.plan = Plan([init_explore_edge])
         self._log.debug(f"target node: {agent.target_node}")
@@ -80,7 +78,7 @@ class Planner:
 
         for task in tosg.tasks:
 
-            task_target_node = task.get_target_node(tosg)
+            task_target_node = tosg.get_task_target_node(task)
             # HACK: sometimes we get a task that does not exist anymore.
             if not task_target_node:
                 continue
@@ -105,7 +103,7 @@ class Planner:
         self, agent_localized_to: Node, tosg: TOSG, task: Task
     ) -> Optional[Plan]:
 
-        target_node = task.get_target_node(tosg)
+        target_node = tosg.get_task_target_node(task)
         if not self._check_target_still_valid(tosg, target_node):
             return None
 
@@ -124,19 +122,10 @@ class Planner:
         behavior_of_current_edge = plan.upcoming_behavior(tosg)
         current_edge = plan.upcoming_edge
 
-        # FIXME: this needs to be setup to handle an arbitrary number of edges.
-        # like using a strategy pattern or something
-        if behavior_of_current_edge == Behaviors.EXPLORE:
-            """exploration"""
-            result = ExploreBehavior(self.cfg).pipeline(agent, tosg, current_edge)
-            self._log.debug(f"exploration result: {result}")
-            # self.destroy_task(agent, tosg)
-            # return result
-
-        elif behavior_of_current_edge == Behaviors.GOTO:
-            """goto"""
-            result = GotoBehavior(self.cfg).pipeline(agent, tosg, current_edge)
-            self._log.debug(f"goto result: {result}")
+        """Execute the behavior of the current edge"""
+        result = BEHAVIOR_IMPLEMENTATIONS[behavior_of_current_edge](self.cfg).pipeline(
+            agent, tosg, current_edge
+        )
 
         # FIXME: this can be shorter
         if result.success:

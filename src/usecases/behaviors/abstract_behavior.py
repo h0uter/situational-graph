@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from src.entities.dynamic_data.node_and_edge import Edge
-from src.entities.static_data.affordances import AFFORDANCES
-from src.entities.tosg import TOSG
+from src.usecases.sar_affordances import SAR_AFFORDANCES
+from src.usecases.tosg import TOSG
 from src.utils.config import Config
 
 
@@ -22,7 +22,7 @@ class AbstractBehavior(ABC):
     def pipeline(self, agent, tosg: TOSG, behavior_edge: Edge) -> BehaviorResult:
         """Execute the behavior pipeline."""
 
-        result = self._run_implementation(agent, tosg, behavior_edge)
+        result = self._run_behavior_implementation(agent, tosg, behavior_edge)
 
         if not result.success:
             return result
@@ -31,7 +31,7 @@ class AbstractBehavior(ABC):
             self._log.debug(f"postconditions satisfied")
             # TODO: make it actually mutate tasks
             self._mutate_graph_and_tasks_success(
-                agent, tosg, behavior_edge, AFFORDANCES
+                agent, tosg, behavior_edge, SAR_AFFORDANCES
             )
         else:
             # TODO: make it actually mutate tasks
@@ -43,7 +43,7 @@ class AbstractBehavior(ABC):
         return result
 
     @abstractmethod
-    def _run_implementation(
+    def _run_behavior_implementation(
         self, agent, tosgraph: TOSG, behavior_edge: Edge
     ) -> BehaviorResult:
         pass

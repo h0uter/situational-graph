@@ -1,4 +1,4 @@
-from src.entities.tosg import TOSG
+from src.usecases.tosg import TOSG
 from src.utils.config import Config
 
 

@@ -7,8 +7,8 @@ import matplotlib
 import src.utils.event as event
 from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
-from src.entities.abstract_agent import AbstractAgent
-from src.entities.tosg import TOSG
+from src.data_providers.abstract_agent import AbstractAgent
+from src.usecases.tosg import TOSG
 from src.entrypoints.vizualisation_listener import VizualisationListener
 from src.usecases.planner import Planner
 from src.utils.audio_feedback import play_file
@@ -70,12 +70,12 @@ def run_demo(
                 break
             check_no_duplicate_wp_edges(tosg)
 
-        single_step_feedback_pipeline(
+        feedback_pipeline_single_step(
             step, step_start, agents, tosg, tosg_stats, planning_pipelines, my_logger
         )
         step += 1
 
-    completion_feedback_pipeline(
+    feedback_pipeline_completion(
         step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
     )
 
@@ -84,7 +84,7 @@ def run_demo(
     return any(mission.completed is True for mission in planning_pipelines)
 
 
-def single_step_feedback_pipeline(
+def feedback_pipeline_single_step(
     step, step_start, agents, tosg, tosg_stats, planning_pipelines, my_logger
 ):
     """Data collection"""
@@ -103,7 +103,7 @@ def single_step_feedback_pipeline(
         my_logger.info(s)
 
 
-def completion_feedback_pipeline(
+def feedback_pipeline_completion(
     step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
 ):
     """Results"""

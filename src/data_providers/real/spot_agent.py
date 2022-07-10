@@ -23,8 +23,8 @@ from bosdyn.client.frame_helpers import (
 
 from src.utils.fiducial_2_world_object_labels import create_wo_from_fiducial
 from src.data_providers.real.spot_wrapper import SpotWrapper
-from src.entities.abstract_agent import AbstractAgent
-from src.entities.local_grid import LocalGrid
+from src.data_providers.abstract_agent import AbstractAgent
+from src.entities.dynamic_data.local_grid import LocalGrid
 from src.utils.get_login_config import get_login_config
 
 # from src.entities.world_object import WorldObject

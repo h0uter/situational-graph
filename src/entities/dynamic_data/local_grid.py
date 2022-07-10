@@ -53,7 +53,7 @@ class LocalGrid:
         )
         return x_idx, y_idx
 
-    def _cell_idx2world_coords(self, idxs: tuple) -> tuple:
+    def cell_idx2world_coords(self, idxs: tuple) -> tuple:
         """
         Convert the cell indices to the world coordinates.
         """
@@ -116,7 +116,7 @@ class LocalGrid:
                     self.data[r, c][0:2],
                     [self.pixel_occupied_treshold, self.pixel_occupied_treshold],
                 ).any():
-                    x, y = self._cell_idx2world_coords((c, r))
+                    x, y = self.cell_idx2world_coords((c, r))
                     collision_point = (x, y)
                     # print(f"collision at : {collision_point}")
 
@@ -127,9 +127,10 @@ class LocalGrid:
             rr, cc = self._get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
                 if np.greater(
-                    self.data[c, r][3], [self.pixel_occupied_treshold],
+                    self.data[c, r][3],
+                    [self.pixel_occupied_treshold],
                 ).any():
-                    x, y = self._cell_idx2world_coords((c, r))
+                    x, y = self.cell_idx2world_coords((c, r))
                     collision_point = (x, y)
 
                     return False, collision_point
@@ -147,13 +148,15 @@ class LocalGrid:
                         self.pixel_occupied_treshold,
                     ],
                 ).any():
-                    x, y = self._cell_idx2world_coords((c, r))
+                    x, y = self.cell_idx2world_coords((c, r))
                     collision_point = (x, y)
 
                     return False, collision_point
             return True, None
 
-    def _sample_cell_around_other_cell(self, x: int, y: int, radius: int) -> Optional[tuple]:
+    def _sample_cell_around_other_cell(
+        self, x: int, y: int, radius: int
+    ) -> Optional[tuple]:
         sample_valid = False
         attempts = 0
         x_sample, y_sample = None, None
@@ -167,7 +170,8 @@ class LocalGrid:
             y_sample = int(y + r * np.sin(theta))
 
             sample_valid, _ = self.is_collision_free_straight_line_between_cells(
-                at=(x, y), to=(x_sample, y_sample),
+                at=(x, y),
+                to=(x_sample, y_sample),
             )
             attempts += 1
 
@@ -192,7 +196,9 @@ class LocalGrid:
             y_center = self.length_num_cells // 2
 
             sample = self._sample_cell_around_other_cell(
-                x_center, y_center, radius=radius,
+                x_center,
+                y_center,
+                radius=radius,
             )
             if sample:
                 x_sample, y_sample = sample

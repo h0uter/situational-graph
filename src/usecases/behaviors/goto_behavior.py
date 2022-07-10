@@ -1,6 +1,6 @@
 from typing import Sequence
-from src.entities.abstract_agent import AbstractAgent
-from src.entities.tosg import TOSG
+from src.data_providers.abstract_agent import AbstractAgent
+from src.usecases.tosg import TOSG
 from src.usecases.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.utils.config import Config
 
@@ -9,7 +9,9 @@ class GotoBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def _run_implementation(self, agent, tosgraph, behavior_edge) -> BehaviorResult:
+    def _run_behavior_implementation(
+        self, agent, tosgraph, behavior_edge
+    ) -> BehaviorResult:
         node_data = tosgraph.get_node_data_by_node(behavior_edge[1])
         agent.move_to_pos(node_data["pos"])
         agent.localize_to_waypoint(tosgraph)

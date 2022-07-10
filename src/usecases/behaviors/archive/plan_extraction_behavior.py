@@ -1,8 +1,8 @@
 import time
 from typing import Sequence
 
-from src.entities.abstract_agent import AbstractAgent
-from src.entities.tosg import TOSG
+from src.data_providers.abstract_agent import AbstractAgent
+from src.usecases.tosg import TOSG
 from src.usecases.behaviors.abstract_behavior import AbstractBehavior
 from src.utils.audio_feedback import play_hi_follow_me
 from src.utils.config import Config
@@ -13,7 +13,7 @@ class PlanExtractionBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def _run_implementation(
+    def _run_behavior_implementation(
         self, agent: AbstractAgent, krm: TOSG, action_path: Sequence[Edge]
     ):
         """Currently the world object action is guide victim home action"""

@@ -1,4 +1,4 @@
-from src.entities.local_grid import LocalGrid
+from src.entities.dynamic_data.local_grid import LocalGrid
 
 import numpy as np
 import pytest
@@ -60,4 +60,4 @@ def test_transformation_back_to_back():
     lg = LocalGrid((10, 10), np.array([]))
     a = (10, 10)
     b = lg.world_coords2cell_idxs(a)
-    assert a == pytest.approx(lg._cell_idx2world_coords(b), 0.1)
+    assert a == pytest.approx(lg.cell_idx2world_coords(b), 0.1)

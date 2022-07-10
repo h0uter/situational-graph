@@ -4,12 +4,11 @@ from typing import Optional
 
 import numpy as np
 import numpy.typing as npt
-from src.entities.dynamic_data.node_and_edge import Node
-from src.entities.dynamic_data.task import Task
-from src.entities.plan import Plan
-from src.entities.static_data.object_types import ObjectTypes
-from src.entities.tosg import TOSG
+
 from src.utils.config import Config
+from src.entities import Task, ObjectTypes, Node
+from src.usecases.plan import Plan
+from src.usecases.tosg import TOSG
 
 
 class AbstractAgent(ABC):

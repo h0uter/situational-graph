@@ -1,12 +1,14 @@
 from typing import Sequence
-from src.entities.abstract_agent import AbstractAgent
+
+from src.data_providers.abstract_agent import AbstractAgent
+from src.entities.dynamic_data.node_and_edge import Edge, Node
+from src.entities.dynamic_data.local_grid import LocalGrid
 from src.entities.static_data.object_types import ObjectTypes
-from src.entities.tosg import TOSG
-from src.entities.local_grid import LocalGrid
-from src.usecases.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
+from src.usecases.tosg import TOSG
+from src.usecases.behaviors.abstract_behavior import (AbstractBehavior,
+                                                      BehaviorResult)
 from src.utils.config import Config
 from src.utils.event import post_event
-from src.entities.dynamic_data.node_and_edge import Edge, Node
 from src.utils.saving_data_objects import load_something, save_something
 
 
@@ -14,7 +16,7 @@ class ExploreBehavior(AbstractBehavior):
     def __init__(self, cfg: Config):
         super().__init__(cfg)
 
-    def _run_implementation(
+    def _run_behavior_implementation(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge
     ) -> BehaviorResult:
         target_node = behavior_edge[1]

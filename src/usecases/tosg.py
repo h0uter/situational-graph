@@ -4,16 +4,13 @@ import uuid
 from typing import List, Optional, Sequence
 
 import networkx as nx
-from src.entities.dynamic_data.task import Task
-from src.entities.static_data.behaviors import Behaviors
-from src.entities.static_data.objectives import Objectives
-from src.entities.static_data.object_types import ObjectTypes
+from src.entities import Behaviors, Edge, Node, Objectives, ObjectTypes, Task
 from src.utils.config import Config
-from src.entities.dynamic_data.node_and_edge import Edge, Node
 
 
+# FIXME: refactor this class a lot
+# separate behavior from data
 class TOSG:
-    # TODO: adress local vs global KRM
     def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
         self._log = logging.getLogger(__name__)
 
@@ -24,13 +21,14 @@ class TOSG:
 
         self.tasks: List[Task] = []
 
-        # This is ugly
+        # FIXME: This is ugly
         self.duplicate_start_poses = []
         for start_pos in start_poses:
             if start_pos not in self.duplicate_start_poses:
                 self.add_start_waypoints(start_pos)
                 # HACK:
                 self.duplicate_start_poses.append(start_pos)
+
         self.next_frontier_idx = cfg.FRONTIER_INDEX_START
         self.next_wo_idx = cfg.WORLD_OBJECT_INDEX_START
 
@@ -57,9 +55,6 @@ class TOSG:
             return None
 
     def shortest_path_len(self, source: Node, target: Node):
-        # TODO: use the reconstruct path function
-        # with an all pairs algorithms that also returns a predecessor dict.
-
         path_len = nx.shortest_path_length(
             self.graph,
             source=source,
@@ -330,3 +325,28 @@ class TOSG:
                 ddict["id"] for u, v, ddict in self.graph.edges(data=True)
             ]:
                 self.tasks.remove(task)
+
+    def get_task_target_node(self, task: Task) -> Optional[Node]:
+        """returns the target node of a task"""
+        edge = self.get_task_edge(task)
+        if edge:
+            return edge[1]
+        else:
+            self._log.error(f"get_target_node(): No edge with UUID {task.edge_uuid}")
+            return None
+
+    def get_task_edge(self, task: Task) -> Optional[Edge]:
+        """returns the edge of a task"""
+        edge = self.get_edge_by_UUID(task.edge_uuid)
+        if edge:
+            return edge
+        else:
+            self._log.error(f"get_task_edge(): No edge with UUID {task.edge_uuid}")
+            return None
+
+    """
+    what makes more sense:
+    - asking the tosg which target node corresponds to a task
+    - or asking the task what its target node is?
+    """
+    

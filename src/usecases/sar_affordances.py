@@ -1,11 +1,6 @@
-from src.entities.static_data.behaviors import Behaviors
-from src.entities.static_data.objectives import Objectives
-from src.entities.static_data.object_types import ObjectTypes
+from src.entities import ObjectTypes, Behaviors, Objectives
 
-
-Affordance = tuple[ObjectTypes, Behaviors, Objectives]
-
-AFFORDANCES = [
+SAR_AFFORDANCES = [
     (ObjectTypes.WAYPOINT, Behaviors.GOTO, None),
     (ObjectTypes.HOTSPOT, Behaviors.VISIT, Objectives.VISIT_ALL_HOTSPOTS),
     (ObjectTypes.FRONTIER, Behaviors.EXPLORE, Objectives.EXPLORE_ALL_FTS),
