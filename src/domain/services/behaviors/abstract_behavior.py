@@ -5,6 +5,7 @@ from typing import Sequence
 
 from src.domain import TOSG, Edge, Affordance
 from src.configuration.config import Config
+from src.domain.abstract_agent import AbstractAgent
 
 
 @dataclass
@@ -19,7 +20,9 @@ class AbstractBehavior(ABC):
         self._log = logging.getLogger(__name__)
         self.AFFORDANCES = affordances
 
-    def pipeline(self, agent, tosg: TOSG, behavior_edge: Edge) -> BehaviorResult:
+    def pipeline(
+        self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
+    ) -> BehaviorResult:
         """Execute the behavior pipeline."""
 
         result = self._run_behavior_implementation(agent, tosg, behavior_edge)
@@ -31,7 +34,7 @@ class AbstractBehavior(ABC):
             self._log.debug(f"postconditions satisfied")
             # TODO: make it actually mutate tasks
             self._mutate_graph_and_tasks_success(
-                agent, tosg, behavior_edge, self.AFFORDANCES
+                agent, tosg, result, behavior_edge, self.AFFORDANCES
             )
         else:
             # TODO: make it actually mutate tasks
@@ -50,7 +53,7 @@ class AbstractBehavior(ABC):
 
     @abstractmethod
     def _check_postconditions(
-        self, agent, tosgraph: TOSG, result, behavior_edge: Edge
+        self, agent: AbstractAgent, tosgraph: TOSG, result, behavior_edge: Edge
     ) -> bool:
         """Check if the postconditions for the behavior are met."""
         pass
@@ -61,14 +64,19 @@ class AbstractBehavior(ABC):
 
     @abstractmethod
     def _mutate_graph_and_tasks_success(
-        self, agent, tosgraph: TOSG, next_node, affordances
+        self,
+        agent: AbstractAgent,
+        tosg: TOSG,
+        result: BehaviorResult,
+        behavior_edge: Edge,
+        affordances: Sequence[Affordance],
     ):
         """Mutate the graph according to the behavior."""
         pass
 
     @abstractmethod
     def _mutate_graph_and_tasks_failure(
-        self, agent, tosgraph: TOSG, behavior_edge: Edge
+        self, agent: AbstractAgent, tosgraph: TOSG, behavior_edge: Edge
     ):
         """Mutate the graph according to the behavior."""
         pass

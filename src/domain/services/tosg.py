@@ -356,3 +356,13 @@ class TOSG:
             return False
 
         return True
+
+    def remove_node(self, node: Node):
+        self.graph.remove_node(node)
+
+    def add_node(self, pos: tuple[float, float], object_type: ObjectTypes):
+        my_node_id = uuid.uuid4()
+        self.graph.add_node(
+            my_node_id, pos=pos, type=object_type, id=my_node_id
+        )
+        return my_node_id

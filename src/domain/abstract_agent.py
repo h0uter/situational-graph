@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Sequence
 
 import numpy as np
 import numpy.typing as npt
@@ -9,6 +9,7 @@ from src.domain import TOSG, Node, ObjectTypes, Plan, Task
 from src.domain.entities.behaviors import Behaviors
 from src.domain.entities.local_grid import LocalGrid
 from src.domain.entities.objectives import Objectives
+from src.domain.entities.world_object import WorldObject
 from src.entrypoints.utils.event import post_event
 
 
@@ -81,7 +82,7 @@ class AbstractAgent(ABC):
         pass
 
     @abstractmethod
-    def look_for_world_objects_in_perception_scene(self) -> list:
+    def look_for_world_objects_in_perception_scene(self) -> Sequence[WorldObject]:
         """
         Look for world objects in the perception scene.
 

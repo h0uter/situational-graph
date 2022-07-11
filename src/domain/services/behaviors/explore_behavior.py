@@ -10,6 +10,7 @@ from src.domain import (
     BehaviorResult,
     TOSG,
 )
+from src.domain.entities.affordance import Affordance
 from src.utils.saving_data_objects import load_something, save_something
 
 
@@ -49,7 +50,12 @@ class ExploreBehavior(AbstractBehavior):
         return self.__check_at_destination(agent, tosg, next_node)
 
     def _mutate_graph_and_tasks_success(
-        self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge, affordances
+        self,
+        agent: AbstractAgent,
+        tosg: TOSG,
+        result: BehaviorResult,
+        behavior_edge: Edge,
+        affordances: Sequence[Affordance],
     ):
         next_node = behavior_edge[1]
         self._log.debug(
@@ -71,7 +77,7 @@ class ExploreBehavior(AbstractBehavior):
         self.__prune_frontiers(tosg)
         self.__find_shortcuts_between_wps(lg, tosg, agent)
 
-        self.__process_world_objects(agent, tosg)
+        self.__process_world_objects(agent, tosg, affordances)
 
     def _mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
@@ -97,8 +103,11 @@ class ExploreBehavior(AbstractBehavior):
     ##############################################################################################
 
     # TODO: move this to agent services or smth
-    def __process_world_objects(self, agent: AbstractAgent, tosg: TOSG) -> None:
+    def __process_world_objects(
+        self, agent: AbstractAgent, tosg: TOSG, affordances: Sequence[Affordance]
+    ) -> None:
         w_os = agent.look_for_world_objects_in_perception_scene()
+        # TODO: this should  return the objectType
         if w_os:
             for w_o in w_os:
                 tosg.add_world_object(w_o.pos, w_o.name)
