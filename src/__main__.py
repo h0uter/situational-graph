@@ -86,7 +86,7 @@ def run_demo(
         step += 1
 
     feedback_pipeline_completion(
-        step, agents, tosg, tosg_stats, planner, my_logger, start
+        cfg, step, agents, tosg, tosg_stats, planner, my_logger, start
     )
 
     # krm_stats.save()
@@ -113,7 +113,7 @@ def feedback_pipeline_single_step(
 
 
 def feedback_pipeline_completion(
-    step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
+    cfg, step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
 ):
     """Results"""
     my_logger.info(

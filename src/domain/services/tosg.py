@@ -4,9 +4,8 @@ import uuid
 from typing import List, Optional, Sequence
 
 import networkx as nx
-from src.domain import Behaviors, Edge, Node, Objectives, ObjectTypes, Task
+from src.domain import Behaviors, Edge, Node, Objectives, ObjectTypes, Task, Plan
 from src.configuration.config import Config
-from src.domain.entities.plan import Plan
 
 
 # FIXME: refactor this class a lot
@@ -60,7 +59,7 @@ class TOSG:
             source=source,
             target=target,
             weight="cost",
-            method=self.cfg.PATH_FINDING_METHOD,
+            method=self.cfg.PATH_FINDING_METHOD
         )
 
         return path_len

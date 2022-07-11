@@ -1,6 +1,5 @@
 from typing import Sequence
 
-from src.configuration.config import Config
 from src.domain.abstract_agent import AbstractAgent
 from src.domain import (
     LocalGrid,
