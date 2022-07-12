@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Optional, Sequence
 
 from src.domain.abstract_agent import AbstractAgent
 from src.domain import (
@@ -11,6 +11,7 @@ from src.domain import (
     TOSG,
 )
 from src.domain.entities.affordance import Affordance
+from src.domain.entities.world_object import WorldObject
 from src.utils.saving_data_objects import load_something, save_something
 
 
@@ -65,6 +66,7 @@ class ExploreBehavior(AbstractBehavior):
         tosg.remove_frontier(next_node)
         lg = agent.get_lg()
 
+        """part 1: use local grid to process new virtual objects"""
         # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
         if not self.__sample_waypoint_from_pose(agent, tosg):
             self._log.error("sampling waypoint failed")
@@ -77,7 +79,22 @@ class ExploreBehavior(AbstractBehavior):
         self.__prune_frontiers(tosg)
         self.__find_shortcuts_between_wps(lg, tosg, agent)
 
-        self.__process_world_objects(agent, tosg, affordances)
+        """part 2: use perception service to sense new world objects"""
+        # 1. obtain world objects in perception scene
+        w_os = self.__process_world_objects(agent, tosg, affordances)
+        # 2. check if they not already in the graph
+        # 3. add them to the graph
+        if w_os:
+            for w_o in w_os:
+                # 3.1 add node
+                # tosg.add_world_object(w_o.pos, w_o.name)
+                self._log.debug(f">>>>{agent.name}: adding world object {w_o.object_type}")
+                new_node = tosg.add_my_node(w_o.pos, w_o.object_type)
+                # 3.2 add edge using affordances.
+                for aff in affordances:
+                    if aff[0] == w_o.object_type:
+                        tosg.add_my_edge(agent.at_wp, new_node, aff[1])
+                        break
 
     def _mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
@@ -105,12 +122,9 @@ class ExploreBehavior(AbstractBehavior):
     # TODO: move this to agent services or smth
     def __process_world_objects(
         self, agent: AbstractAgent, tosg: TOSG, affordances: Sequence[Affordance]
-    ) -> None:
-        w_os = agent.look_for_world_objects_in_perception_scene()
-        # TODO: this should  return the objectType
-        if w_os:
-            for w_o in w_os:
-                tosg.add_world_object(w_o.pos, w_o.name)
+    ) -> Optional[Sequence[WorldObject]]:
+        return agent.look_for_world_objects_in_perception_scene()
+        # TODO: this should  return the object type and pose so that we can process it in the mutate graph step
 
     def __check_at_destination(
         self, agent: AbstractAgent, tosg: TOSG, destination_node: Node
@@ -201,6 +215,8 @@ class ExploreBehavior(AbstractBehavior):
                 wp_pos, self.cfg.PRUNE_RADIUS, ObjectTypes.FRONTIER
             )
             for frontier in close_frontiers:
+                tosg.remove_task_by_node(frontier)
+                # FIXME: here I should also destroy the associated exploration tasks.
                 tosg.remove_frontier(frontier)
 
     # BUG: on the real robot sometimes impossible shortcuts are added.

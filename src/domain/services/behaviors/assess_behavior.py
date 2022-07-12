@@ -71,7 +71,9 @@ class AssessBehavior(AbstractBehavior):
         tosg.remove_node(behavior_edge[1])
 
         # add the target node with the ObjectType corresponding to the victim
-        mutated_node = tosg.add_node(old_pos, VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state])
+        mutated_node = tosg.add_my_node(
+            old_pos, VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]
+        )
 
         # use the affordances to add the correct edges.
 
@@ -84,7 +86,7 @@ class AssessBehavior(AbstractBehavior):
     ):
         """Mutate the graph according to the behavior."""
         # return tosgraph
-        # deactivate the target node, 
+        # deactivate the target node,
         tosg.remove_node(behavior_edge[1])
         # pass
 

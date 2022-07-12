@@ -1,7 +1,7 @@
 # 202==201
 from src.domain.entities.world_object import WorldObject
 
-
+# FIXME: update this with the new world objects
 WORLD_OBJECT_ID_TO_NAME_MAPPING = {
     "201": "victim1",
     "202": "victim2",

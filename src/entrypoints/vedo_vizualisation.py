@@ -114,7 +114,8 @@ class VedoVisualisation(AbstractVizualisation):
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
-        world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
+        # world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
+        world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.UNKNOWN_VICTIM)
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict)
         actors = self.add_agents(agents, actors)
 

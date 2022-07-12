@@ -1,6 +1,10 @@
 
+from dataclasses import dataclass
+from src.domain.entities.object_types import ObjectTypes
+
+
+@dataclass
 class WorldObject:
-    def __init__(self, pos, name) -> None:
-        self.pos: tuple = pos
-        self.name: str = name
-        # self.id: int = None
+    pos: tuple
+    object_type: ObjectTypes
+    # self.id: int = None

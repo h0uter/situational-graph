@@ -1,11 +1,12 @@
 import logging
 import math
-import uuid
+from uuid import UUID, uuid4
 from typing import List, Optional, Sequence
 
 import networkx as nx
-from src.domain import Behaviors, Edge, Node, Objectives, ObjectTypes, Task, Plan
 from src.configuration.config import Config
+from src.domain import (Behaviors, Edge, Node, Objectives, ObjectTypes, Plan,
+                        Task)
 
 
 # FIXME: refactor this class a lot
@@ -87,7 +88,7 @@ class TOSG:
     def add_start_waypoints(self, pos: tuple) -> None:
         """adds start points to the graph"""
         self.graph.add_node(
-            self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid.uuid4()
+            self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
         )
         self.next_wp_idx += 1
 
@@ -95,7 +96,7 @@ class TOSG:
         """adds new waypoints and increments wp the idx"""
 
         self.graph.add_node(
-            self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid.uuid4()
+            self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
         )
 
         self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
@@ -105,7 +106,7 @@ class TOSG:
         """adds a waypoint edge in both direction to the graph"""
         d = {
             "type": Behaviors.GOTO,
-            "id": uuid.uuid4(),
+            "id": uuid4(),
             "cost": self.calc_edge_len(node_a, node_b),
         }
         if self.check_if_edge_exists(node_a, node_b):
@@ -117,9 +118,9 @@ class TOSG:
 
         self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
 
-    def add_my_edge(self, node_a, node_b, edge_type):
+    def add_my_edge(self, node_a: Node, node_b: Node, edge_type: Behaviors):
         # my_id = (uuid.uuid4(),)
-        my_id = uuid.uuid4()
+        my_id = uuid4()
         self.graph.add_edge(
             node_a,
             node_b,
@@ -153,7 +154,7 @@ class TOSG:
     def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
         """adds a frontier to the graph"""
         self.graph.add_node(
-            self.next_frontier_idx, pos=pos, type=ObjectTypes.FRONTIER, id=uuid.uuid4()
+            self.next_frontier_idx, pos=pos, type=ObjectTypes.FRONTIER, id=uuid4()
         )
 
         edge_len = self.calc_edge_len(agent_at_wp, self.next_frontier_idx)
@@ -168,7 +169,7 @@ class TOSG:
             )
             return
 
-        edge_uuid = uuid.uuid4()
+        edge_uuid = uuid4()
         self.graph.add_edge(
             agent_at_wp,
             self.next_frontier_idx,
@@ -188,7 +189,7 @@ class TOSG:
                 path[i],
                 path[i + 1],
                 type=Behaviors.GUIDE_WP_EDGE,
-                id=uuid.uuid4(),
+                id=uuid4(),
                 cost=0,
             )
 
@@ -219,7 +220,7 @@ class TOSG:
                 return node
 
     def get_edge_by_UUID(self, UUID):
-        """returns the edge idx with the given UUID"""
+        """returns the edge tuple with the given UUID"""
         for edge in self.graph.edges(keys=True):
             if self.graph.edges[edge]["id"] == UUID:
                 return edge
@@ -360,9 +361,28 @@ class TOSG:
     def remove_node(self, node: Node):
         self.graph.remove_node(node)
 
-    def add_node(self, pos: tuple[float, float], object_type: ObjectTypes):
-        my_node_id = uuid.uuid4()
+    def add_my_node(self, pos: tuple[float, float], object_type: ObjectTypes):
+        my_node_id = uuid4()
         self.graph.add_node(
             my_node_id, pos=pos, type=object_type, id=my_node_id
         )
         return my_node_id
+
+    def get_task_by_uuid(self, uuid: UUID) -> Optional[Task]:
+        for task in self.tasks:
+            if task.uuid == uuid:
+                return task
+        return None
+
+    # FIXME: this makes it super slow. instead fof looping need to implement as lookup.
+    def remove_task_by_node(self, node: Node):
+        # just remove all tasks whose edge ends in this node
+        for task in self.tasks:
+            task_edge = self.get_edge_by_UUID(task.edge_uuid)
+            if task_edge:
+                if task_edge[1] == node:
+                    self.tasks.remove(task)
+                    return
+            else:
+                self.tasks.remove(task)
+                self._log.error(f"remove_task_by_node(): No task with node {node}")

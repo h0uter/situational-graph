@@ -1,5 +1,6 @@
 import logging
 import time
+from src.configuration.config import PlotLvl
 
 import src.entrypoints.utils.event as event
 from src.utils.audio_feedback import play_file
