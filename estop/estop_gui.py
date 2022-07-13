@@ -17,7 +17,7 @@ import logging
 from six.moves import queue
 from datetime import datetime
 
-from src.utils.get_login_config import get_login_config
+from src.data_providers.real.utils.get_login_config import get_login_config
 
 try:
     from PyQt5.QtGui import QIcon

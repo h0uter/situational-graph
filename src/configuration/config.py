@@ -89,8 +89,8 @@ class Config:
         self.NUM_AGENTS = num_agents
 
         # logging
-        # LOG_LVL = logging.DEBUG
-        LOG_LVL = logging.INFO
+        LOG_LVL = logging.DEBUG
+        # LOG_LVL = logging.INFO
         logging.basicConfig(stream=sys.stdout, level=LOG_LVL)
         logging.getLogger("matplotlib").setLevel(logging.WARNING)
         logging.getLogger("PIL").setLevel(logging.WARNING)

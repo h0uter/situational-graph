@@ -1,15 +1,20 @@
-from abc import ABC, abstractmethod
-import numpy.typing as npt
-import numpy as np
 import logging
+from abc import ABC, abstractmethod
+from typing import Optional, Sequence
 
-from src.utils.config import Config
-from src.entities.krm import KRM
-from src.utils.my_types import Node, NodeType
+import numpy as np
+import numpy.typing as npt
+from src.configuration.config import Config
+from src.domain import TOSG, Node, ObjectTypes, Plan, Task
+from src.domain.entities.behaviors import Behaviors
+from src.domain.entities.local_grid import LocalGrid
+from src.domain.entities.objectives import Objectives
+from src.domain.entities.world_object import WorldObject
+from src.entrypoints.utils.event import post_event
 
 
 class AbstractAgent(ABC):
-    """"This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
+    """ "This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
     @abstractmethod
     def __init__(self, cfg: Config, name: int = 0) -> None:
@@ -22,13 +27,49 @@ class AbstractAgent(ABC):
         self.heading = 0.0
         self.previous_pos = self.pos
         self.init = False
-        self.assigned_victim = None
+
+        self.task: Optional[Task] = None
+        self.plan: Optional[Plan] = None
 
         self.steps_taken: int = 0
         self._log = logging.getLogger(__name__)
 
+    @property
+    def target_node(self) -> Optional[Node]:
+        if len(self.plan) >= 1:
+            return self.plan[-1][1]
+        else:
+            self.plan.invalidate()
+            return None
+
+    def initialize(self, tosg):
+        """init for task and plan system. manually set first task to exploring current position."""
+        # Add an explore self edge on the start node to ensure a exploration sampling action
+        edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
+        tosg.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
+
+        # spoof the task selection, just select the first one.
+        self.task = tosg.tasks[0]
+
+        # obtain the plan which corresponds to this edge.
+        init_explore_edge = tosg.get_task_edge(self.task)
+
+        self.plan = Plan([init_explore_edge])
+
+    def get_lg(self) -> LocalGrid:
+        lg_img = self._get_local_grid_img()
+        # save_something(lg_img, "lg_img")
+        lg = LocalGrid(
+            world_pos=self.get_localization(),
+            img_data=lg_img,
+            cfg=self.cfg,
+        )
+        post_event("new lg", lg)
+
+        return lg
+
     @abstractmethod
-    def get_local_grid_img(self) -> npt.NDArray:
+    def _get_local_grid_img(self) -> npt.NDArray:
         """
         Return the local grid image around the agent.
 
@@ -41,7 +82,7 @@ class AbstractAgent(ABC):
         pass
 
     @abstractmethod
-    def look_for_world_objects_in_perception_scene(self) -> list:
+    def look_for_world_objects_in_perception_scene(self) -> Sequence[WorldObject]:
         """
         Look for world objects in the perception scene.
 
@@ -50,7 +91,7 @@ class AbstractAgent(ABC):
         pass
 
     @abstractmethod
-    def move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
+    def _move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
         """
         Move the agent to a new position.
 
@@ -60,7 +101,7 @@ class AbstractAgent(ABC):
         pass
 
     # TODO: this should return a succes/ failure bool
-    def move_to_pos(self, target_pos: tuple, heading=None) -> None:
+    def move_to_pos(self, target_pos: tuple, heading=None) -> bool:
         if not heading:
             target_heading = self.calc_heading_to_target(target_pos)
         else:
@@ -71,7 +112,7 @@ class AbstractAgent(ABC):
         self.previous_pos = self.get_localization()
         # print(f"self previous pos: {self.previous_pos}")
 
-        self.move_to_pos_implementation(target_pos, target_heading)
+        self._move_to_pos_implementation(target_pos, target_heading)
 
         # TODO: check if we arrived to set prev_wp
         actual_pos = self.get_localization()
@@ -88,17 +129,19 @@ class AbstractAgent(ABC):
             self.steps_taken += 1
             self.heading = target_heading
             self.pos = actual_pos
+            return True
 
         else:
             # FAILURE
-            self.move_to_pos_implementation(self.previous_pos, self.heading)
+            self._move_to_pos_implementation(self.previous_pos, self.heading)
             # self.previous_pos = self.get_localization()  # can also put this in the condition
             self.pos = self.get_localization()  # dont make sense for sim agent.
+            return False
 
     # perhaps something like this should go into robot services, to not murk the dependencies.
-    def localize_to_waypoint(self, krm: KRM):
+    def localize_to_waypoint(self, krm: TOSG):
         loc_candidates = krm.get_nodes_of_type_in_margin(
-            self.get_localization(), self.cfg.AT_WP_MARGIN, NodeType.WAYPOINT
+            self.get_localization(), self.cfg.AT_WP_MARGIN, ObjectTypes.WAYPOINT
         )
 
         if len(loc_candidates) == 0:
@@ -135,3 +178,6 @@ class AbstractAgent(ABC):
 
     def set_init(self):
         self.init = True
+
+    def clear_task(self):
+        self.task = None

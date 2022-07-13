@@ -1,7 +1,7 @@
 import numpy as np
 
 from src.data_providers.sim.simulated_agent import SimulatedAgent
-from src.utils.config import Config, Scenario, PlotLvl
+from src.configuration.config import Config, Scenario, PlotLvl
 
 
 def test_calc_heading_to_target_180():

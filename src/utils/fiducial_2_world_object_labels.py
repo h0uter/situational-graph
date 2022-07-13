@@ -1,8 +1,8 @@
 # 202==201
-from src.entities.world_object import WorldObject
+from src.domain.entities.world_object import WorldObject
 
-
-world_object_id_to_name_mapping = {
+# FIXME: update this with the new world objects
+WORLD_OBJECT_ID_TO_NAME_MAPPING = {
     "201": "victim1",
     "202": "victim2",
     "208": "fire1",
@@ -14,8 +14,8 @@ world_object_id_to_name_mapping = {
 
 def create_wo_from_fiducial(pos, fiducial_id):
 
-    if str(fiducial_id) in world_object_id_to_name_mapping:
-        name = world_object_id_to_name_mapping[str(fiducial_id)]
+    if str(fiducial_id) in WORLD_OBJECT_ID_TO_NAME_MAPPING:
+        name = WORLD_OBJECT_ID_TO_NAME_MAPPING[str(fiducial_id)]
         return WorldObject(pos, name)
     else:
         # print(f"create_wo_from_fiducial(): unknown fiducial {fiducial_id}")

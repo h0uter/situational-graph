@@ -10,6 +10,7 @@ This will enable spatial reasoning and especially for search and rescue scenario
 Here you can see WIP exploration in simulation to build the skeleton of the **Knowledge Roadmap**.
 
 ## Quick start
+- requires python 3.9
 - goto the folder of the repo: `cd <path>/knowledge_roadmap`
 - install dependencies: `pip install -r requirements.txt`
 - install repo as a local editable package: `pip install -e .`
@@ -55,6 +56,18 @@ Data objects can be retrieved with get methods.
 
 ### TODO
 
+#### To get results
+- [ ] vizualize the object type of each node, including invalidated objects.
+  - [ ] TODO: add valid property to each node or edge
+- [ ] add the assess behavior
+  - [ ] add the step to add new nodes to the graph based on object type to explore behavior
+  - [ ] add the step to instantiate edges according to affordances to explore behavior.
+- [ ] refactor the KRM to work with arbitrary objects and behaviors
+- [ ] add the patrol hotspot behavior
+  - [ ] add the hotspot object
+- [ ] result show the mission in action on 3 differently configured scenarios.
+  - [ ] which are just the affordances (objects, behaviors, objectives)
+
 #### General
 - [X] Code a generator for large graph world as a baseline for exploration and for testing.
 - [X] Exploration on metric world instead of graph world.
@@ -66,5 +79,4 @@ Data objects can be retrieved with get methods.
 
 #### Usecases
 - [X] Frontier Based Exploration
-- [ ] Semantic Information Gain Exploration
 - [ ] Victim Assessment Action Mapping

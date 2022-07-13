@@ -1,9 +1,9 @@
 # OBSERVER PATTERN
 
-from src.utils.event import subscribe
+from src.entrypoints.utils.event import subscribe
 from src.entrypoints.mpl_vizualisation import MplVizualisation
 from src.entrypoints.vedo_vizualisation import VedoVisualisation
-from src.utils.config import Config, Vizualiser, PlotLvl
+from src.configuration.config import Config, Vizualiser, PlotLvl
 
 
 class VizualisationListener:

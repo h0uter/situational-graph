@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
+from src.domain.entities.behaviors import Behaviors
+from src.domain.entities.object_types import ObjectTypes
 
-from src.utils.my_types import NodeType, EdgeType
 from src.utils.saving_data_objects import load_something, save_something
 
 
 @dataclass
-class KRMStats:
+class TOSGStats:
     def __init__(self) -> None:
         self.num_nodes = [0]
         self.num_edges = [0]
@@ -27,7 +28,7 @@ class KRMStats:
                 [
                     n
                     for n in krm.graph.nodes()
-                    if krm.graph.nodes[n]["type"] == NodeType.WAYPOINT
+                    if krm.graph.nodes[n]["type"] == ObjectTypes.WAYPOINT
                 ]
             )
         )
@@ -37,7 +38,7 @@ class KRMStats:
                     e
                     # for e in krm.graph.edges()
                     for e in krm.graph.edges
-                    if krm.graph.edges[e]["type"] == EdgeType.GOTO_WP_EDGE
+                    if krm.graph.edges[e]["type"] == Behaviors.GOTO
                 ]
             )
         )
@@ -46,7 +47,7 @@ class KRMStats:
                 [
                     n
                     for n in krm.graph.nodes()
-                    if krm.graph.nodes[n]["type"] == NodeType.FRONTIER
+                    if krm.graph.nodes[n]["type"] == ObjectTypes.FRONTIER
                 ]
             )
         )
@@ -55,7 +56,7 @@ class KRMStats:
                 [
                     n
                     for n in krm.graph.nodes()
-                    if krm.graph.nodes[n]["type"] == NodeType.WORLD_OBJECT
+                    if krm.graph.nodes[n]["type"] == ObjectTypes.WORLD_OBJECT
                 ]
             )
         )

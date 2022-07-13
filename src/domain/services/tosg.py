@@ -1,44 +1,36 @@
+import logging
 import math
-from typing import Optional, Sequence
-import uuid
+from uuid import UUID, uuid4
+from typing import List, Optional, Sequence
 
 import networkx as nx
-import logging
+from src.configuration.config import Config
+from src.domain import (Behaviors, Edge, Node, Objectives, ObjectTypes, Plan,
+                        Task)
 
-from src.utils.my_types import Edge, EdgeType, Node, NodeType
-from src.utils.config import Config
 
-
-class KRM:
-    """
-    An agent implements a Knowledge Roadmap to keep track of the
-    world beliefs which are relevant executing its mission.
-    A KRM is a graph with 3 distinct node and corresponding edge types.
-    - Waypoint Nodes:: correspond to places the robot has been and can go to.
-    - Frontier Nodes:: correspond to places the robot has not been but expects it can go to.
-    - World Object Nodes:: correspond to actionable items the robot has seen.
-    """
-
-    # TODO: adress local vs global KRM
+# FIXME: refactor this class a lot
+# separate behavior from data
+class TOSG:
     def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
         self._log = logging.getLogger(__name__)
 
-        # self.graph = nx.DiGraph()  # Knowledge Road Map
         self.graph = nx.MultiDiGraph()  # Knowledge Road Map
         self.cfg = cfg
         self.next_wp_idx = 0
 
-        # This is ugly
+        self.tasks: List[Task] = []
+
+        # FIXME: This is ugly
         self.duplicate_start_poses = []
         for start_pos in start_poses:
             if start_pos not in self.duplicate_start_poses:
                 self.add_start_waypoints(start_pos)
                 # HACK:
                 self.duplicate_start_poses.append(start_pos)
+
         self.next_frontier_idx = cfg.FRONTIER_INDEX_START
         self.next_wo_idx = cfg.WORLD_OBJECT_INDEX_START
-
-    # TODO: add function to add world object edges, for example the guide action
 
     def check_if_edge_exists(self, node_a: Node, node_b: Node):
         """checks if an edge between two nodes exists"""
@@ -48,29 +40,27 @@ class KRM:
         """checks if the given node exists in the graph"""
         return node in self.graph.nodes
 
-    def shortest_path(self, source: Node, target: Node):
-        path = nx.shortest_path(
+    def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
+        path_of_nodes = nx.shortest_path(
             self.graph,
             source=source,
             target=target,
             weight="cost",
             method=self.cfg.PATH_FINDING_METHOD,
         )
-        if len(path) > 1:
-            return path
+        if len(path_of_nodes) > 1:
+            return self.node_list_to_edge_list(path_of_nodes)
         else:
-            self._log.error(f": No path found from {source} to {target}.")
+            self._log.error(f"shortest_path: No path found from {source} to {target}.")
+            return None
 
     def shortest_path_len(self, source: Node, target: Node):
-        # TODO: use the reconstruct path function
-        # with an all pairs algorithms that also returns a predecessor dict.
-
         path_len = nx.shortest_path_length(
             self.graph,
             source=source,
             target=target,
             weight="cost",
-            method=self.cfg.PATH_FINDING_METHOD,
+            method=self.cfg.PATH_FINDING_METHOD
         )
 
         return path_len
@@ -98,7 +88,7 @@ class KRM:
     def add_start_waypoints(self, pos: tuple) -> None:
         """adds start points to the graph"""
         self.graph.add_node(
-            self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
+            self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
         )
         self.next_wp_idx += 1
 
@@ -106,7 +96,7 @@ class KRM:
         """adds new waypoints and increments wp the idx"""
 
         self.graph.add_node(
-            self.next_wp_idx, pos=pos, type=NodeType.WAYPOINT, id=uuid.uuid4()
+            self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
         )
 
         self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
@@ -115,7 +105,8 @@ class KRM:
     def add_waypoint_diedge(self, node_a, node_b) -> None:
         """adds a waypoint edge in both direction to the graph"""
         d = {
-            "type": EdgeType.GOTO_WP_EDGE,
+            "type": Behaviors.GOTO,
+            "id": uuid4(),
             "cost": self.calc_edge_len(node_a, node_b),
         }
         if self.check_if_edge_exists(node_a, node_b):
@@ -127,29 +118,43 @@ class KRM:
 
         self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
 
-    def add_world_object(self, pos: tuple, label: str) -> None:
-        """adds a world object to the graph"""
-        self.graph.add_node(label, pos=pos, type=NodeType.WORLD_OBJECT, id=uuid.uuid4())
-
-        if self.check_if_edge_exists(label, self.next_wp_idx - 1):
-            self._log.warning(
-                f"Edge between {label} and {self.next_wp_idx - 1} already exists"
-            )
-            return
-
-        # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
+    def add_my_edge(self, node_a: Node, node_b: Node, edge_type: Behaviors):
+        # my_id = (uuid.uuid4(),)
+        my_id = uuid4()
         self.graph.add_edge(
-            self.next_wp_idx - 1,
-            label,
-            type=EdgeType.PLAN_EXTRACTION_WO_EDGE,
-            # id=uuid.uuid4(),
-            cost=-100,
+            node_a,
+            node_b,
+            type=edge_type,
+            cost=self.calc_edge_len(node_a, node_b),
+            id=my_id,
         )
+        return my_id
+
+    # def add_world_object(self, pos: tuple, label: str) -> None:
+    #     """adds a world object to the graph"""
+    #     self.graph.add_node(
+    #         label, pos=pos, type=ObjectTypes.WORLD_OBJECT, id=uuid.uuid4()
+    #     )
+
+    #     if self.check_if_edge_exists(label, self.next_wp_idx - 1):
+    #         self._log.warning(
+    #             f"Edge between {label} and {self.next_wp_idx - 1} already exists"
+    #         )
+    #         return
+
+    #     # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
+    #     self.graph.add_edge(
+    #         self.next_wp_idx - 1,
+    #         label,
+    #         type=Behaviors.PLAN_EXTRACTION_WO_EDGE,
+    #         id=uuid.uuid4(),
+    #         cost=-100,
+    #     )
 
     def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
         """adds a frontier to the graph"""
         self.graph.add_node(
-            self.next_frontier_idx, pos=pos, type=NodeType.FRONTIER, id=uuid.uuid4()
+            self.next_frontier_idx, pos=pos, type=ObjectTypes.FRONTIER, id=uuid4()
         )
 
         edge_len = self.calc_edge_len(agent_at_wp, self.next_frontier_idx)
@@ -164,13 +169,16 @@ class KRM:
             )
             return
 
+        edge_uuid = uuid4()
         self.graph.add_edge(
             agent_at_wp,
             self.next_frontier_idx,
-            type=EdgeType.EXPLORE_FT_EDGE,
-            # id=uuid.uuid4(),
+            type=Behaviors.EXPLORE,
+            id=edge_uuid,
             cost=cost,
         )
+        self.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
+
         self.next_frontier_idx += 1
 
     def add_guide_action_edges(self, path: Sequence[Node]):
@@ -180,14 +188,15 @@ class KRM:
             self.graph.add_edge(
                 path[i],
                 path[i + 1],
-                type=EdgeType.GUIDE_WP_EDGE,
+                type=Behaviors.GUIDE_WP_EDGE,
+                id=uuid4(),
                 cost=0,
             )
 
     def remove_frontier(self, target_frontier_idx) -> None:
         """removes a frontier from the graph"""
         target_frontier = self.get_node_data_by_node(target_frontier_idx)
-        if target_frontier["type"] == NodeType.FRONTIER:
+        if target_frontier["type"] == ObjectTypes.FRONTIER:
             self.graph.remove_node(target_frontier_idx)  # also removes the edge
 
     # TODO: this should be invalidate, so that we change its alpha or smth
@@ -195,7 +204,7 @@ class KRM:
     def remove_world_object(self, idx) -> None:
         """removes a frontier from the graph"""
         removal_target = self.get_node_data_by_node(idx)
-        if removal_target["type"] == NodeType.WORLD_OBJECT:
+        if removal_target["type"] == ObjectTypes.WORLD_OBJECT:
             self.graph.remove_node(idx)  # also removes the edge
 
     def get_node_by_pos(self, pos: tuple):
@@ -210,6 +219,14 @@ class KRM:
             if self.graph.nodes[node]["id"] == UUID:
                 return node
 
+    def get_edge_by_UUID(self, UUID):
+        """returns the edge tuple with the given UUID"""
+        for edge in self.graph.edges(keys=True):
+            if self.graph.edges[edge]["id"] == UUID:
+                return edge
+
+        # raise ValueError(f"No edge with UUID {UUID} found")
+
     def get_node_data_by_node(self, node: Node) -> dict:
         """returns the node corresponding to the given index"""
         return self.graph.nodes[node]
@@ -219,7 +236,7 @@ class KRM:
         return [
             self.graph.nodes[node]
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == NodeType.WAYPOINT
+            if self.graph.nodes[node]["type"] == ObjectTypes.WAYPOINT
         ]
 
     def get_all_waypoint_idxs(self) -> list:
@@ -227,7 +244,7 @@ class KRM:
         return [
             node
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == NodeType.WAYPOINT
+            if self.graph.nodes[node]["type"] == ObjectTypes.WAYPOINT
         ]
 
     def get_all_frontiers_idxs(self) -> list:
@@ -235,7 +252,7 @@ class KRM:
         return [
             node
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == NodeType.FRONTIER
+            if self.graph.nodes[node]["type"] == ObjectTypes.FRONTIER
         ]
 
     def get_all_world_object_idxs(self) -> list:
@@ -243,11 +260,11 @@ class KRM:
         return [
             node
             for node in self.graph.nodes()
-            if self.graph.nodes[node]["type"] == NodeType.WORLD_OBJECT
+            if self.graph.nodes[node]["type"] == ObjectTypes.WORLD_OBJECT
         ]
 
     def get_nodes_of_type_in_margin(
-        self, pos: tuple, margin: float, node_type: NodeType
+        self, pos: tuple, margin: float, node_type: ObjectTypes
     ) -> list:
         """
         Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.
@@ -289,9 +306,8 @@ class KRM:
 
         return node_a, node_b, key_of_edge_with_min_cost
 
-    def get_type_of_edge_triplet(self, edge: Edge) -> Optional[EdgeType]:
+    def get_behavior_of_edge(self, edge: Edge) -> Optional[Behaviors]:
         """returns the type of the edge between two nodes"""
-        self._log.debug(f"get_type_of_edge(): edge: {edge}")
         if len(edge) == 2:
             # return self.graph.edges[edge]["type"]
             yolo = self.graph.edges[edge]["type"]
@@ -302,3 +318,71 @@ class KRM:
             return self.graph.edges[node_a, node_b, edge_id]["type"]
         else:
             self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
+
+    def remove_invalid_tasks(self):
+        for task in self.tasks:
+            if task.edge_uuid not in [
+                ddict["id"] for u, v, ddict in self.graph.edges(data=True)
+            ]:
+                self.tasks.remove(task)
+
+    def get_task_target_node(self, task: Task) -> Optional[Node]:
+        """returns the target node of a task"""
+        edge = self.get_task_edge(task)
+        if edge:
+            return edge[1]
+        else:
+            self._log.error(f"get_target_node(): No edge with UUID {task.edge_uuid}")
+            return None
+
+    def get_task_edge(self, task: Task) -> Optional[Edge]:
+        """returns the edge of a task"""
+        edge = self.get_edge_by_UUID(task.edge_uuid)
+        if edge:
+            return edge
+        else:
+            self._log.error(f"get_task_edge(): No edge with UUID {task.edge_uuid}")
+            return None
+
+    """
+    what makes more sense:
+    - asking the tosg which target node corresponds to a task
+    - or asking the task what its target node is?
+    """
+
+    def validate_plan(self, plan: Plan) -> bool:
+        if len(plan) < 1:
+            return False
+        if not self.check_node_exists(plan[-1][1]):
+            return False
+
+        return True
+
+    def remove_node(self, node: Node):
+        self.graph.remove_node(node)
+
+    def add_my_node(self, pos: tuple[float, float], object_type: ObjectTypes):
+        my_node_id = uuid4()
+        self.graph.add_node(
+            my_node_id, pos=pos, type=object_type, id=my_node_id
+        )
+        return my_node_id
+
+    def get_task_by_uuid(self, uuid: UUID) -> Optional[Task]:
+        for task in self.tasks:
+            if task.uuid == uuid:
+                return task
+        return None
+
+    # FIXME: this makes it super slow. instead fof looping need to implement as lookup.
+    def remove_task_by_node(self, node: Node):
+        # just remove all tasks whose edge ends in this node
+        for task in self.tasks:
+            task_edge = self.get_edge_by_UUID(task.edge_uuid)
+            if task_edge:
+                if task_edge[1] == node:
+                    self.tasks.remove(task)
+                    return
+            else:
+                self.tasks.remove(task)
+                self._log.error(f"remove_task_by_node(): No task with node {node}")

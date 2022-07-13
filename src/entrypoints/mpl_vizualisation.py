@@ -5,13 +5,14 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from PIL import Image
 
-from src.entities.abstract_agent import AbstractAgent
-from src.entities.krm import KRM
-from src.entities.local_grid import LocalGrid
+from src.domain.abstract_agent import AbstractAgent
+from src.domain.entities.behaviors import Behaviors
+from src.domain.entities.object_types import ObjectTypes
+from src.domain.services.tosg import TOSG
+from src.domain.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.utils.config import Config
+from src.configuration.config import Config
 from src.utils.coordinate_transforms import img_axes2world_axes
-from src.utils.my_types import EdgeType, NodeType
 
 
 class MplVizualisation(AbstractVizualisation):
@@ -43,7 +44,7 @@ class MplVizualisation(AbstractVizualisation):
         self.initialized = True
 
     def figure_final_result(
-        self, krm: KRM, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
+        self, krm: TOSG, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
     ) -> None:
         self.figure_update(krm, agents, lg, usecase)
         plt.ioff()
@@ -104,32 +105,32 @@ class MplVizualisation(AbstractVizualisation):
         waypoint_nodes = dict(
             (n, d["type"])
             for n, d in krm.graph.nodes().items()
-            if d["type"] == NodeType.WAYPOINT
+            if d["type"] == ObjectTypes.WAYPOINT
         )
         frontier_nodes = dict(
             (n, d["type"])
             for n, d in krm.graph.nodes().items()
-            if d["type"] == NodeType.FRONTIER
+            if d["type"] == ObjectTypes.FRONTIER
         )
         world_object_nodes = dict(
             (n, d["type"])
             for n, d in krm.graph.nodes().items()
-            if d["type"] == NodeType.WORLD_OBJECT
+            if d["type"] == ObjectTypes.WORLD_OBJECT
         )
         world_object_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == EdgeType.PLAN_EXTRACTION_WO_EDGE
+            if d["type"] == Behaviors.PLAN_EXTRACTION_WO_EDGE
         )
         waypoint_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == EdgeType.GOTO_WP_EDGE
+            if d["type"] == Behaviors.GOTO
         )
         frontier_edges = dict(
             (e, d["type"])
             for e, d in krm.graph.edges().items()
-            if d["type"] == EdgeType.EXPLORE_FT_EDGE
+            if d["type"] == Behaviors.EXPLORE
         )
 
         """draw the nodes, edges and labels separately"""
@@ -182,7 +183,7 @@ class MplVizualisation(AbstractVizualisation):
 
         nx.draw_networkx_labels(krm.graph, positions_of_all_nodes, ax=ax, font_size=6)
 
-    def viz_krm_no_floorplan(self, krm: KRM) -> None:
+    def viz_krm_no_floorplan(self, krm: TOSG) -> None:
         """
         Draw the agent's perspective on the world, like RViz.
 
@@ -205,8 +206,8 @@ class MplVizualisation(AbstractVizualisation):
         self.ax1.set_aspect("equal", "box")  # set the aspect ratio of the plot
         self.ax1.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 
-    def viz_krm_on_floorplan(self, krm: KRM) -> None:
-        """ Like Gazebo """
+    def viz_krm_on_floorplan(self, krm: TOSG) -> None:
+        """Like Gazebo"""
 
         if not self.initialized:
             self.init_fig()
@@ -262,15 +263,13 @@ class MplVizualisation(AbstractVizualisation):
         self.ax2.set_xlim([-self.origin_x_offset, self.origin_x_offset])
         self.ax2.set_ylim([-self.origin_y_offset, self.origin_y_offset])
 
-    def draw_shortcut_collision_lines(
-        self, lg: LocalGrid, krm: KRM
-    ) -> None:
+    def draw_shortcut_collision_lines(self, lg: LocalGrid, krm: TOSG) -> None:
 
         if not self.initialized:
             self.init_fig()
 
         close_nodes = krm.get_nodes_of_type_in_margin(
-            lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, NodeType.WAYPOINT
+            lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, ObjectTypes.WAYPOINT
         )
         points = [krm.get_node_data_by_node(node)["pos"] for node in close_nodes]
 
@@ -298,7 +297,11 @@ class MplVizualisation(AbstractVizualisation):
                     color="orange",
                 )
                 self.ax4.plot(
-                    point[0], point[1], marker="o", markersize=10, color="red",
+                    point[0],
+                    point[1],
+                    marker="o",
+                    markersize=10,
+                    color="red",
                 )
 
                 _, collision_point = lg.is_collision_free_straight_line_between_cells(
@@ -322,7 +325,7 @@ class MplVizualisation(AbstractVizualisation):
             )
 
     def figure_update(
-        self, krm: KRM, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
+        self, krm: TOSG, agents: Sequence[AbstractAgent], lg: LocalGrid, usecase
     ) -> None:
         timer = False
         start = time.perf_counter()
@@ -349,7 +352,10 @@ class MplVizualisation(AbstractVizualisation):
 
         for agent in agents:
             self.draw_agent_and_sensor_range(
-                agent.get_localization(), self.ax2, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.8
+                agent.get_localization(),
+                self.ax2,
+                rec_len=self.cfg.LG_LENGTH_IN_M,
+                circle_size=0.8,
             )
             if timer:
                 print(
@@ -364,7 +370,10 @@ class MplVizualisation(AbstractVizualisation):
 
         for agent in agents:
             self.draw_agent_and_sensor_range(
-                agent.get_localization(), self.ax1, rec_len=self.cfg.LG_LENGTH_IN_M, circle_size=0.2
+                agent.get_localization(),
+                self.ax1,
+                rec_len=self.cfg.LG_LENGTH_IN_M,
+                circle_size=0.2,
             )
             if timer:
                 print(
@@ -376,7 +385,7 @@ class MplVizualisation(AbstractVizualisation):
         if timer:
             print(f"plt.pause(0.001) took {time.perf_counter() - start:.4f}s")
 
-    def debug_logger(self, krm: KRM, agent: AbstractAgent) -> None:
+    def debug_logger(self, krm: TOSG, agent: AbstractAgent) -> None:
         """
         Prints debug statements.
 
