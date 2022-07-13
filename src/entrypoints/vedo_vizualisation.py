@@ -28,7 +28,8 @@ class VedoVisualisation(AbstractVizualisation):
             interactive=False,
             resetcam=True,
             title=TITLE,
-            size=(3456, 2234),
+            # size=(3456, 2234),
+            size=(3456, 2000),
         )
 
         # NOTE: perhaps I just should not instantiate viz classes if we run headless
@@ -46,7 +47,7 @@ class VedoVisualisation(AbstractVizualisation):
         self.wp_counter = []
         self.ft_counter = []
 
-        self.annoying_captions = list()
+        self.actors_which_need_to_be_cleared = list()
 
         time.sleep(0.1)
 
@@ -138,8 +139,8 @@ class VedoVisualisation(AbstractVizualisation):
 
     def clear_annoying_captions(self):
         """Captions apparently are persistent, so we need to clear them."""
-        self.plt.clear(self.annoying_captions)
-        self.annoying_captions = list()
+        self.plt.clear(self.actors_which_need_to_be_cleared)
+        self.actors_which_need_to_be_cleared = list()
 
     def viz_action_graph(
         self,
@@ -205,8 +206,20 @@ class VedoVisualisation(AbstractVizualisation):
             agent_actor = vedo.Cone(agent_pos, r=cone_r, height=cone_height, axis=agent_dir_vec, c="dodger_blue", alpha=0.7, res=3)  # type: ignore
             agent_label = f"Agent {agent.name}"
             agent_actor.caption(agent_label, size=(0.05, 0.025))
+
+            if agent.task:
+                agent_actor.legend(f"{agent.task.objective_enum}")
+            else:
+                agent_actor.legend(f"{agent.task}")
+
+            # actors.append(agent_actor)
+            # lbox = vedo.LegendBox([agent_actor], width=0.25)
+            lbox = vedo.LegendBox([agent_actor], width=0.5)
+            actors.append(lbox)
+            self.actors_which_need_to_be_cleared.append(lbox)
+
             actors.append(agent_actor)
-            self.annoying_captions.append(agent_actor._caption)
+            self.actors_which_need_to_be_cleared.append(agent_actor._caption)
 
         return actors
 

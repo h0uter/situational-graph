@@ -10,6 +10,7 @@ This will enable spatial reasoning and especially for search and rescue scenario
 Here you can see WIP exploration in simulation to build the skeleton of the **Knowledge Roadmap**.
 
 ## Quick start
+- requires python 3.9
 - goto the folder of the repo: `cd <path>/knowledge_roadmap`
 - install dependencies: `pip install -r requirements.txt`
 - install repo as a local editable package: `pip install -e .`
