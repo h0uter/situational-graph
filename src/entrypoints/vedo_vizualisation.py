@@ -8,6 +8,7 @@ import vedo
 
 from src.domain.abstract_agent import AbstractAgent
 from src.domain import TOSG, ObjectTypes, LocalGrid, Planner
+from src.domain.entities.node_and_edge import Node
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.configuration.config import Config, PlotLvl, Scenario
 
@@ -70,7 +71,7 @@ class VedoVisualisation(AbstractVizualisation):
         self.viz_all(krm, agents)
         self.plt.show(interactive=True, resetcam=True)
 
-    def get_nodes_by_type(self, krm, node_type):
+    def get_nodes_by_type(self, krm, node_type) -> Sequence[Node]:
         return list(
             dict(
                 (n, d["type"])
@@ -223,12 +224,13 @@ class VedoVisualisation(AbstractVizualisation):
 
         return actors
 
-    def add_world_object_nodes(self, world_object_nodes, actors, pos_dict):
+    def add_world_object_nodes(self, world_object_nodes: Sequence, actors, pos_dict):
         for wo in world_object_nodes:
             wo_pos = pos_dict[wo]
             wo_point = vedo.Point(wo_pos, r=20, c="magenta")
             actors.append(wo_point)
-
+            
+            # instead of trowing the ID in the vignette We would like their objecttype
             wo_vig = wo_point.vignette(
                 wo,
                 offset=[0, 0, 5 * self.factor],
