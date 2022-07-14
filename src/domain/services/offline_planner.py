@@ -1,14 +1,14 @@
 import logging
-from typing import Optional, Mapping, Sequence, Type
-
-from src.domain.services.abstract_agent import AbstractAgent
-from src.domain import Node, Behaviors, Task, AbstractBehavior, Plan, TOSG, Affordance
+from typing import Mapping, Optional, Sequence, Type
 
 from src.configuration.config import Config
+from src.domain import (TOSG, AbstractBehavior, Affordance, Behaviors, Node,
+                        Plan, Task)
+from src.domain.services.abstract_agent import AbstractAgent
 
 
 # FIXME: split into planner and plan executor. Unless I go the MPC esque route
-class Planner:
+class OfflinePlanner:
     def __init__(
         self,
         cfg: Config,

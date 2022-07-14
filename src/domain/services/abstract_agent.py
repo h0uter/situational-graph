@@ -26,7 +26,7 @@ class AbstractAgent(ABC):
         self.pos = cfg.AGENT_START_POS
         self.heading = 0.0
         self.previous_pos = self.pos
-        self.init = False
+        self.init_explore_step_completed = False  # HACK: this is there to kickstart the exploration with a selfloop
 
         self.task: Optional[Task] = None
         self.plan: Optional[Plan] = None
@@ -42,7 +42,7 @@ class AbstractAgent(ABC):
             self.plan.invalidate()
             return None
 
-    def initialize(self, tosg):
+    def initialize(self, tosg: TOSG):
         """init for task and plan system. manually set first task to exploring current position."""
         # Add an explore self edge on the start node to ensure a exploration sampling action
         edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
@@ -177,7 +177,7 @@ class AbstractAgent(ABC):
         return heading
 
     def set_init(self):
-        self.init = True
+        self.init_explore_step_completed = True
 
     def clear_task(self):
         self.task = None

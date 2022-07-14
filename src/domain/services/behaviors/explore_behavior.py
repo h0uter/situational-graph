@@ -23,7 +23,7 @@ class ExploreBehavior(AbstractBehavior):
         target_node_pos = tosg.get_node_data_by_node(target_node)["pos"]
 
         """The first exploration step is just sampling in place."""
-        if not agent.init:
+        if not agent.init_explore_step_completed:
             lg = agent.get_lg()
             new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
             self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
@@ -89,7 +89,9 @@ class ExploreBehavior(AbstractBehavior):
             for w_o in w_os:
                 # 3.1 add node
                 # tosg.add_world_object(w_o.pos, w_o.name)
-                self._log.debug(f">>>>{agent.name}: adding world object {w_o.object_type}")
+                self._log.debug(
+                    f">>>>{agent.name}: adding world object {w_o.object_type}"
+                )
                 new_node = tosg.add_my_node(w_o.pos, w_o.object_type)
                 # 3.2 add edge using affordances.
                 for aff in affordances:

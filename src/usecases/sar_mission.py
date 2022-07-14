@@ -1,11 +1,12 @@
 import time
 from typing import Sequence
+from src.domain.services.online_planner import OnlinePlanner
 
 import src.entrypoints.utils.event as event
 from src.configuration.config import Config, Scenario
 from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
-from src.domain import TOSG, Planner
+from src.domain import TOSG, OfflinePlanner
 from src.domain.services.abstract_agent import AbstractAgent
 from src.entrypoints.utils.vizualisation_listener import VizualisationListener
 from src.usecases.sar_affordances import SAR_AFFORDANCES
@@ -37,7 +38,8 @@ def init_entities(cfg: Config):
 
     domain_behaviors = SAR_BEHAVIORS
     affordances = SAR_AFFORDANCES
-    planner = Planner(cfg, domain_behaviors, affordances)
+    # planner = OfflinePlanner(cfg, domain_behaviors, affordances)
+    planner = OnlinePlanner(cfg, domain_behaviors, affordances)
 
     VizualisationListener(cfg).setup_event_handler()
 
@@ -53,7 +55,7 @@ def run_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],
     tosg: TOSG,
-    planner: Planner,
+    planner: OfflinePlanner,
 ):
 
     step, start, tosg_stats, my_logger = feedback_pipeline_init(cfg)

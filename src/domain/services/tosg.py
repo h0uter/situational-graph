@@ -214,7 +214,7 @@ class TOSG:
                 return node
 
     def get_node_by_UUID(self, UUID):
-        """returns the node idx with the given UUID"""
+        """returns the node idx with the given UUID""" 
         for node in self.graph.nodes():
             if self.graph.nodes[node]["id"] == UUID:
                 return node
@@ -224,8 +224,6 @@ class TOSG:
         for src_node, target_node, edge_key, edge_id in self.graph.edges(data="id", keys=True):
             if edge_id == UUID:
                 return src_node, target_node, edge_key
-
-
 
     def get_node_data_by_node(self, node: Node) -> dict:
         """returns the node corresponding to the given index"""

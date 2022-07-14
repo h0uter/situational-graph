@@ -75,8 +75,8 @@ class Config:
         self.LG_LENGTH_IN_M = self.LG_NUM_CELLS * self.LG_CELL_SIZE_M
 
         # exploration hyperparameters
-        self.PATH_FINDING_METHOD = "bellman-ford"
-        # self.PATH_FINDING_METHOD = "dijkstra"
+        # self.PATH_FINDING_METHOD = "bellman-ford"
+        self.PATH_FINDING_METHOD = "dijkstra"
         self.N_SAMPLES = 30
         self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * self.PRUNE_RADIUS_FACTOR
         self.AT_WP_MARGIN = 0.25

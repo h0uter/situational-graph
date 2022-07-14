@@ -7,7 +7,7 @@ import numpy as np
 import vedo
 
 from src.domain.services.abstract_agent import AbstractAgent
-from src.domain import TOSG, ObjectTypes, LocalGrid, Planner
+from src.domain import TOSG, ObjectTypes, LocalGrid, OfflinePlanner
 from src.domain.entities.node_and_edge import Node
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.configuration.config import Config, PlotLvl, Scenario
@@ -57,7 +57,7 @@ class VedoVisualisation(AbstractVizualisation):
         krm: TOSG,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
-        usecases: Sequence[Planner],
+        usecases: Sequence[OfflinePlanner],
     ) -> None:
         self.viz_all(krm, agents, usecases)
 
@@ -147,7 +147,7 @@ class VedoVisualisation(AbstractVizualisation):
         self,
         actors: list,
         krm: TOSG,
-        usecases: Sequence[Planner],
+        usecases: Sequence[OfflinePlanner],
         pos_dict: dict,
         agents: Sequence[AbstractAgent],
     ):
