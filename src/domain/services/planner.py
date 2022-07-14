@@ -1,7 +1,7 @@
 import logging
 from typing import Optional, Mapping, Sequence, Type
 
-from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.abstract_agent import AbstractAgent
 from src.domain import Node, Behaviors, Task, AbstractBehavior, Plan, TOSG, Affordance
 
 from src.configuration.config import Config

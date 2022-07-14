@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Union, Sequence
 
-from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.services.tosg import TOSG
 from src.domain.services.planner import Planner
 

@@ -1,6 +1,10 @@
-from src.configuration.config import Config
+from src.configuration.config import Config, PlotLvl, Scenario
 
 from src.usecases.sar_mission import run_sar_mission
+
+
+
+
 
 if __name__ == "__main__":
     # matplotlib.use("Qt5agg")

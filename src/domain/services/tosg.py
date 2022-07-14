@@ -219,13 +219,13 @@ class TOSG:
             if self.graph.nodes[node]["id"] == UUID:
                 return node
 
-    def get_edge_by_UUID(self, UUID):
+    def get_edge_by_UUID(self, UUID) -> Optional[Edge]:
         """returns the edge tuple with the given UUID"""
-        for edge in self.graph.edges(keys=True):
-            if self.graph.edges[edge]["id"] == UUID:
-                return edge
+        for src_node, target_node, edge_key, edge_id in self.graph.edges(data="id", keys=True):
+            if edge_id == UUID:
+                return src_node, target_node, edge_key
 
-        # raise ValueError(f"No edge with UUID {UUID} found")
+
 
     def get_node_data_by_node(self, node: Node) -> dict:
         """returns the node corresponding to the given index"""
@@ -325,7 +325,8 @@ class TOSG:
                 ddict["id"] for u, v, ddict in self.graph.edges(data=True)
             ]:
                 self.tasks.remove(task)
-
+    
+    # FIXME: this is 2nd most expensive function
     def get_task_target_node(self, task: Task) -> Optional[Node]:
         """returns the target node of a task"""
         edge = self.get_task_edge(task)

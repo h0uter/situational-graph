@@ -1,6 +1,6 @@
 from typing import Optional, Sequence
 
-from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.abstract_agent import AbstractAgent
 from src.domain import (
     LocalGrid,
     Edge,
@@ -50,6 +50,7 @@ class ExploreBehavior(AbstractBehavior):
         next_node = behavior_edge[1]
         return self.__check_at_destination(agent, tosg, next_node)
 
+    # FIXME: this is an expensive function
     def _mutate_graph_and_tasks_success(
         self,
         agent: AbstractAgent,
@@ -215,7 +216,8 @@ class ExploreBehavior(AbstractBehavior):
                 wp_pos, self.cfg.PRUNE_RADIUS, ObjectTypes.FRONTIER
             )
             for frontier in close_frontiers:
-                tosg.remove_task_by_node(frontier)
+                # this function is super expensive
+                # tosg.remove_task_by_node(frontier)
                 # FIXME: here I should also destroy the associated exploration tasks.
                 tosg.remove_frontier(frontier)
 

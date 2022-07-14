@@ -6,7 +6,7 @@ import networkx as nx
 import numpy as np
 import vedo
 
-from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.abstract_agent import AbstractAgent
 from src.domain import TOSG, ObjectTypes, LocalGrid, Planner
 from src.domain.entities.node_and_edge import Node
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
@@ -229,7 +229,7 @@ class VedoVisualisation(AbstractVizualisation):
             wo_pos = pos_dict[wo]
             wo_point = vedo.Point(wo_pos, r=20, c="magenta")
             actors.append(wo_point)
-            
+
             # instead of trowing the ID in the vignette We would like their objecttype
             wo_vig = wo_point.vignette(
                 wo,

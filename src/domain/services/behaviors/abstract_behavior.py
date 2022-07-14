@@ -5,7 +5,7 @@ from typing import Sequence
 
 from src.domain import TOSG, Edge, Affordance
 from src.configuration.config import Config
-from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.abstract_agent import AbstractAgent
 
 
 @dataclass

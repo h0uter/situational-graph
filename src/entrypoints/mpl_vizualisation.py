@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from PIL import Image
 
-from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.entities.behaviors import Behaviors
 from src.domain.entities.object_types import ObjectTypes
 from src.domain.services.tosg import TOSG

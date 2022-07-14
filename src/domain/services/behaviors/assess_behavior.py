@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from random import random
 from typing import Sequence
-from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.entities.affordance import Affordance
 from src.domain.entities.node_and_edge import Edge
 from src.domain.entities.object_types import ObjectTypes

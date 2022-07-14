@@ -1,13 +1,12 @@
 import time
 from typing import Sequence
 
-import matplotlib
 import src.entrypoints.utils.event as event
-from src.configuration.config import Config, PlotLvl, Scenario
+from src.configuration.config import Config, Scenario
 from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.domain import TOSG, Planner
-from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.abstract_agent import AbstractAgent
 from src.entrypoints.utils.vizualisation_listener import VizualisationListener
 from src.usecases.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar_behaviors import SAR_BEHAVIORS
@@ -18,12 +17,6 @@ from src.usecases.utils.feedback import (
 )
 from src.utils.sanity_checks import check_no_duplicate_wp_edges
 
-# the configuration is just the:
-# objects
-# behaviors
-# objectives
-# --> affordances
-
 
 def run_sar_mission(cfg: Config):
     agents, krm, usecases = init_entities(cfg)
@@ -31,7 +24,6 @@ def run_sar_mission(cfg: Config):
     return success
 
 
-# make different versions of this function for different scenarios
 def init_entities(cfg: Config):
     if cfg.SCENARIO == Scenario.REAL:
         agents = [SpotAgent(cfg)]
@@ -57,7 +49,6 @@ def init_entities(cfg: Config):
     return agents, tosg, planner
 
 
-# TODO: move this to usecases
 def run_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],
@@ -78,7 +69,7 @@ def run_demo(
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
 
-            check_no_duplicate_wp_edges(tosg)
+            # check_no_duplicate_wp_edges(tosg)
 
         feedback_pipeline_single_step(
             step, step_start, agents, tosg, tosg_stats, planner, my_logger
@@ -91,14 +82,3 @@ def run_demo(
 
     # krm_stats.save()
     return mission_completed
-
-
-def benchmark_func():
-    cfg = Config(
-        plot_lvl=PlotLvl.NONE,
-        num_agents=1,
-        scenario=Scenario.SIM_MAZE_MEDIUM,
-        max_steps=400,
-    )
-
-    run_sar_mission(cfg)
