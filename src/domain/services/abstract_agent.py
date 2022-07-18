@@ -17,8 +17,8 @@ class AbstractAgent(ABC):
     """ "This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
     @abstractmethod
-    def __init__(self, cfg: Config, name: int = 0) -> None:
-        self.name = name
+    def __init__(self, cfg: Config, name_idx: int = 0) -> None:
+        self.name = name_idx
         self.cfg = cfg
 
         self.at_wp: Node
@@ -31,7 +31,8 @@ class AbstractAgent(ABC):
         self.task: Optional[Task] = None
         self.plan: Optional[Plan] = None
 
-        self.steps_taken: int = 0
+        self.steps_taken = 0
+        self.algo_iterations = 0
         self._log = logging.getLogger(__name__)
 
     @property

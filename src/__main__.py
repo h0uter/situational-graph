@@ -1,9 +1,6 @@
 from src.configuration.config import Config, PlotLvl, Scenario
 
-from src.usecases.sar_mission import run_sar_mission
-
-
-
+from src.usecases.sar_usecase import run_sar_usecase
 
 
 if __name__ == "__main__":
@@ -29,5 +26,5 @@ if __name__ == "__main__":
     # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 
-    run_sar_mission(cfg)
+    run_sar_usecase(cfg)
     # benchmark_func()

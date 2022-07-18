@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 
 from src.configuration.config import Config, Scenario, PlotLvl
-from src.usecases.sar_mission import run_sar_mission
+from src.usecases.sar_usecase import run_sar_usecase
 
 
 def benchmark_func():
@@ -13,7 +13,7 @@ def benchmark_func():
         max_steps=150,
     )
 
-    run_sar_mission(cfg)
+    run_sar_usecase(cfg)
 
 
 def basic_profiler_test():

@@ -12,6 +12,9 @@ from src.domain import (
 )
 from src.domain.entities.affordance import Affordance
 from src.domain.entities.world_object import WorldObject
+from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    add_shortcut_edges_between_wps_on_lg,
+)
 from src.utils.saving_data_objects import load_something, save_something
 
 
@@ -78,7 +81,8 @@ class ExploreBehavior(AbstractBehavior):
 
         # XXX: this is my 3nd expensive function, so I should try to optimize it
         self.__prune_frontiers(tosg)
-        self.__find_shortcuts_between_wps(lg, tosg, agent)
+        # self.__find_shortcuts_between_wps(lg, tosg, agent)
+        add_shortcut_edges_between_wps_on_lg(lg, tosg, agent, self.cfg)
 
         """part 2: use perception service to sense new world objects"""
         # 1. obtain world objects in perception scene
@@ -223,33 +227,33 @@ class ExploreBehavior(AbstractBehavior):
                 # FIXME: here I should also destroy the associated exploration tasks.
                 tosg.remove_frontier(frontier)
 
-    # BUG: on the real robot sometimes impossible shortcuts are added.
-    def __find_shortcuts_between_wps(
-        self, lg: LocalGrid, tosg: TOSG, agent: AbstractAgent
-    ):
-        close_nodes = tosg.get_nodes_of_type_in_margin(
-            lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, ObjectTypes.WAYPOINT
-        )
-        shortcut_candidate_positions = []
-        for node in close_nodes:
-            if node != agent.at_wp:
-                shortcut_candidate_positions.append(
-                    tosg.get_node_data_by_node(node)["pos"]
-                )
+    # # BUG: on the real robot sometimes impossible shortcuts are added.
+    # def __find_shortcuts_between_wps(
+    #     self, lg: LocalGrid, tosg: TOSG, agent: AbstractAgent
+    # ):
+    #     close_nodes = tosg.get_nodes_of_type_in_margin(
+    #         lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, ObjectTypes.WAYPOINT
+    #     )
+    #     shortcut_candidate_positions = []
+    #     for node in close_nodes:
+    #         if node != agent.at_wp:
+    #             shortcut_candidate_positions.append(
+    #                 tosg.get_node_data_by_node(node)["pos"]
+    #             )
 
-        if shortcut_candidate_positions:
-            for point in shortcut_candidate_positions:
-                at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
-                to_cell = lg.world_coords2cell_idxs(point)
-                is_collision_free, _ = lg.is_collision_free_straight_line_between_cells(
-                    at_cell, to_cell
-                )
-                if is_collision_free:
-                    from_wp = agent.at_wp
-                    to_wp = tosg.get_node_by_pos(point)
+    #     if shortcut_candidate_positions:
+    #         for point in shortcut_candidate_positions:
+    #             at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
+    #             to_cell = lg.world_coords2cell_idxs(point)
+    #             is_collision_free, _ = lg.is_collision_free_straight_line_between_cells(
+    #                 at_cell, to_cell
+    #             )
+    #             if is_collision_free:
+    #                 from_wp = agent.at_wp
+    #                 to_wp = tosg.get_node_by_pos(point)
 
-                    if not tosg.check_if_edge_exists(from_wp, to_wp):
-                        self._log.debug(
-                            f"{agent.name}: Adding shortcut from {from_wp} to {to_wp}."
-                        )
-                        tosg.add_waypoint_diedge(from_wp, to_wp)
+    #                 if not tosg.check_if_edge_exists(from_wp, to_wp):
+    #                     self._log.debug(
+    #                         f"{agent.name}: Adding shortcut from {from_wp} to {to_wp}."
+    #                     )
+    #                     tosg.add_waypoint_diedge(from_wp, to_wp)

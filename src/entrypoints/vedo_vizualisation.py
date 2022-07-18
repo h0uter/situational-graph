@@ -32,13 +32,15 @@ class VedoVisualisation(AbstractVizualisation):
             # size=(3456, 2234),
             size=(3456, 2000),
         )
+        self.map_actor = None
 
         # NOTE: perhaps I just should not instantiate viz classes if we run headless
         if self.cfg.PLOT_LVL is not PlotLvl.NONE:
             if self.cfg.SCENARIO is not Scenario.REAL:
-                map_pic = vedo.Picture(cfg.FULL_PATH)
-                map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
-                self.plt.show(map_pic, interactive=False)
+                self.set_map(self.cfg.MAP_PATH)
+                # map_pic = vedo.Picture(cfg.MAP_PATH)
+                # map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
+                # self.plt.show(map_pic, interactive=False)
 
             logo_path = os.path.join("resource", "KRM.png")
             logo = vedo.load(logo_path)
@@ -51,6 +53,16 @@ class VedoVisualisation(AbstractVizualisation):
         self.actors_which_need_to_be_cleared = list()
 
         time.sleep(0.1)
+
+    def set_map(self, map_path: str) -> None:
+        if self.cfg.SCENARIO is not Scenario.REAL:
+            if self.map_actor:
+                self.plt.clear([self.map_actor])
+
+            map_pic = vedo.Picture(map_path)
+            map_pic.x(-self.cfg.IMG_TOTAL_X_PIX // 2).y(-self.cfg.IMG_TOTAL_Y_PIX // 2)
+            self.map_actor = map_pic
+            self.plt.add(self.map_actor)
 
     def figure_update(
         self,

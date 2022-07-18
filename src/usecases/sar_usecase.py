@@ -1,6 +1,5 @@
 import time
 from typing import Sequence
-from src.domain.services.online_planner import OnlinePlanner
 
 import src.entrypoints.utils.event as event
 from src.configuration.config import Config, Scenario
@@ -8,20 +7,19 @@ from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.domain import TOSG, OfflinePlanner
 from src.domain.services.abstract_agent import AbstractAgent
+from src.domain.services.online_planner import OnlinePlanner
 from src.entrypoints.utils.vizualisation_listener import VizualisationListener
 from src.usecases.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar_behaviors import SAR_BEHAVIORS
-from src.usecases.utils.feedback import (
-    feedback_pipeline_completion,
-    feedback_pipeline_init,
-    feedback_pipeline_single_step,
-)
+from src.usecases.utils.feedback import (feedback_pipeline_completion,
+                                         feedback_pipeline_init,
+                                         feedback_pipeline_single_step)
 from src.utils.sanity_checks import check_no_duplicate_wp_edges
 
 
-def run_sar_mission(cfg: Config):
-    agents, krm, usecases = init_entities(cfg)
-    success = run_demo(cfg, agents, krm, usecases)
+def run_sar_usecase(cfg: Config):
+    agents, krm, usecases, viz_listener = init_entities(cfg)
+    success = run_demo(cfg, agents, krm, usecases, viz_listener)
     return success
 
 
@@ -41,14 +39,15 @@ def init_entities(cfg: Config):
     # planner = OfflinePlanner(cfg, domain_behaviors, affordances)
     planner = OnlinePlanner(cfg, domain_behaviors, affordances)
 
-    VizualisationListener(cfg).setup_event_handler()
+    viz_listener = VizualisationListener(cfg)
+    viz_listener.setup_event_handler()
 
     """setup"""
     for agent in agents:
         agent.localize_to_waypoint(tosg)
         event.post_event("viz point", agent.pos)  # viz start position
 
-    return agents, tosg, planner
+    return agents, tosg, planner, viz_listener
 
 
 def run_demo(
@@ -56,6 +55,7 @@ def run_demo(
     agents: Sequence[AbstractAgent],
     tosg: TOSG,
     planner: OfflinePlanner,
+    viz_listener: VizualisationListener,
 ):
 
     step, start, tosg_stats, my_logger = feedback_pipeline_init(cfg)
@@ -67,16 +67,27 @@ def run_demo(
 
         for agent_idx in range(len(agents)):
             if planner.pipeline(agents[agent_idx], tosg):
+                '''pipeline returns true if there are no more tasks.'''
                 mission_completed = True
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
-
-            # check_no_duplicate_wp_edges(tosg)
 
         feedback_pipeline_single_step(
             step, step_start, agents, tosg, tosg_stats, planner, my_logger
         )
         step += 1
+
+        # HACK: debug stuff to show the method can exploit new shortcuts in the world
+        # what I should do instead is make his part of the usecase
+        MAP_SWITCHED = False
+        for agent in agents:
+            agent.algo_iterations += 1
+            if not MAP_SWITCHED and cfg.SCENARIO is not Scenario.REAL:
+                if agent.algo_iterations > 150:
+                    agent: SimulatedAgent
+                    agent.lg_spoofer.set_map(cfg.MAP_PATH2)
+                    viz_listener.viz.set_map(cfg.MAP_PATH2)
+                    MAP_SWITCHED = True
 
     feedback_pipeline_completion(
         cfg, step, agents, tosg, tosg_stats, planner, my_logger, start

@@ -4,6 +4,7 @@ from src.domain.services.tosg import TOSG
 
 
 class OnlinePlanner(OfflinePlanner):
+    '''This planner selects the optimal task and makes a plan each iteration'''
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
 
         if agent.init_explore_step_completed:
