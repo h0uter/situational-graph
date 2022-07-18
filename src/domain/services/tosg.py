@@ -11,7 +11,7 @@ from src.domain import Behaviors, Edge, Node, Objectives, ObjectTypes, Plan, Tas
 # FIXME: refactor this class a lot
 # separate behavior from data
 class TOSG:
-    def __init__(self, cfg: Config, start_poses: list[tuple]) -> None:
+    def __init__(self, cfg: Config) -> None:
         self._log = logging.getLogger(__name__)
 
         self.graph = nx.MultiDiGraph()  # Knowledge Road Map
@@ -20,6 +20,10 @@ class TOSG:
 
         self.tasks: List[Task] = []
 
+        self.next_frontier_idx = cfg.FRONTIER_INDEX_START
+        self.next_wo_idx = cfg.WORLD_OBJECT_INDEX_START
+
+    def set_start_poses(self, start_poses: list[tuple]):
         # FIXME: This is ugly
         self.duplicate_start_poses = []
         for start_pos in start_poses:
@@ -27,9 +31,6 @@ class TOSG:
                 self.add_waypoint_node(start_pos)
                 # HACK:
                 self.duplicate_start_poses.append(start_pos)
-
-        self.next_frontier_idx = cfg.FRONTIER_INDEX_START
-        self.next_wo_idx = cfg.WORLD_OBJECT_INDEX_START
 
     def check_if_edge_exists(self, node_a: Node, node_b: Node):
         """checks if an edge between two nodes exists"""

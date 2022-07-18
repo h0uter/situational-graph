@@ -43,7 +43,7 @@ class GotoBehavior(AbstractBehavior):
         affordances: Sequence[Affordance],
     ):
         """Mutate the graph according to the behavior."""
-        lg = agent.get_lg()
+        lg = agent.get_local_grid()
         add_shortcut_edges_between_wps_on_lg(lg, tosg, agent, self.cfg)
 
     def _mutate_graph_and_tasks_failure(

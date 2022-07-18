@@ -1,5 +1,9 @@
 import time
 from typing import Sequence
+from src.domain.entities.behaviors import Behaviors
+from src.domain.entities.objectives import Objectives
+from src.domain.entities.plan import Plan
+from src.domain.entities.task import Task
 
 import src.entrypoints.utils.event as event
 from src.configuration.config import Config, Scenario
@@ -17,7 +21,24 @@ from src.usecases.utils.feedback import (
     feedback_pipeline_init,
     feedback_pipeline_single_step,
 )
-from src.utils.sanity_checks import check_no_duplicate_wp_edges
+
+
+def setup_usecase(tosg: TOSG, agents: Sequence[AbstractAgent], start_poses):
+    tosg.set_start_poses(start_poses)
+
+    for agent in agents:
+        """init for task and plan system. manually set first task to exploring current position."""
+        # Add an explore self edge on the start node to ensure a exploration sampling action
+        edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
+        tosg.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
+
+        # spoof the task selection, just select the first one.
+        agent.task = tosg.tasks[0]
+
+        # obtain the plan which corresponds to this edge.
+        init_explore_edge = tosg.get_task_edge(agent.task)
+
+        agent.plan = Plan([init_explore_edge])
 
 
 def run_sar_usecase(cfg: Config):
@@ -39,10 +60,8 @@ def init_entities(cfg: Config):
     else:
         agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
 
-    tosg = TOSG(cfg, start_poses=[agent.pos for agent in agents])
-
-    for agent in agents:
-        agent.initialize(tosg)
+    tosg = TOSG(cfg)
+    setup_usecase(tosg, agents, start_poses=[agent.pos for agent in agents])
 
     domain_behaviors = SAR_BEHAVIORS
     affordances = SAR_AFFORDANCES

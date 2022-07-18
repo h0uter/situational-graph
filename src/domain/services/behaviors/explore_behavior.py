@@ -27,10 +27,10 @@ class ExploreBehavior(AbstractBehavior):
 
         """The first exploration step is just sampling in place."""
         if not agent.init_explore_step_completed:
-            lg = agent.get_lg()
+            lg = agent.get_local_grid()
             new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
             self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
-            agent.set_init()
+            agent.set_init_explore_step()
 
         # the goto action
         if agent.get_localization() is not target_node_pos:
@@ -68,7 +68,7 @@ class ExploreBehavior(AbstractBehavior):
         )
         # start mutate graph
         tosg.remove_frontier(next_node)
-        lg = agent.get_lg()
+        lg = agent.get_local_grid()
 
         """part 1: use local grid to process new virtual objects"""
         # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
