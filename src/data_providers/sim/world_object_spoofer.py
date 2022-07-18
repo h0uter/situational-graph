@@ -1,4 +1,5 @@
 from src.configuration.config import Config, Scenario
+from src.domain.entities.object_types import ObjectTypes
 from src.domain.entities.world_object import WorldObject
 
 
@@ -8,7 +9,15 @@ class WorldObjectSpoofer:
 
         if cfg.SCENARIO == Scenario.SIM_VILLA:
             self.world_object_list = [
-                # WorldObject((-15.5, 14), "victim1"),
+                WorldObject((-15.5, 14), ObjectTypes.UNKNOWN_VICTIM),
+                # WorldObject((14, -14), "fire1"),
+                # WorldObject((9.5, 8), "closed door1"),
+                # WorldObject((13, 0), "victim2"),
+                WorldObject((14, -14), ObjectTypes.UNKNOWN_VICTIM),
+                WorldObject((-15.5, -14.5), ObjectTypes.UNKNOWN_VICTIM),
+                WorldObject((-2, 14), ObjectTypes.UNKNOWN_VICTIM),
+                # WorldObject((-2, 12), "victim5"),
+                WorldObject((0, 14), ObjectTypes.UNKNOWN_VICTIM),
                 # # WorldObject((14, -14), "fire1"),
                 # # WorldObject((9.5, 8), "closed door1"),
                 # # WorldObject((13, 0), "victim2"),

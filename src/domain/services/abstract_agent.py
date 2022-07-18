@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Sequence
 
 import numpy as np
 import numpy.typing as npt
@@ -9,6 +9,7 @@ from src.domain import TOSG, Node, ObjectTypes, Plan, Task
 from src.domain.entities.behaviors import Behaviors
 from src.domain.entities.local_grid import LocalGrid
 from src.domain.entities.objectives import Objectives
+from src.domain.entities.world_object import WorldObject
 from src.entrypoints.utils.event import post_event
 
 
@@ -16,8 +17,8 @@ class AbstractAgent(ABC):
     """ "This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
     @abstractmethod
-    def __init__(self, cfg: Config, name: int = 0) -> None:
-        self.name = name
+    def __init__(self, cfg: Config, name_idx: int = 0) -> None:
+        self.name = name_idx
         self.cfg = cfg
 
         self.at_wp: Node
@@ -25,12 +26,13 @@ class AbstractAgent(ABC):
         self.pos = cfg.AGENT_START_POS
         self.heading = 0.0
         self.previous_pos = self.pos
-        self.init = False
+        self.init_explore_step_completed = False  # HACK: this is there to kickstart the exploration with a selfloop
 
         self.task: Optional[Task] = None
         self.plan: Optional[Plan] = None
 
-        self.steps_taken: int = 0
+        self.steps_taken = 0
+        self.algo_iterations = 0
         self._log = logging.getLogger(__name__)
 
     @property
@@ -41,7 +43,7 @@ class AbstractAgent(ABC):
             self.plan.invalidate()
             return None
 
-    def initialize(self, tosg):
+    def initialize(self, tosg: TOSG):
         """init for task and plan system. manually set first task to exploring current position."""
         # Add an explore self edge on the start node to ensure a exploration sampling action
         edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
@@ -81,7 +83,7 @@ class AbstractAgent(ABC):
         pass
 
     @abstractmethod
-    def look_for_world_objects_in_perception_scene(self) -> list:
+    def look_for_world_objects_in_perception_scene(self) -> Sequence[WorldObject]:
         """
         Look for world objects in the perception scene.
 
@@ -176,7 +178,7 @@ class AbstractAgent(ABC):
         return heading
 
     def set_init(self):
-        self.init = True
+        self.init_explore_step_completed = True
 
     def clear_task(self):
         self.task = None

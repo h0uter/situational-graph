@@ -7,7 +7,7 @@ __all__ = [
     "Behaviors",
     "Objectives",
     "ObjectTypes",
-    "Planner",
+    "OfflinePlanner",
     "Plan",
     "TOSG",
     "AbstractBehavior",
@@ -26,5 +26,8 @@ from src.domain.entities.plan import Plan
 
 # import domain services
 from src.domain.services.tosg import TOSG
-from src.domain.services.behaviors.abstract_behavior import AbstractBehavior, BehaviorResult
-from src.domain.services.planner import Planner
+from src.domain.services.behaviors.abstract_behavior import (
+    AbstractBehavior,
+    BehaviorResult,
+)
+from src.domain.services.offline_planner import OfflinePlanner

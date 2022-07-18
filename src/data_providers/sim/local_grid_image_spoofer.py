@@ -14,11 +14,14 @@ class LocalGridImageSpoofer:
         self.lg_cell_size_m = cfg.LG_CELL_SIZE_M
         self.total_map_len_in_m = cfg.TOTAL_MAP_LEN_M
 
-        upside_down_map_img = Image.open(cfg.FULL_PATH)
-        self.map_img = img_axes2world_axes(upside_down_map_img)
+        self.set_map(cfg.MAP_PATH)
 
     def world_coord2global_pix_idx(
-        self, map_img: npt.NDArray, x_pos: float, y_pos: float, spoof_img_length_in_m: tuple
+        self,
+        map_img: npt.NDArray,
+        x_pos: float,
+        y_pos: float,
+        spoof_img_length_in_m: tuple,
     ) -> tuple:
         Nx_pix = self.map_img.shape[1]
         Ny_pix = self.map_img.shape[0]
@@ -101,3 +104,7 @@ class LocalGridImageSpoofer:
         cell_length_y = total_img_length_in_m[1] / Ny_cells
 
         return cell_length_x, cell_length_y
+
+    def set_map(self, new_map_path: str) -> None:
+        upside_down_map_img = Image.open(new_map_path)
+        self.map_img = img_axes2world_axes(upside_down_map_img)

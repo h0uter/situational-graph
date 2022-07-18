@@ -6,8 +6,9 @@ import networkx as nx
 import numpy as np
 import vedo
 
-from src.domain.abstract_agent import AbstractAgent
-from src.domain import TOSG, ObjectTypes, LocalGrid, Planner
+from src.domain.services.abstract_agent import AbstractAgent
+from src.domain import TOSG, ObjectTypes, LocalGrid, OfflinePlanner
+from src.domain.entities.node_and_edge import Node
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.configuration.config import Config, PlotLvl, Scenario
 
@@ -28,15 +29,18 @@ class VedoVisualisation(AbstractVizualisation):
             interactive=False,
             resetcam=True,
             title=TITLE,
-            size=(3456, 2234),
+            # size=(3456, 2234),
+            size=(3456, 2000),
         )
+        self.map_actor = None
 
         # NOTE: perhaps I just should not instantiate viz classes if we run headless
         if self.cfg.PLOT_LVL is not PlotLvl.NONE:
             if self.cfg.SCENARIO is not Scenario.REAL:
-                map_pic = vedo.Picture(cfg.FULL_PATH)
-                map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
-                self.plt.show(map_pic, interactive=False)
+                self.set_map(self.cfg.MAP_PATH)
+                # map_pic = vedo.Picture(cfg.MAP_PATH)
+                # map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
+                # self.plt.show(map_pic, interactive=False)
 
             logo_path = os.path.join("resource", "KRM.png")
             logo = vedo.load(logo_path)
@@ -46,16 +50,26 @@ class VedoVisualisation(AbstractVizualisation):
         self.wp_counter = []
         self.ft_counter = []
 
-        self.annoying_captions = list()
+        self.actors_which_need_to_be_cleared = list()
 
         time.sleep(0.1)
+
+    def set_map(self, map_path: str) -> None:
+        if self.cfg.SCENARIO is not Scenario.REAL:
+            if self.map_actor:
+                self.plt.clear([self.map_actor])
+
+            map_pic = vedo.Picture(map_path)
+            map_pic.x(-self.cfg.IMG_TOTAL_X_PIX // 2).y(-self.cfg.IMG_TOTAL_Y_PIX // 2)
+            self.map_actor = map_pic
+            self.plt.add(self.map_actor)
 
     def figure_update(
         self,
         krm: TOSG,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
-        usecases: Sequence[Planner],
+        usecases: Sequence[OfflinePlanner],
     ) -> None:
         self.viz_all(krm, agents, usecases)
 
@@ -69,7 +83,7 @@ class VedoVisualisation(AbstractVizualisation):
         self.viz_all(krm, agents)
         self.plt.show(interactive=True, resetcam=True)
 
-    def get_nodes_by_type(self, krm, node_type):
+    def get_nodes_by_type(self, krm, node_type) -> Sequence[Node]:
         return list(
             dict(
                 (n, d["type"])
@@ -114,7 +128,8 @@ class VedoVisualisation(AbstractVizualisation):
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
-        world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
+        # world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
+        world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.UNKNOWN_VICTIM)
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict)
         actors = self.add_agents(agents, actors)
 
@@ -137,14 +152,14 @@ class VedoVisualisation(AbstractVizualisation):
 
     def clear_annoying_captions(self):
         """Captions apparently are persistent, so we need to clear them."""
-        self.plt.clear(self.annoying_captions)
-        self.annoying_captions = list()
+        self.plt.clear(self.actors_which_need_to_be_cleared)
+        self.actors_which_need_to_be_cleared = list()
 
     def viz_action_graph(
         self,
         actors: list,
         krm: TOSG,
-        usecases: Sequence[Planner],
+        usecases: Sequence[OfflinePlanner],
         pos_dict: dict,
         agents: Sequence[AbstractAgent],
     ):
@@ -204,17 +219,30 @@ class VedoVisualisation(AbstractVizualisation):
             agent_actor = vedo.Cone(agent_pos, r=cone_r, height=cone_height, axis=agent_dir_vec, c="dodger_blue", alpha=0.7, res=3)  # type: ignore
             agent_label = f"Agent {agent.name}"
             agent_actor.caption(agent_label, size=(0.05, 0.025))
+
+            if agent.task:
+                agent_actor.legend(f"{agent.task.objective_enum}")
+            else:
+                agent_actor.legend(f"{agent.task}")
+
+            # actors.append(agent_actor)
+            # lbox = vedo.LegendBox([agent_actor], width=0.25)
+            lbox = vedo.LegendBox([agent_actor], width=0.5)
+            actors.append(lbox)
+            self.actors_which_need_to_be_cleared.append(lbox)
+
             actors.append(agent_actor)
-            self.annoying_captions.append(agent_actor._caption)
+            self.actors_which_need_to_be_cleared.append(agent_actor._caption)
 
         return actors
 
-    def add_world_object_nodes(self, world_object_nodes, actors, pos_dict):
+    def add_world_object_nodes(self, world_object_nodes: Sequence, actors, pos_dict):
         for wo in world_object_nodes:
             wo_pos = pos_dict[wo]
             wo_point = vedo.Point(wo_pos, r=20, c="magenta")
             actors.append(wo_point)
 
+            # instead of trowing the ID in the vignette We would like their objecttype
             wo_vig = wo_point.vignette(
                 wo,
                 offset=[0, 0, 5 * self.factor],

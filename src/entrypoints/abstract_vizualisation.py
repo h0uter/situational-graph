@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Union, Sequence
 
-from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.services.tosg import TOSG
-from src.domain.services.planner import Planner
+from src.domain.services.offline_planner import OfflinePlanner
 
 # from src.usecases.exploration_usecase import ExplorationUsecase
 from src.domain.entities.local_grid import LocalGrid
@@ -21,7 +21,7 @@ class AbstractVizualisation(ABC):
         krm: TOSG,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
-        usecases: Sequence[Planner],
+        usecases: Sequence[OfflinePlanner],
     ) -> None:
         pass
 

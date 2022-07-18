@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from PIL import Image
 
-from src.domain.abstract_agent import AbstractAgent
+from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.entities.behaviors import Behaviors
 from src.domain.entities.object_types import ObjectTypes
 from src.domain.services.tosg import TOSG
@@ -26,10 +26,10 @@ class MplVizualisation(AbstractVizualisation):
         self.origin_y_offset = 0
 
         self.map_img = None
-        if self.cfg.FULL_PATH:
+        if self.cfg.MAP_PATH:
             self.origin_x_offset = self.cfg.TOT_MAP_LEN_M_X / 2
             self.origin_y_offset = self.cfg.TOT_MAP_LEN_M_Y / 2
-            upside_down_map_img = Image.open(self.cfg.FULL_PATH)
+            upside_down_map_img = Image.open(self.cfg.MAP_PATH)
             self.map_img = img_axes2world_axes(upside_down_map_img)
 
         self.streamlit_unit = None

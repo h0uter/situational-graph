@@ -2,7 +2,7 @@ import logging
 import math
 import os
 import sys
-from enum import IntEnum, Enum, auto
+from enum import Enum, IntEnum, auto
 
 import coloredlogs
 
@@ -37,7 +37,6 @@ class Config:
         num_agents: int = 1,
         max_steps: float = math.inf,
         audio_feedback: bool = False,
-        # audio_feedback: bool = True,
     ):
         self.MAX_STEPS = max_steps
         self.PLOT_LVL = plot_lvl
@@ -75,8 +74,8 @@ class Config:
         self.LG_LENGTH_IN_M = self.LG_NUM_CELLS * self.LG_CELL_SIZE_M
 
         # exploration hyperparameters
-        self.PATH_FINDING_METHOD = "bellman-ford"
-        # self.PATH_FINDING_METHOD = "dijkstra"
+        # self.PATH_FINDING_METHOD = "bellman-ford"
+        self.PATH_FINDING_METHOD = "dijkstra"
         self.N_SAMPLES = 30
         self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * self.PRUNE_RADIUS_FACTOR
         self.AT_WP_MARGIN = 0.25
@@ -101,7 +100,7 @@ class Config:
     def set_real_params(self):
         self.LG_NUM_CELLS = 128
         self.LG_CELL_SIZE_M = 0.03
-        self.FULL_PATH = ""
+        self.MAP_PATH = ""
         self.AGENT_START_POS = (0, 0)
 
         self.AUDIO_FEEDBACK = True
@@ -112,11 +111,13 @@ class Config:
         self.SAMPLE_RING_WIDTH = 0.7
         self.SAMPLE_RADIUS_FACTOR = 1.0
         self.WP_SHORTCUT_FACTOR = 1.0
-        self.AT_WP_MARGIN = 0.35  # hopefully this makes it more robust on real spot in doorways
+        self.AT_WP_MARGIN = (
+            0.35  # hopefully this makes it more robust on real spot in doorways
+        )
 
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
-            self.LG_NUM_CELLS // 2
-        ) * self.SAMPLE_RADIUS_FACTOR)
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor(
+            (self.LG_NUM_CELLS // 2) * self.SAMPLE_RADIUS_FACTOR
+        )
 
     def set_sim_villa_params(self):
 
@@ -124,17 +125,21 @@ class Config:
         self.SAMPLE_RING_WIDTH = 1.0  # 0 - 1.0
         self.SAMPLE_RADIUS_FACTOR = 0.6
 
-        self.FULL_PATH = os.path.join("resource", "villa_holes_closed.png")
+        self.MAP_PATH = os.path.join("resource", "villa_holes_closed.png")
+        self.MAP_PATH2 = os.path.join("resource", "villa_holes_closed_open_wall.png")
         self.TOT_MAP_LEN_M_X = 50
         self.IMG_TOTAL_X_PIX = 2026
         self.IMG_TOTAL_Y_PIX = 1686
         self.LG_NUM_CELLS = 420  # max:420 due to img border margins
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
-            self.LG_NUM_CELLS // 2
-        ) * self.SAMPLE_RADIUS_FACTOR)
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor(
+            (self.LG_NUM_CELLS // 2) * self.SAMPLE_RADIUS_FACTOR
+        )
 
-        # self.AGENT_START_POS = (-9, 13)
+        """startpositions for the agent"""
+        # self.AGENT_START_POS = (-9, 13)  # top left second room
+        # self.AGENT_START_POS = (-14, 13)  # top left first room
         self.AGENT_START_POS = (4, 0)
+
         self.TOT_MAP_LEN_M_Y = (
             self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
         ) * self.IMG_TOTAL_Y_PIX
@@ -144,14 +149,14 @@ class Config:
             self.AGENT_START_POS = (13, 14)
 
     def set_sim_maze_params(self):
-        self.FULL_PATH = os.path.join("resource", "simple_maze2_border_closed.png")
+        self.MAP_PATH = os.path.join("resource", "simple_maze2_border_closed.png")
         self.TOT_MAP_LEN_M_X = 50
         self.IMG_TOTAL_X_PIX = 2000
         self.IMG_TOTAL_Y_PIX = 1000
         self.LG_NUM_CELLS = 420  # max:420 due to img border margins
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
-            self.LG_NUM_CELLS // 2
-        ) * self.SAMPLE_RADIUS_FACTOR)
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor(
+            (self.LG_NUM_CELLS // 2) * self.SAMPLE_RADIUS_FACTOR
+        )
 
         self.AGENT_START_POS = (-2, 0)
         self.TOT_MAP_LEN_M_Y = (
@@ -161,14 +166,14 @@ class Config:
         self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
 
     def set_sim_maze_medium_params(self):
-        self.FULL_PATH = os.path.join("resource", "medium_maze.png")
+        self.MAP_PATH = os.path.join("resource", "medium_maze.png")
         self.TOT_MAP_LEN_M_X = 73
         self.IMG_TOTAL_X_PIX = 1920
         self.IMG_TOTAL_Y_PIX = 1920
         self.LG_NUM_CELLS = 200  # max:420 due to img border margins
-        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor((
-            self.LG_NUM_CELLS // 2
-        ) * self.SAMPLE_RADIUS_FACTOR)
+        self.FRONTIER_SAMPLE_RADIUS_NUM_CELLS = math.floor(
+            (self.LG_NUM_CELLS // 2) * self.SAMPLE_RADIUS_FACTOR
+        )
 
         # self.AGENT_START_POS = (-3, 0)
         self.AGENT_START_POS = (-30, -30)
