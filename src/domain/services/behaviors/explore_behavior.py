@@ -180,14 +180,14 @@ class ExploreBehavior(AbstractBehavior):
                 f"{agent.name}: Multiple waypoints at previous pos, taking first one: {wp_at_previous_pos_candidates[0]}."
             )
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
-            tosg.add_waypoint(agent.get_localization(), wp_at_previous_pos)
+            tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
             agent.localize_to_waypoint(tosg)
 
             return True
 
         elif len(wp_at_previous_pos_candidates) == 1:
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
-            tosg.add_waypoint(agent.get_localization(), wp_at_previous_pos)
+            tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
             agent.localize_to_waypoint(tosg)
 
             return True

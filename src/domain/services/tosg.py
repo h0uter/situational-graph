@@ -1,12 +1,11 @@
 import logging
 import math
-from uuid import UUID, uuid4
 from typing import List, Optional, Sequence
+from uuid import UUID, uuid4
 
 import networkx as nx
 from src.configuration.config import Config
-from src.domain import (Behaviors, Edge, Node, Objectives, ObjectTypes, Plan,
-                        Task)
+from src.domain import Behaviors, Edge, Node, Objectives, ObjectTypes, Plan, Task
 
 
 # FIXME: refactor this class a lot
@@ -25,7 +24,7 @@ class TOSG:
         self.duplicate_start_poses = []
         for start_pos in start_poses:
             if start_pos not in self.duplicate_start_poses:
-                self.add_start_waypoints(start_pos)
+                self.add_waypoint_node(start_pos)
                 # HACK:
                 self.duplicate_start_poses.append(start_pos)
 
@@ -60,7 +59,7 @@ class TOSG:
             source=source,
             target=target,
             weight="cost",
-            method=self.cfg.PATH_FINDING_METHOD
+            method=self.cfg.PATH_FINDING_METHOD,
         )
 
         return path_len
@@ -85,20 +84,21 @@ class TOSG:
             ** 2
         )
 
-    def add_start_waypoints(self, pos: tuple) -> None:
+    def add_waypoint_node(self, pos: tuple) -> int:
         """adds start points to the graph"""
         self.graph.add_node(
             self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
         )
         self.next_wp_idx += 1
+        return self.next_wp_idx - 1
 
-    def add_waypoint(self, pos: tuple, prev_wp) -> None:
+    def add_waypoint_and_diedge(self, pos: tuple, prev_wp) -> None:
         """adds new waypoints and increments wp the idx"""
 
+        # self.add_waypoint_node(pos)
         self.graph.add_node(
             self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
         )
-
         self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
         self.next_wp_idx += 1
 
@@ -214,14 +214,16 @@ class TOSG:
                 return node
 
     def get_node_by_UUID(self, UUID):
-        """returns the node idx with the given UUID""" 
+        """returns the node idx with the given UUID"""
         for node in self.graph.nodes():
             if self.graph.nodes[node]["id"] == UUID:
                 return node
 
     def get_edge_by_UUID(self, UUID) -> Optional[Edge]:
         """returns the edge tuple with the given UUID"""
-        for src_node, target_node, edge_key, edge_id in self.graph.edges(data="id", keys=True):
+        for src_node, target_node, edge_key, edge_id in self.graph.edges(
+            data="id", keys=True
+        ):
             if edge_id == UUID:
                 return src_node, target_node, edge_key
 
@@ -323,7 +325,7 @@ class TOSG:
                 ddict["id"] for u, v, ddict in self.graph.edges(data=True)
             ]:
                 self.tasks.remove(task)
-    
+
     # FIXME: this is 2nd most expensive function
     def get_task_target_node(self, task: Task) -> Optional[Node]:
         """returns the target node of a task"""
@@ -362,9 +364,7 @@ class TOSG:
 
     def add_my_node(self, pos: tuple[float, float], object_type: ObjectTypes):
         my_node_id = uuid4()
-        self.graph.add_node(
-            my_node_id, pos=pos, type=object_type, id=my_node_id
-        )
+        self.graph.add_node(my_node_id, pos=pos, type=object_type, id=my_node_id)
         return my_node_id
 
     def get_task_by_uuid(self, uuid: UUID) -> Optional[Task]:
