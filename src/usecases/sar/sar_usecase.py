@@ -11,14 +11,13 @@ from src.domain.services.online_planner import OnlinePlanner
 from src.entrypoints.utils.vizualisation_listener import VizualisationListener
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar.sar_behaviors import SAR_BEHAVIORS
+from src.usecases.shortcut_task_switch_result import setup_tosg_for_task_switch_result
 from src.usecases.utils.feedback import (
     feedback_pipeline_completion,
     feedback_pipeline_init,
     feedback_pipeline_single_step,
 )
 from src.utils.sanity_checks import check_no_duplicate_wp_edges
-
-from src.usecases.shortcut_task_switch_result import setup_task_switch_result
 
 
 def run_sar_usecase(cfg: Config):
@@ -29,7 +28,7 @@ def run_sar_usecase(cfg: Config):
 
 def run_task_switch_usecase(cfg: Config):
     agents, tosg, usecases, viz_listener = init_entities(cfg)
-    setup_task_switch_result(tosg)
+    setup_tosg_for_task_switch_result(tosg)
     success = run_demo(cfg, agents, tosg, usecases, viz_listener)
     return success
 

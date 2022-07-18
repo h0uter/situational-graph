@@ -1,7 +1,7 @@
 from src.domain.services.tosg import TOSG
 
 
-def setup_task_switch_result(tosg: TOSG):
+def setup_tosg_for_task_switch_result(tosg: TOSG):
 
     node_positions = [
         (0, 0),
@@ -25,4 +25,4 @@ def setup_task_switch_result(tosg: TOSG):
         if i == 0:
             continue
         else:
-            tosg.add_waypoint_diedge(node_list[i-1], node_list[i])
+            tosg.add_waypoint_diedge(node_list[i - 1], node_list[i])
