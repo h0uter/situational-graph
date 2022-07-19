@@ -83,7 +83,7 @@ class VedoVisualisation(AbstractVizualisation):
         self.viz_all(krm, agents)
         self.plt.show(interactive=True, resetcam=True)
 
-    def get_nodes_by_type(self, krm, node_type) -> Sequence[Node]:
+    def get_nodes_by_type(self, krm, node_type) -> list[Node]:
         return list(
             dict(
                 (n, d["type"])
@@ -130,8 +130,11 @@ class VedoVisualisation(AbstractVizualisation):
 
         # world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
         world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.UNKNOWN_VICTIM)
+        world_object_nodes.extend(self.get_nodes_by_type(krm, ObjectTypes.IMMOBILE_VICTIM))
+        world_object_nodes.extend(self.get_nodes_by_type(krm, ObjectTypes.MOBILE_VICTIM))
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict)
         actors = self.add_agents(agents, actors)
+
 
         if usecases is not None:
             self.viz_action_graph(actors, krm, usecases, pos_dict, agents)

@@ -129,9 +129,8 @@ class OfflinePlanner:
             return None
 
     def _check_if_tasks_exhausted(self, tosg: TOSG) -> bool:
-        # HACK: we just check the fronteirs, not the tasks.
-        num_of_frontiers = len(tosg.get_all_frontiers_idxs())
-        if num_of_frontiers < 1:
+        num_of_tasks = len(tosg.tasks)
+        if num_of_tasks < 1:
             return True
         else:
             return False

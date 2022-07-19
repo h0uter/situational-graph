@@ -5,7 +5,16 @@ from uuid import UUID, uuid4
 
 import networkx as nx
 from src.configuration.config import Config
-from src.domain import Behaviors, Edge, Node, Objectives, ObjectTypes, Plan, Task
+from src.domain import (
+    Affordance,
+    Behaviors,
+    Edge,
+    Node,
+    Objectives,
+    ObjectTypes,
+    Plan,
+    Task,
+)
 
 
 # FIXME: refactor this class a lot
@@ -353,6 +362,8 @@ class TOSG:
     """
 
     def validate_plan(self, plan: Plan) -> bool:
+        if not plan:
+            return False
         if len(plan) < 1:
             return False
         if not self.check_node_exists(plan[-1][1]):
@@ -386,3 +397,30 @@ class TOSG:
             else:
                 self.tasks.remove(task)
                 self._log.error(f"remove_task_by_node(): No task with node {node}")
+
+    def add_node_with_task_and_edges_from_affordances(
+        self,
+        from_node: Node,
+        object_type: ObjectTypes,
+        pos: tuple,
+        affordances: list[Affordance],
+    ):
+        """
+        Adds a node with edges from the affordances of the given object type.
+        :param object_type: the type of object to add
+        :param pos: the position of the node
+        :return: the id of the node
+        """
+        node_id = uuid4()
+        key = None
+        self.graph.add_node(node_id, pos=pos, type=object_type, id=node_id)
+        for affordance in affordances:
+            if affordance[0] == object_type:
+
+                key = self.add_my_edge(from_node, node_id, affordance[1])
+
+                self.tasks.append(Task(key, affordance[2]))
+      
+        print(self.tasks)
+
+        return node_id

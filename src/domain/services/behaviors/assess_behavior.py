@@ -42,10 +42,10 @@ class AssessBehavior(AbstractBehavior):
         behavior_edge: Edge,
     ) -> bool:
         """Check if the postconditions for the behavior are met."""
-        if not result.victim_state == VictimState.UNKNOWN:
-            return True
-        else:
+        if result.victim_state == VictimState.UNKNOWN:
             return False
+        else:
+            return True
 
     def _mutate_graph_and_tasks_success(
         self,
@@ -76,10 +76,10 @@ class AssessBehavior(AbstractBehavior):
         )
 
         # use the affordances to add the correct edges.
-
         for aff in affordances:
             if aff[0] == VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]:
                 tosg.add_my_edge(behavior_edge[0], mutated_node, aff[1])
+                print(f">>>Added edge {aff[1]} with {result.victim_state}")
 
     def _mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge

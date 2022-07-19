@@ -4,6 +4,9 @@ from src.domain.entities.behaviors import Behaviors
 from src.domain.entities.objectives import Objectives
 from src.domain.entities.plan import Plan
 from src.domain.entities.task import Task
+from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    add_shortcut_edges_between_wps_on_lg,
+)
 
 import src.entrypoints.utils.event as event
 from src.configuration.config import Config, Scenario
@@ -23,11 +26,20 @@ from src.usecases.utils.feedback import (
 )
 
 
-def setup_usecase(tosg: TOSG, agents: Sequence[AbstractAgent], start_poses):
+def setup_usecase_common(tosg: TOSG, agents: Sequence[AbstractAgent], start_poses):
     tosg.set_start_poses(start_poses)
 
+    """setup vizualisation of start poses"""
     for agent in agents:
-        """init for task and plan system. manually set first task to exploring current position."""
+        agent.get_local_grid()
+        agent.localize_to_waypoint(tosg)
+        event.post_event("viz point", agent.pos)  # viz start position
+
+
+def setup_exploration_usecase(tosg: TOSG, agents: Sequence[AbstractAgent]):
+    """Manually set first task to exploring current position."""
+    # for the demo I dont need this setup, I can instead manually craft the graph.
+    for agent in agents:
         # Add an explore self edge on the start node to ensure a exploration sampling action
         edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
         tosg.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
@@ -43,13 +55,28 @@ def setup_usecase(tosg: TOSG, agents: Sequence[AbstractAgent], start_poses):
 
 def run_sar_usecase(cfg: Config):
     agents, tosg, usecases, viz_listener = init_entities(cfg)
+    setup_usecase_common(tosg, agents, start_poses=[agent.pos for agent in agents])
+
+    """setup the specifics of the usecase"""
+    setup_exploration_usecase(tosg, agents)
+
     success = run_demo(cfg, agents, tosg, usecases, viz_listener)
     return success
 
 
 def run_task_switch_usecase(cfg: Config):
+    cfg.AGENT_START_POS = (6.5, -14)
     agents, tosg, usecases, viz_listener = init_entities(cfg)
+    setup_usecase_common(tosg, agents, start_poses=[agent.pos for agent in agents])
+
     setup_tosg_for_task_switch_result(tosg)
+    for agent in agents:
+        lg = agent.get_local_grid()
+        add_shortcut_edges_between_wps_on_lg(lg, tosg, agent, cfg)
+    """setup the specifics of the usecase"""
+    # FIXME: so the task is added to the list but not selected.
+    for agent in agents:
+        agent.set_init_explore_step()
     success = run_demo(cfg, agents, tosg, usecases, viz_listener)
     return success
 
@@ -61,7 +88,6 @@ def init_entities(cfg: Config):
         agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
 
     tosg = TOSG(cfg)
-    setup_usecase(tosg, agents, start_poses=[agent.pos for agent in agents])
 
     domain_behaviors = SAR_BEHAVIORS
     affordances = SAR_AFFORDANCES
@@ -71,11 +97,6 @@ def init_entities(cfg: Config):
     viz_listener = VizualisationListener(cfg)
     viz_listener.setup_event_handler()
 
-    """setup"""
-    for agent in agents:
-        agent.localize_to_waypoint(tosg)
-        event.post_event("viz point", agent.pos)  # viz start position
-
     return agents, tosg, planner, viz_listener
 
 
@@ -83,7 +104,7 @@ def run_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],
     tosg: TOSG,
-    planner: OfflinePlanner,
+    planner: OnlinePlanner,
     viz_listener: VizualisationListener,
 ):
 

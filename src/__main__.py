@@ -26,7 +26,7 @@ if __name__ == "__main__":
     # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
     # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 
-    run_sar_usecase(cfg)
-    # run_task_switch_usecase(cfg)
+    # run_sar_usecase(cfg)
+    run_task_switch_usecase(cfg)
 
     # benchmark_func()

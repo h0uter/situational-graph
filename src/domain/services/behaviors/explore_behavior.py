@@ -26,6 +26,7 @@ class ExploreBehavior(AbstractBehavior):
         target_node_pos = tosg.get_node_data_by_node(target_node)["pos"]
 
         """The first exploration step is just sampling in place."""
+        # HACK: this should just be an init behavior or something.
         if not agent.init_explore_step_completed:
             lg = agent.get_local_grid()
             new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
@@ -226,34 +227,3 @@ class ExploreBehavior(AbstractBehavior):
                 # tosg.remove_task_by_node(frontier)
                 # FIXME: here I should also destroy the associated exploration tasks.
                 tosg.remove_frontier(frontier)
-
-    # # BUG: on the real robot sometimes impossible shortcuts are added.
-    # def __find_shortcuts_between_wps(
-    #     self, lg: LocalGrid, tosg: TOSG, agent: AbstractAgent
-    # ):
-    #     close_nodes = tosg.get_nodes_of_type_in_margin(
-    #         lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, ObjectTypes.WAYPOINT
-    #     )
-    #     shortcut_candidate_positions = []
-    #     for node in close_nodes:
-    #         if node != agent.at_wp:
-    #             shortcut_candidate_positions.append(
-    #                 tosg.get_node_data_by_node(node)["pos"]
-    #             )
-
-    #     if shortcut_candidate_positions:
-    #         for point in shortcut_candidate_positions:
-    #             at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
-    #             to_cell = lg.world_coords2cell_idxs(point)
-    #             is_collision_free, _ = lg.is_collision_free_straight_line_between_cells(
-    #                 at_cell, to_cell
-    #             )
-    #             if is_collision_free:
-    #                 from_wp = agent.at_wp
-    #                 to_wp = tosg.get_node_by_pos(point)
-
-    #                 if not tosg.check_if_edge_exists(from_wp, to_wp):
-    #                     self._log.debug(
-    #                         f"{agent.name}: Adding shortcut from {from_wp} to {to_wp}."
-    #                     )
-    #                     tosg.add_waypoint_diedge(from_wp, to_wp)
