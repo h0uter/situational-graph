@@ -127,6 +127,7 @@ class Config:
 
         self.MAP_PATH = os.path.join("resource", "villa_holes_closed.png")
         self.MAP_PATH2 = os.path.join("resource", "villa_holes_closed_open_wall.png")
+        self.MAP_PATH_TASK_SWITCH = os.path.join("resource", "villa_holes_closed_task_switch.png")
         self.TOT_MAP_LEN_M_X = 50
         self.IMG_TOTAL_X_PIX = 2026
         self.IMG_TOTAL_Y_PIX = 1686

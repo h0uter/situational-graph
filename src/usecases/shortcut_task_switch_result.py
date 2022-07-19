@@ -4,8 +4,8 @@ from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 
 
 def setup_tosg_for_task_switch_result(tosg: TOSG):
-    X1 = 6.5
-    X2 = 12
+    X1 = 7.5
+    X2 = 11
 
     NODE_POSITIONS = [
         (X1, -13),
@@ -34,8 +34,15 @@ def setup_tosg_for_task_switch_result(tosg: TOSG):
         else:
             tosg.add_waypoint_diedge(node_list[i - 1], node_list[i])
 
-    new_task_pos = (X1, 3)
+    orig_task_pos = (X1, 3)
     tosg.add_node_with_task_and_edges_from_affordances(
         # node_list[3], ObjectTypes.FRONTIER, new_task_pos, SAR_AFFORDANCES
-        node_list[3], ObjectTypes.UNKNOWN_VICTIM, new_task_pos, SAR_AFFORDANCES
+        node_list[3], ObjectTypes.UNKNOWN_VICTIM, orig_task_pos, SAR_AFFORDANCES
     )
+
+    switch_task_pos = (X2+3, -9)
+    tosg.add_node_with_task_and_edges_from_affordances(
+        # node_list[3], ObjectTypes.FRONTIER, new_task_pos, SAR_AFFORDANCES
+        node_list[6], ObjectTypes.UNKNOWN_VICTIM, switch_task_pos, SAR_AFFORDANCES
+    )
+
