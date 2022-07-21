@@ -5,6 +5,7 @@ from typing import Sequence, Union
 import networkx as nx
 import numpy as np
 import vedo
+from vedo import io
 
 from src.domain.services.abstract_agent import AbstractAgent
 from src.domain import TOSG, ObjectTypes, LocalGrid, OfflinePlanner
@@ -255,7 +256,7 @@ class VedoVisualisation(AbstractVizualisation):
                 # wo,
                 name_str,
                 offset=[0, 0, 5 * self.factor],
-                s=self.factor,
+                s=self.factor*0.7,
             )
             actors.append(wo_vig)
 
@@ -275,3 +276,7 @@ class VedoVisualisation(AbstractVizualisation):
             s=self.factor,
         )
         self.debug_actors.append(start_vig)
+
+    def take_screenshot(self):
+        path = 'results/test.png'
+        io.screenshot(path)

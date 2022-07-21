@@ -1,19 +1,19 @@
 import time
 from typing import Sequence
-from src.domain.entities.behaviors import Behaviors
-from src.domain.entities.objectives import Objectives
-from src.domain.entities.plan import Plan
-from src.domain.entities.task import Task
-from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
-    add_shortcut_edges_between_wps_on_lg,
-)
 
 import src.entrypoints.utils.event as event
 from src.configuration.config import Config, Scenario
 from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.domain import TOSG, OfflinePlanner
+from src.domain.entities.behaviors import Behaviors
+from src.domain.entities.objectives import Objectives
+from src.domain.entities.plan import Plan
+from src.domain.entities.task import Task
 from src.domain.services.abstract_agent import AbstractAgent
+from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    add_shortcut_edges_between_wps_on_lg,
+)
 from src.domain.services.online_planner import OnlinePlanner
 from src.entrypoints.utils.vizualisation_listener import VizualisationListener
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
@@ -110,17 +110,17 @@ def run_demo(
 
     step, start, tosg_stats, my_logger = feedback_pipeline_init(cfg)
 
-    # HACK: for the task switch usecase
-    for agent in agents:
-        agent: SimulatedAgent
-        agent.lg_spoofer.set_map(cfg.MAP_PATH_TASK_SWITCH)
-        viz_listener.viz.set_map(cfg.MAP_PATH_TASK_SWITCH)
-
+    # # HACK: for the task switch usecase
+    # for agent in agents:
+    #     agent: SimulatedAgent
+    #     agent.lg_spoofer.set_map(cfg.MAP_PATH_TASK_SWITCH)
+    #     viz_listener.viz.set_map(cfg.MAP_PATH_TASK_SWITCH)
 
     """ Main Logic Loop"""
     mission_completed = False
-    while not mission_completed and step < cfg.MAX_STEPS:
+    while (not mission_completed) or step < cfg.MAX_STEPS:
         step_start = time.perf_counter()
+        # print(f">>> task list is {tosg.tasks}")
 
         for agent_idx in range(len(agents)):
             if planner.pipeline(agents[agent_idx], tosg):
@@ -133,7 +133,7 @@ def run_demo(
             step, step_start, agents, tosg, tosg_stats, planner, my_logger
         )
         step += 1
-        time.sleep(1.5)
+        # time.sleep(2.5)
 
         # # HACK: debug stuff to show the method can exploit new shortcuts in the world
         # # what I should do instead is make his part of the usecase

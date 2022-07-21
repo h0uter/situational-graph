@@ -20,8 +20,10 @@ class GotoBehavior(AbstractBehavior):
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
     ) -> BehaviorResult:
         node_data = tosg.get_node_data_by_node(behavior_edge[1])
-        agent.move_to_pos(node_data["pos"])
+        success = agent.move_to_pos(node_data["pos"])
         agent.localize_to_waypoint(tosg)
+        
+        # return BehaviorResult(success)
         return BehaviorResult(True)
 
     def _check_postconditions(

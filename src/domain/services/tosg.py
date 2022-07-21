@@ -50,12 +50,25 @@ class TOSG:
         return node in self.graph.nodes
 
     def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
-        path_of_nodes = nx.shortest_path(
+        # path_of_nodes = nx.shortest_path(
+        #     self.graph,
+        #     source=source,
+        #     target=target,
+        #     weight="cost",
+        #     method=self.cfg.PATH_FINDING_METHOD,
+        # )
+
+        def dist_heur(a: Node, b: Node):
+            (x1, y1) = self.graph.nodes[a]["pos"]
+            (x2, y2) = self.graph.nodes[b]["pos"]
+            return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+
+        path_of_nodes = nx.astar_path(
             self.graph,
             source=source,
             target=target,
             weight="cost",
-            method=self.cfg.PATH_FINDING_METHOD,
+            heuristic=dist_heur,
         )
         if len(path_of_nodes) > 1:
             return self.node_list_to_edge_list(path_of_nodes)
@@ -128,12 +141,13 @@ class TOSG:
 
         self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
 
-    def add_my_edge(self, node_a: Node, node_b: Node, edge_type: Behaviors):
+    def add_my_edge(self, node_a: Node, node_b: Node, edge_type: Behaviors) -> UUID:
         # my_id = (uuid.uuid4(),)
         my_id = uuid4()
         self.graph.add_edge(
             node_a,
             node_b,
+            key=my_id,
             type=edge_type,
             cost=self.calc_edge_len(node_a, node_b),
             id=my_id,
@@ -186,6 +200,7 @@ class TOSG:
             type=Behaviors.EXPLORE,
             id=edge_uuid,
             cost=cost,
+            # key=edge_uuid,
         )
         self.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
 
@@ -235,6 +250,7 @@ class TOSG:
             data="id", keys=True
         ):
             if edge_id == UUID:
+                # if edge_id == UUID or edge_key == UUID:
                 return src_node, target_node, edge_key
 
     def get_node_data_by_node(self, node: Node) -> dict:
@@ -329,16 +345,28 @@ class TOSG:
         else:
             self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
 
+    def destroy_task_and_edge(self, task: Task) -> None:
+        """removes a task and its edge from the graph"""
+        edge = self.get_edge_by_UUID(task.edge_uuid)
+        self.graph.remove_node(edge[1])
+        try:
+            self.graph.remove_edge(*edge)
+        except nx.NetworkXError:
+            self._log.error(f"destroy_task_and_edge(): edge {edge} not found")
+        self.tasks.remove(task)
+        # self._log.info(f"destroy_task_and_edge(): removed task {task_idx} and edge {edge_idx}")
+
     def remove_invalid_tasks(self):
+        all_edge_ids = [ddict["id"] for u, v, ddict in self.graph.edges(data=True)]
+        # this is like a massive list so I feel like there should be a better way
         for task in self.tasks:
-            if task.edge_uuid not in [
-                ddict["id"] for u, v, ddict in self.graph.edges(data=True)
-            ]:
+            if task.edge_uuid not in all_edge_ids:
                 self.tasks.remove(task)
 
     # FIXME: this is 2nd most expensive function
     def get_task_target_node(self, task: Task) -> Optional[Node]:
         """returns the target node of a task"""
+        # BUG: sometimes task is None
         edge = self.get_task_edge(task)
         if edge:
             return edge[1]
@@ -348,6 +376,7 @@ class TOSG:
 
     def get_task_edge(self, task: Task) -> Optional[Edge]:
         """returns the edge of a task"""
+        # BUG: some times task is None
         edge = self.get_edge_by_UUID(task.edge_uuid)
         if edge:
             return edge
@@ -385,18 +414,18 @@ class TOSG:
                 return task
         return None
 
-    # FIXME: this makes it super slow. instead fof looping need to implement as lookup.
-    def remove_task_by_node(self, node: Node):
-        # just remove all tasks whose edge ends in this node
-        for task in self.tasks:
-            task_edge = self.get_edge_by_UUID(task.edge_uuid)
-            if task_edge:
-                if task_edge[1] == node:
-                    self.tasks.remove(task)
-                    return
-            else:
-                self.tasks.remove(task)
-                self._log.error(f"remove_task_by_node(): No task with node {node}")
+    # # FIXME: this makes it super slow. instead fof looping need to implement as lookup.
+    # def remove_task_by_node(self, node: Node):
+    #     # just remove all tasks whose edge ends in this node
+    #     for task in self.tasks:
+    #         task_edge = self.get_edge_by_UUID(task.edge_uuid)
+    #         if task_edge:
+    #             if task_edge[1] == node:
+    #                 self.tasks.remove(task)
+    #                 return
+    #         else:
+    #             self.tasks.remove(task)
+    #             self._log.error(f"remove_task_by_node(): No task with node {node}")
 
     def add_node_with_task_and_edges_from_affordances(
         self,
@@ -412,15 +441,15 @@ class TOSG:
         :return: the id of the node
         """
         node_id = uuid4()
-        key = None
+        edge_uuid = None
         self.graph.add_node(node_id, pos=pos, type=object_type, id=node_id)
         for affordance in affordances:
             if affordance[0] == object_type:
 
-                key = self.add_my_edge(from_node, node_id, affordance[1])
+                edge_uuid = self.add_my_edge(from_node, node_id, affordance[1])
 
-                self.tasks.append(Task(key, affordance[2]))
-      
+                self.tasks.append(Task(edge_uuid, affordance[2]))
+
         print(self.tasks)
 
         return node_id

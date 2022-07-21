@@ -25,6 +25,9 @@ class OfflinePlanner:
         if not agent.task:
             agent.task = self._task_selection(agent, tosg)
 
+        if not agent.task:
+            return self._check_if_tasks_exhausted(tosg)
+
         """ generate a plan"""
         if not agent.plan:
             agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
@@ -37,10 +40,7 @@ class OfflinePlanner:
                 self._destroy_task(agent, tosg)
 
         """check completion of mission"""
-        if self._check_if_tasks_exhausted(tosg):
-            return True
-
-        return False
+        return self._check_if_tasks_exhausted(tosg)
 
     def _destroy_task(self, agent: AbstractAgent, tosg: TOSG):
         self._log.debug(f"{agent.name}:  has a task  {agent.task}")
@@ -48,6 +48,7 @@ class OfflinePlanner:
         if agent.task:
             if agent.task in tosg.tasks:
                 tosg.tasks.remove(agent.task)
+                # tosg.destroy_task_and_edge(agent.task)
         self._log.debug(f"{agent.name}: destroying task  {agent.task}")
 
         agent.clear_task()
@@ -64,6 +65,10 @@ class OfflinePlanner:
         optimal_task = None
 
         for task in tosg.tasks:
+
+            # HACK: sometimes we get a task that does not exist anymore.
+            if not task:
+                continue
 
             task_target_node = tosg.get_task_target_node(task)
             # HACK: sometimes we get a task that does not exist anymore.
@@ -89,7 +94,7 @@ class OfflinePlanner:
     def _find_plan_for_task(
         self, agent_localized_to: Node, tosg: TOSG, task: Task
     ) -> Optional[Plan]:
-
+ 
         target_node = tosg.get_task_target_node(task)
         if not self._check_target_still_valid(tosg, target_node):
             return None
