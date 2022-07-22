@@ -27,7 +27,12 @@ from src.usecases.utils.feedback import (
 
 
 def setup_usecase_common(tosg: TOSG, agents: Sequence[AbstractAgent], start_poses):
-    tosg.set_start_poses(start_poses)
+    """Add a waypoint to the tosg for each agent, but check for duplicates"""
+    duplicate_start_poses = []
+    for start_pos in start_poses:
+        if start_pos not in duplicate_start_poses:
+            tosg.add_waypoint_node(start_pos)
+            duplicate_start_poses.append(start_pos)
 
     """setup vizualisation of start poses"""
     for agent in agents:

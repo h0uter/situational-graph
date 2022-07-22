@@ -71,7 +71,7 @@ class AssessBehavior(AbstractBehavior):
         tosg.remove_node(behavior_edge[1])
 
         # add the target node with the ObjectType corresponding to the victim
-        mutated_node = tosg.add_my_node(
+        mutated_node = tosg.add_node_of_type(
             old_pos, VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]
         )
 

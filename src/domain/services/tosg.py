@@ -5,16 +5,8 @@ from uuid import UUID, uuid4
 
 import networkx as nx
 from src.configuration.config import Config
-from src.domain import (
-    Affordance,
-    Behaviors,
-    Edge,
-    Node,
-    Objectives,
-    ObjectTypes,
-    Plan,
-    Task,
-)
+from src.domain import (Affordance, Behaviors, Edge, Node, Objectives,
+                        ObjectTypes, Plan, Task)
 
 
 # FIXME: refactor this class a lot
@@ -32,43 +24,16 @@ class TOSG:
         self.next_frontier_idx = cfg.FRONTIER_INDEX_START
         self.next_wo_idx = cfg.WORLD_OBJECT_INDEX_START
 
-    def set_start_poses(self, start_poses: list[tuple]):
-        # FIXME: This is ugly
-        self.duplicate_start_poses = []
-        for start_pos in start_poses:
-            if start_pos not in self.duplicate_start_poses:
-                self.add_waypoint_node(start_pos)
-                # HACK:
-                self.duplicate_start_poses.append(start_pos)
-
-    def check_if_edge_exists(self, node_a: Node, node_b: Node):
-        """checks if an edge between two nodes exists"""
-        return self.graph.has_edge(node_a, node_b)
-
-    def check_node_exists(self, node: Node):
-        """checks if the given node exists in the graph"""
-        return node in self.graph.nodes
-
     def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
-        # path_of_nodes = nx.shortest_path(
-        #     self.graph,
-        #     source=source,
-        #     target=target,
-        #     weight="cost",
-        #     method=self.cfg.PATH_FINDING_METHOD,
-        # )
-
-        def dist_heur(a: Node, b: Node):
-            (x1, y1) = self.graph.nodes[a]["pos"]
-            (x2, y2) = self.graph.nodes[b]["pos"]
-            return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+        def dist_heur_wrapper(a: Node, b: Node):
+            return self.calc_edge_len(a, b)
 
         path_of_nodes = nx.astar_path(
             self.graph,
             source=source,
             target=target,
             weight="cost",
-            heuristic=dist_heur,
+            heuristic=dist_heur_wrapper,
         )
         if len(path_of_nodes) > 1:
             return self.node_list_to_edge_list(path_of_nodes)
@@ -77,16 +42,26 @@ class TOSG:
             return None
 
     def shortest_path_len(self, source: Node, target: Node):
-        path_len = nx.shortest_path_length(
+        def dist_heur_wrapper(a: Node, b: Node):
+            return self.calc_edge_len(a, b)
+
+        path_len = nx.astar_path_length(
             self.graph,
             source=source,
             target=target,
             weight="cost",
-            method=self.cfg.PATH_FINDING_METHOD,
+            heuristic=dist_heur_wrapper,
         )
 
         return path_len
 
+    def calc_edge_len(self, a: Node, b: Node) -> float:
+        """calculates the distance between two nodes"""
+        (x1, y1) = self.graph.nodes[a]["pos"]
+        (x2, y2) = self.graph.nodes[b]["pos"]
+        return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+
+    # TODO: this  is kind of
     def node_list_to_edge_list(self, node_list: Sequence[Node]) -> Sequence[Edge]:
         action_path: list[Edge] = []
         for i in range(len(node_list) - 1):
@@ -98,26 +73,24 @@ class TOSG:
 
         return action_path
 
-    def calc_edge_len(self, node_a, node_b):
-        """calculates the distance between two nodes"""
-        return math.sqrt(
-            (self.graph.nodes[node_a]["pos"][0] - self.graph.nodes[node_b]["pos"][0])
-            ** 2
-            + (self.graph.nodes[node_a]["pos"][1] - self.graph.nodes[node_b]["pos"][1])
-            ** 2
-        )
+    # this is the only place where we call the add_node method
+    def add_node_of_type(self, pos: tuple[float, float], object_type: ObjectTypes):
+        node_uuid = uuid4()
+        self.graph.add_node(node_uuid, pos=pos, type=object_type, id=node_uuid)
+        # self.graph.add_node(node_uuid, pos=pos, type=object_type)
+        return node_uuid
 
     def add_waypoint_node(self, pos: tuple) -> int:
         """adds start points to the graph"""
         self.graph.add_node(
             self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
         )
+        self.add_node_of_type(pos, ObjectTypes.WAYPOINT)
         self.next_wp_idx += 1
         return self.next_wp_idx - 1
 
     def add_waypoint_and_diedge(self, pos: tuple, prev_wp) -> None:
         """adds new waypoints and increments wp the idx"""
-
         # self.add_waypoint_node(pos)
         self.graph.add_node(
             self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
@@ -125,17 +98,17 @@ class TOSG:
         self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
         self.next_wp_idx += 1
 
-    def add_waypoint_diedge(self, node_a, node_b) -> None:
+    def add_waypoint_diedge(self, node_a: Node, node_b: Node) -> None:
         """adds a waypoint edge in both direction to the graph"""
         d = {
             "type": Behaviors.GOTO,
             "id": uuid4(),
             "cost": self.calc_edge_len(node_a, node_b),
         }
-        if self.check_if_edge_exists(node_a, node_b):
+        if self.graph.has_edge(node_a, node_b):
             self._log.warning(f"Edge between a:{node_a} and b:{node_b} already exists")
             return
-        if self.check_if_edge_exists(node_b, node_a):
+        if self.graph.has_edge(node_b, node_a):
             self._log.warning(f"Edge between b:{node_b} and a:{node_a} already exists")
             return
 
@@ -187,7 +160,7 @@ class TOSG:
         else:
             cost = edge_len
 
-        if self.check_if_edge_exists(agent_at_wp, self.next_frontier_idx):
+        if self.graph.has_edge(agent_at_wp, self.next_frontier_idx):
             self._log.warning(
                 f"add_frontier(): Edge between {agent_at_wp} and {self.next_frontier_idx} already exists"
             )
@@ -206,17 +179,17 @@ class TOSG:
 
         self.next_frontier_idx += 1
 
-    def add_guide_action_edges(self, path: Sequence[Node]):
-        """adds edges between the nodes in the path"""
-        # TODO: make these edge costs super explicit
-        for i in range(len(path) - 1):
-            self.graph.add_edge(
-                path[i],
-                path[i + 1],
-                type=Behaviors.GUIDE_WP_EDGE,
-                id=uuid4(),
-                cost=0,
-            )
+    # def add_guide_action_edges(self, path: Sequence[Node]):
+    #     """adds edges between the nodes in the path"""
+    #     # TODO: make these edge costs super explicit
+    #     for i in range(len(path) - 1):
+    #         self.graph.add_edge(
+    #             path[i],
+    #             path[i + 1],
+    #             type=Behaviors.GUIDE_WP_EDGE,
+    #             id=uuid4(),
+    #             cost=0,
+    #         )
 
     def remove_frontier(self, target_frontier_idx) -> None:
         """removes a frontier from the graph"""
@@ -290,7 +263,7 @@ class TOSG:
         ]
 
     def get_nodes_of_type_in_margin(
-        self, pos: tuple, margin: float, node_type: ObjectTypes
+        self, pos: tuple[float, float], margin: float, node_type: ObjectTypes
     ) -> list:
         """
         Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.
@@ -300,7 +273,7 @@ class TOSG:
         :param node_type: the type of node to search for
         :return: The list of nodes that are close to the given position.
         """
-        close_nodes = list()
+        close_nodes = []
         for node in self.graph.nodes:
             data = self.get_node_data_by_node(node)
             if data["type"] == node_type:
@@ -395,7 +368,7 @@ class TOSG:
             return False
         if len(plan) < 1:
             return False
-        if not self.check_node_exists(plan[-1][1]):
+        if not self.graph.has_node(plan[-1][1]):
             return False
 
         return True
@@ -403,29 +376,12 @@ class TOSG:
     def remove_node(self, node: Node):
         self.graph.remove_node(node)
 
-    def add_my_node(self, pos: tuple[float, float], object_type: ObjectTypes):
-        my_node_id = uuid4()
-        self.graph.add_node(my_node_id, pos=pos, type=object_type, id=my_node_id)
-        return my_node_id
 
     def get_task_by_uuid(self, uuid: UUID) -> Optional[Task]:
         for task in self.tasks:
             if task.uuid == uuid:
                 return task
         return None
-
-    # # FIXME: this makes it super slow. instead fof looping need to implement as lookup.
-    # def remove_task_by_node(self, node: Node):
-    #     # just remove all tasks whose edge ends in this node
-    #     for task in self.tasks:
-    #         task_edge = self.get_edge_by_UUID(task.edge_uuid)
-    #         if task_edge:
-    #             if task_edge[1] == node:
-    #                 self.tasks.remove(task)
-    #                 return
-    #         else:
-    #             self.tasks.remove(task)
-    #             self._log.error(f"remove_task_by_node(): No task with node {node}")
 
     def add_node_with_task_and_edges_from_affordances(
         self,

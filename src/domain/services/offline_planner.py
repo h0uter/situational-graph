@@ -58,7 +58,7 @@ class OfflinePlanner:
     ) -> bool:
         if target_node is None:
             return False
-        return tosg.check_node_exists(target_node)
+        return tosg.graph.has_node(target_node)
 
     def _task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
         highest_utility = 0

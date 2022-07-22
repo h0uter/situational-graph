@@ -97,7 +97,7 @@ class ExploreBehavior(AbstractBehavior):
                 self._log.debug(
                     f">>>>{agent.name}: adding world object {w_o.object_type}"
                 )
-                new_node = tosg.add_my_node(w_o.pos, w_o.object_type)
+                new_node = tosg.add_node_of_type(w_o.pos, w_o.object_type)
                 # 3.2 add edge using affordances.
                 for aff in affordances:
                     if aff[0] == w_o.object_type:
