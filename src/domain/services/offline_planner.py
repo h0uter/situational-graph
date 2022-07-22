@@ -64,36 +64,11 @@ class OfflinePlanner:
         optimal_task = None
 
         tosg.remove_invalid_tasks()
-        self._log.debug(f"{agent.name}:  has tasks {tosg.tasks}")
+        # self._log.debug(f"{agent.name}:  has tasks {tosg.tasks}")
 
         for task in tosg.tasks:
-            print(task)
-            # HACK: sometimes we get a task that does not exist anymore.
-            if not task:
-                continue
 
-            # task_target_node = tosg.get_task_target_node(task)
-            task_target_node = task.edge_uuid[1]
-            if task not in tosg.tasks:
-                raise ValueError(f">>>>>>> {task} is not in the tasks list")
-
-            if not tosg.G.has_edge(*task.edge_uuid):
-                problem_edge = tosg.G.get_edge_data(*task.edge_uuid)
-                print(f"{problem_edge=}")
-                source_node = tosg.G.nodes[task.edge_uuid[0]]
-                target_node = tosg.G.nodes[task.edge_uuid[1]]
-                print(f"{source_node=}")
-                print(f"{target_node=}")
-                raise ValueError(f"{task.edge_uuid} is not an edge in the graph")
-            if not tosg.G.has_node(task_target_node):
-                raise Exception(f"{task_target_node} is not in the graph") 
-
-            # so the problem is that that the task edge does not exist anymore
-
-
-            # HACK: sometimes we get a task that does not exist anymore.
-            if not task_target_node:
-                continue
+            task_target_node = task.edge[1]
 
             path_cost = tosg.shortest_path_len(agent.at_wp, task_target_node)
 
@@ -116,7 +91,7 @@ class OfflinePlanner:
     ) -> Optional[Plan]:
 
         # target_node = tosg.get_task_target_node(task)
-        target_node = task.edge_uuid[1]
+        target_node = task.edge[1]
 
         if not self._check_target_still_valid(tosg, target_node):
             return None

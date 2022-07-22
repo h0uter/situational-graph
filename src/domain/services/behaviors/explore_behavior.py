@@ -62,7 +62,7 @@ class ExploreBehavior(AbstractBehavior):
         tosg: TOSG,
         result: BehaviorResult,
         behavior_edge: Edge,
-        affordances: Sequence[Affordance],
+        affordances: list[Affordance],
     ):
         next_node = behavior_edge[1]
         self._log.debug(
@@ -99,12 +99,16 @@ class ExploreBehavior(AbstractBehavior):
                 self._log.debug(
                     f">>>>{agent.name}: adding world object {w_o.object_type}"
                 )
-                new_node = tosg.add_node_of_type(w_o.pos, w_o.object_type)
+                # new_node = tosg.add_node_of_type(w_o.pos, w_o.object_type)
                 # 3.2 add edge using affordances.
-                for aff in affordances:
-                    if aff[0] == w_o.object_type:
-                        tosg.add_my_edge(agent.at_wp, new_node, aff[1])
-                        break
+                # for aff in affordances:
+                #     if aff[0] == w_o.object_type:
+                            # tosg.add_my_edge(agent.at_wp, new_node, aff[1])
+                            # break
+                tosg.add_node_with_task_and_edges_from_affordances(
+                    agent.at_wp, w_o.object_type, w_o.pos, affordances
+                )
+                        # 4. add tasks for the world objects
 
     def _mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge

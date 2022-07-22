@@ -58,7 +58,8 @@ def setup_exploration_usecase(tosg: TOSG, agents: Sequence[AbstractAgent]):
         agent.task = tosg.tasks[0]
 
         # obtain the plan which corresponds to this edge.
-        init_explore_edge = tosg.get_task_edge(agent.task)
+        # init_explore_edge = tosg.get_task_edge(agent.task)
+        init_explore_edge = agent.task.edge
 
         agent.plan = Plan([init_explore_edge])
 

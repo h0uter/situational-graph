@@ -107,6 +107,7 @@ class TOSG:
         my_id = uuid4()
         if not cost:
             cost = self.calc_edge_len(node_a, node_b)
+        
         self.G.add_edge(
             node_a,
             node_b,
@@ -169,9 +170,7 @@ class TOSG:
         # _, _, edge_uuid = self.add_my_edge(
         #     agent_at_wp, ft_node_uuid, Behaviors.EXPLORE, cost=cost
         # )
-        edge = self.add_my_edge(
-            agent_at_wp, ft_node_uuid, Behaviors.EXPLORE, cost=cost
-        )
+        edge = self.add_my_edge(agent_at_wp, ft_node_uuid, Behaviors.EXPLORE, cost=cost)
 
         self.tasks.append(Task(edge, Objectives.EXPLORE_ALL_FTS))
 
@@ -190,16 +189,14 @@ class TOSG:
     def remove_tasks_associated_with_node(self, node_idx: Node):
         """removes all tasks associated with a node"""
         for task in self.tasks:
-            if node_idx in task.edge_uuid:
+            if node_idx in task.edge:
                 self.tasks.remove(task)
-
 
     def get_task_by_edge(self, edge: Edge) -> Optional[Task]:
         """returns the task associated with the edge"""
         for task in self.tasks:
-            if task.edge_uuid == edge:
+            if task.edge == edge:
                 return task
-
 
     # # TODO: this should be invalidate, so that we change its alpha or smth
     # # e.g. a method to invalidate a world object for planning, but still maintain it for vizualisation
@@ -323,48 +320,14 @@ class TOSG:
         else:
             self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
 
-    # def destroy_task_and_edge(self, task: Task) -> None:
-    #     """removes a task and its edge from the graph"""
-    #     # edge = self.get_edge_by_UUID(task.edge_uuid)
-    #     edge = task.edge_uuid
-    #     self.G.remove_node(edge[1])
-    #     try:
-    #         self.G.remove_edge(*edge)
-    #     except nx.NetworkXError:
-    #         self._log.error(f"destroy_task_and_edge(): edge {edge} not found")
-    #     self.tasks.remove(task)
-    #     # self._log.info(f"destroy_task_and_edge(): removed task {task_idx} and edge {edge_idx}")
-
     def remove_invalid_tasks(self):
         # all_edge_ids = [ddict["id"] for u, v, ddict in self.G.edges(data=True)]
         # this is like a massive list so I feel like there should be a better way
         for task in self.tasks:
             # if task.edge_uuid not in all_edge_ids:
-            if not self.G.has_edge(*task.edge_uuid):
+            if not self.G.has_edge(*task.edge):
                 self._log.error(f"remove_invalid_tasks(): removing task {task}")
                 self.tasks.remove(task)
-
-    # FIXME: this is 2nd most expensive function
-    def get_task_target_node(self, task: Task) -> Optional[Node]:
-        """returns the target node of a task"""
-        # BUG: sometimes task is None
-        edge = self.get_task_edge(task)
-        if edge:
-            return edge[1]
-        else:
-            self._log.error(f"get_target_node(): No edge with UUID {task.edge_uuid}")
-            return None
-
-    def get_task_edge(self, task: Task) -> Optional[Edge]:
-        """returns the edge of a task"""
-        # BUG: some times task is None
-        # edge = self.get_edge_by_UUID(task.edge_uuid)
-        edge = task.edge_uuid
-        if edge:
-            return edge
-        else:
-            self._log.error(f"get_task_edge(): No edge with UUID {task.edge_uuid}")
-            return None
 
     def validate_plan(self, plan: Plan) -> bool:
         if not plan:
@@ -378,12 +341,6 @@ class TOSG:
 
     def remove_node(self, node: Node):
         self.G.remove_node(node)
-
-    def get_task_by_uuid(self, uuid: UUID) -> Optional[Task]:
-        for task in self.tasks:
-            if task.uuid == uuid:
-                return task
-        return None
 
     def add_node_with_task_and_edges_from_affordances(
         self,
@@ -399,12 +356,10 @@ class TOSG:
         :return: the id of the node
         """
         node_id = uuid4()
-        edge_uuid = None
         self.G.add_node(node_id, pos=pos, type=object_type, id=node_id)
         for affordance in affordances:
             if affordance[0] == object_type:
 
-                # _, _, edge_uuid = self.add_my_edge(from_node, node_id, affordance[1])
                 edge = self.add_my_edge(from_node, node_id, affordance[1])
 
                 self.tasks.append(Task(edge, affordance[2]))

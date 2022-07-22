@@ -42,7 +42,6 @@ class AbstractBehavior(ABC):
             self._log.debug(f"postconditions not satisfied")
             self._mutate_graph_and_tasks_failure(agent, tosg, behavior_edge)
 
-
         return result
 
     @abstractmethod
