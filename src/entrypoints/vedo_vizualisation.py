@@ -88,13 +88,13 @@ class VedoVisualisation(AbstractVizualisation):
         return list(
             dict(
                 (n, d["type"])
-                for n, d in tosg.graph.nodes().items()
+                for n, d in tosg.G.nodes().items()
                 if d["type"] == node_type
             ).keys()
         )
 
-    def get_scaled_pos_dict(self, tosg) -> dict:
-        positions_of_all_nodes = nx.get_node_attributes(tosg.graph, "pos")
+    def get_scaled_pos_dict(self, tosg: TOSG) -> dict:
+        positions_of_all_nodes = nx.get_node_attributes(tosg.G, "pos")
         pos_dict = positions_of_all_nodes
 
         # scale the sizes to the scale of the simulated map image
@@ -103,10 +103,10 @@ class VedoVisualisation(AbstractVizualisation):
 
         return pos_dict
 
-    def viz_all(self, tosg, agents, usecases=None):
+    def viz_all(self, tosg: TOSG, agents, usecases=None):
         actors = []
         pos_dict = self.get_scaled_pos_dict(tosg)
-        ed_ls = list(tosg.graph.edges)
+        ed_ls = list(tosg.G.edges)
 
         # TODO: implement coloration for the different line types
         if len(ed_ls) > 1:
@@ -245,7 +245,7 @@ class VedoVisualisation(AbstractVizualisation):
         return actors
 
     def add_world_object_nodes(self, world_object_nodes: Sequence, actors, pos_dict, tosg):
-        node_type_dict = nx.get_node_attributes(tosg.graph, "type")
+        node_type_dict = nx.get_node_attributes(tosg.G, "type")
         for wo in world_object_nodes:
             wo_pos = pos_dict[wo]
             wo_point = vedo.Point(wo_pos, r=20, c="magenta")

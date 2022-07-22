@@ -28,5 +28,5 @@ def add_shortcut_edges_between_wps_on_lg(
                 from_wp = agent.at_wp
                 to_wp = tosg.get_node_by_pos(point)
 
-                if not tosg.graph.has_edge(from_wp, to_wp):
+                if not tosg.G.has_edge(from_wp, to_wp):
                     tosg.add_waypoint_diedge(from_wp, to_wp)

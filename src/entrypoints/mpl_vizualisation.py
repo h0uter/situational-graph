@@ -392,7 +392,7 @@ class MplVizualisation(AbstractVizualisation):
         :return: None
         """
         print("==============================")
-        print(">>> " + nx.info(krm.graph))
+        print(">>> " + nx.info(krm.G))
         print(f">>> self.at_wp: {agent.at_wp}")
         print(f">>> movement: {agent.previous_pos} >>>>>> {agent.get_localization()}")
         print(f">>> frontiers: {krm.get_all_frontiers_idxs()}")

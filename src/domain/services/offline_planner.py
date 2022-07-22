@@ -2,8 +2,7 @@ import logging
 from typing import Mapping, Optional, Sequence, Type
 
 from src.configuration.config import Config
-from src.domain import (TOSG, AbstractBehavior, Affordance, Behaviors, Node,
-                        Plan, Task)
+from src.domain import TOSG, AbstractBehavior, Affordance, Behaviors, Node, Plan, Task
 from src.domain.services.abstract_agent import AbstractAgent
 
 
@@ -58,19 +57,40 @@ class OfflinePlanner:
     ) -> bool:
         if target_node is None:
             return False
-        return tosg.graph.has_node(target_node)
+        return tosg.G.has_node(target_node)
 
     def _task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
         highest_utility = 0
         optimal_task = None
 
-        for task in tosg.tasks:
+        tosg.remove_invalid_tasks()
+        self._log.debug(f"{agent.name}:  has tasks {tosg.tasks}")
 
+        for task in tosg.tasks:
+            print(task)
             # HACK: sometimes we get a task that does not exist anymore.
             if not task:
                 continue
 
-            task_target_node = tosg.get_task_target_node(task)
+            # task_target_node = tosg.get_task_target_node(task)
+            task_target_node = task.edge_uuid[1]
+            if task not in tosg.tasks:
+                raise ValueError(f">>>>>>> {task} is not in the tasks list")
+
+            if not tosg.G.has_edge(*task.edge_uuid):
+                problem_edge = tosg.G.get_edge_data(*task.edge_uuid)
+                print(f"{problem_edge=}")
+                source_node = tosg.G.nodes[task.edge_uuid[0]]
+                target_node = tosg.G.nodes[task.edge_uuid[1]]
+                print(f"{source_node=}")
+                print(f"{target_node=}")
+                raise ValueError(f"{task.edge_uuid} is not an edge in the graph")
+            if not tosg.G.has_node(task_target_node):
+                raise Exception(f"{task_target_node} is not in the graph") 
+
+            # so the problem is that that the task edge does not exist anymore
+
+
             # HACK: sometimes we get a task that does not exist anymore.
             if not task_target_node:
                 continue
@@ -94,8 +114,10 @@ class OfflinePlanner:
     def _find_plan_for_task(
         self, agent_localized_to: Node, tosg: TOSG, task: Task
     ) -> Optional[Plan]:
- 
-        target_node = tosg.get_task_target_node(task)
+
+        # target_node = tosg.get_task_target_node(task)
+        target_node = task.edge_uuid[1]
+
         if not self._check_target_still_valid(tosg, target_node):
             return None
 
@@ -117,9 +139,9 @@ class OfflinePlanner:
         current_edge = plan.upcoming_edge
 
         """Execute the behavior of the current edge"""
-        result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](self.cfg, self.AFFORDANCES).pipeline(
-            agent, tosg, current_edge
-        )
+        result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](
+            self.cfg, self.AFFORDANCES
+        ).pipeline(agent, tosg, current_edge)
 
         # FIXME: this can be shorter
         if result.success:

@@ -32,6 +32,7 @@ class ExploreBehavior(AbstractBehavior):
             new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
             self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
             agent.set_init_explore_step()
+            return BehaviorResult(False)
 
         # the goto action
         if agent.get_localization() is not target_node_pos:
@@ -90,6 +91,7 @@ class ExploreBehavior(AbstractBehavior):
         w_os = self.__process_world_objects(agent, tosg, affordances)
         # 2. check if they not already in the graph
         # 3. add them to the graph
+        # BUG: we dont add tasks for te world objects
         if w_os:
             for w_o in w_os:
                 # 3.1 add node
