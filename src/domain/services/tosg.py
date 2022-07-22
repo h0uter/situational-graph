@@ -21,8 +21,8 @@ class TOSG:
 
         self.tasks: List[Task] = []
 
-        self.next_frontier_idx = cfg.FRONTIER_INDEX_START
-        self.next_wo_idx = cfg.WORLD_OBJECT_INDEX_START
+        # self.next_frontier_idx = cfg.FRONTIER_INDEX_START
+        # self.next_wo_idx = cfg.WORLD_OBJECT_INDEX_START
 
     def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
         def dist_heur_wrapper(a: Node, b: Node):
@@ -80,39 +80,26 @@ class TOSG:
         # self.graph.add_node(node_uuid, pos=pos, type=object_type)
         return node_uuid
 
-    def add_waypoint_node(self, pos: tuple) -> int:
+    # def add_waypoint_node(self, pos: tuple) -> int:
+    def add_waypoint_node(self, pos: tuple) -> UUID:
         """adds start points to the graph"""
-        self.graph.add_node(
-            self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
-        )
-        self.add_node_of_type(pos, ObjectTypes.WAYPOINT)
-        self.next_wp_idx += 1
-        return self.next_wp_idx - 1
+        # self.graph.add_node(
+        #     self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
+        # )
+        return self.add_node_of_type(pos, ObjectTypes.WAYPOINT)
+        # self.next_wp_idx += 1
+        # return self.next_wp_idx - 1
 
     def add_waypoint_and_diedge(self, pos: tuple, prev_wp) -> None:
         """adds new waypoints and increments wp the idx"""
         # self.add_waypoint_node(pos)
-        self.graph.add_node(
-            self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
-        )
-        self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
-        self.next_wp_idx += 1
-
-    def add_waypoint_diedge(self, node_a: Node, node_b: Node) -> None:
-        """adds a waypoint edge in both direction to the graph"""
-        d = {
-            "type": Behaviors.GOTO,
-            "id": uuid4(),
-            "cost": self.calc_edge_len(node_a, node_b),
-        }
-        if self.graph.has_edge(node_a, node_b):
-            self._log.warning(f"Edge between a:{node_a} and b:{node_b} already exists")
-            return
-        if self.graph.has_edge(node_b, node_a):
-            self._log.warning(f"Edge between b:{node_b} and a:{node_a} already exists")
-            return
-
-        self.graph.add_edges_from([(node_a, node_b, d), (node_b, node_a, d)])
+        # self.graph.add_node(
+        #     self.next_wp_idx, pos=pos, type=ObjectTypes.WAYPOINT, id=uuid4()
+        # )
+        new_node = self.add_waypoint_node(pos)
+        # self.add_waypoint_diedge(self.next_wp_idx, prev_wp)
+        self.add_waypoint_diedge(new_node, prev_wp)
+        # self.next_wp_idx += 1
 
     def add_my_edge(self, node_a: Node, node_b: Node, edge_type: Behaviors) -> UUID:
         # my_id = (uuid.uuid4(),)
@@ -125,59 +112,79 @@ class TOSG:
             cost=self.calc_edge_len(node_a, node_b),
             id=my_id,
         )
+        # self.graph.add_edge(
+        #     node_a,
+        #     node_b,
+        #     key=my_id,
+        #     type=edge_type,
+        #     cost=self.calc_edge_len(node_a, node_b),
+        #     id=my_id,
+        # )
         return my_id
 
-    # def add_world_object(self, pos: tuple, label: str) -> None:
-    #     """adds a world object to the graph"""
-    #     self.graph.add_node(
-    #         label, pos=pos, type=ObjectTypes.WORLD_OBJECT, id=uuid.uuid4()
-    #     )
+    def add_waypoint_diedge(self, node_a: Node, node_b: Node) -> None:
+        """adds a waypoint edge in both direction to the graph"""
+        # HACK: this edge should be based on an affordance
+        d = {
+            "type": Behaviors.GOTO,
+            "id": uuid4(),  # TODO: remove
+            "cost": self.calc_edge_len(node_a, node_b),
+        }
+        if self.graph.has_edge(node_a, node_b):
+            self._log.warning(f"Edge between a:{node_a} and b:{node_b} already exists")
+            return
+        if self.graph.has_edge(node_b, node_a):
+            self._log.warning(f"Edge between b:{node_b} and a:{node_a} already exists")
+            return
 
-    #     if self.check_if_edge_exists(label, self.next_wp_idx - 1):
-    #         self._log.warning(
-    #             f"Edge between {label} and {self.next_wp_idx - 1} already exists"
-    #         )
-    #         return
-
-    #     # HACK: instead of adding infite cost toworld object edges, use a subgraph for specific planning problems
-    #     self.graph.add_edge(
-    #         self.next_wp_idx - 1,
-    #         label,
-    #         type=Behaviors.PLAN_EXTRACTION_WO_EDGE,
-    #         id=uuid.uuid4(),
-    #         cost=-100,
-    #     )
+        # TODO: make this use the my edge fucntion above
+        self.graph.add_edges_from([(node_a, node_b, uuid4(), d), (node_b, node_a, uuid4(), d)])
 
     def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
         """adds a frontier to the graph"""
+        # self.graph.add_node(
+        #     self.next_frontier_idx, pos=pos, type=ObjectTypes.FRONTIER, id=uuid4()
+        # )
+        ft_node_uuid = uuid4()
         self.graph.add_node(
-            self.next_frontier_idx, pos=pos, type=ObjectTypes.FRONTIER, id=uuid4()
+            ft_node_uuid, pos=pos, type=ObjectTypes.FRONTIER, id=ft_node_uuid
         )
 
-        edge_len = self.calc_edge_len(agent_at_wp, self.next_frontier_idx)
+        # edge_len = self.calc_edge_len(agent_at_wp, self.next_frontier_idx)
+        edge_len = self.calc_edge_len(agent_at_wp, ft_node_uuid)
         if edge_len:  # edge len can be zero in the final step.
             cost = 1 / edge_len  # Prefer the longest waypoints
         else:
             cost = edge_len
 
-        if self.graph.has_edge(agent_at_wp, self.next_frontier_idx):
+        # if self.graph.has_edge(agent_at_wp, self.next_frontier_idx):
+        if self.graph.has_edge(agent_at_wp, ft_node_uuid):
             self._log.warning(
-                f"add_frontier(): Edge between {agent_at_wp} and {self.next_frontier_idx} already exists"
+                # f"add_frontier(): Edge between {agent_at_wp} and {self.next_frontier_idx} already exists"
+                f"add_frontier(): Edge between {agent_at_wp} and {ft_node_uuid} already exists"
             )
             return
 
         edge_uuid = uuid4()
+        # self.graph.add_edge(
+        #     agent_at_wp,
+        #     self.next_frontier_idx,
+        #     type=Behaviors.EXPLORE,
+        #     id=edge_uuid,
+        #     cost=cost,
+        #     # key=edge_uuid,
+        # )
         self.graph.add_edge(
             agent_at_wp,
-            self.next_frontier_idx,
+            ft_node_uuid,
             type=Behaviors.EXPLORE,
             id=edge_uuid,
             cost=cost,
-            # key=edge_uuid,
+            key=edge_uuid,
         )
         self.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
 
-        self.next_frontier_idx += 1
+        # self.next_frontier_idx += 1
 
     # def add_guide_action_edges(self, path: Sequence[Node]):
     #     """adds edges between the nodes in the path"""
@@ -196,6 +203,9 @@ class TOSG:
         target_frontier = self.get_node_data_by_node(target_frontier_idx)
         if target_frontier["type"] == ObjectTypes.FRONTIER:
             self.graph.remove_node(target_frontier_idx)  # also removes the edge
+        else:
+            self._log.warning(f"remove_frontier(): {target_frontier_idx} is not a frontier")
+            return
 
     # TODO: this should be invalidate, so that we change its alpha or smth
     # e.g. a method to invalidate a world object for planning, but still maintain it for vizualisation
@@ -211,6 +221,7 @@ class TOSG:
             if self.graph.nodes[node]["pos"] == pos:
                 return node
 
+    # THIS one can soon be gone.
     def get_node_by_UUID(self, UUID):
         """returns the node idx with the given UUID"""
         for node in self.graph.nodes():

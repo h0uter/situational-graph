@@ -45,8 +45,11 @@ def setup_exploration_usecase(tosg: TOSG, agents: Sequence[AbstractAgent]):
     """Manually set first task to exploring current position."""
     # for the demo I dont need this setup, I can instead manually craft the graph.
     for agent in agents:
+        
         # Add an explore self edge on the start node to ensure a exploration sampling action
-        edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
+        
+        # edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
+        edge_uuid = tosg.add_my_edge(agent.at_wp, agent.at_wp, Behaviors.EXPLORE)
         tosg.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
 
         # spoof the task selection, just select the first one.
