@@ -88,27 +88,24 @@ class ExploreBehavior(AbstractBehavior):
 
         """part 2: use perception service to sense new world objects"""
         # 1. obtain world objects in perception scene
-        w_os = self.__process_world_objects(agent, tosg, affordances)
-        # 2. check if they not already in the graph
-        # 3. add them to the graph
-        # BUG: we dont add tasks for te world objects
-        if w_os:
-            for w_o in w_os:
-                # 3.1 add node
-                # tosg.add_world_object(w_o.pos, w_o.name)
+        worldobjects = self.__process_world_objects(agent, tosg, affordances)
+
+        if worldobjects:
+            # 2. check if they not already in the graph
+            for wo in worldobjects:
+                if tosg.get_node_by_pos(wo.pos):
+                    self._log.debug(f"{wo.object_type} at {wo.pos} already in the graph")
+                    return
+
+            # 3. add them to the graph
+            for wo in worldobjects:
                 self._log.debug(
-                    f">>>>{agent.name}: adding world object {w_o.object_type}"
+                    f">>>>{agent.name}: adding world object {wo.object_type}"
                 )
-                # new_node = tosg.add_node_of_type(w_o.pos, w_o.object_type)
-                # 3.2 add edge using affordances.
-                # for aff in affordances:
-                #     if aff[0] == w_o.object_type:
-                            # tosg.add_my_edge(agent.at_wp, new_node, aff[1])
-                            # break
+
                 tosg.add_node_with_task_and_edges_from_affordances(
-                    agent.at_wp, w_o.object_type, w_o.pos, affordances
+                    agent.at_wp, wo.object_type, wo.pos, affordances
                 )
-                        # 4. add tasks for the world objects
 
     def _mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
@@ -146,7 +143,6 @@ class ExploreBehavior(AbstractBehavior):
         """
         Check if the agent is at the destination.
         """
-        # This is there so we can initialze by adding a frontier self edge on 0
         at_destination = False
         destination_node_type = tosg.get_node_data_by_node(destination_node)["type"]
 
@@ -199,8 +195,6 @@ class ExploreBehavior(AbstractBehavior):
 
             return True
 
-        # agent.localize_to_waypoint(krm)
-
     def __sample_new_frontiers(
         self,
         agent: AbstractAgent,
@@ -229,7 +223,4 @@ class ExploreBehavior(AbstractBehavior):
                 wp_pos, self.cfg.PRUNE_RADIUS, ObjectTypes.FRONTIER
             )
             for frontier in close_frontiers:
-                # this function is super expensive
-                # tosg.remove_task_by_node(frontier)
-                # FIXME: here I should also destroy the associated exploration tasks.
                 tosg.remove_frontier(frontier)

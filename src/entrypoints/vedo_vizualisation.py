@@ -229,9 +229,11 @@ class VedoVisualisation(AbstractVizualisation):
             agent_actor.caption(agent_label, size=(0.05, 0.025))
 
             if agent.task:
-                agent_actor.legend(f"{agent.task.objective_enum}")
+                task_print = str(agent.task.objective_enum).removeprefix("Objectives.").replace("_", " ").rjust(25)
+                agent_actor.legend(f"{task_print}")
             else:
-                agent_actor.legend(f"{agent.task}")
+                # agent_actor.legend(f"{agent.task}")
+                agent_actor.legend(f"No task selected".rjust(25))
 
             # actors.append(agent_actor)
             # lbox = vedo.LegendBox([agent_actor], width=0.25)
