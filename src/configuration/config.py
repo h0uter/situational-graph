@@ -45,10 +45,6 @@ class Config:
 
         self.AUDIO_FEEDBACK = audio_feedback
 
-        # krm.py setup
-        # self.FRONTIER_INDEX_START = 9000
-        # self.WORLD_OBJECT_INDEX_START = 90000
-
         # self.PRUNE_RADIUS_FACTOR = 0.20  # too low (<0.20) and we get dense graph, too high (>0.25) and corners are pruned from inside rooms
         self.PRUNE_RADIUS_FACTOR = 0.18  # too low and we get dense graph, too high and corners are pruned from inside rooms
         self.SAMPLE_RING_WIDTH = 1.0  # 0 - 1.0
