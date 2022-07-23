@@ -7,16 +7,17 @@ from src.usecases.sar.sar_usecase import run_sar_usecase
 
 def benchmark_func():
     cfg = Config(
-        plot_lvl=PlotLvl.NONE,
+        # plot_lvl=PlotLvl.NONE,
+        plot_lvl=PlotLvl.ALL,
         num_agents=1,
         scenario=Scenario.SIM_MAZE_MEDIUM,
-        max_steps=150,
+        max_steps=400,
     )
 
     run_sar_usecase(cfg)
 
 
-def basic_profiler_test():
+def run_profiler_experiment():
     import cProfile
     import pstats
 
@@ -34,4 +35,5 @@ def basic_profiler_test():
 
 
 if __name__ == "__main__":
-    basic_profiler_test()
+    run_profiler_experiment()
+    # benchmark_func()

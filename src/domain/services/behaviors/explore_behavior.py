@@ -198,7 +198,7 @@ class ExploreBehavior(AbstractBehavior):
         tosg: TOSG,
         lg: LocalGrid,
     ) -> Sequence:
-    
+
         new_frontier_cells = lg.los_sample_frontiers_on_cellmap(
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
             num_frontiers_to_sample=self.cfg.N_SAMPLES,
@@ -212,10 +212,9 @@ class ExploreBehavior(AbstractBehavior):
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             tosg.add_frontier(frontier_pos_global, agent.at_wp)
 
+    #  10% of compute time goes to this function
     def __prune_frontiers(self, tosg: TOSG) -> None:
-        waypoints = tosg.waypoint_idxs
-
-        for wp in waypoints:
+        for wp in tosg.waypoint_idxs:
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]
             close_frontiers = tosg.get_nodes_of_type_in_margin(
                 wp_pos, self.cfg.PRUNE_RADIUS, ObjectTypes.FRONTIER

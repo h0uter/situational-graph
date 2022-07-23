@@ -214,24 +214,33 @@ class TOSG:
         """returns the node data dict"""
         return self.G.nodes[node]
 
+    # this function is 9% of total comopute
     def get_nodes_of_type_in_margin(
         self, pos: tuple[float, float], margin: float, node_type: ObjectTypes
     ) -> list:
         """
         Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.
         """
-        close_nodes = []
-        for node in self.G.nodes:
-            data = self.get_node_data_by_node(node)
-            if data["type"] == node_type:
-                node_pos = data["pos"]
-                if (
-                    abs(pos[0] - node_pos[0]) < margin
-                    and abs(pos[1] - node_pos[1]) < margin
-                ):
-                    close_nodes.append(node)
+        node_pos_data_dict = nx.get_node_attributes(self.G, "pos")
+        nodes_at_pos = [node for node, pos_data in node_pos_data_dict.items() if (
+                    abs(pos[0] - pos_data[0]) < margin
+                    and abs(pos[1] - pos_data[1]) < margin
+                )]
+        nodes_of_type = [node for node in nodes_at_pos if self.G.nodes[node]["type"] == node_type]
+        return nodes_of_type
 
-        return close_nodes
+        # close_nodes = []
+        # for node in self.G.nodes:
+        #     data = self.get_node_data_by_node(node)
+        #     if data["type"] == node_type:
+        #         pos_data = data["pos"]
+        #         if (
+        #             abs(pos[0] - pos_data[0]) < margin
+        #             and abs(pos[1] - pos_data[1]) < margin
+        #         ):
+        #             close_nodes.append(node)
+
+        # return close_nodes
 
     def get_edge_with_lowest_weight(self, node_a: Node, node_b: Node) -> Edge:
         """returns the lowest weight edge between two nodes"""

@@ -26,6 +26,17 @@ from src.usecases.utils.feedback import (
 )
 
 
+def run_sar_usecase(cfg: Config):
+    agents, tosg, usecases, viz_listener = init_entities(cfg)
+    setup_usecase_common(tosg, agents, start_poses=[agent.pos for agent in agents])
+
+    """setup the specifics of the usecase"""
+    setup_exploration_usecase(tosg, agents)
+
+    success = run_demo(cfg, agents, tosg, usecases, viz_listener)
+    return success
+
+
 def run_demo(
     cfg: Config,
     agents: Sequence[AbstractAgent],
@@ -130,17 +141,6 @@ def setup_exploration_usecase(tosg: TOSG, agents: Sequence[AbstractAgent]):
         init_explore_edge = agent.task.edge
 
         agent.plan = Plan([init_explore_edge])
-
-
-def run_sar_usecase(cfg: Config):
-    agents, tosg, usecases, viz_listener = init_entities(cfg)
-    setup_usecase_common(tosg, agents, start_poses=[agent.pos for agent in agents])
-
-    """setup the specifics of the usecase"""
-    setup_exploration_usecase(tosg, agents)
-
-    success = run_demo(cfg, agents, tosg, usecases, viz_listener)
-    return success
 
 
 def run_task_switch_usecase(cfg: Config):
