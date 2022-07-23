@@ -1,6 +1,6 @@
 import logging
-from typing import List, Optional, Sequence
-from uuid import UUID, uuid4
+from typing import Optional, Sequence
+from uuid import uuid4
 
 import networkx as nx
 from src.configuration.config import Config
@@ -26,7 +26,7 @@ class TOSG:
         self.G = nx.MultiDiGraph()
         self.cfg = cfg
 
-        self.tasks: List[Task] = []
+        self.tasks: list[Task] = []
 
     @property
     def waypoint_idxs(self) -> list:
@@ -72,7 +72,7 @@ class TOSG:
             self._log.error(f"shortest_path: No path found from {source} to {target}.")
             return None
 
-    def shortest_path_len(self, source: Node, target: Node):
+    def shortest_path_len(self, source: Node, target: Node) -> Optional[float]:
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
 
@@ -92,7 +92,6 @@ class TOSG:
         (x2, y2) = self.G.nodes[b]["pos"]
         return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
 
-    # TODO: this  is kind of
     def node_list_to_edge_list(self, node_list: Sequence[Node]) -> Sequence[Edge]:
         action_path: list[Edge] = []
         for i in range(len(node_list) - 1):
@@ -104,24 +103,7 @@ class TOSG:
 
         return action_path
 
-    # this is the only place where we call the add_node method
-    def add_node_of_type(self, pos: tuple[float, float], object_type: ObjectTypes):
-        node_uuid = uuid4()
-        # self.G.add_node(node_uuid, pos=pos, type=object_type, id=node_uuid)
-        self.G.add_node(node_uuid, pos=pos, type=object_type)
-        return node_uuid
-
-    def add_waypoint_node(self, pos: tuple) -> UUID:
-        """adds start points to the graph"""
-
-        return self.add_node_of_type(pos, ObjectTypes.WAYPOINT)
-
-    def add_waypoint_and_diedge(self, pos: tuple, prev_wp) -> None:
-        """adds new waypoints and increments wp the idx"""
-        new_node = self.add_waypoint_node(pos)
-        self.add_waypoint_diedge(new_node, prev_wp)
-
-    def add_my_edge(
+    def add_edge_of_type(
         self,
         node_a: Node,
         node_b: Node,
@@ -138,16 +120,50 @@ class TOSG:
             key=my_id,
             type=edge_type,
             cost=cost,
-            # id=my_id,
         )
         return (node_a, node_b, my_id)
+
+    def add_node_with_task_and_edges_from_affordances(
+        self,
+        from_node: Node,
+        object_type: ObjectTypes,
+        pos: tuple,
+        affordances: list[Affordance],
+    ) -> Node:
+        """
+        Adds a node with edges from the affordances of the given object type.
+        """
+        new_node = self.add_node_of_type(pos, object_type)
+        for affordance in affordances:
+            if affordance[0] == object_type:
+                edge = self.add_edge_of_type(from_node, new_node, affordance[1])
+                self.tasks.append(Task(edge, affordance[2]))
+
+        return new_node
+
+    # TODO: make this is the only place where we call the add_node method
+    def add_node_of_type(
+        self, pos: tuple[float, float], object_type: ObjectTypes
+    ) -> Node:
+        node_uuid = uuid4()
+        self.G.add_node(node_uuid, pos=pos, type=object_type)
+        return node_uuid
+
+    def add_waypoint_node(self, pos: tuple) -> Node:
+        """adds start points to the graph"""
+
+        return self.add_node_of_type(pos, ObjectTypes.WAYPOINT)
+
+    def add_waypoint_and_diedge(self, to_pos: tuple, from_node: Node) -> None:
+        """adds new waypoints and increments wp the idx"""
+        new_node = self.add_waypoint_node(to_pos)
+        self.add_waypoint_diedge(new_node, from_node)
 
     def add_waypoint_diedge(self, node_a: Node, node_b: Node) -> None:
         """adds a waypoint edge in both direction to the graph"""
         # HACK: this edge should be based on an affordance
         d = {
             "type": Behaviors.GOTO,
-            # "id": uuid4(),  # TODO: remove id as a property because it is redundant with the edge key
             "cost": self.calc_edge_len(node_a, node_b),
         }
         if self.G.has_edge(node_a, node_b):
@@ -164,25 +180,22 @@ class TOSG:
 
     def add_frontier(self, pos: tuple, from_node: Node) -> None:
         """adds a frontier to the graph"""
-        ft_node_uuid = uuid4()
-        self.G.add_node(
-            # ft_node_uuid, pos=pos, type=ObjectTypes.FRONTIER, id=ft_node_uuid
-            ft_node_uuid, pos=pos, type=ObjectTypes.FRONTIER
-        )
 
-        edge_len = self.calc_edge_len(from_node, ft_node_uuid)
+        ft_node = self.add_node_of_type(pos, ObjectTypes.FRONTIER)
+
+        edge_len = self.calc_edge_len(from_node, ft_node)
         if edge_len:  # edge len can be zero in the final step.
             cost = 1 / edge_len  # Prefer the longest waypoints
         else:
             cost = edge_len
 
-        if self.G.has_edge(from_node, ft_node_uuid):
+        if self.G.has_edge(from_node, ft_node):
             self._log.warning(
-                f"add_frontier(): Edge between {from_node} and {ft_node_uuid} already exists"
+                f"add_frontier(): Edge between {from_node} and {ft_node} already exists"
             )
             return
 
-        edge = self.add_my_edge(from_node, ft_node_uuid, Behaviors.EXPLORE, cost=cost)
+        edge = self.add_edge_of_type(from_node, ft_node, Behaviors.EXPLORE, cost=cost)
 
         self.tasks.append(Task(edge, Objectives.EXPLORE_ALL_FTS))
 
@@ -193,9 +206,7 @@ class TOSG:
         if target_frontier["type"] == ObjectTypes.FRONTIER:
             self.G.remove_node(ft_node)  # also removes the edge
         else:
-            self._log.warning(
-                f"remove_frontier(): {ft_node} is not a frontier"
-            )
+            self._log.warning(f"remove_frontier(): {ft_node} is not a frontier")
             return
 
     def remove_tasks_associated_with_node(self, node: Node):
@@ -218,7 +229,7 @@ class TOSG:
     #     if removal_target["type"] == ObjectTypes.WORLD_OBJECT:
     #         self.G.remove_node(idx)  # also removes the edge
 
-    def get_node_by_pos(self, pos: tuple):
+    def get_node_by_pos(self, pos: tuple) -> Node:
         """returns the node idx at the given position"""
         for node in self.G.nodes():
             if self.G.nodes[node]["pos"] == pos:
@@ -274,7 +285,6 @@ class TOSG:
     def get_behavior_of_edge(self, edge: Edge) -> Optional[Behaviors]:
         """returns the type of the edge between two nodes"""
         if len(edge) == 2:
-            # return self.graph.edges[edge]["type"]
             yolo = self.G.edges[edge]["type"]
             print(yolo)
             return yolo
@@ -286,7 +296,6 @@ class TOSG:
 
     def remove_invalid_tasks(self):
         for task in self.tasks:
-            # if task.edge_uuid not in all_edge_ids:
             if not self.G.has_edge(*task.edge):
                 self._log.error(f"remove_invalid_tasks(): removing task {task}")
                 self.tasks.remove(task)
@@ -300,33 +309,3 @@ class TOSG:
             return False
 
         return True
-
-    def remove_node(self, node: Node):
-        self.G.remove_node(node)
-
-    def add_node_with_task_and_edges_from_affordances(
-        self,
-        from_node: Node,
-        object_type: ObjectTypes,
-        pos: tuple,
-        affordances: list[Affordance],
-    ):
-        """
-        Adds a node with edges from the affordances of the given object type.
-        :param object_type: the type of object to add
-        :param pos: the position of the node
-        :return: the id of the node
-        """
-        node_id = uuid4()
-        # self.G.add_node(node_id, pos=pos, type=object_type, id=node_id)
-        self.G.add_node(node_id, pos=pos, type=object_type)
-        for affordance in affordances:
-            if affordance[0] == object_type:
-
-                edge = self.add_my_edge(from_node, node_id, affordance[1])
-
-                self.tasks.append(Task(edge, affordance[2]))
-
-        print(self.tasks)
-
-        return node_id

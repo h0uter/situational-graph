@@ -26,6 +26,61 @@ from src.usecases.utils.feedback import (
 )
 
 
+def run_demo(
+    cfg: Config,
+    agents: Sequence[AbstractAgent],
+    tosg: TOSG,
+    planner: OnlinePlanner,
+    viz_listener: VizualisationListener,
+):
+
+    step, start, tosg_stats, my_logger = feedback_pipeline_init(cfg)
+
+    # # HACK: for the task switch usecase
+    # for agent in agents:
+    #     agent: SimulatedAgent
+    #     agent.lg_spoofer.set_map(cfg.MAP_PATH_TASK_SWITCH)
+    #     viz_listener.viz.set_map(cfg.MAP_PATH_TASK_SWITCH)
+
+    """ Main Logic Loop"""
+    mission_completed = False
+    while (not mission_completed) or step < cfg.MAX_STEPS:
+        step_start = time.perf_counter()
+        # print(f">>> task list is {tosg.tasks}")
+
+        for agent_idx in range(len(agents)):
+            if planner.pipeline(agents[agent_idx], tosg):
+                """pipeline returns true if there are no more tasks."""
+                mission_completed = True
+                my_logger.info(f"Agent {agent_idx} completed exploration")
+                break
+
+        feedback_pipeline_single_step(
+            step, step_start, agents, tosg, tosg_stats, planner, my_logger
+        )
+        step += 1
+        # time.sleep(2.5)
+
+        # # HACK: debug stuff to show the method can exploit new shortcuts in the world
+        # # what I should do instead is make his part of the usecase
+        # MAP_SWITCHED = False
+        # for agent in agents:
+        #     agent.algo_iterations += 1
+        #     if not MAP_SWITCHED and cfg.SCENARIO is not Scenario.REAL:
+        #         if agent.algo_iterations > 150:
+        #             agent: SimulatedAgent
+        #             agent.lg_spoofer.set_map(cfg.MAP_PATH2)
+        #             viz_listener.viz.set_map(cfg.MAP_PATH2)
+        #             MAP_SWITCHED = True
+
+    feedback_pipeline_completion(
+        cfg, step, agents, tosg, tosg_stats, planner, my_logger, start
+    )
+
+    # krm_stats.save()
+    return mission_completed
+
+
 def setup_usecase_common(tosg: TOSG, agents: Sequence[AbstractAgent], start_poses):
     """Add a waypoint to the tosg for each agent, but check for duplicates"""
     duplicate_start_poses = []
@@ -45,9 +100,9 @@ def setup_exploration_usecase(tosg: TOSG, agents: Sequence[AbstractAgent]):
     """Manually set first task to exploring current position."""
     # for the demo I dont need this setup, I can instead manually craft the graph.
     for agent in agents:
-        
+
         # Add an explore self edge on the start node to ensure a exploration sampling action
-        edge = tosg.add_my_edge(agent.at_wp, agent.at_wp, Behaviors.EXPLORE)
+        edge = tosg.add_edge_of_type(agent.at_wp, agent.at_wp, Behaviors.EXPLORE)
         tosg.tasks.append(Task(edge, Objectives.EXPLORE_ALL_FTS))
 
         # spoof the task selection, just select the first one.
@@ -104,58 +159,3 @@ def init_entities(cfg: Config):
     viz_listener.setup_event_handler()
 
     return agents, tosg, planner, viz_listener
-
-
-def run_demo(
-    cfg: Config,
-    agents: Sequence[AbstractAgent],
-    tosg: TOSG,
-    planner: OnlinePlanner,
-    viz_listener: VizualisationListener,
-):
-
-    step, start, tosg_stats, my_logger = feedback_pipeline_init(cfg)
-
-    # # HACK: for the task switch usecase
-    # for agent in agents:
-    #     agent: SimulatedAgent
-    #     agent.lg_spoofer.set_map(cfg.MAP_PATH_TASK_SWITCH)
-    #     viz_listener.viz.set_map(cfg.MAP_PATH_TASK_SWITCH)
-
-    """ Main Logic Loop"""
-    mission_completed = False
-    while (not mission_completed) or step < cfg.MAX_STEPS:
-        step_start = time.perf_counter()
-        # print(f">>> task list is {tosg.tasks}")
-
-        for agent_idx in range(len(agents)):
-            if planner.pipeline(agents[agent_idx], tosg):
-                """pipeline returns true if there are no more tasks."""
-                mission_completed = True
-                my_logger.info(f"Agent {agent_idx} completed exploration")
-                break
-
-        feedback_pipeline_single_step(
-            step, step_start, agents, tosg, tosg_stats, planner, my_logger
-        )
-        step += 1
-        # time.sleep(2.5)
-
-        # # HACK: debug stuff to show the method can exploit new shortcuts in the world
-        # # what I should do instead is make his part of the usecase
-        # MAP_SWITCHED = False
-        # for agent in agents:
-        #     agent.algo_iterations += 1
-        #     if not MAP_SWITCHED and cfg.SCENARIO is not Scenario.REAL:
-        #         if agent.algo_iterations > 150:
-        #             agent: SimulatedAgent
-        #             agent.lg_spoofer.set_map(cfg.MAP_PATH2)
-        #             viz_listener.viz.set_map(cfg.MAP_PATH2)
-        #             MAP_SWITCHED = True
-
-    feedback_pipeline_completion(
-        cfg, step, agents, tosg, tosg_stats, planner, my_logger, start
-    )
-
-    # krm_stats.save()
-    return mission_completed

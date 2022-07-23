@@ -68,7 +68,7 @@ class AssessBehavior(AbstractBehavior):
 
         # remove the target node
         old_pos = tosg.get_node_data_by_node(behavior_edge[1])["pos"]
-        tosg.remove_node(behavior_edge[1])
+        tosg.G.remove_node(behavior_edge[1])
 
         my_object_type = VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]
 
@@ -81,7 +81,7 @@ class AssessBehavior(AbstractBehavior):
         """Mutate the graph according to the behavior."""
         # return tosgraph
         # deactivate the target node,
-        tosg.remove_node(behavior_edge[1])
+        tosg.G.remove_node(behavior_edge[1])
         # pass
 
     def __scan_victim(self, target_node_pos: tuple[float, float]):
