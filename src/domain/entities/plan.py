@@ -12,10 +12,13 @@ class Plan:
     # make it destroy itself when it is empty or something fails.
     def __init__(self, edge_sequence: Sequence[Optional[Edge]]) -> None:
         self._edge_sequence = edge_sequence
-        self.valid = False
+        # self.valid = False
 
     def __len__(self) -> int:
-        return len(self.edge_sequence)
+        if self.edge_sequence:
+            return len(self.edge_sequence)
+        else:
+            return 0
 
     def __getitem__(self, index: int) -> Optional[Edge]:
         return self.edge_sequence[index]
@@ -29,7 +32,7 @@ class Plan:
         return self[0]
 
     def invalidate(self) -> None:
-        self.valid = False
+        # self.valid = False
         self._edge_sequence = []
 
     def mutate_success(self) -> None:

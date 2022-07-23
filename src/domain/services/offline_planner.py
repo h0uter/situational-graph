@@ -91,6 +91,11 @@ class OfflinePlanner:
             return None
 
         edge_path = tosg.shortest_path(agent_localized_to, target_node)
+        # if the agent can find a plan for that task we remove the task
+        # this is necc for the initial task of exploration.
+        if edge_path is None:
+            tosg.tasks.remove(task)
+            return None
 
         return Plan(edge_path)
 
