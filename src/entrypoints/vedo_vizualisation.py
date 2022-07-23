@@ -79,19 +79,10 @@ class VedoVisualisation(AbstractVizualisation):
         tosg: TOSG,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
-        usecases,
+        usecases: Sequence[OfflinePlanner],
     ) -> None:
         self.viz_all(tosg, agents)
         self.plt.show(interactive=True, resetcam=True)
-
-    def get_nodes_by_type(self, tosg, node_type) -> list[Node]:
-        return list(
-            dict(
-                (n, d["type"])
-                for n, d in tosg.G.nodes().items()
-                if d["type"] == node_type
-            ).keys()
-        )
 
     def get_scaled_pos_dict(self, tosg: TOSG) -> dict:
         positions_of_all_nodes = nx.get_node_attributes(tosg.G, "pos")
@@ -116,14 +107,14 @@ class VedoVisualisation(AbstractVizualisation):
             raw_edg = vedo.Lines(raw_lines).lw(2)
             actors.append(raw_edg)
 
-        waypoint_nodes = self.get_nodes_by_type(tosg, ObjectTypes.WAYPOINT)
+        waypoint_nodes = tosg.get_nodes_by_type(ObjectTypes.WAYPOINT)
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         self.wp_counter.append(len(wps))
         # waypoints = vedo.Points(wps, r=8, c="r")
-        waypoints = vedo.Points(wps, r=8, c="FireBrick")
+        waypoints = vedo.Points(wps, r=15, c="FireBrick")
         actors.append(waypoints)
 
-        frontier_nodes = self.get_nodes_by_type(tosg, ObjectTypes.FRONTIER)
+        frontier_nodes = tosg.get_nodes_by_type(ObjectTypes.FRONTIER)
         fts = [pos_dict[f] for f in frontier_nodes]
         self.ft_counter.append(len(fts))
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
@@ -131,12 +122,12 @@ class VedoVisualisation(AbstractVizualisation):
 
         # world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
         # HACK: we need this to extend to new world objects.
-        world_object_nodes = self.get_nodes_by_type(tosg, ObjectTypes.UNKNOWN_VICTIM)
+        world_object_nodes = tosg.get_nodes_by_type(ObjectTypes.UNKNOWN_VICTIM)
         world_object_nodes.extend(
-            self.get_nodes_by_type(tosg, ObjectTypes.IMMOBILE_VICTIM)
+            tosg.get_nodes_by_type(ObjectTypes.IMMOBILE_VICTIM)
         )
         world_object_nodes.extend(
-            self.get_nodes_by_type(tosg, ObjectTypes.MOBILE_VICTIM)
+            tosg.get_nodes_by_type(ObjectTypes.MOBILE_VICTIM)
         )
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict, tosg)
         actors = self.add_agents(agents, actors)
@@ -229,7 +220,12 @@ class VedoVisualisation(AbstractVizualisation):
             agent_actor.caption(agent_label, size=(0.05, 0.025))
 
             if agent.task:
-                task_print = str(agent.task.objective_enum).removeprefix("Objectives.").replace("_", " ").rjust(25)
+                task_print = (
+                    str(agent.task.objective_enum)
+                    .removeprefix("Objectives.")
+                    .replace("_", " ")
+                    .rjust(25)
+                )
                 agent_actor.legend(f"{task_print}")
             else:
                 # agent_actor.legend(f"{agent.task}")
@@ -246,19 +242,23 @@ class VedoVisualisation(AbstractVizualisation):
 
         return actors
 
-    def add_world_object_nodes(self, world_object_nodes: Sequence, actors, pos_dict, tosg):
+    def add_world_object_nodes(
+        self, world_object_nodes: Sequence, actors, pos_dict, tosg
+    ):
         node_type_dict = nx.get_node_attributes(tosg.G, "type")
         for wo in world_object_nodes:
             wo_pos = pos_dict[wo]
             wo_point = vedo.Point(wo_pos, r=20, c="magenta")
             actors.append(wo_point)
-            name_str = str(node_type_dict[wo]).removeprefix("ObjectTypes.").replace("_", "\n")
+            name_str = (
+                str(node_type_dict[wo]).removeprefix("ObjectTypes.").replace("_", "\n")
+            )
             # instead of trowing the ID in the vignette We would like their objecttype
             wo_vig = wo_point.vignette(
                 # wo,
                 name_str,
                 offset=[0, 0, 5 * self.factor],
-                s=self.factor*0.7,
+                s=self.factor * 0.7,
             )
             actors.append(wo_vig)
 
@@ -280,5 +280,5 @@ class VedoVisualisation(AbstractVizualisation):
         self.debug_actors.append(start_vig)
 
     def take_screenshot(self):
-        path = 'results/test.png'
+        path = "results/test.png"
         io.screenshot(path)

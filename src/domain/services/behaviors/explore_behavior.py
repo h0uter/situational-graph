@@ -142,9 +142,6 @@ class ExploreBehavior(AbstractBehavior):
     def __check_at_destination(
         self, agent: AbstractAgent, tosg: TOSG, destination_node: Node
     ) -> bool:
-        """
-        Check if the agent is at the destination.
-        """
         at_destination = False
         destination_node_type = tosg.get_node_data_by_node(destination_node)["type"]
 
@@ -171,11 +168,9 @@ class ExploreBehavior(AbstractBehavior):
 
         if len(wp_at_previous_pos_candidates) == 0:
             self._log.error(
-                f"{agent.name}: No waypoint at previous pos {agent.previous_pos}, no wp added."
+                f"{agent.name}: No waypoint at previous pos {agent.previous_pos}, no wp added.\n {agent.name}: {agent.pos=} and {agent.get_localization()=}."
             )
-            self._log.error(
-                f"{agent.name}: {agent.pos=} and {agent.get_localization()=}."
-            )
+
             agent.localize_to_waypoint(tosg)
 
             return False
@@ -203,6 +198,7 @@ class ExploreBehavior(AbstractBehavior):
         tosg: TOSG,
         lg: LocalGrid,
     ) -> Sequence:
+    
         new_frontier_cells = lg.los_sample_frontiers_on_cellmap(
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
             num_frontiers_to_sample=self.cfg.N_SAMPLES,

@@ -22,40 +22,29 @@ class TOSG:
 
     def __init__(self, cfg: Config) -> None:
         self._log = logging.getLogger(__name__)
-
-        self.G = nx.MultiDiGraph()
         self.cfg = cfg
 
+        self.G = nx.MultiDiGraph()
         self.tasks: list[Task] = []
 
     @property
-    def waypoint_idxs(self) -> list:
+    def waypoint_idxs(self) -> list[Node]:
         """returns all frontier idxs in the graph"""
-        return [
-            node
-            for node in self.G.nodes()
-            if self.G.nodes[node]["type"] == ObjectTypes.WAYPOINT
-        ]
+        return self.get_nodes_by_type(ObjectTypes.WAYPOINT)
 
     @property
-    def frontier_idxs(self) -> list:
+    def frontier_idxs(self) -> list[Node]:
         """returns all frontier idxs in the graph"""
-        return [
-            node
-            for node in self.G.nodes()
-            if self.G.nodes[node]["type"] == ObjectTypes.FRONTIER
-        ]
+        return self.get_nodes_by_type(ObjectTypes.FRONTIER)
 
-    @property
-    def worldobject_idxs(self) -> list:
+    def get_nodes_by_type(self, node_type: ObjectTypes) -> list[Node]:
         """returns all frontier idxs in the graph"""
         return [
-            node
-            for node in self.G.nodes()
-            if self.G.nodes[node]["type"] == ObjectTypes.WORLD_OBJECT
+            node for node in self.G.nodes() if self.G.nodes[node]["type"] == node_type
         ]
 
     def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
+        """returns the shortest path between two nodes"""
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
 
@@ -73,6 +62,7 @@ class TOSG:
             return None
 
     def shortest_path_len(self, source: Node, target: Node) -> Optional[float]:
+        """returns the length of the shortest path between two nodes"""
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
 
@@ -141,7 +131,6 @@ class TOSG:
 
         return new_node
 
-    # TODO: make this is the only place where we call the add_node method
     def add_node_of_type(
         self, pos: tuple[float, float], object_type: ObjectTypes
     ) -> Node:
@@ -161,11 +150,7 @@ class TOSG:
 
     def add_waypoint_diedge(self, node_a: Node, node_b: Node) -> None:
         """adds a waypoint edge in both direction to the graph"""
-        # HACK: this edge should be based on an affordance
-        d = {
-            "type": Behaviors.GOTO,
-            "cost": self.calc_edge_len(node_a, node_b),
-        }
+
         if self.G.has_edge(node_a, node_b):
             self._log.warning(f"Edge between a:{node_a} and b:{node_b} already exists")
             return
@@ -173,10 +158,8 @@ class TOSG:
             self._log.warning(f"Edge between b:{node_b} and a:{node_a} already exists")
             return
 
-        # TODO: make this use the my edge fucntion above
-        self.G.add_edges_from(
-            [(node_a, node_b, uuid4(), d), (node_b, node_a, uuid4(), d)]
-        )
+        self.add_edge_of_type(node_a, node_b, Behaviors.GOTO)
+        self.add_edge_of_type(node_b, node_a, Behaviors.GOTO)
 
     def add_frontier(self, pos: tuple, from_node: Node) -> None:
         """adds a frontier to the graph"""
@@ -221,14 +204,6 @@ class TOSG:
             if task.edge == edge:
                 return task
 
-    # # TODO: this should be invalidate, so that we change its alpha or smth
-    # # e.g. a method to invalidate a world object for planning, but still maintain it for vizualisation
-    # def remove_world_object(self, idx) -> None:
-    #     """removes a frontier from the graph"""
-    #     removal_target = self.get_node_data_by_node(idx)
-    #     if removal_target["type"] == ObjectTypes.WORLD_OBJECT:
-    #         self.G.remove_node(idx)  # also removes the edge
-
     def get_node_by_pos(self, pos: tuple) -> Node:
         """returns the node idx at the given position"""
         for node in self.G.nodes():
@@ -236,7 +211,7 @@ class TOSG:
                 return node
 
     def get_node_data_by_node(self, node: Node) -> dict:
-        """returns the node corresponding to the given index"""
+        """returns the node data dict"""
         return self.G.nodes[node]
 
     def get_nodes_of_type_in_margin(
@@ -244,11 +219,6 @@ class TOSG:
     ) -> list:
         """
         Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.
-
-        :param pos: the position of the agent
-        :param margin: the margin of the square to look
-        :param node_type: the type of node to search for
-        :return: The list of nodes that are close to the given position.
         """
         close_nodes = []
         for node in self.G.nodes:
@@ -295,6 +265,7 @@ class TOSG:
             self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
 
     def remove_invalid_tasks(self):
+        """removes all tasks that are not valid anymore"""
         for task in self.tasks:
             if not self.G.has_edge(*task.edge):
                 self._log.error(f"remove_invalid_tasks(): removing task {task}")
