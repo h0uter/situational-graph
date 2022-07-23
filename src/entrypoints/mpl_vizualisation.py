@@ -26,10 +26,10 @@ class MplVizualisation(AbstractVizualisation):
         self.origin_y_offset = 0
 
         self.map_img = None
-        if self.cfg.FULL_PATH:
+        if self.cfg.MAP_PATH:
             self.origin_x_offset = self.cfg.TOT_MAP_LEN_M_X / 2
             self.origin_y_offset = self.cfg.TOT_MAP_LEN_M_Y / 2
-            upside_down_map_img = Image.open(self.cfg.FULL_PATH)
+            upside_down_map_img = Image.open(self.cfg.MAP_PATH)
             self.map_img = img_axes2world_axes(upside_down_map_img)
 
         self.streamlit_unit = None
@@ -392,10 +392,10 @@ class MplVizualisation(AbstractVizualisation):
         :return: None
         """
         print("==============================")
-        print(">>> " + nx.info(krm.graph))
+        print(">>> " + nx.info(krm.G))
         print(f">>> self.at_wp: {agent.at_wp}")
         print(f">>> movement: {agent.previous_pos} >>>>>> {agent.get_localization()}")
-        print(f">>> frontiers: {krm.get_all_frontiers_idxs()}")
+        print(f">>> frontiers: {krm.frontier_idxs}")
         print("==============================")
 
     def preview_graph_world(self, world) -> None:

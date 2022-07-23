@@ -5,9 +5,10 @@ from typing import Sequence, Union
 import networkx as nx
 import numpy as np
 import vedo
+from vedo import io
 
 from src.domain.services.abstract_agent import AbstractAgent
-from src.domain import TOSG, ObjectTypes, LocalGrid, Planner
+from src.domain import TOSG, ObjectTypes, LocalGrid, OfflinePlanner
 from src.domain.entities.node_and_edge import Node
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.configuration.config import Config, PlotLvl, Scenario
@@ -32,13 +33,15 @@ class VedoVisualisation(AbstractVizualisation):
             # size=(3456, 2234),
             size=(3456, 2000),
         )
+        self.map_actor = None
 
         # NOTE: perhaps I just should not instantiate viz classes if we run headless
         if self.cfg.PLOT_LVL is not PlotLvl.NONE:
             if self.cfg.SCENARIO is not Scenario.REAL:
-                map_pic = vedo.Picture(cfg.FULL_PATH)
-                map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
-                self.plt.show(map_pic, interactive=False)
+                self.set_map(self.cfg.MAP_PATH)
+                # map_pic = vedo.Picture(cfg.MAP_PATH)
+                # map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
+                # self.plt.show(map_pic, interactive=False)
 
             logo_path = os.path.join("resource", "KRM.png")
             logo = vedo.load(logo_path)
@@ -52,36 +55,37 @@ class VedoVisualisation(AbstractVizualisation):
 
         time.sleep(0.1)
 
+    def set_map(self, map_path: str) -> None:
+        if self.cfg.SCENARIO is not Scenario.REAL:
+            if self.map_actor:
+                self.plt.clear([self.map_actor])
+
+            map_pic = vedo.Picture(map_path)
+            map_pic.x(-self.cfg.IMG_TOTAL_X_PIX // 2).y(-self.cfg.IMG_TOTAL_Y_PIX // 2)
+            self.map_actor = map_pic
+            self.plt.add(self.map_actor)
+
     def figure_update(
         self,
-        krm: TOSG,
+        tosg: TOSG,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
-        usecases: Sequence[Planner],
+        usecases: Sequence[OfflinePlanner],
     ) -> None:
-        self.viz_all(krm, agents, usecases)
+        self.viz_all(tosg, agents, usecases)
 
     def figure_final_result(
         self,
-        krm: TOSG,
+        tosg: TOSG,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
-        usecases,
+        usecases: Sequence[OfflinePlanner],
     ) -> None:
-        self.viz_all(krm, agents)
+        self.viz_all(tosg, agents)
         self.plt.show(interactive=True, resetcam=True)
 
-    def get_nodes_by_type(self, krm, node_type) -> Sequence[Node]:
-        return list(
-            dict(
-                (n, d["type"])
-                for n, d in krm.graph.nodes().items()
-                if d["type"] == node_type
-            ).keys()
-        )
-
-    def get_scaled_pos_dict(self, krm) -> dict:
-        positions_of_all_nodes = nx.get_node_attributes(krm.graph, "pos")
+    def get_scaled_pos_dict(self, tosg: TOSG) -> dict:
+        positions_of_all_nodes = nx.get_node_attributes(tosg.G, "pos")
         pos_dict = positions_of_all_nodes
 
         # scale the sizes to the scale of the simulated map image
@@ -90,10 +94,10 @@ class VedoVisualisation(AbstractVizualisation):
 
         return pos_dict
 
-    def viz_all(self, krm, agents, usecases=None):
+    def viz_all(self, tosg: TOSG, agents, usecases=None):
         actors = []
-        pos_dict = self.get_scaled_pos_dict(krm)
-        ed_ls = list(krm.graph.edges)
+        pos_dict = self.get_scaled_pos_dict(tosg)
+        ed_ls = list(tosg.G.edges)
 
         # TODO: implement coloration for the different line types
         if len(ed_ls) > 1:
@@ -103,26 +107,33 @@ class VedoVisualisation(AbstractVizualisation):
             raw_edg = vedo.Lines(raw_lines).lw(2)
             actors.append(raw_edg)
 
-        waypoint_nodes = self.get_nodes_by_type(krm, ObjectTypes.WAYPOINT)
+        waypoint_nodes = tosg.get_nodes_by_type(ObjectTypes.WAYPOINT)
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         self.wp_counter.append(len(wps))
         # waypoints = vedo.Points(wps, r=8, c="r")
-        waypoints = vedo.Points(wps, r=8, c="FireBrick")
+        waypoints = vedo.Points(wps, r=15, c="FireBrick")
         actors.append(waypoints)
 
-        frontier_nodes = self.get_nodes_by_type(krm, ObjectTypes.FRONTIER)
+        frontier_nodes = tosg.get_nodes_by_type(ObjectTypes.FRONTIER)
         fts = [pos_dict[f] for f in frontier_nodes]
         self.ft_counter.append(len(fts))
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
         # world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
-        world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.UNKNOWN_VICTIM)
-        actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict)
+        # HACK: we need this to extend to new world objects.
+        world_object_nodes = tosg.get_nodes_by_type(ObjectTypes.UNKNOWN_VICTIM)
+        world_object_nodes.extend(
+            tosg.get_nodes_by_type(ObjectTypes.IMMOBILE_VICTIM)
+        )
+        world_object_nodes.extend(
+            tosg.get_nodes_by_type(ObjectTypes.MOBILE_VICTIM)
+        )
+        actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict, tosg)
         actors = self.add_agents(agents, actors)
 
         if usecases is not None:
-            self.viz_action_graph(actors, krm, usecases, pos_dict, agents)
+            self.viz_action_graph(actors, tosg, usecases, pos_dict, agents)
 
         # TODO: add legend
         # lbox = vedo.LegendBox([world_objects], width=0.25)
@@ -147,7 +158,7 @@ class VedoVisualisation(AbstractVizualisation):
         self,
         actors: list,
         krm: TOSG,
-        usecases: Sequence[Planner],
+        usecases: Sequence[OfflinePlanner],
         pos_dict: dict,
         agents: Sequence[AbstractAgent],
     ):
@@ -162,7 +173,7 @@ class VedoVisualisation(AbstractVizualisation):
 
                 # HACK TO fix crash caused by frontier already being removed from krm by one agent in final step
                 for edge in action_path:
-                    for node in edge:
+                    for node in edge[1:2]:  # in source or target node
                         if node not in pos_dict:
                             return
 
@@ -209,9 +220,16 @@ class VedoVisualisation(AbstractVizualisation):
             agent_actor.caption(agent_label, size=(0.05, 0.025))
 
             if agent.task:
-                agent_actor.legend(f"{agent.task.objective_enum}")
+                task_print = (
+                    str(agent.task.objective_enum)
+                    .removeprefix("Objectives.")
+                    .replace("_", " ")
+                    .rjust(25)
+                )
+                agent_actor.legend(f"{task_print}")
             else:
-                agent_actor.legend(f"{agent.task}")
+                # agent_actor.legend(f"{agent.task}")
+                agent_actor.legend(f"No task selected".rjust(25))
 
             # actors.append(agent_actor)
             # lbox = vedo.LegendBox([agent_actor], width=0.25)
@@ -224,17 +242,23 @@ class VedoVisualisation(AbstractVizualisation):
 
         return actors
 
-    def add_world_object_nodes(self, world_object_nodes: Sequence, actors, pos_dict):
+    def add_world_object_nodes(
+        self, world_object_nodes: Sequence, actors, pos_dict, tosg
+    ):
+        node_type_dict = nx.get_node_attributes(tosg.G, "type")
         for wo in world_object_nodes:
             wo_pos = pos_dict[wo]
             wo_point = vedo.Point(wo_pos, r=20, c="magenta")
             actors.append(wo_point)
-
+            name_str = (
+                str(node_type_dict[wo]).removeprefix("ObjectTypes.").replace("_", "\n")
+            )
             # instead of trowing the ID in the vignette We would like their objecttype
             wo_vig = wo_point.vignette(
-                wo,
+                # wo,
+                name_str,
                 offset=[0, 0, 5 * self.factor],
-                s=self.factor,
+                s=self.factor * 0.7,
             )
             actors.append(wo_vig)
 
@@ -254,3 +278,7 @@ class VedoVisualisation(AbstractVizualisation):
             s=self.factor,
         )
         self.debug_actors.append(start_vig)
+
+    def take_screenshot(self):
+        path = "results/test.png"
+        io.screenshot(path)

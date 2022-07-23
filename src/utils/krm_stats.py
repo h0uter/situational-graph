@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 from src.domain.entities.behaviors import Behaviors
 from src.domain.entities.object_types import ObjectTypes
+from src.domain.services.tosg import TOSG
 
 from src.utils.saving_data_objects import load_something, save_something
 
@@ -17,18 +18,18 @@ class TOSGStats:
         self.num_world_object_nodes = [0]
         self.step_duration = [0]
 
-    def update(self, krm, step_duration):
+    def update(self, tosg: TOSG, step_duration):
 
-        self.num_nodes.append(krm.graph.number_of_nodes())
-        self.num_edges.append(krm.graph.number_of_edges())
+        self.num_nodes.append(tosg.G.number_of_nodes())
+        self.num_edges.append(tosg.G.number_of_edges())
         self.step_duration.append(step_duration)
 
         self.num_waypoint_nodes.append(
             len(
                 [
                     n
-                    for n in krm.graph.nodes()
-                    if krm.graph.nodes[n]["type"] == ObjectTypes.WAYPOINT
+                    for n in tosg.G.nodes()
+                    if tosg.G.nodes[n]["type"] == ObjectTypes.WAYPOINT
                 ]
             )
         )
@@ -37,8 +38,8 @@ class TOSGStats:
                 [
                     e
                     # for e in krm.graph.edges()
-                    for e in krm.graph.edges
-                    if krm.graph.edges[e]["type"] == Behaviors.GOTO
+                    for e in tosg.G.edges
+                    if tosg.G.edges[e]["type"] == Behaviors.GOTO
                 ]
             )
         )
@@ -46,8 +47,8 @@ class TOSGStats:
             len(
                 [
                     n
-                    for n in krm.graph.nodes()
-                    if krm.graph.nodes[n]["type"] == ObjectTypes.FRONTIER
+                    for n in tosg.G.nodes()
+                    if tosg.G.nodes[n]["type"] == ObjectTypes.FRONTIER
                 ]
             )
         )
@@ -55,8 +56,8 @@ class TOSGStats:
             len(
                 [
                     n
-                    for n in krm.graph.nodes()
-                    if krm.graph.nodes[n]["type"] == ObjectTypes.WORLD_OBJECT
+                    for n in tosg.G.nodes()
+                    if tosg.G.nodes[n]["type"] == ObjectTypes.WORLD_OBJECT
                 ]
             )
         )
