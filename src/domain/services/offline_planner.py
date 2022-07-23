@@ -6,7 +6,6 @@ from src.domain import TOSG, AbstractBehavior, Affordance, Behaviors, Node, Plan
 from src.domain.services.abstract_agent import AbstractAgent
 
 
-# FIXME: split into planner and plan executor. Unless I go the MPC esque route
 class OfflinePlanner:
     def __init__(
         self,
@@ -63,9 +62,6 @@ class OfflinePlanner:
         highest_utility = 0
         optimal_task = None
 
-        tosg.remove_invalid_tasks()
-        # self._log.debug(f"{agent.name}:  has tasks {tosg.tasks}")
-
         for task in tosg.tasks:
 
             task_target_node = task.edge[1]
@@ -89,8 +85,6 @@ class OfflinePlanner:
     def _find_plan_for_task(
         self, agent_localized_to: Node, tosg: TOSG, task: Task
     ) -> Optional[Plan]:
-
-        # target_node = tosg.get_task_target_node(task)
         target_node = task.edge[1]
 
         if not self._check_target_still_valid(tosg, target_node):
@@ -108,7 +102,6 @@ class OfflinePlanner:
         if not tosg.validate_plan(plan):
             return None
 
-        # behavior_of_current_edge = plan.upcoming_behavior(tosg)
         behavior_of_current_edge = tosg.get_behavior_of_edge(plan.upcoming_edge)
 
         current_edge = plan.upcoming_edge

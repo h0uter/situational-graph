@@ -24,7 +24,6 @@ class AbstractBehavior(ABC):
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
     ) -> BehaviorResult:
         """Execute the behavior pipeline."""
-        tosg.remove_invalid_tasks()
 
         result = self._run_behavior_implementation(agent, tosg, behavior_edge)
 

@@ -28,6 +28,33 @@ class TOSG:
 
         self.tasks: List[Task] = []
 
+    @property
+    def waypoint_idxs(self) -> list:
+        """returns all frontier idxs in the graph"""
+        return [
+            node
+            for node in self.G.nodes()
+            if self.G.nodes[node]["type"] == ObjectTypes.WAYPOINT
+        ]
+
+    @property
+    def frontier_idxs(self) -> list:
+        """returns all frontier idxs in the graph"""
+        return [
+            node
+            for node in self.G.nodes()
+            if self.G.nodes[node]["type"] == ObjectTypes.FRONTIER
+        ]
+
+    @property
+    def worldobject_idxs(self) -> list:
+        """returns all frontier idxs in the graph"""
+        return [
+            node
+            for node in self.G.nodes()
+            if self.G.nodes[node]["type"] == ObjectTypes.WORLD_OBJECT
+        ]
+
     def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
@@ -80,7 +107,8 @@ class TOSG:
     # this is the only place where we call the add_node method
     def add_node_of_type(self, pos: tuple[float, float], object_type: ObjectTypes):
         node_uuid = uuid4()
-        self.G.add_node(node_uuid, pos=pos, type=object_type, id=node_uuid)
+        # self.G.add_node(node_uuid, pos=pos, type=object_type, id=node_uuid)
+        self.G.add_node(node_uuid, pos=pos, type=object_type)
         return node_uuid
 
     def add_waypoint_node(self, pos: tuple) -> UUID:
@@ -110,7 +138,7 @@ class TOSG:
             key=my_id,
             type=edge_type,
             cost=cost,
-            id=my_id,
+            # id=my_id,
         )
         return (node_a, node_b, my_id)
 
@@ -119,7 +147,7 @@ class TOSG:
         # HACK: this edge should be based on an affordance
         d = {
             "type": Behaviors.GOTO,
-            "id": uuid4(),  # TODO: remove
+            # "id": uuid4(),  # TODO: remove id as a property because it is redundant with the edge key
             "cost": self.calc_edge_len(node_a, node_b),
         }
         if self.G.has_edge(node_a, node_b):
@@ -134,45 +162,46 @@ class TOSG:
             [(node_a, node_b, uuid4(), d), (node_b, node_a, uuid4(), d)]
         )
 
-    def add_frontier(self, pos: tuple, agent_at_wp: Node) -> None:
+    def add_frontier(self, pos: tuple, from_node: Node) -> None:
         """adds a frontier to the graph"""
         ft_node_uuid = uuid4()
         self.G.add_node(
-            ft_node_uuid, pos=pos, type=ObjectTypes.FRONTIER, id=ft_node_uuid
+            # ft_node_uuid, pos=pos, type=ObjectTypes.FRONTIER, id=ft_node_uuid
+            ft_node_uuid, pos=pos, type=ObjectTypes.FRONTIER
         )
 
-        edge_len = self.calc_edge_len(agent_at_wp, ft_node_uuid)
+        edge_len = self.calc_edge_len(from_node, ft_node_uuid)
         if edge_len:  # edge len can be zero in the final step.
             cost = 1 / edge_len  # Prefer the longest waypoints
         else:
             cost = edge_len
 
-        if self.G.has_edge(agent_at_wp, ft_node_uuid):
+        if self.G.has_edge(from_node, ft_node_uuid):
             self._log.warning(
-                f"add_frontier(): Edge between {agent_at_wp} and {ft_node_uuid} already exists"
+                f"add_frontier(): Edge between {from_node} and {ft_node_uuid} already exists"
             )
             return
 
-        edge = self.add_my_edge(agent_at_wp, ft_node_uuid, Behaviors.EXPLORE, cost=cost)
+        edge = self.add_my_edge(from_node, ft_node_uuid, Behaviors.EXPLORE, cost=cost)
 
         self.tasks.append(Task(edge, Objectives.EXPLORE_ALL_FTS))
 
-    def remove_frontier(self, target_frontier_idx: Node) -> None:
+    def remove_frontier(self, ft_node: Node) -> None:
         """removes a frontier from the graph"""
-        target_frontier = self.get_node_data_by_node(target_frontier_idx)
-        self.remove_tasks_associated_with_node(target_frontier_idx)
+        target_frontier = self.get_node_data_by_node(ft_node)
+        self.remove_tasks_associated_with_node(ft_node)
         if target_frontier["type"] == ObjectTypes.FRONTIER:
-            self.G.remove_node(target_frontier_idx)  # also removes the edge
+            self.G.remove_node(ft_node)  # also removes the edge
         else:
             self._log.warning(
-                f"remove_frontier(): {target_frontier_idx} is not a frontier"
+                f"remove_frontier(): {ft_node} is not a frontier"
             )
             return
 
-    def remove_tasks_associated_with_node(self, node_idx: Node):
+    def remove_tasks_associated_with_node(self, node: Node):
         """removes all tasks associated with a node"""
         for task in self.tasks:
-            if node_idx in task.edge:
+            if node in task.edge:
                 self.tasks.remove(task)
 
     def get_task_by_edge(self, edge: Edge) -> Optional[Task]:
@@ -195,61 +224,9 @@ class TOSG:
             if self.G.nodes[node]["pos"] == pos:
                 return node
 
-    # # THIS one can soon be gone.
-    # def get_node_by_UUID(self, uuid: UUID) -> Node:
-    #     """returns the node idx with the given UUID"""
-    #     for node in self.G.nodes():
-    #         if self.G.nodes[node]["id"] == uuid:
-    #             return node
-
-    def get_edge_by_UUID(self, UUID) -> Optional[Edge]:
-        """returns the edge tuple with the given UUID"""
-        for src_node, target_node, edge_key, edge_id in self.G.edges(
-            data="id", keys=True
-        ):
-            if edge_id == UUID:
-                # if edge_id == UUID or edge_key == UUID:
-                return src_node, target_node, edge_key
-
     def get_node_data_by_node(self, node: Node) -> dict:
         """returns the node corresponding to the given index"""
         return self.G.nodes[node]
-
-    # @property
-    # def waypoints(self) -> list:
-    #     """returns all waypoints in the graph"""
-    #     return [
-    #         self.G.nodes[node]
-    #         for node in self.G.nodes()
-    #         if self.G.nodes[node]["type"] == ObjectTypes.WAYPOINT
-    #     ]
-
-    @property
-    def waypoint_idxs(self) -> list:
-        """returns all frontier idxs in the graph"""
-        return [
-            node
-            for node in self.G.nodes()
-            if self.G.nodes[node]["type"] == ObjectTypes.WAYPOINT
-        ]
-
-    @property
-    def frontier_idxs(self) -> list:
-        """returns all frontier idxs in the graph"""
-        return [
-            node
-            for node in self.G.nodes()
-            if self.G.nodes[node]["type"] == ObjectTypes.FRONTIER
-        ]
-
-    @property
-    def worldobject_idxs(self) -> list:
-        """returns all frontier idxs in the graph"""
-        return [
-            node
-            for node in self.G.nodes()
-            if self.G.nodes[node]["type"] == ObjectTypes.WORLD_OBJECT
-        ]
 
     def get_nodes_of_type_in_margin(
         self, pos: tuple[float, float], margin: float, node_type: ObjectTypes
@@ -308,8 +285,6 @@ class TOSG:
             self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
 
     def remove_invalid_tasks(self):
-        # all_edge_ids = [ddict["id"] for u, v, ddict in self.G.edges(data=True)]
-        # this is like a massive list so I feel like there should be a better way
         for task in self.tasks:
             # if task.edge_uuid not in all_edge_ids:
             if not self.G.has_edge(*task.edge):
@@ -343,7 +318,8 @@ class TOSG:
         :return: the id of the node
         """
         node_id = uuid4()
-        self.G.add_node(node_id, pos=pos, type=object_type, id=node_id)
+        # self.G.add_node(node_id, pos=pos, type=object_type, id=node_id)
+        self.G.add_node(node_id, pos=pos, type=object_type)
         for affordance in affordances:
             if affordance[0] == object_type:
 

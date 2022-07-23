@@ -47,10 +47,6 @@ def setup_exploration_usecase(tosg: TOSG, agents: Sequence[AbstractAgent]):
     for agent in agents:
         
         # Add an explore self edge on the start node to ensure a exploration sampling action
-        
-        # edge_uuid = tosg.add_my_edge(0, 0, Behaviors.EXPLORE)
-        # _, _, edge_uuid = tosg.add_my_edge(agent.at_wp, agent.at_wp, Behaviors.EXPLORE)
-        # tosg.tasks.append(Task(edge_uuid, Objectives.EXPLORE_ALL_FTS))
         edge = tosg.add_my_edge(agent.at_wp, agent.at_wp, Behaviors.EXPLORE)
         tosg.tasks.append(Task(edge, Objectives.EXPLORE_ALL_FTS))
 
@@ -58,7 +54,6 @@ def setup_exploration_usecase(tosg: TOSG, agents: Sequence[AbstractAgent]):
         agent.task = tosg.tasks[0]
 
         # obtain the plan which corresponds to this edge.
-        # init_explore_edge = tosg.get_task_edge(agent.task)
         init_explore_edge = agent.task.edge
 
         agent.plan = Plan([init_explore_edge])
@@ -132,7 +127,7 @@ def run_demo(
     while (not mission_completed) or step < cfg.MAX_STEPS:
         step_start = time.perf_counter()
         # print(f">>> task list is {tosg.tasks}")
-        tosg.remove_invalid_tasks()
+
         for agent_idx in range(len(agents)):
             if planner.pipeline(agents[agent_idx], tosg):
                 """pipeline returns true if there are no more tasks."""
