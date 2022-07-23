@@ -44,9 +44,8 @@ def run_demo(
 
     """ Main Logic Loop"""
     mission_completed = False
-    while (not mission_completed) or step < cfg.MAX_STEPS:
+    while (not mission_completed) and step < cfg.MAX_STEPS:
         step_start = time.perf_counter()
-        # print(f">>> task list is {tosg.tasks}")
 
         for agent_idx in range(len(agents)):
             if planner.pipeline(agents[agent_idx], tosg):
@@ -79,6 +78,25 @@ def run_demo(
 
     # krm_stats.save()
     return mission_completed
+
+
+def init_entities(cfg: Config):
+    if cfg.SCENARIO == Scenario.REAL:
+        agents = [SpotAgent(cfg)]
+    else:
+        agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
+
+    tosg = TOSG(cfg)
+
+    domain_behaviors = SAR_BEHAVIORS
+    affordances = SAR_AFFORDANCES
+    # planner = OfflinePlanner(cfg, domain_behaviors, affordances)
+    planner = OnlinePlanner(cfg, domain_behaviors, affordances)
+
+    viz_listener = VizualisationListener(cfg)
+    viz_listener.setup_event_handler()
+
+    return agents, tosg, planner, viz_listener
 
 
 def setup_usecase_common(tosg: TOSG, agents: Sequence[AbstractAgent], start_poses):
@@ -140,22 +158,3 @@ def run_task_switch_usecase(cfg: Config):
         agent.set_init_explore_step()
     success = run_demo(cfg, agents, tosg, usecases, viz_listener)
     return success
-
-
-def init_entities(cfg: Config):
-    if cfg.SCENARIO == Scenario.REAL:
-        agents = [SpotAgent(cfg)]
-    else:
-        agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
-
-    tosg = TOSG(cfg)
-
-    domain_behaviors = SAR_BEHAVIORS
-    affordances = SAR_AFFORDANCES
-    # planner = OfflinePlanner(cfg, domain_behaviors, affordances)
-    planner = OnlinePlanner(cfg, domain_behaviors, affordances)
-
-    viz_listener = VizualisationListener(cfg)
-    viz_listener.setup_event_handler()
-
-    return agents, tosg, planner, viz_listener
