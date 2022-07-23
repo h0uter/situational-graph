@@ -42,10 +42,10 @@ class AssessBehavior(AbstractBehavior):
         behavior_edge: Edge,
     ) -> bool:
         """Check if the postconditions for the behavior are met."""
-        if not result.victim_state == VictimState.UNKNOWN:
+        if result.victim_state == VictimState.UNKNOWN:
             return True
         else:
-            return False
+            return True
 
     def _mutate_graph_and_tasks_success(
         self,
@@ -53,7 +53,7 @@ class AssessBehavior(AbstractBehavior):
         tosg: TOSG,
         result: AssessResult,
         behavior_edge: Edge,
-        affordances: Sequence[Affordance],
+        affordances: list[Affordance],
     ):
         """Mutate the graph according to the behavior."""
         # return tosgraph
@@ -68,18 +68,12 @@ class AssessBehavior(AbstractBehavior):
 
         # remove the target node
         old_pos = tosg.get_node_data_by_node(behavior_edge[1])["pos"]
-        tosg.remove_node(behavior_edge[1])
+        tosg.G.remove_node(behavior_edge[1])
 
-        # add the target node with the ObjectType corresponding to the victim
-        mutated_node = tosg.add_my_node(
-            old_pos, VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]
-        )
+        my_object_type = VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]
 
-        # use the affordances to add the correct edges.
-
-        for aff in affordances:
-            if aff[0] == VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]:
-                tosg.add_my_edge(behavior_edge[0], mutated_node, aff[1])
+        from_edge = behavior_edge[0]
+        tosg.add_node_with_task_and_edges_from_affordances(from_edge, my_object_type, old_pos, affordances)
 
     def _mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
@@ -87,10 +81,10 @@ class AssessBehavior(AbstractBehavior):
         """Mutate the graph according to the behavior."""
         # return tosgraph
         # deactivate the target node,
-        tosg.remove_node(behavior_edge[1])
+        tosg.G.remove_node(behavior_edge[1])
         # pass
 
-    def __scan_victim(self, targt_node_pos: tuple[float, float]):
+    def __scan_victim(self, target_node_pos: tuple[float, float]):
         # todo make this actually orient the robot towards the target and perform some scan or assessment.
         # use the play file library to say some shit and emulate listening for the response.
         if random() < 0.5:

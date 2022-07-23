@@ -2,12 +2,10 @@ import logging
 from typing import Mapping, Optional, Sequence, Type
 
 from src.configuration.config import Config
-from src.domain import (TOSG, AbstractBehavior, Affordance, Behaviors, Node,
-                        Plan, Task)
+from src.domain import TOSG, AbstractBehavior, Affordance, Behaviors, Node, Plan, Task
 from src.domain.services.abstract_agent import AbstractAgent
 
 
-# FIXME: split into planner and plan executor. Unless I go the MPC esque route
 class OfflinePlanner:
     def __init__(
         self,
@@ -25,6 +23,9 @@ class OfflinePlanner:
         if not agent.task:
             agent.task = self._task_selection(agent, tosg)
 
+        if not agent.task:
+            return self._check_if_tasks_exhausted(tosg)
+
         """ generate a plan"""
         if not agent.plan:
             agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
@@ -37,10 +38,7 @@ class OfflinePlanner:
                 self._destroy_task(agent, tosg)
 
         """check completion of mission"""
-        if self._check_if_tasks_exhausted(tosg):
-            return True
-
-        return False
+        return self._check_if_tasks_exhausted(tosg)
 
     def _destroy_task(self, agent: AbstractAgent, tosg: TOSG):
         self._log.debug(f"{agent.name}:  has a task  {agent.task}")
@@ -48,6 +46,7 @@ class OfflinePlanner:
         if agent.task:
             if agent.task in tosg.tasks:
                 tosg.tasks.remove(agent.task)
+                # tosg.destroy_task_and_edge(agent.task)
         self._log.debug(f"{agent.name}: destroying task  {agent.task}")
 
         agent.clear_task()
@@ -57,7 +56,7 @@ class OfflinePlanner:
     ) -> bool:
         if target_node is None:
             return False
-        return tosg.check_node_exists(target_node)
+        return tosg.G.has_node(target_node)
 
     def _task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
         highest_utility = 0
@@ -65,10 +64,7 @@ class OfflinePlanner:
 
         for task in tosg.tasks:
 
-            task_target_node = tosg.get_task_target_node(task)
-            # HACK: sometimes we get a task that does not exist anymore.
-            if not task_target_node:
-                continue
+            task_target_node = task.edge[1]
 
             path_cost = tosg.shortest_path_len(agent.at_wp, task_target_node)
 
@@ -89,8 +85,8 @@ class OfflinePlanner:
     def _find_plan_for_task(
         self, agent_localized_to: Node, tosg: TOSG, task: Task
     ) -> Optional[Plan]:
+        target_node = task.edge[1]
 
-        target_node = tosg.get_task_target_node(task)
         if not self._check_target_still_valid(tosg, target_node):
             return None
 
@@ -106,15 +102,14 @@ class OfflinePlanner:
         if not tosg.validate_plan(plan):
             return None
 
-        # behavior_of_current_edge = plan.upcoming_behavior(tosg)
         behavior_of_current_edge = tosg.get_behavior_of_edge(plan.upcoming_edge)
 
         current_edge = plan.upcoming_edge
 
         """Execute the behavior of the current edge"""
-        result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](self.cfg, self.AFFORDANCES).pipeline(
-            agent, tosg, current_edge
-        )
+        result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](
+            self.cfg, self.AFFORDANCES
+        ).pipeline(agent, tosg, current_edge)
 
         # FIXME: this can be shorter
         if result.success:
@@ -129,9 +124,8 @@ class OfflinePlanner:
             return None
 
     def _check_if_tasks_exhausted(self, tosg: TOSG) -> bool:
-        # HACK: we just check the fronteirs, not the tasks.
-        num_of_frontiers = len(tosg.get_all_frontiers_idxs())
-        if num_of_frontiers < 1:
+        num_of_tasks = len(tosg.tasks)
+        if num_of_tasks < 1:
             return True
         else:
             return False

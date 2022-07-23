@@ -46,8 +46,8 @@ class Config:
         self.AUDIO_FEEDBACK = audio_feedback
 
         # krm.py setup
-        self.FRONTIER_INDEX_START = 9000
-        self.WORLD_OBJECT_INDEX_START = 90000
+        # self.FRONTIER_INDEX_START = 9000
+        # self.WORLD_OBJECT_INDEX_START = 90000
 
         # self.PRUNE_RADIUS_FACTOR = 0.20  # too low (<0.20) and we get dense graph, too high (>0.25) and corners are pruned from inside rooms
         self.PRUNE_RADIUS_FACTOR = 0.18  # too low and we get dense graph, too high and corners are pruned from inside rooms
@@ -127,6 +127,7 @@ class Config:
 
         self.MAP_PATH = os.path.join("resource", "villa_holes_closed.png")
         self.MAP_PATH2 = os.path.join("resource", "villa_holes_closed_open_wall.png")
+        self.MAP_PATH_TASK_SWITCH = os.path.join("resource", "villa_holes_closed_task_switch.png")
         self.TOT_MAP_LEN_M_X = 50
         self.IMG_TOTAL_X_PIX = 2026
         self.IMG_TOTAL_Y_PIX = 1686

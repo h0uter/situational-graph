@@ -1,6 +1,6 @@
 from src.configuration.config import Config, PlotLvl, Scenario
 
-from src.usecases.sar_usecase import run_sar_usecase
+from src.usecases.sar.sar_usecase import run_sar_usecase, run_task_switch_usecase
 
 
 if __name__ == "__main__":
@@ -27,4 +27,6 @@ if __name__ == "__main__":
     # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 
     run_sar_usecase(cfg)
+    # run_task_switch_usecase(cfg)
+
     # benchmark_func()

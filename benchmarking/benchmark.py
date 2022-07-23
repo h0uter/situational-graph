@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 
 from src.configuration.config import Config, Scenario, PlotLvl
-from src.usecases.sar_usecase import run_sar_usecase
+from src.usecases.sar.sar_usecase import run_sar_usecase
 
 
 def benchmark_func():

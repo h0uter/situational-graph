@@ -26,11 +26,13 @@ class ExploreBehavior(AbstractBehavior):
         target_node_pos = tosg.get_node_data_by_node(target_node)["pos"]
 
         """The first exploration step is just sampling in place."""
+        # HACK: this should just be an init behavior or something.
         if not agent.init_explore_step_completed:
-            lg = agent.get_lg()
+            lg = agent.get_local_grid()
             new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
             self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
-            agent.set_init()
+            agent.set_init_explore_step()
+            return BehaviorResult(False)
 
         # the goto action
         if agent.get_localization() is not target_node_pos:
@@ -60,7 +62,7 @@ class ExploreBehavior(AbstractBehavior):
         tosg: TOSG,
         result: BehaviorResult,
         behavior_edge: Edge,
-        affordances: Sequence[Affordance],
+        affordances: list[Affordance],
     ):
         next_node = behavior_edge[1]
         self._log.debug(
@@ -68,7 +70,7 @@ class ExploreBehavior(AbstractBehavior):
         )
         # start mutate graph
         tosg.remove_frontier(next_node)
-        lg = agent.get_lg()
+        lg = agent.get_local_grid()
 
         """part 1: use local grid to process new virtual objects"""
         # HACK: this is to deal with explosion of frontiers if we cannot sample a new wp
@@ -86,22 +88,26 @@ class ExploreBehavior(AbstractBehavior):
 
         """part 2: use perception service to sense new world objects"""
         # 1. obtain world objects in perception scene
-        w_os = self.__process_world_objects(agent, tosg, affordances)
-        # 2. check if they not already in the graph
-        # 3. add them to the graph
-        if w_os:
-            for w_o in w_os:
-                # 3.1 add node
-                # tosg.add_world_object(w_o.pos, w_o.name)
+        worldobjects = self.__process_world_objects(agent, tosg, affordances)
+
+        if worldobjects:
+            # 2. check if they not already in the graph
+            for wo in worldobjects:
+                if tosg.get_node_by_pos(wo.pos):
+                    self._log.debug(
+                        f"{wo.object_type} at {wo.pos} already in the graph"
+                    )
+                    return
+
+            # 3. add them to the graph
+            for wo in worldobjects:
                 self._log.debug(
-                    f">>>>{agent.name}: adding world object {w_o.object_type}"
+                    f">>>>{agent.name}: adding world object {wo.object_type}"
                 )
-                new_node = tosg.add_my_node(w_o.pos, w_o.object_type)
-                # 3.2 add edge using affordances.
-                for aff in affordances:
-                    if aff[0] == w_o.object_type:
-                        tosg.add_my_edge(agent.at_wp, new_node, aff[1])
-                        break
+
+                tosg.add_node_with_task_and_edges_from_affordances(
+                    agent.at_wp, wo.object_type, wo.pos, affordances
+                )
 
     def _mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
@@ -136,10 +142,6 @@ class ExploreBehavior(AbstractBehavior):
     def __check_at_destination(
         self, agent: AbstractAgent, tosg: TOSG, destination_node: Node
     ) -> bool:
-        """
-        Check if the agent is at the destination.
-        """
-        # This is there so we can initialze by adding a frontier self edge on 0
         at_destination = False
         destination_node_type = tosg.get_node_data_by_node(destination_node)["type"]
 
@@ -166,11 +168,9 @@ class ExploreBehavior(AbstractBehavior):
 
         if len(wp_at_previous_pos_candidates) == 0:
             self._log.error(
-                f"{agent.name}: No waypoint at previous pos {agent.previous_pos}, no wp added."
+                f"{agent.name}: No waypoint at previous pos {agent.previous_pos}, no wp added.\n {agent.name}: {agent.pos=} and {agent.get_localization()=}."
             )
-            self._log.error(
-                f"{agent.name}: {agent.pos=} and {agent.get_localization()=}."
-            )
+
             agent.localize_to_waypoint(tosg)
 
             return False
@@ -180,19 +180,17 @@ class ExploreBehavior(AbstractBehavior):
                 f"{agent.name}: Multiple waypoints at previous pos, taking first one: {wp_at_previous_pos_candidates[0]}."
             )
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
-            tosg.add_waypoint(agent.get_localization(), wp_at_previous_pos)
+            tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
             agent.localize_to_waypoint(tosg)
 
             return True
 
         elif len(wp_at_previous_pos_candidates) == 1:
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
-            tosg.add_waypoint(agent.get_localization(), wp_at_previous_pos)
+            tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
             agent.localize_to_waypoint(tosg)
 
             return True
-
-        # agent.localize_to_waypoint(krm)
 
     def __sample_new_frontiers(
         self,
@@ -200,6 +198,7 @@ class ExploreBehavior(AbstractBehavior):
         tosg: TOSG,
         lg: LocalGrid,
     ) -> Sequence:
+    
         new_frontier_cells = lg.los_sample_frontiers_on_cellmap(
             radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
             num_frontiers_to_sample=self.cfg.N_SAMPLES,
@@ -214,7 +213,7 @@ class ExploreBehavior(AbstractBehavior):
             tosg.add_frontier(frontier_pos_global, agent.at_wp)
 
     def __prune_frontiers(self, tosg: TOSG) -> None:
-        waypoints = tosg.get_all_waypoint_idxs()
+        waypoints = tosg.waypoint_idxs
 
         for wp in waypoints:
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]
@@ -222,38 +221,4 @@ class ExploreBehavior(AbstractBehavior):
                 wp_pos, self.cfg.PRUNE_RADIUS, ObjectTypes.FRONTIER
             )
             for frontier in close_frontiers:
-                # this function is super expensive
-                # tosg.remove_task_by_node(frontier)
-                # FIXME: here I should also destroy the associated exploration tasks.
                 tosg.remove_frontier(frontier)
-
-    # # BUG: on the real robot sometimes impossible shortcuts are added.
-    # def __find_shortcuts_between_wps(
-    #     self, lg: LocalGrid, tosg: TOSG, agent: AbstractAgent
-    # ):
-    #     close_nodes = tosg.get_nodes_of_type_in_margin(
-    #         lg.world_pos, self.cfg.WP_SHORTCUT_MARGIN, ObjectTypes.WAYPOINT
-    #     )
-    #     shortcut_candidate_positions = []
-    #     for node in close_nodes:
-    #         if node != agent.at_wp:
-    #             shortcut_candidate_positions.append(
-    #                 tosg.get_node_data_by_node(node)["pos"]
-    #             )
-
-    #     if shortcut_candidate_positions:
-    #         for point in shortcut_candidate_positions:
-    #             at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
-    #             to_cell = lg.world_coords2cell_idxs(point)
-    #             is_collision_free, _ = lg.is_collision_free_straight_line_between_cells(
-    #                 at_cell, to_cell
-    #             )
-    #             if is_collision_free:
-    #                 from_wp = agent.at_wp
-    #                 to_wp = tosg.get_node_by_pos(point)
-
-    #                 if not tosg.check_if_edge_exists(from_wp, to_wp):
-    #                     self._log.debug(
-    #                         f"{agent.name}: Adding shortcut from {from_wp} to {to_wp}."
-    #                     )
-    #                     tosg.add_waypoint_diedge(from_wp, to_wp)

@@ -11,6 +11,8 @@ class OnlinePlanner(OfflinePlanner):
             # this fails because we overide the initialisation
             """select a task"""
             agent.task = self._task_selection(agent, tosg)
+            if not agent.task:
+                return self._check_if_tasks_exhausted(tosg)
 
             """ generate a plan"""
             agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
@@ -22,7 +24,4 @@ class OnlinePlanner(OfflinePlanner):
             self._destroy_task(agent, tosg)
 
         """check completion of mission"""
-        if self._check_if_tasks_exhausted(tosg):
-            return True
-
-        return False
+        return self._check_if_tasks_exhausted(tosg)
