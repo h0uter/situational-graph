@@ -94,7 +94,9 @@ class ExploreBehavior(AbstractBehavior):
             # 2. check if they not already in the graph
             for wo in worldobjects:
                 if tosg.get_node_by_pos(wo.pos):
-                    self._log.debug(f"{wo.object_type} at {wo.pos} already in the graph")
+                    self._log.debug(
+                        f"{wo.object_type} at {wo.pos} already in the graph"
+                    )
                     return
 
             # 3. add them to the graph
@@ -215,7 +217,7 @@ class ExploreBehavior(AbstractBehavior):
             tosg.add_frontier(frontier_pos_global, agent.at_wp)
 
     def __prune_frontiers(self, tosg: TOSG) -> None:
-        waypoints = tosg.get_all_waypoint_idxs()
+        waypoints = tosg.waypoint_idxs
 
         for wp in waypoints:
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]

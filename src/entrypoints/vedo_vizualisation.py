@@ -182,7 +182,7 @@ class VedoVisualisation(AbstractVizualisation):
 
                 # HACK TO fix crash caused by frontier already being removed from krm by one agent in final step
                 for edge in action_path:
-                    for node in edge:
+                    for node in edge[1:2]:  # in source or target node
                         if node not in pos_dict:
                             return
 

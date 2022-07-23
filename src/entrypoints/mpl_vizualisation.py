@@ -395,7 +395,7 @@ class MplVizualisation(AbstractVizualisation):
         print(">>> " + nx.info(krm.G))
         print(f">>> self.at_wp: {agent.at_wp}")
         print(f">>> movement: {agent.previous_pos} >>>>>> {agent.get_localization()}")
-        print(f">>> frontiers: {krm.get_all_frontiers_idxs()}")
+        print(f">>> frontiers: {krm.frontier_idxs}")
         print("==============================")
 
     def preview_graph_world(self, world) -> None:

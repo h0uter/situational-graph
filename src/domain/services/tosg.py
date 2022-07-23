@@ -16,11 +16,10 @@ from src.domain import (
 )
 
 
-# TODO: separate behavior from data
-"""Task-Oriented Situational Graph"""
-
-
 class TOSG:
+    # TODO: separate behavior from data
+    """Task-Oriented Situational Graph"""
+
     def __init__(self, cfg: Config) -> None:
         self._log = logging.getLogger(__name__)
 
@@ -82,7 +81,6 @@ class TOSG:
     def add_node_of_type(self, pos: tuple[float, float], object_type: ObjectTypes):
         node_uuid = uuid4()
         self.G.add_node(node_uuid, pos=pos, type=object_type, id=node_uuid)
-        # self.graph.add_node(node_uuid, pos=pos, type=object_type)
         return node_uuid
 
     def add_waypoint_node(self, pos: tuple) -> UUID:
@@ -92,8 +90,6 @@ class TOSG:
 
     def add_waypoint_and_diedge(self, pos: tuple, prev_wp) -> None:
         """adds new waypoints and increments wp the idx"""
-        # self.add_waypoint_node(pos)
-
         new_node = self.add_waypoint_node(pos)
         self.add_waypoint_diedge(new_node, prev_wp)
 
@@ -107,7 +103,7 @@ class TOSG:
         my_id = uuid4()
         if not cost:
             cost = self.calc_edge_len(node_a, node_b)
-        
+
         self.G.add_edge(
             node_a,
             node_b,
@@ -157,19 +153,6 @@ class TOSG:
             )
             return
 
-        # edge_uuid = uuid4()
-
-        # self.G.add_edge(
-        #     agent_at_wp,
-        #     ft_node_uuid,
-        #     type=Behaviors.EXPLORE,
-        #     id=edge_uuid,
-        #     cost=cost,
-        #     key=edge_uuid,
-        # )
-        # _, _, edge_uuid = self.add_my_edge(
-        #     agent_at_wp, ft_node_uuid, Behaviors.EXPLORE, cost=cost
-        # )
         edge = self.add_my_edge(agent_at_wp, ft_node_uuid, Behaviors.EXPLORE, cost=cost)
 
         self.tasks.append(Task(edge, Objectives.EXPLORE_ALL_FTS))
@@ -212,12 +195,12 @@ class TOSG:
             if self.G.nodes[node]["pos"] == pos:
                 return node
 
-    # THIS one can soon be gone.
-    def get_node_by_UUID(self, uuid: UUID) -> Node:
-        """returns the node idx with the given UUID"""
-        for node in self.G.nodes():
-            if self.G.nodes[node]["id"] == uuid:
-                return node
+    # # THIS one can soon be gone.
+    # def get_node_by_UUID(self, uuid: UUID) -> Node:
+    #     """returns the node idx with the given UUID"""
+    #     for node in self.G.nodes():
+    #         if self.G.nodes[node]["id"] == uuid:
+    #             return node
 
     def get_edge_by_UUID(self, UUID) -> Optional[Edge]:
         """returns the edge tuple with the given UUID"""
@@ -232,15 +215,17 @@ class TOSG:
         """returns the node corresponding to the given index"""
         return self.G.nodes[node]
 
-    def get_all_waypoints(self) -> list:
-        """returns all waypoints in the graph"""
-        return [
-            self.G.nodes[node]
-            for node in self.G.nodes()
-            if self.G.nodes[node]["type"] == ObjectTypes.WAYPOINT
-        ]
+    # @property
+    # def waypoints(self) -> list:
+    #     """returns all waypoints in the graph"""
+    #     return [
+    #         self.G.nodes[node]
+    #         for node in self.G.nodes()
+    #         if self.G.nodes[node]["type"] == ObjectTypes.WAYPOINT
+    #     ]
 
-    def get_all_waypoint_idxs(self) -> list:
+    @property
+    def waypoint_idxs(self) -> list:
         """returns all frontier idxs in the graph"""
         return [
             node
@@ -248,7 +233,8 @@ class TOSG:
             if self.G.nodes[node]["type"] == ObjectTypes.WAYPOINT
         ]
 
-    def get_all_frontiers_idxs(self) -> list:
+    @property
+    def frontier_idxs(self) -> list:
         """returns all frontier idxs in the graph"""
         return [
             node
@@ -256,7 +242,8 @@ class TOSG:
             if self.G.nodes[node]["type"] == ObjectTypes.FRONTIER
         ]
 
-    def get_all_world_object_idxs(self) -> list:
+    @property
+    def worldobject_idxs(self) -> list:
         """returns all frontier idxs in the graph"""
         return [
             node
