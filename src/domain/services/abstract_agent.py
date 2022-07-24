@@ -168,3 +168,6 @@ class AbstractAgent(ABC):
 
     def clear_task(self):
         self.task = None
+
+    def clear_plan(self):
+        self.plan = None

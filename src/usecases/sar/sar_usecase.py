@@ -101,8 +101,8 @@ def init_entities(cfg: Config):
 
     domain_behaviors = SAR_BEHAVIORS
     affordances = SAR_AFFORDANCES
-    # planner = OfflinePlanner(cfg, domain_behaviors, affordances)
-    planner = OnlinePlanner(cfg, domain_behaviors, affordances)
+    planner = OfflinePlanner(cfg, domain_behaviors, affordances)
+    # planner = OnlinePlanner(cfg, domain_behaviors, affordances)
 
     viz_listener = VizualisationListener(cfg)
     viz_listener.setup_event_handler()

@@ -6,7 +6,9 @@ from src.domain.services.tosg import TOSG
 class OnlinePlanner(OfflinePlanner):
     '''This planner selects the optimal task and makes a plan each iteration'''
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
-
+        
+        # TODO: make task selection raise errors and catch them here, instead of returning none
+        # TODO: implement filtering step with nx.subgraph_view
         if agent.init_explore_step_completed:
             # this fails because we overide the initialisation
             """select a task"""

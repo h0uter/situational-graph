@@ -9,9 +9,9 @@ def benchmark_func():
     cfg = Config(
         # plot_lvl=PlotLvl.NONE,
         plot_lvl=PlotLvl.ALL,
-        num_agents=1,
+        num_agents=5,
         scenario=Scenario.SIM_MAZE_MEDIUM,
-        max_steps=400,
+        max_steps=200,
     )
 
     run_sar_usecase(cfg)

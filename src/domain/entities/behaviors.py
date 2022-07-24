@@ -1,6 +1,7 @@
 from enum import Enum, auto
 
 
+# TODO: add capabilities here.
 class Behaviors(Enum):
     GOTO = auto()
     EXPLORE = auto()
