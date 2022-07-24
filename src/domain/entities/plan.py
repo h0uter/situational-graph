@@ -5,12 +5,12 @@ from src.domain import Edge, Behaviors
 
 
 class Plan:
-    _edge_sequence: Sequence[Optional[Edge]]
+    _edge_sequence: list[Optional[Edge]]
     valid: bool
 
     # FIXME: make the plan be something that is generated and discarded.
     # make it destroy itself when it is empty or something fails.
-    def __init__(self, edge_sequence: Sequence[Optional[Edge]]) -> None:
+    def __init__(self, edge_sequence: list[Optional[Edge]]) -> None:
         self._edge_sequence = edge_sequence
         # self.valid = False
 
@@ -28,12 +28,12 @@ class Plan:
         return self._edge_sequence
 
     @property
-    def upcoming_edge(self) -> None:
+    def upcoming_edge(self) -> Optional[Edge]:
         return self[0]
 
     def invalidate(self) -> None:
         # self.valid = False
         self._edge_sequence = []
 
-    def mutate_success(self) -> None:
+    def mutate_success(self):
         self._edge_sequence.pop(0)

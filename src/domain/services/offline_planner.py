@@ -33,25 +33,17 @@ class OfflinePlanner:
 
         if not agent.task:
             raise CouldNotFindTask(f"Could not find a task for agent {agent.name}")
-            return self._check_if_tasks_exhausted(tosg)
 
         """ generate a plan"""
-        # if not agent.plan:
-        #     agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
-        #     if agent.plan is None:
-        #         agent.task = None
-
         if not agent.plan:
             try:
                 agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
             except CouldNotFindPlan:
                 self._log.error(f"Could not find a plan for task {agent.task}")
                 agent.clear_task()
-                # agent.clear_plan()
             except TargetNodeNotFound:
                 self._log.error(f"Could not find a target node for task {agent.task}")
                 agent.clear_task()
-                # agent.clear_plan()
 
         """ execute the plan"""
         if agent.plan and len(agent.plan) >= 1:
@@ -107,7 +99,7 @@ class OfflinePlanner:
 
     def _find_plan_for_task(
         self, agent_localized_to: Node, tosg: TOSG, task: Task
-    ) -> Optional[Plan]:
+    ) -> Plan:
         target_node = task.edge[1]
 
         if not self._check_target_still_valid(tosg, target_node):
