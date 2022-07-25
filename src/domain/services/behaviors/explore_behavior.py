@@ -161,7 +161,6 @@ class ExploreBehavior(AbstractBehavior):
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         """
-        print(agent.previous_pos)
         wp_at_previous_pos_candidates = tosg.get_nodes_of_type_in_margin(
             agent.previous_pos, self.cfg.PREV_POS_MARGIN, ObjectTypes.WAYPOINT
         )
@@ -212,7 +211,8 @@ class ExploreBehavior(AbstractBehavior):
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             tosg.add_frontier(frontier_pos_global, agent.at_wp)
 
-    #  10% of compute time goes to this function
+    #  10% of compute time goes to this function for single agent
+    # 50% of compute time goes to this function for multiple agents
     def __prune_frontiers(self, tosg: TOSG) -> None:
         for wp in tosg.waypoint_idxs:
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]

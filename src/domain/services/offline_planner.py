@@ -5,6 +5,14 @@ from src.configuration.config import Config
 from src.domain import TOSG, AbstractBehavior, Affordance, Behaviors, Node, Plan, Task
 from src.domain.services.abstract_agent import AbstractAgent
 
+class CouldNotFindPlan(Exception):
+    pass
+
+class CouldNotFindTask(Exception):
+    pass
+
+class TargetNodeNotFound(Exception):
+    pass
 
 class OfflinePlanner:
     def __init__(
@@ -22,13 +30,19 @@ class OfflinePlanner:
         """select a task"""
         if not agent.task:
             agent.task = self._task_selection(agent, tosg)
-
-        if not agent.task:
-            return self._check_if_tasks_exhausted(tosg)
+            if not agent.task:
+                raise CouldNotFindTask(f"Could not find a task for agent {agent.name}")
 
         """ generate a plan"""
         if not agent.plan:
-            agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
+            try:
+                agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
+            except CouldNotFindPlan:
+                self._log.error(f"Could not find a plan for task {agent.task}")
+                agent.clear_task()
+            except TargetNodeNotFound:
+                self._log.error(f"Could not find a target node for task {agent.task}")
+                agent.clear_task()
 
         """ execute the plan"""
         if agent.plan and len(agent.plan) >= 1:
@@ -57,7 +71,7 @@ class OfflinePlanner:
         if target_node is None:
             return False
         return tosg.G.has_node(target_node)
-
+    
     def _task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
         highest_utility = 0
         optimal_task = None
@@ -84,13 +98,21 @@ class OfflinePlanner:
 
     def _find_plan_for_task(
         self, agent_localized_to: Node, tosg: TOSG, task: Task
-    ) -> Optional[Plan]:
+    ) -> Plan:
         target_node = task.edge[1]
 
         if not self._check_target_still_valid(tosg, target_node):
-            return None
+            # return None
+            raise TargetNodeNotFound("Target node is not valid")
 
         edge_path = tosg.shortest_path(agent_localized_to, target_node)
+
+        # if the agent can find a plan for that task we remove the task
+        # this is necc for the initial task of exploration.
+        if edge_path is None:
+            tosg.tasks.remove(task)
+            # return None
+            raise CouldNotFindPlan(f"Could not find a plan for task {task}")
 
         return Plan(edge_path)
 
