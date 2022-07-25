@@ -30,9 +30,8 @@ class OfflinePlanner:
         """select a task"""
         if not agent.task:
             agent.task = self._task_selection(agent, tosg)
-
-        if not agent.task:
-            raise CouldNotFindTask(f"Could not find a task for agent {agent.name}")
+            if not agent.task:
+                raise CouldNotFindTask(f"Could not find a task for agent {agent.name}")
 
         """ generate a plan"""
         if not agent.plan:
@@ -107,6 +106,7 @@ class OfflinePlanner:
             raise TargetNodeNotFound("Target node is not valid")
 
         edge_path = tosg.shortest_path(agent_localized_to, target_node)
+
         # if the agent can find a plan for that task we remove the task
         # this is necc for the initial task of exploration.
         if edge_path is None:
