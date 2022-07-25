@@ -2,6 +2,7 @@ from enum import Enum
 
 from src.domain.entities.capabilities import Capabilities
 
+
 # TODO: add capabilities here.
 # TODO: make BaseBehaviors class to inherit from for specific domains
 class Behaviors(Enum):
@@ -16,7 +17,9 @@ class Behaviors(Enum):
     # PLAN_EXTRACTION_WO_EDGE = auto()
     # GUIDE_WP_EDGE = auto()
 
-    def __init__(self, required_capabilities: set[Capabilities], cost: float, description: str):
+    def __init__(
+        self, required_capabilities: set[Capabilities], cost: float, description: str
+    ):
         self.required_capabilities = required_capabilities
         self.cost = cost
         self.description = description

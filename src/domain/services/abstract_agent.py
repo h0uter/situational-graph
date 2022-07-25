@@ -17,8 +17,9 @@ class AbstractAgent(ABC):
 
     @abstractmethod
     def __init__(self, cfg: Config, capabilities: set[Capabilities], name_idx: int = 0) -> None:
-        self.name = name_idx
+        self.capabilities = capabilities
         self.cfg = cfg
+        self.name = name_idx
 
         self.at_wp: Node
         self.prev_wp: Node

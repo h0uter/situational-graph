@@ -1,18 +1,24 @@
+import copy
 import logging
 from typing import Mapping, Optional, Sequence, Type
+import networkx as nx
 
 from src.configuration.config import Config
-from src.domain import TOSG, AbstractBehavior, Affordance, Behaviors, Node, Plan, Task
+from src.domain import TOSG, AbstractBehavior, Affordance, Behaviors, Node, Plan, Task, Edge
 from src.domain.services.abstract_agent import AbstractAgent
+
 
 class CouldNotFindPlan(Exception):
     pass
 
+
 class CouldNotFindTask(Exception):
     pass
 
+
 class TargetNodeNotFound(Exception):
     pass
+
 
 class OfflinePlanner:
     def __init__(
@@ -27,9 +33,32 @@ class OfflinePlanner:
         self.AFFORDANCES = affordances
 
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
+        """filter the graph over the agent capabilities"""
+        def my_edge_filter(u, v, k) -> bool:
+            behavior_enum = tosg.G.edges[u, v, k]['type']  # Behaviors
+            for req_cap in behavior_enum.required_capabilities:
+                print(f"req_cap: {req_cap}")
+                if req_cap not in agent.capabilities:
+                    return False
+            return True
+
+
+        filtered_G = nx.subgraph_view(tosg.G, filter_edge=my_edge_filter)
+        print(filtered_G)
+        filtered_tosg = copy.deepcopy(tosg)
+        filtered_tosg.G = filtered_G
+
+        # TODO: so what I need to do is make these functions operate on an actual graph, not the complext tosg object
+        # a path over the filtered graphs can be executed on the tosg.
+        # need to refactor to tasks and graph
+
+        # A. refactor all tosg methods to just take a graph as argument.
+        # B make my filtered graph be a filtered tosg
+        
         """select a task"""
         if not agent.task:
-            agent.task = self._task_selection(agent, tosg)
+            # agent.task = self._task_selection(agent, tosg)
+            agent.task = self._task_selection(agent, filtered_tosg)
             if not agent.task:
                 raise CouldNotFindTask(f"Could not find a task for agent {agent.name}")
 
@@ -37,6 +66,7 @@ class OfflinePlanner:
         if not agent.plan:
             try:
                 agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
+                # agent.plan = self._find_plan_for_task(agent.at_wp, filtered_tosg, agent.task)
             except CouldNotFindPlan:
                 self._log.error(f"Could not find a plan for task {agent.task}")
                 agent.clear_task()
@@ -71,9 +101,9 @@ class OfflinePlanner:
         if target_node is None:
             return False
         return tosg.G.has_node(target_node)
-    
+
     def _task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
-        highest_utility = 0
+        highest_utility: float = 0
         optimal_task = None
 
         for task in tosg.tasks:

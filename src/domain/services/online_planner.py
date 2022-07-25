@@ -7,8 +7,6 @@ class OnlinePlanner(OfflinePlanner):
     '''This planner selects the optimal task and makes a plan each iteration'''
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
 
-        
-        
         # TODO: implement filtering step with nx.subgraph_view
         if agent.init_explore_step_completed:
             # this fails because we overide the initialisation
