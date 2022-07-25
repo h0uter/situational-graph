@@ -1,7 +1,6 @@
-from enum import Enum, auto
+from enum import Enum
 
-class Capabilities(Enum):
-    CAN_ASSESS = auto()
+from src.domain.entities.capabilities import Capabilities
 
 # TODO: add capabilities here.
 # TODO: make BaseBehaviors class to inherit from for specific domains

@@ -2,6 +2,7 @@ from src.domain.services.abstract_agent import AbstractAgent
 from src.data_providers.sim.local_grid_image_spoofer import LocalGridImageSpoofer
 from src.data_providers.sim.world_object_spoofer import WorldObjectSpoofer
 import numpy.typing as npt
+from src.domain.entities.capabilities import Capabilities
 
 from src.configuration.config import Config
 
@@ -9,8 +10,8 @@ from src.configuration.config import Config
 class SimulatedAgent(AbstractAgent):
     """provide a simulated agent"""
 
-    def __init__(self, cfg: Config, name_idx: int = 0) -> None:
-        super().__init__(cfg, name_idx)
+    def __init__(self, cfg: Config, capabilities: set[Capabilities], name_idx: int = 0) -> None:
+        super().__init__(cfg, capabilities, name_idx)
         self.lg_spoofer = LocalGridImageSpoofer(cfg)
         self.world_object_spoofer = WorldObjectSpoofer(cfg)
 

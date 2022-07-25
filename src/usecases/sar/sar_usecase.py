@@ -24,6 +24,8 @@ from src.usecases.utils.feedback import (
     feedback_pipeline_init,
     feedback_pipeline_single_step,
 )
+from src.domain.entities.capabilities import Capabilities
+
 
 
 def run_sar_usecase(cfg: Config):
@@ -92,10 +94,12 @@ def run_demo(
 
 
 def init_entities(cfg: Config):
+    capabilities = {Capabilities.CAN_ASSESS}
     if cfg.SCENARIO == Scenario.REAL:
-        agents = [SpotAgent(cfg)]
+        agents = [SpotAgent(cfg, capabilities)]
     else:
-        agents = [SimulatedAgent(cfg, i) for i in range(cfg.NUM_AGENTS)]
+        agents = [SimulatedAgent(cfg, capabilities)]
+        agents.extend([SimulatedAgent(cfg, set(), i) for i in range(1, cfg.NUM_AGENTS)])
 
     tosg = TOSG(cfg)
 

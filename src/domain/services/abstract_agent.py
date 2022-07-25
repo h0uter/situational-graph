@@ -8,6 +8,7 @@ from src.configuration.config import Config
 from src.domain import TOSG, Node, ObjectTypes, Plan, Task
 from src.domain.entities.local_grid import LocalGrid
 from src.domain.entities.world_object import WorldObject
+from src.domain.entities.capabilities import Capabilities
 from src.entrypoints.utils.event import post_event
 
 
@@ -15,7 +16,7 @@ class AbstractAgent(ABC):
     """ "This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
     @abstractmethod
-    def __init__(self, cfg: Config, name_idx: int = 0) -> None:
+    def __init__(self, cfg: Config, capabilities: set[Capabilities], name_idx: int = 0) -> None:
         self.name = name_idx
         self.cfg = cfg
 
