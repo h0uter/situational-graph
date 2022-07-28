@@ -6,10 +6,7 @@ from src.configuration.config import cfg, Scenario
 from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.domain import TOSG, OfflinePlanner
-from src.domain.entities.behaviors import Behaviors
-from src.domain.entities.objectives import Objectives
-from src.domain.entities.plan import Plan
-from src.domain.entities.task import Task
+from src.domain import Plan, Task, Objectives, Behaviors, Capabilities
 from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
@@ -24,7 +21,6 @@ from src.usecases.utils.feedback import (
     feedback_pipeline_init,
     feedback_pipeline_single_step,
 )
-from src.domain.entities.capabilities import Capabilities
 
 # FIXME: separate universal shit from initialization for specif SAR domain.
 
