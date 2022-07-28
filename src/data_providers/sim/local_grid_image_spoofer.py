@@ -1,15 +1,12 @@
 import numpy.typing as npt
 from PIL import Image
 
-from src.configuration.config import Config
+from src.configuration.config import cfg
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 
 class LocalGridImageSpoofer:
-    def __init__(self, cfg: Config) -> None:
-        self.cfg = cfg
-        # cfg = Config()
-
+    def __init__(self) -> None:
         self.lg_num_cells = cfg.LG_NUM_CELLS
         self.lg_cell_size_m = cfg.LG_CELL_SIZE_M
         self.total_map_len_in_m = cfg.TOTAL_MAP_LEN_M

@@ -34,13 +34,13 @@ from src.configuration.config import Config
 
 
 class SpotAgent(AbstractAgent):
-    def __init__(self, cfg: Config, capabilities: set[Capabilities]):
+    def __init__(self, capabilities: set[Capabilities]):
         """
         Main function for the SpotROS class.
         Gets config from ROS and initializes the wrapper.
         Holds lease from wrapper and updates all async tasks at the ROS rate
         """
-        super().__init__(cfg, capabilities)
+        super().__init__(capabilities)
 
         # self._logger = logging.getLogger(__name__)
         # self._logger = util.get_logger()
@@ -72,12 +72,12 @@ class SpotAgent(AbstractAgent):
         self.auto_stand = True
         self.timer_period = 0.1  # [second]
 
-        login_cfg = get_login_config()
+        credentials = get_login_config()
 
         self.spot_wrapper = SpotWrapper(
-            username=login_cfg.username,
-            password=login_cfg.password,
-            hostname=login_cfg.wifi_hostname,
+            username=credentials.username,
+            password=credentials.password,
+            hostname=credentials.wifi_hostname,
             logger=self._log,
         )
 

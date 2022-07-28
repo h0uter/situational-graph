@@ -1,13 +1,13 @@
 import logging
 import time
-from src.configuration.config import PlotLvl
+from src.configuration.config import PlotLvl, cfg
 
 import src.entrypoints.utils.event as event
 from src.utils.audio_feedback import play_file
 from src.utils.krm_stats import TOSGStats
 
 
-def feedback_pipeline_init(cfg):
+def feedback_pipeline_init():
     """Logging start."""
     step, start = 0, time.perf_counter()  # timing
     tosg_stats = TOSGStats()  # statistics logging object
@@ -38,7 +38,7 @@ def feedback_pipeline_single_step(
 
 
 def feedback_pipeline_completion(
-    cfg, step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
+    step, agents, tosg, tosg_stats, planning_pipelines, my_logger, start
 ):
     """Results"""
     my_logger.info(

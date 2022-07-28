@@ -2,7 +2,7 @@ import time
 from typing import Sequence
 
 import src.entrypoints.utils.event as event
-from src.configuration.config import Config, Scenario
+from src.configuration.config import cfg, Scenario
 from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.domain import TOSG, OfflinePlanner
@@ -28,26 +28,25 @@ from src.domain.entities.capabilities import Capabilities
 
 # FIXME: separate universal shit from initialization for specif SAR domain.
 
-def run_sar_usecase(cfg: Config):
-    agents, tosg, usecases, viz_listener = init_entities(cfg)
+def run_sar_usecase():
+    agents, tosg, usecases, viz_listener = init_entities()
     setup_usecase_common(tosg, agents, start_poses=[agent.pos for agent in agents])
 
     """setup the specifics of the usecase"""
     setup_exploration_usecase(tosg, agents)
 
-    success = run_demo(cfg, agents, tosg, usecases, viz_listener)
+    success = run_demo(agents, tosg, usecases, viz_listener)
     return success
 
 
 def run_demo(
-    cfg: Config,
     agents: Sequence[AbstractAgent],
     tosg: TOSG,
     planner: OnlinePlanner,
     viz_listener: VizualisationListener,
 ):
 
-    step, start, tosg_stats, my_logger = feedback_pipeline_init(cfg)
+    step, start, tosg_stats, my_logger = feedback_pipeline_init()
 
     # # HACK: for the task switch usecase
     # for agent in agents:
@@ -93,22 +92,22 @@ def run_demo(
     return mission_completed
 
 
-def init_entities(cfg: Config):
-    capabilities = {Capabilities.CAN_ASSESS}
+def init_entities():
+    a1_capabilities = {Capabilities.CAN_ASSESS}
     if cfg.SCENARIO == Scenario.REAL:
-        agents = [SpotAgent(cfg, capabilities)]
+        agents = [SpotAgent(a1_capabilities)]
     else:
-        agents = [SimulatedAgent(cfg, capabilities)]  # make the first agent only posses the capabilities
-        agents.extend([SimulatedAgent(cfg, set(), i) for i in range(1, cfg.NUM_AGENTS)])
+        agents = [SimulatedAgent(a1_capabilities)]  # make the first agent only posses the capabilities
+        agents.extend([SimulatedAgent(set(), i) for i in range(1, cfg.NUM_AGENTS)])
 
-    tosg = TOSG(cfg)
+    tosg = TOSG()
 
     domain_behaviors = SAR_BEHAVIORS
     affordances = SAR_AFFORDANCES
-    planner = OfflinePlanner(cfg, domain_behaviors, affordances)
-    # planner = OnlinePlanner(cfg, domain_behaviors, affordances)
+    planner = OfflinePlanner(domain_behaviors, affordances)
+    # planner = OnlinePlanner(domain_behaviors, affordances)
 
-    viz_listener = VizualisationListener(cfg)
+    viz_listener = VizualisationListener()
     viz_listener.setup_event_handler()
 
     return agents, tosg, planner, viz_listener
@@ -147,15 +146,15 @@ def setup_exploration_usecase(tosg: TOSG, agents: Sequence[AbstractAgent]):
         agent.plan = Plan([init_explore_edge])
 
 
-def run_task_switch_usecase(cfg: Config):
+def run_task_switch_usecase():
     cfg.AGENT_START_POS = (6.5, -14)
-    agents, tosg, usecases, viz_listener = init_entities(cfg)
+    agents, tosg, usecases, viz_listener = init_entities()
     setup_usecase_common(tosg, agents, start_poses=[agent.pos for agent in agents])
 
     setup_tosg_for_task_switch_result(tosg)
     for agent in agents:
         lg = agent.get_local_grid()
-        add_shortcut_edges_between_wps_on_lg(lg, tosg, agent, cfg)
+        add_shortcut_edges_between_wps_on_lg(lg, tosg, agent)
     """setup the specifics of the usecase"""
     # FIXME: so the task is added to the list but not selected.
     for agent in agents:

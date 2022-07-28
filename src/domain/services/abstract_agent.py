@@ -4,7 +4,7 @@ from typing import Optional, Sequence
 
 import numpy as np
 import numpy.typing as npt
-from src.configuration.config import Config
+from src.configuration.config import cfg
 from src.domain import TOSG, Node, ObjectTypes, Plan, Task
 from src.domain.entities.local_grid import LocalGrid
 from src.domain.entities.world_object import WorldObject
@@ -16,9 +16,8 @@ class AbstractAgent(ABC):
     """ "This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
     @abstractmethod
-    def __init__(self, cfg: Config, capabilities: set[Capabilities], name_idx: int = 0) -> None:
+    def __init__(self, capabilities: set[Capabilities], name_idx: int = 0) -> None:
         self.capabilities = capabilities
-        self.cfg = cfg
         self.name = name_idx
 
         self.at_wp: Node
@@ -51,7 +50,7 @@ class AbstractAgent(ABC):
         lg = LocalGrid(
             world_pos=self.get_localization(),
             img_data=lg_img,
-            cfg=self.cfg,
+            cfg=cfg,
         )
         post_event("new lg", lg)
 
@@ -109,8 +108,8 @@ class AbstractAgent(ABC):
 
         # this is to prevent the prev pos being messed up by a failed explore action
         if (
-            abs(target_pos[0] - actual_pos[0]) <= self.cfg.ARRIVAL_MARGIN
-            and abs(target_pos[1] - actual_pos[1]) <= self.cfg.ARRIVAL_MARGIN
+            abs(target_pos[0] - actual_pos[0]) <= cfg.ARRIVAL_MARGIN
+            and abs(target_pos[1] - actual_pos[1]) <= cfg.ARRIVAL_MARGIN
         ):
             # SUCCESS
             self.prev_wp = self.at_wp
@@ -130,7 +129,7 @@ class AbstractAgent(ABC):
     # perhaps something like this should go into robot services, to not murk the dependencies.
     def localize_to_waypoint(self, krm: TOSG):
         loc_candidates = krm.get_nodes_of_type_in_margin(
-            self.get_localization(), self.cfg.AT_WP_MARGIN, ObjectTypes.WAYPOINT
+            self.get_localization(), cfg.AT_WP_MARGIN, ObjectTypes.WAYPOINT
         )
 
         if len(loc_candidates) == 0:

@@ -3,16 +3,15 @@
 from src.entrypoints.utils.event import subscribe
 from src.entrypoints.mpl_vizualisation import MplVizualisation
 from src.entrypoints.vedo_vizualisation import VedoVisualisation
-from src.configuration.config import Config, Vizualiser, PlotLvl
+from src.configuration.config import cfg, Vizualiser, PlotLvl
 
 
 class VizualisationListener:
-    def __init__(self, cfg: Config):
-        self.cfg = cfg
+    def __init__(self):
         if cfg.VIZUALISER == Vizualiser.MATPLOTLIB:
-            self.viz = MplVizualisation(cfg)
+            self.viz = MplVizualisation()
         else:
-            self.viz = VedoVisualisation(cfg)
+            self.viz = VedoVisualisation()
 
     # BUG: multi agents all post their lg events and overwrite eachother
     # result is that you always see the lg of the last agent
@@ -21,8 +20,8 @@ class VizualisationListener:
 
     def handle_figure_update_event(self, data):
         if (
-            self.cfg.PLOT_LVL == PlotLvl.ALL
-            or self.cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY
+            cfg.PLOT_LVL == PlotLvl.ALL
+            or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY
         ):
             krm = data["krm"]
             agents = data["agents"]
@@ -30,7 +29,7 @@ class VizualisationListener:
             self.viz.figure_update(krm, agents, self.lg, usecases)
 
     def handle_figure_final_result_event(self, data):
-        if self.cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or self.cfg.PLOT_LVL == PlotLvl.ALL:
+        if cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or cfg.PLOT_LVL == PlotLvl.ALL:
             krm = data["krm"]
             agents = data["agents"]
             usecases = data["usecases"]

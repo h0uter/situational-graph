@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from uuid import uuid4
 
 import networkx as nx
-from src.configuration.config import Config
+from src.configuration.config import cfg
 from src.domain import (
     Affordance,
     Behaviors,
@@ -20,9 +20,9 @@ class TOSG:
     # TODO: separate behavior from data
     """Task-Oriented Situational Graph"""
 
-    def __init__(self, cfg: Config) -> None:
+    def __init__(self) -> None:
         self._log = logging.getLogger(__name__)
-        self.cfg = cfg
+        # self.cfg = cfg
 
         self.G = nx.MultiDiGraph()
         self.tasks: list[Task] = []

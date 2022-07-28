@@ -84,7 +84,7 @@ class ExploreBehavior(AbstractBehavior):
         # XXX: this is my 3nd expensive function, so I should try to optimize it
         self.__prune_frontiers(tosg)
         # self.__find_shortcuts_between_wps(lg, tosg, agent)
-        add_shortcut_edges_between_wps_on_lg(lg, tosg, agent, self.cfg)
+        add_shortcut_edges_between_wps_on_lg(lg, tosg, agent)
 
         """part 2: use perception service to sense new world objects"""
         # 1. obtain world objects in perception scene

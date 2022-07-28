@@ -3,7 +3,7 @@ import logging
 from typing import Mapping, Optional, Sequence, Type
 import networkx as nx
 
-from src.configuration.config import Config
+from src.configuration.config import cfg
 from src.domain import TOSG, AbstractBehavior, Affordance, Behaviors, Node, Plan, Task, Edge
 from src.domain.services.abstract_agent import AbstractAgent
 
@@ -23,11 +23,9 @@ class TargetNodeNotFound(Exception):
 class OfflinePlanner:
     def __init__(
         self,
-        cfg: Config,
         domain_behaviors: Mapping[Behaviors, Type[AbstractBehavior]],
         affordances: Sequence[Affordance],
     ) -> None:
-        self.cfg = cfg
         self._log = logging.getLogger(__name__)
         self.DOMAIN_BEHAVIORS = domain_behaviors
         self.AFFORDANCES = affordances
@@ -161,7 +159,7 @@ class OfflinePlanner:
 
         """Execute the behavior of the current edge"""
         result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](
-            self.cfg, self.AFFORDANCES
+            cfg, self.AFFORDANCES
         ).pipeline(agent, tosg, current_edge)
 
         # FIXME: this can be shorter

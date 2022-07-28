@@ -11,25 +11,24 @@ from src.domain.entities.object_types import ObjectTypes
 from src.domain.services.tosg import TOSG
 from src.domain.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.configuration.config import Config
+from src.configuration.config import cfg
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 
 class MplVizualisation(AbstractVizualisation):
-    def __init__(self, cfg: Config) -> None:
+    def __init__(self) -> None:
         self.agent_drawing = None
         self.local_grid_drawing = None
         self.initialized = False
 
-        self.cfg = cfg
         self.origin_x_offset = 0
         self.origin_y_offset = 0
 
         self.map_img = None
-        if self.cfg.MAP_PATH:
-            self.origin_x_offset = self.cfg.TOT_MAP_LEN_M_X / 2
-            self.origin_y_offset = self.cfg.TOT_MAP_LEN_M_Y / 2
-            upside_down_map_img = Image.open(self.cfg.MAP_PATH)
+        if cfg.MAP_PATH:
+            self.origin_x_offset = cfg.TOT_MAP_LEN_M_X / 2
+            self.origin_y_offset = cfg.TOT_MAP_LEN_M_Y / 2
+            upside_down_map_img = Image.open(cfg.MAP_PATH)
             self.map_img = img_axes2world_axes(upside_down_map_img)
 
         self.streamlit_unit = None
@@ -269,7 +268,7 @@ class MplVizualisation(AbstractVizualisation):
             self.init_fig()
 
         close_nodes = krm.get_nodes_of_type_in_margin(
-            lg.world_pos, self.cfg.LG_LENGTH_IN_M / 2, ObjectTypes.WAYPOINT
+            lg.world_pos, cfg.LG_LENGTH_IN_M / 2, ObjectTypes.WAYPOINT
         )
         points = [krm.get_node_data_by_node(node)["pos"] for node in close_nodes]
 
@@ -354,7 +353,7 @@ class MplVizualisation(AbstractVizualisation):
             self.draw_agent_and_sensor_range(
                 agent.get_localization(),
                 self.ax2,
-                rec_len=self.cfg.LG_LENGTH_IN_M,
+                rec_len=cfg.LG_LENGTH_IN_M,
                 circle_size=0.8,
             )
             if timer:
@@ -372,7 +371,7 @@ class MplVizualisation(AbstractVizualisation):
             self.draw_agent_and_sensor_range(
                 agent.get_localization(),
                 self.ax1,
-                rec_len=self.cfg.LG_LENGTH_IN_M,
+                rec_len=cfg.LG_LENGTH_IN_M,
                 circle_size=0.2,
             )
             if timer:

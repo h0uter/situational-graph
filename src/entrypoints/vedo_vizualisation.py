@@ -11,7 +11,7 @@ from src.domain.services.abstract_agent import AbstractAgent
 from src.domain import TOSG, ObjectTypes, LocalGrid, OfflinePlanner
 from src.domain.entities.node_and_edge import Node
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.configuration.config import Config, PlotLvl, Scenario
+from src.configuration.config import cfg, PlotLvl, Scenario
 
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
@@ -19,11 +19,10 @@ vedo.settings.allowInteraction = True
 
 
 class VedoVisualisation(AbstractVizualisation):
-    def __init__(self, cfg: Config) -> None:
-        self.cfg = cfg
-        self.factor = 1 / self.cfg.LG_CELL_SIZE_M
+    def __init__(self) -> None:
+        self.factor = 1 / cfg.LG_CELL_SIZE_M
 
-        TITLE = f"{self.cfg.SCENARIO} - {self.cfg.PLOT_LVL}"
+        TITLE = f"{cfg.SCENARIO} - {cfg.PLOT_LVL}"
 
         self.plt = vedo.Plotter(
             axes=13,
@@ -36,9 +35,9 @@ class VedoVisualisation(AbstractVizualisation):
         self.map_actor = None
 
         # NOTE: perhaps I just should not instantiate viz classes if we run headless
-        if self.cfg.PLOT_LVL is not PlotLvl.NONE:
-            if self.cfg.SCENARIO is not Scenario.REAL:
-                self.set_map(self.cfg.MAP_PATH)
+        if cfg.PLOT_LVL is not PlotLvl.NONE:
+            if cfg.SCENARIO is not Scenario.REAL:
+                self.set_map(cfg.MAP_PATH)
                 # map_pic = vedo.Picture(cfg.MAP_PATH)
                 # map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
                 # self.plt.show(map_pic, interactive=False)
@@ -56,12 +55,12 @@ class VedoVisualisation(AbstractVizualisation):
         time.sleep(0.1)
 
     def set_map(self, map_path: str) -> None:
-        if self.cfg.SCENARIO is not Scenario.REAL:
+        if cfg.SCENARIO is not Scenario.REAL:
             if self.map_actor:
                 self.plt.clear([self.map_actor])
 
             map_pic = vedo.Picture(map_path)
-            map_pic.x(-self.cfg.IMG_TOTAL_X_PIX // 2).y(-self.cfg.IMG_TOTAL_Y_PIX // 2)
+            map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
             self.map_actor = map_pic
             self.plt.add(self.map_actor)
 
@@ -200,7 +199,7 @@ class VedoVisualisation(AbstractVizualisation):
     def add_agents(self, agents, actors):
         for agent in agents:
             agent_pos = (self.factor * agent.pos[0], self.factor * agent.pos[1], 0)
-            grid_len = self.factor * self.cfg.LG_LENGTH_IN_M
+            grid_len = self.factor * cfg.LG_LENGTH_IN_M
             local_grid_viz = vedo.Grid(
                 pos=agent_pos, sx=grid_len, sy=grid_len, lw=2, alpha=0.3
             )
@@ -211,7 +210,7 @@ class VedoVisualisation(AbstractVizualisation):
             cone_r = self.factor * 1.35
             cone_height = self.factor * 3.1
             # FIXME: this is inconsistent
-            if self.cfg.SCENARIO == Scenario.REAL:
+            if cfg.SCENARIO == Scenario.REAL:
                 cone_r *= 0.4
                 cone_height *= 0.4
 
