@@ -185,7 +185,7 @@ class Config:
 # cfg = Config()
 # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
 # cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
-cfg = Config(num_agents=2)
+# cfg = Config(num_agents=2)
 # cfg = Config(num_agents=10, scenario=Scenario.SIM_MAZE_MEDIUM)
 # cfg = Config(plot_lvl=PlotLvl.NONE)
 # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
@@ -206,7 +206,7 @@ cfg = Config(num_agents=2)
 cfg = Config(
     # plot_lvl=PlotLvl.NONE,
     plot_lvl=PlotLvl.ALL,
-    num_agents=5,
-    scenario=Scenario.SIM_MAZE_MEDIUM,
-    max_steps=200,
+    num_agents=2,
+    # scenario=Scenario.SIM_MAZE_MEDIUM,
+    max_steps=400,
 )

@@ -36,7 +36,7 @@ def run_sar_usecase():
 
 
 def run_demo(
-    agents: Sequence[AbstractAgent],
+    agents: list[AbstractAgent],
     tosg: TOSG,
     planner: OnlinePlanner,
     viz_listener: VizualisationListener,
@@ -81,7 +81,7 @@ def run_demo(
         #             MAP_SWITCHED = True
 
     feedback_pipeline_completion(
-        cfg, step, agents, tosg, tosg_stats, planner, my_logger, start
+        step, agents, tosg, tosg_stats, planner, my_logger, start
     )
 
     # krm_stats.save()

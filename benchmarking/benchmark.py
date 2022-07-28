@@ -4,15 +4,11 @@ import os
 from src.usecases.sar.sar_usecase import run_sar_usecase
 
 
-def benchmark_func():
-    run_sar_usecase()
-
-
-def run_profiler_experiment():
+def run_profiler_benchmark():
     import cProfile
     import pstats
 
-    func_name = "benchmark_func()"
+    func_name = "run_sar_usecase()"
     # prof_name = f"{datetime.now().strftime('%Y%m%d-%H%M%S')}.profile"
     prof_name = f"{datetime.now().strftime('%Y%m%d-%H%M')}.profile"
 
@@ -26,5 +22,4 @@ def run_profiler_experiment():
 
 
 if __name__ == "__main__":
-    run_profiler_experiment()
-    # benchmark_func()
+    run_profiler_benchmark()

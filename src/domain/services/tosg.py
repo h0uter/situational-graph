@@ -22,14 +22,13 @@ class TOSG:
 
     def __init__(self) -> None:
         self._log = logging.getLogger(__name__)
-        # self.cfg = cfg
 
         self.G = nx.MultiDiGraph()
         self.tasks: list[Task] = []
 
     @property
     def waypoint_idxs(self) -> list[Node]:
-        """returns all frontier idxs in the graph"""
+        """returns all waypoints idxs in the graph"""
         return self.get_nodes_by_type(ObjectTypes.WAYPOINT)
 
     @property
@@ -45,6 +44,7 @@ class TOSG:
 
     def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
         """returns the shortest path between two nodes"""
+
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
 
@@ -61,13 +61,14 @@ class TOSG:
             self._log.error(f"shortest_path: No path found from {source} to {target}.")
             return None
 
-    def shortest_path_len(self, source: Node, target: Node) -> float:
+    def distance_astar(self, source: Node, target: Node) -> float:
         """returns the length of the shortest path between two nodes"""
+
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
 
         try:
-            path_len = nx.astar_path_length(
+            distance = nx.astar_path_length(
                 self.G,
                 source=source,
                 target=target,
@@ -75,10 +76,34 @@ class TOSG:
                 heuristic=dist_heur_wrapper,
             )
         except nx.NetworkXNoPath:
-            self._log.debug(f"shortest_path_len: No path found from {source} to {target}.")
-            path_len = float("inf")
+            self._log.debug(
+                f"shortest_path_len: No path found from {source} to {target}."
+            )
+            distance = float("inf")
 
-        return path_len
+        return distance
+
+    def distance_and_path_dijkstra(self, source: Node, targets: list[Node]) -> tuple[dict, dict]:
+        """returns the length of the shortest path between a single source and multiple targets"""
+
+        def dist_heur_wrapper(a: Node, b: Node):
+            return self.calc_edge_len(a, b)
+
+        try:
+            distance, path = nx.single_source_dijkstra(
+                self.G,
+                source=source,
+                # target=targets,
+                weight="cost",
+                # heuristic=dist_heur_wrapper,
+            )
+        except nx.NetworkXNoPath:
+            self._log.debug(
+                f"shortest_path_len: No path found from {source} to {targets}."
+            )
+            distance = {target: float("inf") for target in targets}
+
+        return distance, path
 
     def calc_edge_len(self, a: Node, b: Node) -> float:
         """calculates the distance between two nodes"""
@@ -147,7 +172,9 @@ class TOSG:
 
         return self.add_node_of_type(pos, ObjectTypes.WAYPOINT)
 
-    def add_waypoint_and_diedge(self, to_pos: tuple[float, float], from_node: Node) -> None:
+    def add_waypoint_and_diedge(
+        self, to_pos: tuple[float, float], from_node: Node
+    ) -> None:
         """adds new waypoints and increments wp the idx"""
         new_node = self.add_waypoint_node(to_pos)
         self.add_waypoint_diedge(new_node, from_node)
@@ -225,26 +252,33 @@ class TOSG:
         """
         Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.
         """
-        node_pos_data_dict = nx.get_node_attributes(self.G, "pos")
-        nodes_at_pos = [node for node, pos_data in node_pos_data_dict.items() if (
+        # XXX: solve this by using neighbors
+        # node_pos_data_dict = nx.get_node_attributes(self.G, "pos")
+        # nodes_at_pos = [
+        #     node
+        #     for node, pos_data in node_pos_data_dict.items()
+        #     if (
+        #         abs(pos[0] - pos_data[0]) < margin
+        #         and abs(pos[1] - pos_data[1]) < margin
+        #     )
+        # ]
+        # nodes_of_type = [
+        #     node for node in nodes_at_pos if self.G.nodes[node]["type"] == node_type
+        # ]
+        # return nodes_of_type
+
+        close_nodes = []
+        for node in self.G.nodes:
+            data = self.get_node_data_by_node(node)
+            if data["type"] == node_type:
+                pos_data = data["pos"]
+                if (
                     abs(pos[0] - pos_data[0]) < margin
                     and abs(pos[1] - pos_data[1]) < margin
-                )]
-        nodes_of_type = [node for node in nodes_at_pos if self.G.nodes[node]["type"] == node_type]
-        return nodes_of_type
+                ):
+                    close_nodes.append(node)
 
-        # close_nodes = []
-        # for node in self.G.nodes:
-        #     data = self.get_node_data_by_node(node)
-        #     if data["type"] == node_type:
-        #         pos_data = data["pos"]
-        #         if (
-        #             abs(pos[0] - pos_data[0]) < margin
-        #             and abs(pos[1] - pos_data[1]) < margin
-        #         ):
-        #             close_nodes.append(node)
-
-        # return close_nodes
+        return close_nodes
 
     def get_edge_with_lowest_weight(self, node_a: Node, node_b: Node) -> Edge:
         """returns the lowest weight edge between two nodes"""
@@ -269,7 +303,7 @@ class TOSG:
         """returns the type of the edge between two nodes"""
         if len(edge) == 2:
             yolo = self.G.edges[edge]["type"]
-            print(yolo)
+            # print(yolo)
             return yolo
         elif len(edge) == 3:
             node_a, node_b, edge_id = edge

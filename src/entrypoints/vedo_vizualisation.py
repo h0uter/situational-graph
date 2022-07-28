@@ -267,7 +267,7 @@ class VedoVisualisation(AbstractVizualisation):
         point = vedo.Point(
             (pos[0] * self.factor, pos[1] * self.factor, 0), r=35, c="blue"
         )
-        print(f"adding point {pos} to debug actors")
+        # print(f"adding point {pos} to debug actors")
         self.debug_actors.append(point)
 
         # FIXME: this is way to big in real scenario

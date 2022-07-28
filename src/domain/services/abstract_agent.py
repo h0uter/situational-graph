@@ -66,7 +66,7 @@ class AbstractAgent(ABC):
         pass
 
     @abstractmethod
-    def get_localization(self) -> tuple:
+    def get_localization(self) -> tuple[float, float]:
         pass
 
     @abstractmethod

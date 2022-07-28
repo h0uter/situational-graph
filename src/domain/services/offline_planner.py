@@ -42,16 +42,21 @@ class OfflinePlanner:
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
         """filter the graph over the agent capabilities"""
 
-        def my_edge_filter(u, v, k) -> bool:
+        def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
             behavior_enum = tosg.G.edges[u, v, k]["type"]  # Behaviors
             for req_cap in behavior_enum.required_capabilities:
                 if req_cap not in agent.capabilities:
                     return False
             return True
 
-        filtered_G = nx.subgraph_view(tosg.G, filter_edge=my_edge_filter)
-        print(filtered_G)
-        filtered_tosg = copy.deepcopy(tosg)
+        filtered_G = nx.subgraph_view(
+            tosg.G, filter_edge=filter_edges_based_on_agent_capabilities
+        )
+        # print(filtered_G)
+        # XXX: deepcopy is also a very expensive operation]
+        # filtered_tosg = copy.deepcopy(tosg)
+        filtered_tosg = TOSG()
+        filtered_tosg.tasks = tosg.tasks
         filtered_tosg.G = filtered_G
 
         # TODO: so what I need to do is make these functions operate on an actual graph, not the complext tosg object
@@ -78,7 +83,9 @@ class OfflinePlanner:
         if not agent.plan:
             try:
                 # TODO: make this also use the filtered_tosg
-                agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
+                agent.plan = self._find_plan_for_task(
+                    agent.at_wp, tosg, agent.task, filtered_tosg
+                )
                 # agent.plan = self._find_plan_for_task(agent.at_wp, filtered_tosg, agent.task)
             except CouldNotFindPlan:
                 self._log.error(f"Could not find a plan for task {agent.task}")
@@ -116,43 +123,112 @@ class OfflinePlanner:
         return tosg.G.has_node(target_node)
 
     def _task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
-        highest_utility: float = 0
-        optimal_task = None
+        # highest_utility: float = 0
+        # highest_utility = None
 
-        for task in tosg.tasks:
-            task_target_node = task.edge[1]
+        target_node_to_task = {task.edge[1]: task for task in tosg.tasks}
+        # for task in tosg.tasks:
 
-            # TODO: depending on the number of tasks switch between dijkstra lookup and A* lookup
-            path_cost = tosg.shortest_path_len(agent.at_wp, task_target_node)
+        # task_target_node = task.edge[1]
 
-            def calc_utility(reward: float, path_cost: float) -> float:
-                if path_cost == 0:
-                    return float("inf")
-                else:
-                    return reward / path_cost
+        path_costs, paths = tosg.distance_and_path_dijkstra(agent.at_wp, target_node_to_task.keys())
 
-            utility = calc_utility(task.reward, path_cost)
+        # TODO: depending on the number of tasks switch between dijkstra lookup and A* lookup
+        # path_cost = tosg.distance_astar(agent.at_wp, task_target_node)
 
-            if utility > highest_utility:
-                highest_utility = utility
-                optimal_task = task
+        def calc_utility(reward: float, path_cost: float) -> float:
+            if path_cost == 0:
+                return float("inf")
+            else:
+                return reward / path_cost
 
-        return optimal_task
+        # utility = calc_utility(task.reward, path_cost)
+        utility_to_task = {calc_utility(task.reward, path_costs[task.edge[1]]): task for task in tosg.tasks if task.edge[1] in path_costs}
+        highest_utility = max(utility_to_task.keys())
+        return utility_to_task[highest_utility]
+        # if utility > highest_utility:
+        #     highest_utility = utility
+        #     optimal_task = task
+
+        # return optimal_task
+
+    # def _task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
+    #     highest_utility: float = 0
+    #     optimal_task = None
+
+    #     for task in tosg.tasks:
+    #         task_target_node = task.edge[1]
+
+    #         # TODO: depending on the number of tasks switch between dijkstra lookup and A* lookup
+    #         path_cost = tosg.distance_astar(agent.at_wp, task_target_node)
+
+    #         def calc_utility(reward: float, path_cost: float) -> float:
+    #             if path_cost == 0:
+    #                 return float("inf")
+    #             else:
+    #                 return reward / path_cost
+
+    #         utility = calc_utility(task.reward, path_cost)
+
+    #         if utility > highest_utility:
+    #             highest_utility = utility
+    #             optimal_task = task
+
+    #     return optimal_task
+
+    # def _task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
+    #     highest_utility: float = 0
+    #     optimal_task = None
+
+    #     SWITCH_TASK_COUNT = 10
+
+    #     def calc_utility(reward: float, path_cost: float) -> float:
+    #         if path_cost == 0:
+    #             return float("inf")
+    #         else:
+    #             return reward / path_cost
+
+    #     task_to_target_node = {task: task.edge[1] for task in tosg.tasks}
+    #     if len(tosg.tasks) > SWITCH_TASK_COUNT:
+    #         # target_nodes = [task.edge[1] for task in tosg.tasks]
+    #         # path_costs, paths = tosg.distance_and_path_dijkstra(agent.at_wp, target_nodes)
+    #         path_costs, paths = tosg.distance_and_path_dijkstra(agent.at_wp, task_to_target_node.values())
+
+    #     else:
+    #         path_costs = {}
+    #         for task in tosg.tasks:
+    #             task_target_node = task.edge[1]
+
+    #             # TODO: depending on the number of tasks switch between dijkstra lookup and A* lookup
+    #             path_cost = tosg.distance_astar(agent.at_wp, task_target_node)
+    #             path_costs[task_target_node] = path_cost
+
+    #     task_to_path_cost = {task: path_costs[task.edge[1]] for task in tosg.tasks}
+
+    #     utilities = {task: calc_utility(task.reward, path_cost) for task, path_cost in path_costs.items()}
+
+    #     utility = calc_utility(task.reward, path_cost)
+
+    #     if utility > highest_utility:
+    #         highest_utility = utility
+    #         optimal_task = task
+
+    #     return optimal_task
 
     def _find_plan_for_task(
-        self, agent_localized_to: Node, tosg: TOSG, task: Task
+        self, agent_localized_to: Node, full_tosg: TOSG, task: Task, filtered_tosg: TOSG
     ) -> Plan:
         target_node = task.edge[1]
 
-        if not self._check_target_still_valid(tosg, target_node):
+        if not self._check_target_still_valid(full_tosg, target_node):
             raise TargetNodeNotFound("Target node is not valid")
 
-        edge_path = tosg.shortest_path(agent_localized_to, target_node)
+        edge_path = filtered_tosg.shortest_path(agent_localized_to, target_node)
 
         # if the agent can find a plan for that task we remove the task
         # this is necc for the initial task of exploration.
         if edge_path is None:
-            tosg.tasks.remove(task)
+            full_tosg.tasks.remove(task)
             raise CouldNotFindPlan(f"Could not find a plan for task {task}")
 
         return Plan(edge_path)
@@ -176,7 +252,7 @@ class OfflinePlanner:
 
         # FIXME: this can be shorter
         if result.success:
-            self._log.debug(f"the plan is {plan}")
+            # self._log.debug(f"the plan is {plan}")
             plan.mutate_success()
             if len(plan) == 0:
                 self._destroy_task(agent, tosg)

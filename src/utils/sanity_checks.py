@@ -17,7 +17,6 @@ def check_no_duplicate_wp_edges(krm: TOSG):
     for node_a in view.nodes():
         for node_b in view.nodes():
             if view.number_of_edges(node_a, node_b) > 1:
-                print()
                 raise Exception(
                     f"Duplicate waypoint edges in graph ({node_a} -> {node_b})"
                 )

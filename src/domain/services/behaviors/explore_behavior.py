@@ -215,10 +215,23 @@ class ExploreBehavior(AbstractBehavior):
     #  10% of compute time goes to this function for single agent
     # 50% of compute time goes to this function for multiple agents
     def __prune_frontiers(self, tosg: TOSG) -> None:
+
+        # frontiers = tosg.frontier_idxs
+        ft_and_pos = [(ft, tosg.G.nodes[ft]['pos']) for ft in tosg.frontier_idxs]
+
+        # XXX: this function is most expensive
+        # One solution would be using neightbors property in the graph
+        # so instead of doing it for the entire graph, only do it locally next to where the graph was modified
+        close_frontiers = set()  # avoid duplicates
+        
         for wp in tosg.waypoint_idxs:
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]
-            close_frontiers = tosg.get_nodes_of_type_in_margin(
-                wp_pos, cfg.PRUNE_RADIUS, ObjectTypes.FRONTIER
-            )
-            for frontier in close_frontiers:
-                tosg.remove_frontier(frontier)
+            for ft, ft_pos in ft_and_pos:
+                if (
+                    abs(wp_pos[0] - ft_pos[0]) < cfg.PRUNE_RADIUS
+                    and abs(wp_pos[1] - ft_pos[1]) < cfg.PRUNE_RADIUS
+                ):
+                    close_frontiers.add(ft)
+
+        for frontier in close_frontiers:
+            tosg.remove_frontier(frontier)
