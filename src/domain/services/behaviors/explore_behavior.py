@@ -16,6 +16,7 @@ from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg impo
     add_shortcut_edges_between_wps_on_lg,
 )
 from src.utils.saving_data_objects import load_something, save_something
+from src.configuration.config import cfg
 
 
 class ExploreBehavior(AbstractBehavior):
@@ -147,7 +148,7 @@ class ExploreBehavior(AbstractBehavior):
 
         nodes_near_where_i_ended_up = tosg.get_nodes_of_type_in_margin(
             agent.get_localization(),
-            self.cfg.ARRIVAL_MARGIN,
+            cfg.ARRIVAL_MARGIN,
             destination_node_type,
         )
 
@@ -162,7 +163,7 @@ class ExploreBehavior(AbstractBehavior):
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         """
         wp_at_previous_pos_candidates = tosg.get_nodes_of_type_in_margin(
-            agent.previous_pos, self.cfg.PREV_POS_MARGIN, ObjectTypes.WAYPOINT
+            agent.previous_pos, cfg.PREV_POS_MARGIN, ObjectTypes.WAYPOINT
         )
 
         if len(wp_at_previous_pos_candidates) == 0:
@@ -199,8 +200,8 @@ class ExploreBehavior(AbstractBehavior):
     ) -> Sequence:
 
         new_frontier_cells = lg.los_sample_frontiers_on_cellmap(
-            radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
-            num_frontiers_to_sample=self.cfg.N_SAMPLES,
+            radius=cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
+            num_frontiers_to_sample=cfg.N_SAMPLES,
         )
         self._log.debug(f"{agent.name}: found {len(new_frontier_cells)} new frontiers")
 
@@ -217,7 +218,7 @@ class ExploreBehavior(AbstractBehavior):
         for wp in tosg.waypoint_idxs:
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]
             close_frontiers = tosg.get_nodes_of_type_in_margin(
-                wp_pos, self.cfg.PRUNE_RADIUS, ObjectTypes.FRONTIER
+                wp_pos, cfg.PRUNE_RADIUS, ObjectTypes.FRONTIER
             )
             for frontier in close_frontiers:
                 tosg.remove_frontier(frontier)

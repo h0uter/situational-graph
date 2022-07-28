@@ -30,7 +30,6 @@ from src.data_providers.real.utils.get_login_config import get_login_config
 from src.domain.entities.capabilities import Capabilities
 
 # from src.entities.world_object import WorldObject
-from src.configuration.config import Config
 
 
 class SpotAgent(AbstractAgent):

@@ -10,7 +10,7 @@ from src.domain.services.behaviors.abstract_behavior import (
     AbstractBehavior,
     BehaviorResult,
 )
-from src.configuration.config import Config
+
 from src.domain.services.tosg import TOSG
 
 

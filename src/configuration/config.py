@@ -201,3 +201,12 @@ cfg = Config(num_agents=2)
 # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM)
 # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
 # cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
+
+'''benchmark'''
+cfg = Config(
+    # plot_lvl=PlotLvl.NONE,
+    plot_lvl=PlotLvl.ALL,
+    num_agents=5,
+    scenario=Scenario.SIM_MAZE_MEDIUM,
+    max_steps=200,
+)

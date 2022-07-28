@@ -50,7 +50,7 @@ class AbstractAgent(ABC):
         lg = LocalGrid(
             world_pos=self.get_localization(),
             img_data=lg_img,
-            cfg=cfg,
+            # cfg=cfg,
         )
         post_event("new lg", lg)
 

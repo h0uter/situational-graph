@@ -1,20 +1,11 @@
 from datetime import datetime
 import os
 
-from src.configuration.config import Config, Scenario, PlotLvl
 from src.usecases.sar.sar_usecase import run_sar_usecase
 
 
 def benchmark_func():
-    cfg = Config(
-        # plot_lvl=PlotLvl.NONE,
-        plot_lvl=PlotLvl.ALL,
-        num_agents=5,
-        scenario=Scenario.SIM_MAZE_MEDIUM,
-        max_steps=200,
-    )
-
-    run_sar_usecase(cfg)
+    run_sar_usecase()
 
 
 def run_profiler_experiment():

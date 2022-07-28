@@ -3,7 +3,7 @@ from src.domain.entities.local_grid import LocalGrid
 import numpy as np
 import pytest
 
-from src.configuration.config import Config
+from src.configuration.config import cfg
 
 
 def test_local_grid_init():
@@ -26,7 +26,7 @@ def test_world_coord_not_in_local_grid():
 def test_calc_length_num_cells():
     lg = LocalGrid((9, 9), np.array([]))
 
-    assert lg.length_num_cells == Config().LG_LENGTH_IN_M / Config().LG_CELL_SIZE_M
+    assert lg.length_num_cells == cfg.LG_LENGTH_IN_M / cfg.LG_CELL_SIZE_M
 
 
 # def test_world_coord2cell_idxs():

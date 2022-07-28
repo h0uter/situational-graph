@@ -8,7 +8,6 @@ from src.domain.services.behaviors.abstract_behavior import (
     AbstractBehavior,
     BehaviorResult,
 )
-from src.configuration.config import Config
 from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
 )

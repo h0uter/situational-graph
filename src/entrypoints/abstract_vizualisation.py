@@ -7,12 +7,11 @@ from src.domain.services.offline_planner import OfflinePlanner
 
 # from src.usecases.exploration_usecase import ExplorationUsecase
 from src.domain.entities.local_grid import LocalGrid
-from src.configuration.config import Config
 
 
 class AbstractVizualisation(ABC):
     @abstractmethod
-    def __init__(self, cfg: Config) -> None:
+    def __init__(self) -> None:
         pass
 
     @abstractmethod

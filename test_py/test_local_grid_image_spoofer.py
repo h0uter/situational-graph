@@ -5,7 +5,6 @@ from src.utils.coordinate_transforms import img_axes2world_axes
 from PIL import Image
 import numpy as np
 
-from src.configuration.config import Config
 
 def test_sim_calc_total_img_length_in_m():
     map_img = np.zeros((100, 100))

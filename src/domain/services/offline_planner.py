@@ -4,7 +4,16 @@ from typing import Mapping, Optional, Sequence, Type
 import networkx as nx
 
 from src.configuration.config import cfg
-from src.domain import TOSG, AbstractBehavior, Affordance, Behaviors, Node, Plan, Task, Edge
+from src.domain import (
+    TOSG,
+    AbstractBehavior,
+    Affordance,
+    Behaviors,
+    Node,
+    Plan,
+    Task,
+    Edge,
+)
 from src.domain.services.abstract_agent import AbstractAgent
 
 
@@ -32,8 +41,9 @@ class OfflinePlanner:
 
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
         """filter the graph over the agent capabilities"""
+
         def my_edge_filter(u, v, k) -> bool:
-            behavior_enum = tosg.G.edges[u, v, k]['type']  # Behaviors
+            behavior_enum = tosg.G.edges[u, v, k]["type"]  # Behaviors
             for req_cap in behavior_enum.required_capabilities:
                 if req_cap not in agent.capabilities:
                     return False
@@ -50,14 +60,16 @@ class OfflinePlanner:
 
         # A. refactor all tosg methods to just take a graph as argument.
         # B make my filtered graph be a filtered tosg
-        
+
         """select a task"""
         if not agent.task:
             # agent.task = self._task_selection(agent, tosg)
-            try: 
+            try:
                 agent.task = self._task_selection(agent, filtered_tosg)
                 if not agent.task:
-                    raise CouldNotFindTask(f"Could not find a task for agent {agent.name}")
+                    raise CouldNotFindTask(
+                        f"Could not find a task for agent {agent.name}"
+                    )
             except CouldNotFindTask as e:
                 self._log.error(e)
                 return False
@@ -159,7 +171,7 @@ class OfflinePlanner:
 
         """Execute the behavior of the current edge"""
         result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](
-            cfg, self.AFFORDANCES
+            self.AFFORDANCES
         ).pipeline(agent, tosg, current_edge)
 
         # FIXME: this can be shorter

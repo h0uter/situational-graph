@@ -8,7 +8,9 @@ from src.domain.entities.capabilities import Capabilities
 class SimulatedAgent(AbstractAgent):
     """provide a simulated agent"""
 
-    def __init__(self, capabilities: set[Capabilities], name_idx: int = 0) -> None:
+    def __init__(
+        self, capabilities: set[Capabilities] = set(), name_idx: int = 0
+    ) -> None:
         super().__init__(capabilities, name_idx)
         self.lg_spoofer = LocalGridImageSpoofer()
         self.world_object_spoofer = WorldObjectSpoofer()
