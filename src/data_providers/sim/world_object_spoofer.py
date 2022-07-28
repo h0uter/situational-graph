@@ -34,7 +34,9 @@ class WorldObjectSpoofer:
         # kinda waste of time to do line of sight check if the real robot does not need that....
         # to mimic the real fiducial server we should return an id and a transform...
 
-        DETECTION_MARGIN = 3.5
+        # TODO: add line of sight check
+
+        DETECTION_MARGIN = 2.5
         world_objects_in_scene = list()
         for spoof in self.world_object_list:
             if (

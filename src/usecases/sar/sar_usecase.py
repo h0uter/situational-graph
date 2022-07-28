@@ -26,7 +26,7 @@ from src.usecases.utils.feedback import (
 )
 from src.domain.entities.capabilities import Capabilities
 
-
+# FIXME: separate universal shit from initialization for specif SAR domain.
 
 def run_sar_usecase(cfg: Config):
     agents, tosg, usecases, viz_listener = init_entities(cfg)
@@ -98,7 +98,7 @@ def init_entities(cfg: Config):
     if cfg.SCENARIO == Scenario.REAL:
         agents = [SpotAgent(cfg, capabilities)]
     else:
-        agents = [SimulatedAgent(cfg, capabilities)]
+        agents = [SimulatedAgent(cfg, capabilities)]  # make the first agent only posses the capabilities
         agents.extend([SimulatedAgent(cfg, set(), i) for i in range(1, cfg.NUM_AGENTS)])
 
     tosg = TOSG(cfg)

@@ -37,11 +37,9 @@ class OfflinePlanner:
         def my_edge_filter(u, v, k) -> bool:
             behavior_enum = tosg.G.edges[u, v, k]['type']  # Behaviors
             for req_cap in behavior_enum.required_capabilities:
-                print(f"req_cap: {req_cap}")
                 if req_cap not in agent.capabilities:
                     return False
             return True
-
 
         filtered_G = nx.subgraph_view(tosg.G, filter_edge=my_edge_filter)
         print(filtered_G)
@@ -58,13 +56,18 @@ class OfflinePlanner:
         """select a task"""
         if not agent.task:
             # agent.task = self._task_selection(agent, tosg)
-            agent.task = self._task_selection(agent, filtered_tosg)
-            if not agent.task:
-                raise CouldNotFindTask(f"Could not find a task for agent {agent.name}")
+            try: 
+                agent.task = self._task_selection(agent, filtered_tosg)
+                if not agent.task:
+                    raise CouldNotFindTask(f"Could not find a task for agent {agent.name}")
+            except CouldNotFindTask as e:
+                self._log.error(e)
+                return False
 
         """ generate a plan"""
         if not agent.plan:
             try:
+                # TODO: make this also use the filtered_tosg
                 agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
                 # agent.plan = self._find_plan_for_task(agent.at_wp, filtered_tosg, agent.task)
             except CouldNotFindPlan:
@@ -76,6 +79,7 @@ class OfflinePlanner:
 
         """ execute the plan"""
         if agent.plan and len(agent.plan) >= 1:
+            # TODO: make this also use the filtered_tosg
             agent.plan = self._plan_execution(agent, tosg, agent.plan)
 
             if agent.plan and len(agent.plan) == 0:
@@ -90,7 +94,6 @@ class OfflinePlanner:
         if agent.task:
             if agent.task in tosg.tasks:
                 tosg.tasks.remove(agent.task)
-                # tosg.destroy_task_and_edge(agent.task)
         self._log.debug(f"{agent.name}: destroying task  {agent.task}")
 
         agent.clear_task()
@@ -107,9 +110,9 @@ class OfflinePlanner:
         optimal_task = None
 
         for task in tosg.tasks:
-
             task_target_node = task.edge[1]
 
+            # TODO: depending on the number of tasks switch between dijkstra lookup and A* lookup
             path_cost = tosg.shortest_path_len(agent.at_wp, task_target_node)
 
             def calc_utility(reward: float, path_cost: float) -> float:
@@ -132,7 +135,6 @@ class OfflinePlanner:
         target_node = task.edge[1]
 
         if not self._check_target_still_valid(tosg, target_node):
-            # return None
             raise TargetNodeNotFound("Target node is not valid")
 
         edge_path = tosg.shortest_path(agent_localized_to, target_node)
@@ -141,7 +143,6 @@ class OfflinePlanner:
         # this is necc for the initial task of exploration.
         if edge_path is None:
             tosg.tasks.remove(task)
-            # return None
             raise CouldNotFindPlan(f"Could not find a plan for task {task}")
 
         return Plan(edge_path)

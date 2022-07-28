@@ -61,7 +61,7 @@ class TOSG:
             self._log.error(f"shortest_path: No path found from {source} to {target}.")
             return None
 
-    def shortest_path_len(self, source: Node, target: Node) -> Optional[float]:
+    def shortest_path_len(self, source: Node, target: Node) -> float:
         """returns the length of the shortest path between two nodes"""
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
@@ -142,12 +142,12 @@ class TOSG:
         self.G.add_node(node_uuid, pos=pos, type=object_type)
         return node_uuid
 
-    def add_waypoint_node(self, pos: tuple) -> Node:
+    def add_waypoint_node(self, pos: tuple[float, float]) -> Node:
         """adds start points to the graph"""
 
         return self.add_node_of_type(pos, ObjectTypes.WAYPOINT)
 
-    def add_waypoint_and_diedge(self, to_pos: tuple, from_node: Node) -> None:
+    def add_waypoint_and_diedge(self, to_pos: tuple[float, float], from_node: Node) -> None:
         """adds new waypoints and increments wp the idx"""
         new_node = self.add_waypoint_node(to_pos)
         self.add_waypoint_diedge(new_node, from_node)
@@ -165,7 +165,7 @@ class TOSG:
         self.add_edge_of_type(node_a, node_b, Behaviors.GOTO)
         self.add_edge_of_type(node_b, node_a, Behaviors.GOTO)
 
-    def add_frontier(self, pos: tuple, from_node: Node) -> None:
+    def add_frontier(self, pos: tuple[float, float], from_node: Node) -> None:
         """adds a frontier to the graph"""
 
         ft_node = self.add_node_of_type(pos, ObjectTypes.FRONTIER)
@@ -208,7 +208,7 @@ class TOSG:
             if task.edge == edge:
                 return task
 
-    def get_node_by_pos(self, pos: tuple) -> Node:
+    def get_node_by_pos(self, pos: tuple[float, float]) -> Node:
         """returns the node idx at the given position"""
         for node in self.G.nodes():
             if self.G.nodes[node]["pos"] == pos:
@@ -276,6 +276,7 @@ class TOSG:
             return self.G.edges[node_a, node_b, edge_id]["type"]
         else:
             self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
+            return None
 
     def remove_invalid_tasks(self):
         """removes all tasks that are not valid anymore"""

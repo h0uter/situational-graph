@@ -179,3 +179,5 @@ class Config:
         ) * self.IMG_TOTAL_Y_PIX
         self.TOTAL_MAP_LEN_M = (self.TOT_MAP_LEN_M_X, self.TOT_MAP_LEN_M_Y)
         self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
+
+cfg = Config()
