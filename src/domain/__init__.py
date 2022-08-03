@@ -13,7 +13,8 @@ __all__ = [
     "AbstractBehavior",
     "BehaviorResult",
     "Capabilities",
-    "OnlinePlanner"
+    "OnlinePlanner",
+    "WorldObject"
 ]
 
 # import domain model
@@ -26,6 +27,7 @@ from src.domain.entities.local_grid import LocalGrid
 from src.domain.entities.plan import Plan
 from src.domain.entities.capabilities import Capabilities
 from src.domain.entities.affordance import Affordance
+from src.domain.entities.world_object import WorldObject
 
 # import domain services
 from src.domain.services.tosg import TOSG

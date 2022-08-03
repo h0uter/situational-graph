@@ -9,9 +9,9 @@ from src.domain import (
     AbstractBehavior,
     BehaviorResult,
     TOSG,
+    Affordance,
+    WorldObject,
 )
-from src.domain.entities.affordance import Affordance
-from src.domain.entities.world_object import WorldObject
 from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
 )
@@ -212,18 +212,16 @@ class ExploreBehavior(AbstractBehavior):
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             tosg.add_frontier(frontier_pos_global, agent.at_wp)
 
-    #  10% of compute time goes to this function for single agent
     # 50% of compute time goes to this function for multiple agents
     def __prune_frontiers(self, tosg: TOSG) -> None:
 
-        # frontiers = tosg.frontier_idxs
-        ft_and_pos = [(ft, tosg.G.nodes[ft]['pos']) for ft in tosg.frontier_idxs]
+        ft_and_pos = [(ft, tosg.G.nodes[ft]["pos"]) for ft in tosg.frontier_idxs]
 
         # XXX: this function is most expensive
         # One solution would be using neightbors property in the graph
         # so instead of doing it for the entire graph, only do it locally next to where the graph was modified
         close_frontiers = set()  # avoid duplicates
-        
+
         for wp in tosg.waypoint_idxs:
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]
             for ft, ft_pos in ft_and_pos:

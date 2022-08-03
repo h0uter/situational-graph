@@ -196,7 +196,7 @@ class VedoVisualisation(AbstractVizualisation):
                 ).z(action_path_offset)
                 actors.append(ft_edge_actor)
 
-    def add_agents(self, agents, actors):
+    def add_agents(self, agents: list[AbstractAgent], actors):
         for agent in agents:
             agent_pos = (self.factor * agent.pos[0], self.factor * agent.pos[1], 0)
             grid_len = self.factor * cfg.LG_LENGTH_IN_M
@@ -218,23 +218,21 @@ class VedoVisualisation(AbstractVizualisation):
             agent_label = f"Agent {agent.name}"
             agent_actor.caption(agent_label, size=(0.05, 0.025))
 
-            if agent.task:
-                task_print = (
-                    str(agent.task.objective_enum)
-                    .removeprefix("Objectives.")
-                    .replace("_", " ")
-                    .rjust(25)
-                )
-                agent_actor.legend(f"{task_print}")
-            else:
-                # agent_actor.legend(f"{agent.task}")
-                agent_actor.legend(f"No task selected".rjust(25))
+            if agent.name == 0:
+                if agent.task:
+                    task_print = (
+                        str(agent.task.objective_enum)
+                        .removeprefix("Objectives.")
+                        .replace("_", " ")
+                        .rjust(25)
+                    )
+                    agent_actor.legend(f"{task_print}")
+                else:
+                    agent_actor.legend(f"No task selected".rjust(25))
 
-            # actors.append(agent_actor)
-            # lbox = vedo.LegendBox([agent_actor], width=0.25)
-            lbox = vedo.LegendBox([agent_actor], width=0.5)
-            actors.append(lbox)
-            self.actors_which_need_to_be_cleared.append(lbox)
+                lbox = vedo.LegendBox([agent_actor], width=0.5)
+                actors.append(lbox)
+                self.actors_which_need_to_be_cleared.append(lbox)
 
             actors.append(agent_actor)
             self.actors_which_need_to_be_cleared.append(agent_actor._caption)

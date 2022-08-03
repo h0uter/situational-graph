@@ -206,7 +206,8 @@ class Config:
 cfg = Config(
     # plot_lvl=PlotLvl.NONE,
     plot_lvl=PlotLvl.ALL,
+    # num_agents=10,
     num_agents=2,
     # scenario=Scenario.SIM_MAZE_MEDIUM,
-    max_steps=400,
+    # max_steps=400,
 )
