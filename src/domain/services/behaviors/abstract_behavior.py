@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Sequence
 
 from src.domain import TOSG, Edge, Affordance
-from src.configuration.config import Config
+from src.configuration.config import cfg
 from src.domain.services.abstract_agent import AbstractAgent
 
 
@@ -15,8 +15,7 @@ class BehaviorResult:
 
 
 class AbstractBehavior(ABC):
-    def __init__(self, cfg: Config, affordances: Sequence[Affordance]) -> None:
-        self.cfg = cfg
+    def __init__(self, affordances: Sequence[Affordance]) -> None:
         self._log = logging.getLogger(__name__)
         self.AFFORDANCES = affordances
 

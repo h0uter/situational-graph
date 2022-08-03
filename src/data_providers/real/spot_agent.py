@@ -20,25 +20,26 @@ from bosdyn.client.frame_helpers import (
     get_a_tform_b,
     get_vision_tform_body,
 )
+from src.domain.entities.capabilities import Capabilities
 
 from src.utils.fiducial_2_world_object_labels import create_wo_from_fiducial
 from src.data_providers.real.utils.spot_wrapper import SpotWrapper
 from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.entities.local_grid import LocalGrid
 from src.data_providers.real.utils.get_login_config import get_login_config
+from src.domain.entities.capabilities import Capabilities
 
 # from src.entities.world_object import WorldObject
-from src.configuration.config import Config
 
 
 class SpotAgent(AbstractAgent):
-    def __init__(self, cfg: Config):
+    def __init__(self, capabilities: set[Capabilities]):
         """
         Main function for the SpotROS class.
         Gets config from ROS and initializes the wrapper.
         Holds lease from wrapper and updates all async tasks at the ROS rate
         """
-        super().__init__(cfg)
+        super().__init__(capabilities)
 
         # self._logger = logging.getLogger(__name__)
         # self._logger = util.get_logger()
@@ -70,12 +71,12 @@ class SpotAgent(AbstractAgent):
         self.auto_stand = True
         self.timer_period = 0.1  # [second]
 
-        login_cfg = get_login_config()
+        credentials = get_login_config()
 
         self.spot_wrapper = SpotWrapper(
-            username=login_cfg.username,
-            password=login_cfg.password,
-            hostname=login_cfg.wifi_hostname,
+            username=credentials.username,
+            password=credentials.password,
+            hostname=credentials.wifi_hostname,
             logger=self._log,
         )
 

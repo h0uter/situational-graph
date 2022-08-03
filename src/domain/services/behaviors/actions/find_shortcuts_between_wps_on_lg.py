@@ -1,4 +1,4 @@
-from src.configuration.config import Config
+from src.configuration.config import cfg
 from src.domain.entities.local_grid import LocalGrid
 from src.domain.entities.object_types import ObjectTypes
 from src.domain.services.abstract_agent import AbstractAgent
@@ -7,7 +7,7 @@ from src.domain.services.tosg import TOSG
 
 # BUG: on the real robot sometimes impossible shortcuts are added.
 def add_shortcut_edges_between_wps_on_lg(
-    lg: LocalGrid, tosg: TOSG, agent: AbstractAgent, cfg: Config
+    lg: LocalGrid, tosg: TOSG, agent: AbstractAgent
 ):
     close_nodes = tosg.get_nodes_of_type_in_margin(
         lg.world_pos, cfg.WP_SHORTCUT_MARGIN, ObjectTypes.WAYPOINT

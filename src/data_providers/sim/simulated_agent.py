@@ -2,17 +2,18 @@ from src.domain.services.abstract_agent import AbstractAgent
 from src.data_providers.sim.local_grid_image_spoofer import LocalGridImageSpoofer
 from src.data_providers.sim.world_object_spoofer import WorldObjectSpoofer
 import numpy.typing as npt
-
-from src.configuration.config import Config
+from src.domain.entities.capabilities import Capabilities
 
 
 class SimulatedAgent(AbstractAgent):
     """provide a simulated agent"""
 
-    def __init__(self, cfg: Config, name_idx: int = 0) -> None:
-        super().__init__(cfg, name_idx)
-        self.lg_spoofer = LocalGridImageSpoofer(cfg)
-        self.world_object_spoofer = WorldObjectSpoofer(cfg)
+    def __init__(
+        self, capabilities: set[Capabilities] = set(), name_idx: int = 0
+    ) -> None:
+        super().__init__(capabilities, name_idx)
+        self.lg_spoofer = LocalGridImageSpoofer()
+        self.world_object_spoofer = WorldObjectSpoofer()
 
     def _get_local_grid_img(self) -> npt.NDArray:
         return self.lg_spoofer.sim_spoof_local_grid_from_img_world(self.pos)
@@ -20,7 +21,9 @@ class SimulatedAgent(AbstractAgent):
     def get_localization(self) -> tuple[float, float]:
         return self.pos
 
-    def _move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
+    def _move_to_pos_implementation(
+        self, target_pos: tuple[float, float], target_heading: float
+    ):
         self.__teleport_to_pos(target_pos)
 
     def __teleport_to_pos(self, pos: tuple[float, float]) -> None:

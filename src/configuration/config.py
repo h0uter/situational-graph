@@ -6,6 +6,7 @@ from enum import Enum, IntEnum, auto
 
 import coloredlogs
 
+"""User Configuration can be found at the bottom of this file"""
 
 class Scenario(Enum):
     SIM_VILLA = auto()
@@ -179,3 +180,34 @@ class Config:
         ) * self.IMG_TOTAL_Y_PIX
         self.TOTAL_MAP_LEN_M = (self.TOT_MAP_LEN_M_X, self.TOT_MAP_LEN_M_Y)
         self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
+
+"""Set configuration here"""
+# cfg = Config()
+# cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
+# cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
+# cfg = Config(num_agents=2)
+# cfg = Config(num_agents=10, scenario=Scenario.SIM_MAZE_MEDIUM)
+# cfg = Config(plot_lvl=PlotLvl.NONE)
+# cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
+# cfg = Config(scenario=Scenario.SIM_MAZE)
+# cfg = Config(scenario=Scenario.SIM_VILLA, vizualiser=Vizualiser.MATPLOTLIB)
+# cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, scenario=Scenario.SIM_MAZE_MEDIUM)
+
+# cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
+# cfg = Config(scenario=Scenario.REAL)
+
+# cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
+# cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)
+# cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM)
+# cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
+# cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
+
+'''benchmark'''
+cfg = Config(
+    # plot_lvl=PlotLvl.NONE,
+    plot_lvl=PlotLvl.ALL,
+    # num_agents=10,
+    num_agents=2,
+    # scenario=Scenario.SIM_MAZE_MEDIUM,
+    # max_steps=400,
+)

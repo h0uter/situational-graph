@@ -5,16 +5,16 @@ import numpy as np
 import numpy.typing as npt
 from skimage import draw
 
-from src.configuration.config import Config, Scenario
+from src.configuration.config import cfg, Scenario
+
 
 
 class LocalGrid:
-    def __init__(self, world_pos: tuple, img_data: npt.NDArray, cfg: Config = Config()):
+    def __init__(self, world_pos: tuple, img_data: npt.NDArray):
         self._logger = logging.getLogger(__name__)
 
         self.world_pos = world_pos
         self.data = img_data
-        self.cfg = cfg
         self.length_in_m = cfg.LG_LENGTH_IN_M
         self.cell_size_in_m = cfg.LG_CELL_SIZE_M
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
@@ -60,7 +60,7 @@ class LocalGrid:
         """
         # somehow switched between spot grid and my own grid
         # FIXME: need to make sim equal to spot
-        if self.cfg.SCENARIO == Scenario.REAL:
+        if cfg.SCENARIO == Scenario.REAL:
             x_coord = (
                 # self.world_pos[0] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
                 self.world_pos[0]
@@ -109,7 +109,7 @@ class LocalGrid:
         self, at: tuple, to: tuple
     ) -> tuple:
         # FIXME: make my loaded images consistent with the spot local grid somehow
-        if self.cfg.SCENARIO == Scenario.REAL:
+        if cfg.SCENARIO == Scenario.REAL:
             # FIXME: spot obstacle map has rr and cc flipped somehow
             rr, cc = self._get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
@@ -124,7 +124,7 @@ class LocalGrid:
                     return False, collision_point
             return True, None
 
-        if self.cfg.SCENARIO == Scenario.SIM_MAZE_MEDIUM:
+        if cfg.SCENARIO == Scenario.SIM_MAZE_MEDIUM:
             rr, cc = self._get_cells_under_line(at, to)
             for r, c in zip(rr, cc):
                 if np.greater(

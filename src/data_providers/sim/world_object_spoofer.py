@@ -1,10 +1,10 @@
-from src.configuration.config import Config, Scenario
+from src.configuration.config import cfg, Scenario
 from src.domain.entities.object_types import ObjectTypes
 from src.domain.entities.world_object import WorldObject
 
 
 class WorldObjectSpoofer:
-    def __init__(self, cfg: Config) -> None:
+    def __init__(self) -> None:
         self.world_object_list = []
 
         if cfg.SCENARIO == Scenario.SIM_VILLA:
@@ -34,7 +34,9 @@ class WorldObjectSpoofer:
         # kinda waste of time to do line of sight check if the real robot does not need that....
         # to mimic the real fiducial server we should return an id and a transform...
 
-        DETECTION_MARGIN = 3.5
+        # TODO: add line of sight check
+
+        DETECTION_MARGIN = 2.5
         world_objects_in_scene = list()
         for spoof in self.world_object_list:
             if (
