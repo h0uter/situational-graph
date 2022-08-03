@@ -1,26 +1,14 @@
 from datetime import datetime
 import os
 
-from src.configuration.config import Config, Scenario, PlotLvl
 from src.usecases.sar.sar_usecase import run_sar_usecase
 
 
-def benchmark_func():
-    cfg = Config(
-        plot_lvl=PlotLvl.NONE,
-        num_agents=1,
-        scenario=Scenario.SIM_MAZE_MEDIUM,
-        max_steps=150,
-    )
-
-    run_sar_usecase(cfg)
-
-
-def basic_profiler_test():
+def run_profiler_benchmark():
     import cProfile
     import pstats
 
-    func_name = "benchmark_func()"
+    func_name = "run_sar_usecase()"
     # prof_name = f"{datetime.now().strftime('%Y%m%d-%H%M%S')}.profile"
     prof_name = f"{datetime.now().strftime('%Y%m%d-%H%M')}.profile"
 
@@ -34,4 +22,4 @@ def basic_profiler_test():
 
 
 if __name__ == "__main__":
-    basic_profiler_test()
+    run_profiler_benchmark()

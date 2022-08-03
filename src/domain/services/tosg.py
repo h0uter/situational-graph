@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from uuid import uuid4
 
 import networkx as nx
-from src.configuration.config import Config
+from src.configuration.config import cfg
 from src.domain import (
     Affordance,
     Behaviors,
@@ -20,16 +20,15 @@ class TOSG:
     # TODO: separate behavior from data
     """Task-Oriented Situational Graph"""
 
-    def __init__(self, cfg: Config) -> None:
+    def __init__(self) -> None:
         self._log = logging.getLogger(__name__)
-        self.cfg = cfg
 
         self.G = nx.MultiDiGraph()
         self.tasks: list[Task] = []
 
     @property
     def waypoint_idxs(self) -> list[Node]:
-        """returns all frontier idxs in the graph"""
+        """returns all waypoints idxs in the graph"""
         return self.get_nodes_by_type(ObjectTypes.WAYPOINT)
 
     @property
@@ -45,6 +44,7 @@ class TOSG:
 
     def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
         """returns the shortest path between two nodes"""
+
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
 
@@ -61,20 +61,49 @@ class TOSG:
             self._log.error(f"shortest_path: No path found from {source} to {target}.")
             return None
 
-    def shortest_path_len(self, source: Node, target: Node) -> Optional[float]:
+    def distance_astar(self, source: Node, target: Node) -> float:
         """returns the length of the shortest path between two nodes"""
+
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
 
-        path_len = nx.astar_path_length(
-            self.G,
-            source=source,
-            target=target,
-            weight="cost",
-            heuristic=dist_heur_wrapper,
-        )
+        try:
+            distance = nx.astar_path_length(
+                self.G,
+                source=source,
+                target=target,
+                weight="cost",
+                heuristic=dist_heur_wrapper,
+            )
+        except nx.NetworkXNoPath:
+            self._log.debug(
+                f"shortest_path_len: No path found from {source} to {target}."
+            )
+            distance = float("inf")
 
-        return path_len
+        return distance
+
+    def distance_and_path_dijkstra(self, source: Node, targets: list[Node]) -> tuple[dict, dict]:
+        """returns the length of the shortest path between a single source and multiple targets"""
+
+        def dist_heur_wrapper(a: Node, b: Node):
+            return self.calc_edge_len(a, b)
+
+        try:
+            distance, path = nx.single_source_dijkstra(
+                self.G,
+                source=source,
+                # target=targets,
+                weight="cost",
+                # heuristic=dist_heur_wrapper,
+            )
+        except nx.NetworkXNoPath:
+            self._log.debug(
+                f"shortest_path_len: No path found from {source} to {targets}."
+            )
+            distance = {target: float("inf") for target in targets}
+
+        return distance, path
 
     def calc_edge_len(self, a: Node, b: Node) -> float:
         """calculates the distance between two nodes"""
@@ -138,12 +167,14 @@ class TOSG:
         self.G.add_node(node_uuid, pos=pos, type=object_type)
         return node_uuid
 
-    def add_waypoint_node(self, pos: tuple) -> Node:
+    def add_waypoint_node(self, pos: tuple[float, float]) -> Node:
         """adds start points to the graph"""
 
         return self.add_node_of_type(pos, ObjectTypes.WAYPOINT)
 
-    def add_waypoint_and_diedge(self, to_pos: tuple, from_node: Node) -> None:
+    def add_waypoint_and_diedge(
+        self, to_pos: tuple[float, float], from_node: Node
+    ) -> None:
         """adds new waypoints and increments wp the idx"""
         new_node = self.add_waypoint_node(to_pos)
         self.add_waypoint_diedge(new_node, from_node)
@@ -161,7 +192,7 @@ class TOSG:
         self.add_edge_of_type(node_a, node_b, Behaviors.GOTO)
         self.add_edge_of_type(node_b, node_a, Behaviors.GOTO)
 
-    def add_frontier(self, pos: tuple, from_node: Node) -> None:
+    def add_frontier(self, pos: tuple[float, float], from_node: Node) -> None:
         """adds a frontier to the graph"""
 
         ft_node = self.add_node_of_type(pos, ObjectTypes.FRONTIER)
@@ -204,7 +235,7 @@ class TOSG:
             if task.edge == edge:
                 return task
 
-    def get_node_by_pos(self, pos: tuple) -> Node:
+    def get_node_by_pos(self, pos: tuple[float, float]) -> Node:
         """returns the node idx at the given position"""
         for node in self.G.nodes():
             if self.G.nodes[node]["pos"] == pos:
@@ -214,20 +245,36 @@ class TOSG:
         """returns the node data dict"""
         return self.G.nodes[node]
 
+    # this function is 9% of total comopute
     def get_nodes_of_type_in_margin(
         self, pos: tuple[float, float], margin: float, node_type: ObjectTypes
     ) -> list:
         """
         Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.
         """
+        # XXX: solve this by using neighbors
+        # node_pos_data_dict = nx.get_node_attributes(self.G, "pos")
+        # nodes_at_pos = [
+        #     node
+        #     for node, pos_data in node_pos_data_dict.items()
+        #     if (
+        #         abs(pos[0] - pos_data[0]) < margin
+        #         and abs(pos[1] - pos_data[1]) < margin
+        #     )
+        # ]
+        # nodes_of_type = [
+        #     node for node in nodes_at_pos if self.G.nodes[node]["type"] == node_type
+        # ]
+        # return nodes_of_type
+
         close_nodes = []
         for node in self.G.nodes:
             data = self.get_node_data_by_node(node)
             if data["type"] == node_type:
-                node_pos = data["pos"]
+                pos_data = data["pos"]
                 if (
-                    abs(pos[0] - node_pos[0]) < margin
-                    and abs(pos[1] - node_pos[1]) < margin
+                    abs(pos[0] - pos_data[0]) < margin
+                    and abs(pos[1] - pos_data[1]) < margin
                 ):
                     close_nodes.append(node)
 
@@ -256,13 +303,14 @@ class TOSG:
         """returns the type of the edge between two nodes"""
         if len(edge) == 2:
             yolo = self.G.edges[edge]["type"]
-            print(yolo)
+            # print(yolo)
             return yolo
         elif len(edge) == 3:
             node_a, node_b, edge_id = edge
             return self.G.edges[node_a, node_b, edge_id]["type"]
         else:
             self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
+            return None
 
     def remove_invalid_tasks(self):
         """removes all tasks that are not valid anymore"""

@@ -3,14 +3,12 @@ from enum import Enum, auto
 from random import random
 from typing import Sequence
 from src.domain.services.abstract_agent import AbstractAgent
-from src.domain.entities.affordance import Affordance
-from src.domain.entities.node_and_edge import Edge
-from src.domain.entities.object_types import ObjectTypes
+from src.domain import Affordance, Edge, ObjectTypes
 from src.domain.services.behaviors.abstract_behavior import (
     AbstractBehavior,
     BehaviorResult,
 )
-from src.configuration.config import Config
+
 from src.domain.services.tosg import TOSG
 
 

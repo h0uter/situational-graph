@@ -9,13 +9,14 @@ from src.domain import (
     AbstractBehavior,
     BehaviorResult,
     TOSG,
+    Affordance,
+    WorldObject,
 )
-from src.domain.entities.affordance import Affordance
-from src.domain.entities.world_object import WorldObject
 from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
 )
 from src.utils.saving_data_objects import load_something, save_something
+from src.configuration.config import cfg
 
 
 class ExploreBehavior(AbstractBehavior):
@@ -84,7 +85,7 @@ class ExploreBehavior(AbstractBehavior):
         # XXX: this is my 3nd expensive function, so I should try to optimize it
         self.__prune_frontiers(tosg)
         # self.__find_shortcuts_between_wps(lg, tosg, agent)
-        add_shortcut_edges_between_wps_on_lg(lg, tosg, agent, self.cfg)
+        add_shortcut_edges_between_wps_on_lg(lg, tosg, agent)
 
         """part 2: use perception service to sense new world objects"""
         # 1. obtain world objects in perception scene
@@ -147,7 +148,7 @@ class ExploreBehavior(AbstractBehavior):
 
         nodes_near_where_i_ended_up = tosg.get_nodes_of_type_in_margin(
             agent.get_localization(),
-            self.cfg.ARRIVAL_MARGIN,
+            cfg.ARRIVAL_MARGIN,
             destination_node_type,
         )
 
@@ -161,9 +162,8 @@ class ExploreBehavior(AbstractBehavior):
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         """
-        print(agent.previous_pos)
         wp_at_previous_pos_candidates = tosg.get_nodes_of_type_in_margin(
-            agent.previous_pos, self.cfg.PREV_POS_MARGIN, ObjectTypes.WAYPOINT
+            agent.previous_pos, cfg.PREV_POS_MARGIN, ObjectTypes.WAYPOINT
         )
 
         if len(wp_at_previous_pos_candidates) == 0:
@@ -198,10 +198,10 @@ class ExploreBehavior(AbstractBehavior):
         tosg: TOSG,
         lg: LocalGrid,
     ) -> Sequence:
-    
+
         new_frontier_cells = lg.los_sample_frontiers_on_cellmap(
-            radius=self.cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
-            num_frontiers_to_sample=self.cfg.N_SAMPLES,
+            radius=cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
+            num_frontiers_to_sample=cfg.N_SAMPLES,
         )
         self._log.debug(f"{agent.name}: found {len(new_frontier_cells)} new frontiers")
 
@@ -212,13 +212,24 @@ class ExploreBehavior(AbstractBehavior):
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             tosg.add_frontier(frontier_pos_global, agent.at_wp)
 
+    # 50% of compute time goes to this function for multiple agents
     def __prune_frontiers(self, tosg: TOSG) -> None:
-        waypoints = tosg.waypoint_idxs
 
-        for wp in waypoints:
+        ft_and_pos = [(ft, tosg.G.nodes[ft]["pos"]) for ft in tosg.frontier_idxs]
+
+        # XXX: this function is most expensive
+        # One solution would be using neightbors property in the graph
+        # so instead of doing it for the entire graph, only do it locally next to where the graph was modified
+        close_frontiers = set()  # avoid duplicates
+
+        for wp in tosg.waypoint_idxs:
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]
-            close_frontiers = tosg.get_nodes_of_type_in_margin(
-                wp_pos, self.cfg.PRUNE_RADIUS, ObjectTypes.FRONTIER
-            )
-            for frontier in close_frontiers:
-                tosg.remove_frontier(frontier)
+            for ft, ft_pos in ft_and_pos:
+                if (
+                    abs(wp_pos[0] - ft_pos[0]) < cfg.PRUNE_RADIUS
+                    and abs(wp_pos[1] - ft_pos[1]) < cfg.PRUNE_RADIUS
+                ):
+                    close_frontiers.add(ft)
+
+        for frontier in close_frontiers:
+            tosg.remove_frontier(frontier)
