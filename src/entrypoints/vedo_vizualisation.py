@@ -24,7 +24,7 @@ vedo.settings.allowInteraction = True
 class VedoVisualisation(AbstractVizualisation):
     def __init__(self) -> None:
         self.factor = 1 / cfg.LG_CELL_SIZE_M
-
+        self.screenshot_step = 0
         TITLE = f"{cfg.SCENARIO} - {cfg.PLOT_LVL}"
 
         self.plt = vedo.Plotter(
@@ -55,11 +55,21 @@ class VedoVisualisation(AbstractVizualisation):
 
         self.actors_which_need_to_be_cleared = list()
 
-        self.plt.camera.SetPosition( [57.46, -1437.605, 2488.884] )
-        self.plt.camera.SetFocalPoint( [-0.5, -0.5, 0.0] )
-        self.plt.camera.SetViewUp( [0.000, 0.866, 0.5] )
-        self.plt.camera.SetDistance( 2874.573 )
-        self.plt.camera.SetClippingRange( [1885.396, 4126.678] )
+        '''set camera to collect specific results'''
+        # whole villa
+        # self.plt.camera.SetPosition( [57.46, -1437.605, 2488.884] )
+        # self.plt.camera.SetFocalPoint( [-0.5, -0.5, 0.0] )
+        # self.plt.camera.SetViewUp( [0.000, 0.866, 0.5] )
+        # self.plt.camera.SetDistance( 2874.573 )
+        # self.plt.camera.SetClippingRange( [1885.396, 4126.678] )
+
+        #scenario1 villa
+        self.plt.camera.SetPosition( [422.177, -1016.904, 1666.483] )
+        self.plt.camera.SetFocalPoint( [416.908, -143.99, -92.16] )
+        self.plt.camera.SetViewUp( [0.004, 0.896, 0.445] )
+        self.plt.camera.SetDistance( 1963.372 )
+        self.plt.camera.SetClippingRange( [1091.026, 3026.337] )
+        
         self.plt.show(resetcam=False)
 
         time.sleep(0.1)
@@ -159,7 +169,7 @@ class VedoVisualisation(AbstractVizualisation):
         )
         self.plt.render()  # this makes it work with REAL scenario
 
-        # self.take_screenshot()  # this makes it take the screenshots
+        self.take_screenshot()  # this makes it take the screenshots
         
         self.clear_annoying_captions()
 
@@ -245,7 +255,7 @@ class VedoVisualisation(AbstractVizualisation):
                 else:
                     agent_actor.legend(f"No task selected".rjust(25))
 
-                lbox = vedo.LegendBox([agent_actor], width=0.5)
+                lbox = vedo.LegendBox([agent_actor], width=self.factor*0.005)
                 actors.append(lbox)
                 self.actors_which_need_to_be_cleared.append(lbox)
 
@@ -292,16 +302,14 @@ class VedoVisualisation(AbstractVizualisation):
         self.debug_actors.append(start_vig)
 
     def take_screenshot(self):
-        folder = "test1"
-        name = f"{datetime.now().strftime('%Y%m%d-%H%M%SS')}"
-        # path = f"results/{folder}/{name}.png"
-        # path = f"results/{name}.png"
-        new_folder_path = os.path.join("results", folder)
+        # FOLDER_NAME = "scenario1"
+        scenario_name = "sc2"
+        new_folder_path = os.path.join("results", scenario_name)
         Path(new_folder_path).mkdir(parents=True, exist_ok=True)
-        # os.makedirs(os.path.dirname(new_folder_path), exist_ok=True)
 
+        # name = f"{datetime.now().strftime('%Y%m%d-%H:%M:%S-%f')}"
+        name = f"{scenario_name}-step{self.screenshot_step}"
         file_path = os.path.join(new_folder_path, name + ".png")
-        # file_path = f"results/{folder}/{name}.png"
-
 
         io.screenshot(file_path)
+        self.screenshot_step +=1
