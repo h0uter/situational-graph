@@ -15,7 +15,7 @@ class WorldObjectSpoofer:
                 # WorldObject((13, 0), "victim2"),
                 WorldObject((14, -14), ObjectTypes.UNKNOWN_VICTIM),
                 WorldObject((-15.5, -14.5), ObjectTypes.UNKNOWN_VICTIM),
-                WorldObject((-2, 14), ObjectTypes.UNKNOWN_VICTIM),
+                # WorldObject((-2, 14), ObjectTypes.UNKNOWN_VICTIM),
                 # WorldObject((-2, 12), "victim5"),
                 WorldObject((0, 14), ObjectTypes.UNKNOWN_VICTIM),
                 # # WorldObject((14, -14), "fire1"),
