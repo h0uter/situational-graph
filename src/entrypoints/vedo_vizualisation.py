@@ -1,4 +1,7 @@
+from datetime import datetime
+
 import os
+from pathlib import Path
 import time
 from typing import Sequence, Union
 
@@ -27,7 +30,7 @@ class VedoVisualisation(AbstractVizualisation):
         self.plt = vedo.Plotter(
             axes=13,
             interactive=False,
-            resetcam=True,
+            # resetcam=True,
             title=TITLE,
             # size=(3456, 2234),
             size=(3456, 2000),
@@ -42,15 +45,22 @@ class VedoVisualisation(AbstractVizualisation):
                 # map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
                 # self.plt.show(map_pic, interactive=False)
 
-            logo_path = os.path.join("resource", "KRM.png")
-            logo = vedo.load(logo_path)
-            self.plt.addIcon(logo, pos=1, size=0.15)
+            # logo_path = os.path.join("resource", "KRM.png")
+            # logo = vedo.load(logo_path)
+            # self.plt.addIcon(logo, pos=1, size=0.15)
 
         self.debug_actors = list()
         self.wp_counter = []
         self.ft_counter = []
 
         self.actors_which_need_to_be_cleared = list()
+
+        self.plt.camera.SetPosition( [57.46, -1437.605, 2488.884] )
+        self.plt.camera.SetFocalPoint( [-0.5, -0.5, 0.0] )
+        self.plt.camera.SetViewUp( [0.000, 0.866, 0.5] )
+        self.plt.camera.SetDistance( 2874.573 )
+        self.plt.camera.SetClippingRange( [1885.396, 4126.678] )
+        self.plt.show(resetcam=False)
 
         time.sleep(0.1)
 
@@ -81,7 +91,8 @@ class VedoVisualisation(AbstractVizualisation):
         usecases: Sequence[OfflinePlanner],
     ) -> None:
         self.viz_all(tosg, agents)
-        self.plt.show(interactive=True, resetcam=True)
+        # self.plt.show(interactive=True, resetcam=True)
+        self.plt.show(interactive=True)
 
     def get_scaled_pos_dict(self, tosg: TOSG) -> dict:
         positions_of_all_nodes = nx.get_node_attributes(tosg.G, "pos")
@@ -143,9 +154,13 @@ class VedoVisualisation(AbstractVizualisation):
 
         self.plt.show(
             actors,
+            resetcam=False,
             # rate=15 # limit rendering
         )
         self.plt.render()  # this makes it work with REAL scenario
+
+        # self.take_screenshot()  # this makes it take the screenshots
+        
         self.clear_annoying_captions()
 
     def clear_annoying_captions(self):
@@ -277,5 +292,16 @@ class VedoVisualisation(AbstractVizualisation):
         self.debug_actors.append(start_vig)
 
     def take_screenshot(self):
-        path = "results/test.png"
-        io.screenshot(path)
+        folder = "test1"
+        name = f"{datetime.now().strftime('%Y%m%d-%H%M%SS')}"
+        # path = f"results/{folder}/{name}.png"
+        # path = f"results/{name}.png"
+        new_folder_path = os.path.join("results", folder)
+        Path(new_folder_path).mkdir(parents=True, exist_ok=True)
+        # os.makedirs(os.path.dirname(new_folder_path), exist_ok=True)
+
+        file_path = os.path.join(new_folder_path, name + ".png")
+        # file_path = f"results/{folder}/{name}.png"
+
+
+        io.screenshot(file_path)
