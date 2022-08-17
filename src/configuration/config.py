@@ -198,7 +198,7 @@ cfg = Config()
 # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, scenario=Scenario.SIM_MAZE_MEDIUM)
 
 # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
-cfg = Config(scenario=Scenario.REAL, screenshot=True, screenshot_folder_name="robolab")
+# cfg = Config(scenario=Scenario.REAL, screenshot=True, screenshot_folder_name="robolab")
 
 # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
 # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)
