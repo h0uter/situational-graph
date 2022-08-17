@@ -1,3 +1,4 @@
+from typing import Sequence
 from src.domain.entities.object_types import ObjectTypes
 from src.domain.services.tosg import TOSG
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
@@ -19,7 +20,7 @@ def setup_tosg_for_task_switch_result(tosg: TOSG):
         (X2, -13),
     ]
 
-    def node_adder(node_positions: list[tuple[float, float]]):
+    def node_adder(node_positions: Sequence[tuple[float, float]]):
         node_list = []
         for node_position in node_positions:
             new_node = tosg.add_waypoint_node(node_position)

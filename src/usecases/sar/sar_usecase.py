@@ -44,11 +44,11 @@ def run_demo(
 
     step, start, tosg_stats, my_logger = feedback_pipeline_init()
 
-    # # HACK: for the task switch usecase
-    # for agent in agents:
-    #     agent: SimulatedAgent
-    #     agent.lg_spoofer.set_map(cfg.MAP_PATH_TASK_SWITCH)
-    #     viz_listener.viz.set_map(cfg.MAP_PATH_TASK_SWITCH)
+    # HACK: for the task switch usecase
+    for agent in agents:
+        agent: SimulatedAgent
+        agent.lg_spoofer.set_map(cfg.MAP_PATH_TASK_SWITCH)
+        viz_listener.viz.set_map(cfg.MAP_PATH_TASK_SWITCH)
 
     """ Main Logic Loop"""
     mission_completed = False
@@ -68,17 +68,17 @@ def run_demo(
         step += 1
         # time.sleep(2.5)
 
-        # # HACK: debug stuff to show the method can exploit new shortcuts in the world
-        # # what I should do instead is make his part of the usecase
-        # MAP_SWITCHED = False
-        # for agent in agents:
-        #     agent.algo_iterations += 1
-        #     if not MAP_SWITCHED and cfg.SCENARIO is not Scenario.REAL:
-        #         if agent.algo_iterations > 150:
-        #             agent: SimulatedAgent
-        #             agent.lg_spoofer.set_map(cfg.MAP_PATH2)
-        #             viz_listener.viz.set_map(cfg.MAP_PATH2)
-        #             MAP_SWITCHED = True
+        # HACK: debug stuff to show the method can exploit new shortcuts in the world
+        # what I should do instead is make his part of the usecase
+        MAP_SWITCHED = False
+        for agent in agents:
+            agent.algo_iterations += 1
+            if not MAP_SWITCHED and cfg.SCENARIO is not Scenario.REAL:
+                if agent.algo_iterations > 150:
+                    agent: SimulatedAgent
+                    agent.lg_spoofer.set_map(cfg.MAP_PATH2)
+                    viz_listener.viz.set_map(cfg.MAP_PATH2)
+                    MAP_SWITCHED = True
 
     feedback_pipeline_completion(
         step, agents, tosg, tosg_stats, planner, my_logger, start
@@ -155,5 +155,5 @@ def run_task_switch_usecase():
     # FIXME: so the task is added to the list but not selected.
     for agent in agents:
         agent.set_init_explore_step()
-    success = run_demo(cfg, agents, tosg, usecases, viz_listener)
+    success = run_demo(agents, tosg, usecases, viz_listener)
     return success
