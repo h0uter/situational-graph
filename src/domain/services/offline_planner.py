@@ -42,26 +42,7 @@ class OfflinePlanner:
     def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
         """filter the graph over the agent capabilities"""
 
-        def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
-            behavior_enum = tosg.G.edges[u, v, k]["type"]  # Behaviors
-            for req_cap in behavior_enum.required_capabilities:
-                if req_cap not in agent.capabilities:
-                    return False
-            return True
-
-        filtered_G = nx.subgraph_view(
-            tosg.G, filter_edge=filter_edges_based_on_agent_capabilities
-        )
-        # print(filtered_G)
-        # XXX: deepcopy is also a very expensive operation]
-        # filtered_tosg = copy.deepcopy(tosg)
-        filtered_tosg = TOSG()
-        filtered_tosg.tasks = tosg.tasks
-        filtered_tosg.G = filtered_G
-
-        # TODO: so what I need to do is make these functions operate on an actual graph, not the complext tosg object
-        # a path over the filtered graphs can be executed on the tosg.
-        # need to refactor to tasks and graph
+        filtered_tosg = self._filter_graph(tosg, agent)
 
         # A. refactor all tosg methods to just take a graph as argument.
         # B make my filtered graph be a filtered tosg
@@ -104,6 +85,25 @@ class OfflinePlanner:
 
         """check completion of mission"""
         return self._check_if_tasks_exhausted(tosg)
+    
+    def _filter_graph(self, tosg: TOSG, agent: AbstractAgent) -> TOSG:
+        def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
+            behavior_enum = tosg.G.edges[u, v, k]["type"]  # Behaviors
+            for req_cap in behavior_enum.required_capabilities:
+                if req_cap not in agent.capabilities:
+                    return False
+            return True
+
+        filtered_G = nx.subgraph_view(
+            tosg.G, filter_edge=filter_edges_based_on_agent_capabilities
+        )
+        # print(filtered_G)
+        # XXX: deepcopy is also a very expensive operation]
+        # filtered_tosg = copy.deepcopy(tosg)
+        filtered_tosg = TOSG()
+        filtered_tosg.tasks = tosg.tasks
+        filtered_tosg.G = filtered_G
+        return filtered_tosg
 
     def _destroy_task(self, agent: AbstractAgent, tosg: TOSG):
         self._log.debug(f"{agent.name}:  has a task  {agent.task}")
