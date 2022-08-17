@@ -9,6 +9,9 @@ class OnlinePlanner(OfflinePlanner):
 
         # TODO: implement filtering step with nx.subgraph_view
         if agent.init_explore_step_completed:
+
+            filtered_tosg = self._filter_graph(tosg, agent)
+
             # this fails because we overide the initialisation
             """select a task"""
             agent.task = self._task_selection(agent, tosg)
@@ -17,7 +20,7 @@ class OnlinePlanner(OfflinePlanner):
 
             """ generate a plan"""
             try:
-                agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task)
+                agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task, filtered_tosg)
             except CouldNotFindPlan:
                 self._log.error(f"Could not find a plan for task {agent.task}")
                 agent.clear_task()

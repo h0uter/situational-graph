@@ -64,13 +64,24 @@ class VedoVisualisation(AbstractVizualisation):
         # self.plt.camera.SetClippingRange( [1885.396, 4126.678] )
 
         #scenario1 villa
-        self.plt.camera.SetPosition( [422.177, -1016.904, 1666.483] )
-        self.plt.camera.SetFocalPoint( [416.908, -143.99, -92.16] )
-        self.plt.camera.SetViewUp( [0.004, 0.896, 0.445] )
-        self.plt.camera.SetDistance( 1963.372 )
-        self.plt.camera.SetClippingRange( [1091.026, 3026.337] )
+        # self.plt.camera.SetPosition( [422.177, -1016.904, 1666.483] )
+        # self.plt.camera.SetFocalPoint( [416.908, -143.99, -92.16] )
+        # self.plt.camera.SetViewUp( [0.004, 0.896, 0.445] )
+        # self.plt.camera.SetDistance( 1963.372 )
+        # self.plt.camera.SetClippingRange( [1091.026, 3026.337] )
+
+        # # scenario1 villa tilter
+        # self.plt.camera.SetPosition( [772.225, -1289.612, 1462.231] )
+        # self.plt.camera.SetFocalPoint( [416.908, -143.99, -92.159] )
+        # self.plt.camera.SetViewUp( [0.028, 0.808, 0.589] )
+        # self.plt.camera.SetDistance( 1963.372 )
+        # self.plt.camera.SetClippingRange( [611.63, 3864.823] )
         
-        self.plt.show(resetcam=False)
+        if cfg.SCENARIO is Scenario.REAL:
+            self.plt.show(resetcam=True)
+        else:
+            self.plt.show(resetcam=False)
+
 
         time.sleep(0.1)
 
@@ -124,14 +135,15 @@ class VedoVisualisation(AbstractVizualisation):
             raw_lines = [
                 (pos_dict[node_a], pos_dict[node_b]) for node_a, node_b, _ in ed_ls
             ]
-            raw_edg = vedo.Lines(raw_lines).lw(2)
+            raw_edg = vedo.Lines(raw_lines, c="red").lw(5)
             actors.append(raw_edg)
 
         waypoint_nodes = tosg.get_nodes_by_type(ObjectTypes.WAYPOINT)
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         self.wp_counter.append(len(wps))
         # waypoints = vedo.Points(wps, r=8, c="r")
-        waypoints = vedo.Points(wps, r=15, c="FireBrick")
+        # waypoints = vedo.Points(wps, r=15, c="FireBrick")
+        waypoints = vedo.Points(wps, r=35, c="FireBrick")
         actors.append(waypoints)
 
         frontier_nodes = tosg.get_nodes_by_type(ObjectTypes.FRONTIER)
@@ -162,14 +174,19 @@ class VedoVisualisation(AbstractVizualisation):
         if self.debug_actors:
             actors.extend(self.debug_actors)
 
-        self.plt.show(
-            actors,
-            resetcam=False,
-            # rate=15 # limit rendering
-        )
+        if cfg.SCENARIO is Scenario.REAL:
+            self.plt.show(actors, resetcam=True)
+        else:  
+            self.plt.show(
+                actors,
+                resetcam=False,
+                # rate=15 # limit rendering
+            )
+
         self.plt.render()  # this makes it work with REAL scenario
 
-        self.take_screenshot()  # this makes it take the screenshots
+        if cfg.SCREENSHOT:
+            self.take_screenshot()  # this makes it take the screenshots
         
         self.clear_annoying_captions()
 
@@ -187,7 +204,7 @@ class VedoVisualisation(AbstractVizualisation):
         agents: Sequence[AbstractAgent],
     ):
         # FIXME: this is way too high in real scenario
-        action_path_offset = self.factor * 5
+        ACTION_PATH_OFFSET = self.factor * 5
 
         # for mission in usecases:
         #     if mission.plan:
@@ -210,16 +227,16 @@ class VedoVisualisation(AbstractVizualisation):
                 ]
                 frontier_edge = raw_lines.pop()
                 wp_edge_actors = (
-                    vedo.Lines(raw_lines, c="r", alpha=0.5).lw(10).z(action_path_offset)
+                    vedo.Lines(raw_lines, c="purple", alpha=0.5).lw(10).z(ACTION_PATH_OFFSET)
                 )
                 actors.append(wp_edge_actors)
 
                 arrow_start = (frontier_edge[0][0], frontier_edge[0][1], 0)
                 arrow_end = (frontier_edge[1][0], frontier_edge[1][1], 0)
-                ft_edge_actor = vedo.Arrow(
+                task_edge_actor = vedo.Arrow(
                     arrow_start, arrow_end, c="g", s=self.factor * 0.037
-                ).z(action_path_offset)
-                actors.append(ft_edge_actor)
+                ).z(ACTION_PATH_OFFSET)
+                actors.append(task_edge_actor)
 
     def add_agents(self, agents: list[AbstractAgent], actors):
         for agent in agents:
@@ -303,7 +320,9 @@ class VedoVisualisation(AbstractVizualisation):
 
     def take_screenshot(self):
         # FOLDER_NAME = "scenario1"
-        scenario_name = "sc2"
+        # scenario_name = "sc2"
+        # scenario_name = "sc1"
+        scenario_name = cfg.SCREENSHOT_FOLDER_NAME
         new_folder_path = os.path.join("results", scenario_name)
         Path(new_folder_path).mkdir(parents=True, exist_ok=True)
 

@@ -38,6 +38,8 @@ class Config:
         num_agents: int = 1,
         max_steps: float = math.inf,
         audio_feedback: bool = False,
+        screenshot: bool = False,
+        screenshot_folder_name: str = "test",
     ):
         self.MAX_STEPS = max_steps
         self.PLOT_LVL = plot_lvl
@@ -45,6 +47,8 @@ class Config:
         self.VIZUALISER = vizualiser
 
         self.AUDIO_FEEDBACK = audio_feedback
+        self.SCREENSHOT = screenshot
+        self.SCREENSHOT_FOLDER_NAME = screenshot_folder_name
 
         # self.PRUNE_RADIUS_FACTOR = 0.20  # too low (<0.20) and we get dense graph, too high (>0.25) and corners are pruned from inside rooms
         self.PRUNE_RADIUS_FACTOR = 0.18  # too low and we get dense graph, too high and corners are pruned from inside rooms
@@ -194,7 +198,7 @@ cfg = Config()
 # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, scenario=Scenario.SIM_MAZE_MEDIUM)
 
 # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
-# cfg = Config(scenario=Scenario.REAL)
+cfg = Config(scenario=Scenario.REAL, screenshot=True, screenshot_folder_name="robolab")
 
 # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
 # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)
