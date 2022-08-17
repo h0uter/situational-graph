@@ -30,7 +30,7 @@ class VedoVisualisation(AbstractVizualisation):
         self.plt = vedo.Plotter(
             axes=13,
             interactive=False,
-            # resetcam=True,
+            resetcam=True,
             title=TITLE,
             # size=(3456, 2234),
             size=(3456, 2000),
@@ -55,7 +55,8 @@ class VedoVisualisation(AbstractVizualisation):
 
         self.actors_which_need_to_be_cleared = list()
 
-        '''set camera to collect specific results'''
+        self.plt.show(resetcam=True)
+        """set camera to collect specific results"""
         # whole villa
         # self.plt.camera.SetPosition( [57.46, -1437.605, 2488.884] )
         # self.plt.camera.SetFocalPoint( [-0.5, -0.5, 0.0] )
@@ -63,7 +64,7 @@ class VedoVisualisation(AbstractVizualisation):
         # self.plt.camera.SetDistance( 2874.573 )
         # self.plt.camera.SetClippingRange( [1885.396, 4126.678] )
 
-        #scenario1 villa
+        # scenario1 villa
         # self.plt.camera.SetPosition( [422.177, -1016.904, 1666.483] )
         # self.plt.camera.SetFocalPoint( [416.908, -143.99, -92.16] )
         # self.plt.camera.SetViewUp( [0.004, 0.896, 0.445] )
@@ -76,12 +77,11 @@ class VedoVisualisation(AbstractVizualisation):
         # self.plt.camera.SetViewUp( [0.028, 0.808, 0.589] )
         # self.plt.camera.SetDistance( 1963.372 )
         # self.plt.camera.SetClippingRange( [611.63, 3864.823] )
-        
+
         if cfg.SCENARIO is Scenario.REAL:
             self.plt.show(resetcam=True)
         else:
             self.plt.show(resetcam=False)
-
 
         time.sleep(0.1)
 
@@ -155,12 +155,8 @@ class VedoVisualisation(AbstractVizualisation):
         # world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
         # HACK: we need this to extend to new world objects.
         world_object_nodes = tosg.get_nodes_by_type(ObjectTypes.UNKNOWN_VICTIM)
-        world_object_nodes.extend(
-            tosg.get_nodes_by_type(ObjectTypes.IMMOBILE_VICTIM)
-        )
-        world_object_nodes.extend(
-            tosg.get_nodes_by_type(ObjectTypes.MOBILE_VICTIM)
-        )
+        world_object_nodes.extend(tosg.get_nodes_by_type(ObjectTypes.IMMOBILE_VICTIM))
+        world_object_nodes.extend(tosg.get_nodes_by_type(ObjectTypes.MOBILE_VICTIM))
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict, tosg)
         actors = self.add_agents(agents, actors)
 
@@ -176,7 +172,7 @@ class VedoVisualisation(AbstractVizualisation):
 
         if cfg.SCENARIO is Scenario.REAL:
             self.plt.show(actors, resetcam=True)
-        else:  
+        else:
             self.plt.show(
                 actors,
                 resetcam=False,
@@ -187,7 +183,7 @@ class VedoVisualisation(AbstractVizualisation):
 
         if cfg.SCREENSHOT:
             self.take_screenshot()  # this makes it take the screenshots
-        
+
         self.clear_annoying_captions()
 
     def clear_annoying_captions(self):
@@ -227,7 +223,9 @@ class VedoVisualisation(AbstractVizualisation):
                 ]
                 frontier_edge = raw_lines.pop()
                 wp_edge_actors = (
-                    vedo.Lines(raw_lines, c="purple", alpha=0.5).lw(10).z(ACTION_PATH_OFFSET)
+                    vedo.Lines(raw_lines, c="purple", alpha=0.5)
+                    .lw(10)
+                    .z(ACTION_PATH_OFFSET)
                 )
                 actors.append(wp_edge_actors)
 
@@ -272,7 +270,7 @@ class VedoVisualisation(AbstractVizualisation):
                 else:
                     agent_actor.legend(f"No task selected".rjust(25))
 
-                lbox = vedo.LegendBox([agent_actor], width=self.factor*0.005)
+                lbox = vedo.LegendBox([agent_actor], width=self.factor * 0.005)
                 actors.append(lbox)
                 self.actors_which_need_to_be_cleared.append(lbox)
 
@@ -331,4 +329,4 @@ class VedoVisualisation(AbstractVizualisation):
         file_path = os.path.join(new_folder_path, name + ".png")
 
         io.screenshot(file_path)
-        self.screenshot_step +=1
+        self.screenshot_step += 1
