@@ -5,6 +5,7 @@ from src.domain.entities.object_types import ObjectTypes
 from src.domain.services.tosg import TOSG
 
 from src.utils.saving_data_objects import load_something, save_something
+from src.entrypoints.utils.event import subscribe
 
 
 @dataclass
@@ -17,6 +18,14 @@ class TOSGStats:
         self.num_frontier_nodes = [0]
         self.num_world_object_nodes = [0]
         self.step_duration = [0]
+        self.task_utilities: list[dict] = [{}]
+
+    def setup_event_handlers(self):
+        subscribe("task_utilities", self.handle_task_utilities_event)
+
+    def handle_task_utilities_event(self, task_utilities: dict):
+        self.task_utilities.append(task_utilities)
+
 
     def update(self, tosg: TOSG, step_duration):
 
@@ -139,15 +148,55 @@ class TOSGStats:
         )
         ax.legend()
 
+    def subplot_task_utilities(self, ax: plt.Axes):
+        # print(self.task_utilities)
+        ax.set_title("Task utilities")
+        ax.set(xlabel="Step", ylabel="Utility")
+
+        task_set = set()
+
+        for task_utility_dict in self.task_utilities:
+            for task in task_utility_dict:
+                # print(f"{task=}")
+                task_set.add(task)
+        
+        task_list = list(task_set)
+
+
+
+        # print(f"{task_list=}")
+
+        plot_data_dict = {
+            task: [] for task in task_list
+        }
+
+        for utility_task_dict in self.task_utilities:
+            for task in task_list:
+                if task not in utility_task_dict:
+                    plot_data_dict[task].append(0)
+                else:
+                    plot_data_dict[task].append(utility_task_dict[task])
+
+
+        xs = range(len(self.task_utilities))
+        for task in task_list:
+            ax.step(xs, plot_data_dict[task], label=f"task {task_list.index(task)}", c=plt.cm.tab10(task_list.index(task)))
+
+            
+        ax.legend()
+
+
     def plot_krm_stats(self):
 
         fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(2, 2)  # type: ignore
-        fig.suptitle("Statistics about the KRM")
+        fig.suptitle("Statistics about the Situational Graph")
 
         self.subplot_step_vs_num_nodes(ax0)
         self.subplot_step_vs_step_duration(ax2)
 
         self.subplot_num_nodes_vs_step_duration(ax1)
+
+        self.subplot_task_utilities(ax3)
 
         # mng = plt.get_current_fig_manager()
         # mng.window.showMaximized()
