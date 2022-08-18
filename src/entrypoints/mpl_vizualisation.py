@@ -14,7 +14,7 @@ from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.configuration.config import cfg
 from src.utils.coordinate_transforms import img_axes2world_axes
 
-
+# NOTE: this vizualisation is only still used for debugging the exploration.
 class MplVizualisation(AbstractVizualisation):
     def __init__(self) -> None:
         self.agent_drawing = None

@@ -2,7 +2,7 @@
 from typing import Callable
 
 
-subscribers = dict()
+subscribers: dict[str, list[Callable]] = {}
 
 
 def subscribe(event_type: str, callback_fn: Callable):

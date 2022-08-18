@@ -14,3 +14,6 @@ class Task:
     @property
     def reward(self) -> float:
         return self.objective_enum.reward
+    
+    def __hash__(self):
+        return id(self)

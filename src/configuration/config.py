@@ -187,6 +187,7 @@ class Config:
 
 """Set configuration here"""
 cfg = Config()
+# cfg = Config(max_steps=10)
 # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
 # cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
 # cfg = Config(num_agents=2)

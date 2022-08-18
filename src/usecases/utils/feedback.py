@@ -6,13 +6,14 @@ from src.domain.services.tosg import TOSG
 
 import src.entrypoints.utils.event as event
 from src.utils.audio_feedback import play_file
-from src.utils.krm_stats import TOSGStats
+from src.utils.tosg_stats import TOSGStats
 
 
 def feedback_pipeline_init():
     """Logging start."""
     step, start = 0, time.perf_counter()  # timing
     tosg_stats = TOSGStats()  # statistics logging object
+    tosg_stats.setup_event_handlers()
     my_logger = logging.getLogger(__name__)
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
     if cfg.AUDIO_FEEDBACK:
