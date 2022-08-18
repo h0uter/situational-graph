@@ -22,7 +22,7 @@ from bosdyn.client.frame_helpers import (
 )
 from src.domain.entities.capabilities import Capabilities
 
-from src.utils.fiducial_2_world_object_labels import create_wo_from_fiducial
+from src.data_providers.real.utils.fiducial_2_world_object_labels import create_wo_from_fiducial
 from src.data_providers.real.utils.spot_wrapper import SpotWrapper
 from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.entities.local_grid import LocalGrid
