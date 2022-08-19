@@ -1,5 +1,0 @@
--f ../../../prebuilt
-
-bosdyn-client >= 2.0
-numpy >= 1.16.4
-vtk < 8.2

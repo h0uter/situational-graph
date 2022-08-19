@@ -224,7 +224,7 @@ class VedoVisualisation(AbstractVizualisation):
                 frontier_edge = raw_lines.pop()
                 wp_edge_actors = (
                     vedo.Lines(raw_lines, c="purple", alpha=0.5)
-                    .lw(10)
+                    .lw(20)
                     .z(ACTION_PATH_OFFSET)
                 )
                 actors.append(wp_edge_actors)
@@ -254,7 +254,7 @@ class VedoVisualisation(AbstractVizualisation):
                 cone_r *= 0.4
                 cone_height *= 0.4
 
-            agent_actor = vedo.Cone(agent_pos, r=cone_r, height=cone_height, axis=agent_dir_vec, c="dodger_blue", alpha=0.7, res=3)  # type: ignore
+            agent_actor = vedo.Cone(agent_pos, r=cone_r, height=cone_height, axis=agent_dir_vec, c="dodger_blue", alpha=0.7, res=4)  # type: ignore
             agent_label = f"Agent {agent.name}"
             agent_actor.caption(agent_label, size=(0.05, 0.025))
 
@@ -268,7 +268,8 @@ class VedoVisualisation(AbstractVizualisation):
                     )
                     agent_actor.legend(f"{task_print}")
                 else:
-                    agent_actor.legend(f"No task selected".rjust(25))
+                    # agent_actor.legend(f"No task selected".rjust(25))
+                    agent_actor.legend(f"Finding Task".rjust(25))
 
                 lbox = vedo.LegendBox([agent_actor], width=self.factor * 0.005)
                 actors.append(lbox)
@@ -297,6 +298,15 @@ class VedoVisualisation(AbstractVizualisation):
                 offset=[0, 0, 5 * self.factor],
                 s=self.factor * 0.7,
             )
+            if cfg.SCENARIO == Scenario.REAL:
+                REAL_OFFSET_FACTOR = 0.2  # need vignettes to be closer in real scenario
+                REAL_S_FACTOR = 0.3  # need vignettes to be closer in real scenario
+                wo_vig = wo_point.vignette(
+                    # wo,
+                    name_str,
+                    offset=[0, 0, 5 * self.factor * REAL_OFFSET_FACTOR],
+                    s=0.7 * self.factor * REAL_S_FACTOR,
+                )
             actors.append(wo_vig)
 
         return actors
@@ -314,6 +324,14 @@ class VedoVisualisation(AbstractVizualisation):
             offset=[0, 0, 5 * self.factor],
             s=self.factor,
         )
+        if cfg.SCENARIO == Scenario.REAL:
+            REAL_OFFSET_FACTOR = 0.2  # need vignettes to be closer in real scenario
+            REAL_S_FACTOR = 0.3  # need vignettes to be closer in real scenario
+            start_vig = point.vignette(
+                "Start",
+                offset=[0, 0, 5 * self.factor * REAL_OFFSET_FACTOR],
+                s=self.factor * REAL_S_FACTOR,
+            )
         self.debug_actors.append(start_vig)
 
     def take_screenshot(self):

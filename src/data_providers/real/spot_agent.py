@@ -102,6 +102,7 @@ class SpotAgent(AbstractAgent):
 
         self.pos = self.get_localization()
         # self.pos = start_pos
+        self.already_detected_fiducial_tag_ids = []
 
     def _move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
         self.blocking_move_vision_frame(target_pos, target_heading)
@@ -163,7 +164,7 @@ class SpotAgent(AbstractAgent):
                         detected_fiducial = True
                         fiducial_rt_world = vision_tform_fiducial.position
 
-                if detected_fiducial:
+                if detected_fiducial and fiducial.apriltag_properties.tag_id not in self.already_detected_fiducial_tag_ids:
                     # Go to the tag and stop within a certain distance
                     # self.go_to_tag(fiducial_rt_world)
                     # print(f"fiducial_rt_world = {fiducial_rt_world}")
@@ -173,6 +174,8 @@ class SpotAgent(AbstractAgent):
                         (fiducial_rt_world.x, fiducial_rt_world.y),
                         fiducial.apriltag_properties.tag_id,
                     )
+                    self.already_detected_fiducial_tag_ids.append(fiducial.apriltag_properties.tag_id)
+
                 else:
                     self._log.debug(f"no fiducial detected")
                     continue
