@@ -11,6 +11,7 @@ from src.domain.entities.object_types import ObjectTypes
 #     "211": "victim2",
 #     "212": "victim2",
 # }
+
 WORLD_OBJECT_ID_TO_NAME_MAPPING = {
     "204": ObjectTypes.UNKNOWN_VICTIM,
     "205": ObjectTypes.UNKNOWN_VICTIM,
