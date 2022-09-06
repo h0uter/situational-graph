@@ -18,6 +18,7 @@ class SearchAndRescueUseCase(UseCase):
         self.setup(tosg, agents)
 
         success = self.run_demo(agents, tosg, usecases, viz_listener)
+
         return success
 
     def setup(self, tosg: TOSG, agents: Sequence[AbstractAgent]):

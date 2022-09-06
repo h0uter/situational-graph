@@ -7,7 +7,7 @@ from PIL import Image
 
 from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.entities.behaviors import Behaviors
-from src.domain.entities.object_types import ObjectTypes
+from src.domain.entities.object_types import Situations
 from src.domain.services.tosg import TOSG
 from src.domain.entities.local_grid import LocalGrid
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
@@ -104,17 +104,17 @@ class MplVizualisation(AbstractVizualisation):
         waypoint_nodes = dict(
             (n, d["type"])
             for n, d in krm.graph.nodes().items()
-            if d["type"] == ObjectTypes.WAYPOINT
+            if d["type"] == Situations.WAYPOINT
         )
         frontier_nodes = dict(
             (n, d["type"])
             for n, d in krm.graph.nodes().items()
-            if d["type"] == ObjectTypes.FRONTIER
+            if d["type"] == Situations.FRONTIER
         )
         world_object_nodes = dict(
             (n, d["type"])
             for n, d in krm.graph.nodes().items()
-            if d["type"] == ObjectTypes.WORLD_OBJECT
+            if d["type"] == Situations.WORLD_OBJECT
         )
         world_object_edges = dict(
             (e, d["type"])
@@ -268,7 +268,7 @@ class MplVizualisation(AbstractVizualisation):
             self.init_fig()
 
         close_nodes = krm.get_nodes_of_type_in_margin(
-            lg.world_pos, cfg.LG_LENGTH_IN_M / 2, ObjectTypes.WAYPOINT
+            lg.world_pos, cfg.LG_LENGTH_IN_M / 2, Situations.WAYPOINT
         )
         points = [krm.get_node_data_by_node(node)["pos"] for node in close_nodes]
 

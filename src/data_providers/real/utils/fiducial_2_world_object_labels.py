@@ -1,6 +1,6 @@
 # 202==201
 from src.domain.entities.world_object import WorldObject
-from src.domain.entities.object_types import ObjectTypes
+from src.domain.entities.object_types import Situations
 
 # FIXME: update this with the new world objects
 # WORLD_OBJECT_ID_TO_NAME_MAPPING = {
@@ -13,12 +13,12 @@ from src.domain.entities.object_types import ObjectTypes
 # }
 
 WORLD_OBJECT_ID_TO_NAME_MAPPING = {
-    "204": ObjectTypes.UNKNOWN_VICTIM,
-    "205": ObjectTypes.UNKNOWN_VICTIM,
+    "204": Situations.UNKNOWN_VICTIM,
+    "205": Situations.UNKNOWN_VICTIM,
     # "208": "fire1",
     # "207": "fire1",
-    "206": ObjectTypes.UNKNOWN_VICTIM,
-    "207": ObjectTypes.UNKNOWN_VICTIM,
+    "206": Situations.UNKNOWN_VICTIM,
+    "207": Situations.UNKNOWN_VICTIM,
 }
 
 

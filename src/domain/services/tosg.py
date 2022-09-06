@@ -10,7 +10,7 @@ from src.domain import (
     Edge,
     Node,
     Objectives,
-    ObjectTypes,
+    Situations,
     Plan,
     Task,
 )
@@ -29,14 +29,14 @@ class TOSG:
     @property
     def waypoint_idxs(self) -> list[Node]:
         """returns all waypoints idxs in the graph"""
-        return self.get_nodes_by_type(ObjectTypes.WAYPOINT)
+        return self.get_nodes_by_type(Situations.WAYPOINT)
 
     @property
     def frontier_idxs(self) -> list[Node]:
         """returns all frontier idxs in the graph"""
-        return self.get_nodes_by_type(ObjectTypes.FRONTIER)
+        return self.get_nodes_by_type(Situations.FRONTIER)
 
-    def get_nodes_by_type(self, node_type: ObjectTypes) -> list[Node]:
+    def get_nodes_by_type(self, node_type: Situations) -> list[Node]:
         """returns all frontier idxs in the graph"""
         return [
             node for node in self.G.nodes() if self.G.nodes[node]["type"] == node_type
@@ -83,7 +83,9 @@ class TOSG:
 
         return distance
 
-    def distance_and_path_dijkstra(self, source: Node, targets: list[Node]) -> tuple[dict, dict]:
+    def distance_and_path_dijkstra(
+        self, source: Node, targets: list[Node]
+    ) -> tuple[dict, dict]:
         """returns the length of the shortest path between a single source and multiple targets"""
 
         def dist_heur_wrapper(a: Node, b: Node):
@@ -145,7 +147,7 @@ class TOSG:
     def add_node_with_task_and_edges_from_affordances(
         self,
         from_node: Node,
-        object_type: ObjectTypes,
+        object_type: Situations,
         pos: tuple,
         affordances: list[Affordance],
     ) -> Node:
@@ -161,7 +163,7 @@ class TOSG:
         return new_node
 
     def add_node_of_type(
-        self, pos: tuple[float, float], object_type: ObjectTypes
+        self, pos: tuple[float, float], object_type: Situations
     ) -> Node:
         node_uuid = uuid4()
         self.G.add_node(node_uuid, pos=pos, type=object_type)
@@ -170,7 +172,7 @@ class TOSG:
     def add_waypoint_node(self, pos: tuple[float, float]) -> Node:
         """adds start points to the graph"""
 
-        return self.add_node_of_type(pos, ObjectTypes.WAYPOINT)
+        return self.add_node_of_type(pos, Situations.WAYPOINT)
 
     def add_waypoint_and_diedge(
         self, to_pos: tuple[float, float], from_node: Node
@@ -195,7 +197,7 @@ class TOSG:
     def add_frontier(self, pos: tuple[float, float], from_node: Node) -> None:
         """adds a frontier to the graph"""
 
-        ft_node = self.add_node_of_type(pos, ObjectTypes.FRONTIER)
+        ft_node = self.add_node_of_type(pos, Situations.FRONTIER)
 
         edge_len = self.calc_edge_len(from_node, ft_node)
         if edge_len:  # edge len can be zero in the final step.
@@ -217,7 +219,7 @@ class TOSG:
         """removes a frontier from the graph"""
         target_frontier = self.get_node_data_by_node(ft_node)
         self.remove_tasks_associated_with_node(ft_node)
-        if target_frontier["type"] == ObjectTypes.FRONTIER:
+        if target_frontier["type"] == Situations.FRONTIER:
             self.G.remove_node(ft_node)  # also removes the edge
         else:
             self._log.warning(f"remove_frontier(): {ft_node} is not a frontier")
@@ -247,7 +249,7 @@ class TOSG:
 
     # this function is 9% of total comopute
     def get_nodes_of_type_in_margin(
-        self, pos: tuple[float, float], margin: float, node_type: ObjectTypes
+        self, pos: tuple[float, float], margin: float, node_type: Situations
     ) -> list:
         """
         Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.

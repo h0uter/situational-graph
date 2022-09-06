@@ -1,6 +1,6 @@
 from typing import Sequence
 from src.domain.entities.local_grid import LocalGrid
-from src.domain.entities.object_types import ObjectTypes
+from src.domain.entities.object_types import Situations
 from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.entities.affordance import Affordance
 from src.domain.entities.node_and_edge import Edge
@@ -21,7 +21,7 @@ class GotoBehavior(AbstractBehavior):
         node_data = tosg.get_node_data_by_node(behavior_edge[1])
         success = agent.move_to_pos(node_data["pos"])
         agent.localize_to_waypoint(tosg)
-        
+
         # return BehaviorResult(success)
         return BehaviorResult(True)
 

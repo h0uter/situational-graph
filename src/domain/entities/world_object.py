@@ -1,10 +1,9 @@
-
 from dataclasses import dataclass
-from src.domain.entities.object_types import ObjectTypes
+from src.domain.entities.object_types import Situations
 
 
 @dataclass
 class WorldObject:
     pos: tuple
-    object_type: ObjectTypes
+    object_type: Situations
     # self.id: int = None

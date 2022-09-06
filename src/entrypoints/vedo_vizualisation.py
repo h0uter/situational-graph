@@ -11,7 +11,7 @@ import vedo
 from vedo import io
 
 from src.domain.services.abstract_agent import AbstractAgent
-from src.domain import TOSG, ObjectTypes, LocalGrid, OfflinePlanner
+from src.domain import TOSG, Situations, LocalGrid, OfflinePlanner
 from src.domain.entities.node_and_edge import Node
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.configuration.config import cfg, PlotLvl, Scenario
@@ -138,7 +138,7 @@ class VedoVisualisation(AbstractVizualisation):
             raw_edg = vedo.Lines(raw_lines, c="red").lw(5)
             actors.append(raw_edg)
 
-        waypoint_nodes = tosg.get_nodes_by_type(ObjectTypes.WAYPOINT)
+        waypoint_nodes = tosg.get_nodes_by_type(Situations.WAYPOINT)
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         self.wp_counter.append(len(wps))
         # waypoints = vedo.Points(wps, r=8, c="r")
@@ -146,7 +146,7 @@ class VedoVisualisation(AbstractVizualisation):
         waypoints = vedo.Points(wps, r=35, c="FireBrick")
         actors.append(waypoints)
 
-        frontier_nodes = tosg.get_nodes_by_type(ObjectTypes.FRONTIER)
+        frontier_nodes = tosg.get_nodes_by_type(Situations.FRONTIER)
         fts = [pos_dict[f] for f in frontier_nodes]
         self.ft_counter.append(len(fts))
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
@@ -154,9 +154,9 @@ class VedoVisualisation(AbstractVizualisation):
 
         # world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
         # HACK: we need this to extend to new world objects.
-        world_object_nodes = tosg.get_nodes_by_type(ObjectTypes.UNKNOWN_VICTIM)
-        world_object_nodes.extend(tosg.get_nodes_by_type(ObjectTypes.IMMOBILE_VICTIM))
-        world_object_nodes.extend(tosg.get_nodes_by_type(ObjectTypes.MOBILE_VICTIM))
+        world_object_nodes = tosg.get_nodes_by_type(Situations.UNKNOWN_VICTIM)
+        world_object_nodes.extend(tosg.get_nodes_by_type(Situations.IMMOBILE_VICTIM))
+        world_object_nodes.extend(tosg.get_nodes_by_type(Situations.MOBILE_VICTIM))
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict, tosg)
         actors = self.add_agents(agents, actors)
 

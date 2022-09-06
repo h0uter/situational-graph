@@ -3,7 +3,7 @@ from enum import Enum, auto
 from random import random
 from typing import Sequence
 from src.domain.services.abstract_agent import AbstractAgent
-from src.domain import Affordance, Edge, ObjectTypes
+from src.domain import Affordance, Edge, Situations
 from src.domain.services.behaviors.abstract_behavior import (
     AbstractBehavior,
     BehaviorResult,
@@ -59,9 +59,9 @@ class AssessBehavior(AbstractBehavior):
         # the goal here is to get this graph transformation rolling.
 
         VICTIM_STATE_TO_OBJECT_TYPE = {
-            VictimState.MOBILE: ObjectTypes.MOBILE_VICTIM,
-            VictimState.IMMMOBILE: ObjectTypes.IMMOBILE_VICTIM,
-            VictimState.UNKNOWN: ObjectTypes.UNKNOWN_VICTIM,
+            VictimState.MOBILE: Situations.MOBILE_VICTIM,
+            VictimState.IMMMOBILE: Situations.IMMOBILE_VICTIM,
+            VictimState.UNKNOWN: Situations.UNKNOWN_VICTIM,
         }
 
         # remove the target node
@@ -71,7 +71,9 @@ class AssessBehavior(AbstractBehavior):
         my_object_type = VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]
 
         from_edge = behavior_edge[0]
-        tosg.add_node_with_task_and_edges_from_affordances(from_edge, my_object_type, old_pos, affordances)
+        tosg.add_node_with_task_and_edges_from_affordances(
+            from_edge, my_object_type, old_pos, affordances
+        )
 
     def _mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge

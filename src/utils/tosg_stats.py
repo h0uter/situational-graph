@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
 from src.domain.entities.behaviors import Behaviors
-from src.domain.entities.object_types import ObjectTypes
+from src.domain.entities.object_types import Situations
 from src.domain.services.tosg import TOSG
 
 from src.utils.saving_data_objects import load_something, save_something
@@ -26,7 +26,6 @@ class TOSGStats:
     def handle_task_utilities_event(self, task_utilities: dict):
         self.task_utilities.append(task_utilities)
 
-
     def update(self, tosg: TOSG, step_duration):
 
         self.num_nodes.append(tosg.G.number_of_nodes())
@@ -38,7 +37,7 @@ class TOSGStats:
                 [
                     n
                     for n in tosg.G.nodes()
-                    if tosg.G.nodes[n]["type"] == ObjectTypes.WAYPOINT
+                    if tosg.G.nodes[n]["type"] == Situations.WAYPOINT
                 ]
             )
         )
@@ -57,7 +56,7 @@ class TOSGStats:
                 [
                     n
                     for n in tosg.G.nodes()
-                    if tosg.G.nodes[n]["type"] == ObjectTypes.FRONTIER
+                    if tosg.G.nodes[n]["type"] == Situations.FRONTIER
                 ]
             )
         )
@@ -66,7 +65,7 @@ class TOSGStats:
                 [
                     n
                     for n in tosg.G.nodes()
-                    if tosg.G.nodes[n]["type"] == ObjectTypes.WORLD_OBJECT
+                    if tosg.G.nodes[n]["type"] == Situations.WORLD_OBJECT
                 ]
             )
         )
@@ -159,16 +158,12 @@ class TOSGStats:
             for task in task_utility_dict:
                 # print(f"{task=}")
                 task_set.add(task)
-        
+
         task_list = list(task_set)
-
-
 
         # print(f"{task_list=}")
 
-        plot_data_dict = {
-            task: [] for task in task_list
-        }
+        plot_data_dict = {task: [] for task in task_list}
 
         for utility_task_dict in self.task_utilities:
             for task in task_list:
@@ -177,14 +172,19 @@ class TOSGStats:
                 else:
                     plot_data_dict[task].append(utility_task_dict[task])
 
-
         xs = range(len(self.task_utilities))
         for task in task_list:
-            ax.step(xs, plot_data_dict[task], label=f"task {task_list.index(task)}", c=plt.cm.tab10(task_list.index(task)))
+            ax.step(
+                xs,
+                plot_data_dict[task],
+                label=f"task {task_list.index(task)}",
+                c=plt.cm.tab10(task_list.index(task)),
+            )
 
-            
         ax.legend()
 
+    def step_duration_vs_num_nodes(self):
+        pass
 
     def plot_krm_stats(self):
 

@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 
-class ObjectTypes(Enum):
+class Situations(Enum):
     WAYPOINT = auto()
     WORLD_OBJECT = auto()
     FRONTIER = auto()

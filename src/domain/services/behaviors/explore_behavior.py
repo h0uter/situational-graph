@@ -5,7 +5,7 @@ from src.domain import (
     LocalGrid,
     Edge,
     Node,
-    ObjectTypes,
+    Situations,
     AbstractBehavior,
     BehaviorResult,
     TOSG,
@@ -163,7 +163,7 @@ class ExploreBehavior(AbstractBehavior):
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         """
         wp_at_previous_pos_candidates = tosg.get_nodes_of_type_in_margin(
-            agent.previous_pos, cfg.PREV_POS_MARGIN, ObjectTypes.WAYPOINT
+            agent.previous_pos, cfg.PREV_POS_MARGIN, Situations.WAYPOINT
         )
 
         if len(wp_at_previous_pos_candidates) == 0:

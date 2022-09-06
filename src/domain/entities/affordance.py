@@ -1,4 +1,4 @@
-from src.domain import Behaviors, Objectives, ObjectTypes
+from src.domain import Behaviors, Objectives, Situations
 
 
-Affordance = tuple[ObjectTypes, Behaviors, Objectives]
+Affordance = tuple[Situations, Behaviors, Objectives]

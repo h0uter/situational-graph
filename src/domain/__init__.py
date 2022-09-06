@@ -6,7 +6,7 @@ __all__ = [
     "Affordance",
     "Behaviors",
     "Objectives",
-    "ObjectTypes",
+    "Situations",
     "OfflinePlanner",
     "Plan",
     "TOSG",
@@ -14,14 +14,14 @@ __all__ = [
     "BehaviorResult",
     "Capabilities",
     "OnlinePlanner",
-    "WorldObject"
+    "WorldObject",
 ]
 
 # import domain model
 from src.domain.entities.node_and_edge import Edge, Node
 from src.domain.entities.behaviors import Behaviors
 from src.domain.entities.objectives import Objectives
-from src.domain.entities.object_types import ObjectTypes
+from src.domain.entities.object_types import Situations
 from src.domain.entities.task import Task
 from src.domain.entities.local_grid import LocalGrid
 from src.domain.entities.plan import Plan

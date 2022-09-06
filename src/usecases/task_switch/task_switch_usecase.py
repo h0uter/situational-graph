@@ -2,9 +2,10 @@ from typing import Sequence
 
 from src.configuration.config import cfg
 from src.domain import TOSG
-from src.domain.entities.object_types import ObjectTypes
-from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import \
-    add_shortcut_edges_between_wps_on_lg
+from src.domain.entities.object_types import Situations
+from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    add_shortcut_edges_between_wps_on_lg,
+)
 from src.domain.services.tosg import TOSG
 from src.usecases.usecase import UseCase
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
@@ -14,9 +15,7 @@ class TaskSwitchUseCase(UseCase):
     def run(self):
         cfg.AGENT_START_POS = (6.5, -14)
         agents, tosg, usecases, viz_listener = self.init_entities()
-        self.common_setup(
-            tosg, agents, start_poses=[agent.pos for agent in agents]
-        )
+        self.common_setup(tosg, agents, start_poses=[agent.pos for agent in agents])
 
         self.setup(tosg)
         for agent in agents:
@@ -64,7 +63,7 @@ class TaskSwitchUseCase(UseCase):
         tosg.add_node_with_task_and_edges_from_affordances(
             # node_list[3], ObjectTypes.FRONTIER, new_task_pos, SAR_AFFORDANCES
             node_list[3],
-            ObjectTypes.UNKNOWN_VICTIM,
+            Situations.UNKNOWN_VICTIM,
             orig_task_pos,
             SAR_AFFORDANCES,
         )
@@ -73,7 +72,7 @@ class TaskSwitchUseCase(UseCase):
         tosg.add_node_with_task_and_edges_from_affordances(
             # node_list[3], ObjectTypes.FRONTIER, new_task_pos, SAR_AFFORDANCES
             node_list[6],
-            ObjectTypes.UNKNOWN_VICTIM,
+            Situations.UNKNOWN_VICTIM,
             switch_task_pos,
             SAR_AFFORDANCES,
         )

@@ -5,7 +5,7 @@ from typing import Optional, Sequence
 import numpy as np
 import numpy.typing as npt
 from src.configuration.config import cfg
-from src.domain import TOSG, Node, ObjectTypes, Plan, Task
+from src.domain import TOSG, Node, Situations, Plan, Task
 from src.domain.entities.local_grid import LocalGrid
 from src.domain.entities.world_object import WorldObject
 from src.domain.entities.capabilities import Capabilities
@@ -129,7 +129,7 @@ class AbstractAgent(ABC):
     # perhaps something like this should go into robot services, to not murk the dependencies.
     def localize_to_waypoint(self, krm: TOSG):
         loc_candidates = krm.get_nodes_of_type_in_margin(
-            self.get_localization(), cfg.AT_WP_MARGIN, ObjectTypes.WAYPOINT
+            self.get_localization(), cfg.AT_WP_MARGIN, Situations.WAYPOINT
         )
 
         if len(loc_candidates) == 0:
