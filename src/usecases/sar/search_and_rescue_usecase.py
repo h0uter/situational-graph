@@ -1,13 +1,10 @@
-from curses.ascii import US
 from typing import Sequence
 
-from src.domain import TOSG
-from src.domain import Plan, Task, Objectives, Behaviors
+from src.domain import TOSG, Behaviors, Objectives, Plan, Task
 from src.domain.services.abstract_agent import AbstractAgent
-from src.usecases.usecase import UseCase
+from src.usecases.usecase import Usecase
 
-
-class SearchAndRescueUseCase(UseCase):
+class SearchAndRescueUsecase(Usecase):
     def run(self):
         agents, tosg, usecases, viz_listener = self.init_entities()
         self.common_setup(

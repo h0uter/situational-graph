@@ -7,11 +7,12 @@ from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg impo
     add_shortcut_edges_between_wps_on_lg,
 )
 from src.domain.services.tosg import TOSG
-from src.usecases.usecase import UseCase
+from src.usecases.usecase import Usecase
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 
+"""This is a usecase to obtain the task swithc results."""
 
-class TaskSwitchUseCase(UseCase):
+class TaskSwitchUsecase(Usecase):
     def run(self):
         cfg.AGENT_START_POS = (6.5, -14)
         agents, tosg, usecases, viz_listener = self.init_entities()

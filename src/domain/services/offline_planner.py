@@ -99,6 +99,7 @@ class OfflinePlanner:
         filtered_tosg.G = filtered_G
         return filtered_tosg
 
+    # TODO: instead of removing tasks we should remove unssuccessfull edges, and this can then indirectly remove a task.
     def _destroy_task(self, agent: AbstractAgent, tosg: TOSG):
         self._log.debug(f"{agent.name}:  has a task  {agent.task}")
 
@@ -181,6 +182,7 @@ class OfflinePlanner:
         if result.success:
             # self._log.debug(f"the plan is {plan}")
             plan.mutate_success()
+            # this is duplicate with the check in calling the plan executor
             if len(plan) == 0:
                 self._destroy_task(agent, tosg)
                 return None

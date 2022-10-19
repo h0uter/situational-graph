@@ -19,7 +19,7 @@ from src.usecases.utils.feedback import (
 )
 
 
-class UseCase:
+class Usecase:
     def run_demo(
         self,
         agents: list[AbstractAgent],

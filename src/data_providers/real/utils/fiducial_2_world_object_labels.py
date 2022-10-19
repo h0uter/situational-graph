@@ -12,13 +12,20 @@ from src.domain.entities.object_types import Situations
 #     "212": "victim2",
 # }
 
+'''TNO'''
+# WORLD_OBJECT_ID_TO_NAME_MAPPING = {
+#     "204": Situations.UNKNOWN_VICTIM,
+#     "205": Situations.UNKNOWN_VICTIM,
+#     # "208": "fire1",
+#     # "207": "fire1",
+#     "206": Situations.UNKNOWN_VICTIM,
+#     "207": Situations.UNKNOWN_VICTIM,
+# }
+
+'''TU Delft'''
 WORLD_OBJECT_ID_TO_NAME_MAPPING = {
-    "204": Situations.UNKNOWN_VICTIM,
-    "205": Situations.UNKNOWN_VICTIM,
-    # "208": "fire1",
-    # "207": "fire1",
-    "206": Situations.UNKNOWN_VICTIM,
-    "207": Situations.UNKNOWN_VICTIM,
+    "1": Situations.UNKNOWN_VICTIM,
+    "3": Situations.UNKNOWN_VICTIM,
 }
 
 

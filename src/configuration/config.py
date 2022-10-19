@@ -89,8 +89,8 @@ class Config:
         self.NUM_AGENTS = num_agents
 
         # logging
-        LOG_LVL = logging.DEBUG
-        # LOG_LVL = logging.INFO
+        # LOG_LVL = logging.DEBUG
+        LOG_LVL = logging.INFO
         logging.basicConfig(stream=sys.stdout, level=LOG_LVL)
         logging.getLogger("matplotlib").setLevel(logging.WARNING)
         logging.getLogger("PIL").setLevel(logging.WARNING)
@@ -186,7 +186,7 @@ class Config:
         self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
 
 """Set configuration here"""
-cfg = Config()
+# cfg = Config()
 # cfg = Config(max_steps=10)
 # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
 # cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
@@ -199,7 +199,8 @@ cfg = Config()
 # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, scenario=Scenario.SIM_MAZE_MEDIUM)
 
 # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
-# cfg = Config(scenario=Scenario.REAL, screenshot=True, screenshot_folder_name="vonweiler")
+# cfg = Config(scenario=Scenario.REAL, screenshot=True, screenshot_folder_name="vonweiler2")
+# cfg = Config(screenshot=True, screenshot_folder_name="vonweiler2")
 cfg = Config(scenario=Scenario.REAL)
 
 # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
