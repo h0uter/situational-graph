@@ -11,7 +11,6 @@ from src.domain.services.behaviors.abstract_behavior import (
 
 from src.configuration.config import cfg
 
-
 from src.domain.services.tosg import TOSG
 from src.utils.audio_feedback import play_file, generate_or_play_audio
 
@@ -92,8 +91,8 @@ class AssessBehavior(AbstractBehavior):
         # todo make this actually orient the robot towards the target and perform some scan or assessment.
         # use the play file library to say some shit and emulate listening for the response.
 
-        # if cfg.AUDIO_FEEDBACK:
-        #     play_file("assessment.mp3")
+        if cfg.AUDIO_FEEDBACK:
+            play_file("assessment.mp3")
 
         if random() < 0.5:
             return VictimState.MOBILE
