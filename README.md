@@ -1,5 +1,5 @@
 # ፨ Behavior-Oriented Situational Graph ፨
-This is a Python library for online task discovery with mobile robots, it uses exploration, perception and a novel datastructute based on situational affordances to build an actionable environment representation, the *behavior-oriented situational graph*. The framework can easily be extended with new behaviors, new situations and new mission objectives.
+This is a Python library for online task discovery with mobile robots, it uses exploration, perception and a novel datastructure based on situational affordances to build an actionable environment representation, the *behavior-oriented situational graph*. The framework can easily be extended with new behaviors, new situations and new mission objectives.
 
 
  
@@ -7,9 +7,9 @@ This is a Python library for online task discovery with mobile robots, it uses e
 
 
 ## 🚀 Quick start simulation 🚀
-![](https://github.com/h0uter/knowledge-roadmap/workflows/Project%20Tests/badge.svg)
+![](https://github.com/h0uter/situational-graph/workflows/Project%20Tests/badge.svg)
 - requires python 3.9
-- goto the folder of the repo: `cd <path>/knowledge_roadmap`
+- goto the folder of the repo: `cd <path>/situational-graph`
 - install dependencies: `pip install -r requirements.txt`
 - install repo as a local editable package: `pip install -e .`
 - select a demo config in `src/configuration/config.py` and run `__main__.py`.
