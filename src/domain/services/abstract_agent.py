@@ -4,11 +4,12 @@ from typing import Optional, Sequence
 
 import numpy as np
 import numpy.typing as npt
+
 from src.configuration.config import cfg
-from src.domain import TOSG, Node, Situations, Plan, Task
+from src.domain import TOSG, Node, Plan, Situations, Task
+from src.domain.entities.capabilities import Capabilities
 from src.domain.entities.local_grid import LocalGrid
 from src.domain.entities.world_object import WorldObject
-from src.domain.entities.capabilities import Capabilities
 from src.entrypoints.utils.event import post_event
 
 

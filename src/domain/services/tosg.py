@@ -47,14 +47,20 @@ class TOSG:
 
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
+        try:
+            path_of_nodes = nx.astar_path(
+                self.G,
+                source=source,
+                target=target,
+                weight="cost",
+                heuristic=dist_heur_wrapper,
+            )
+        except nx.NetworkXNoPath:
+            self._log.debug(
+                f"shortest_path: No path found from {source} to {target}."
+            )
+            return None
 
-        path_of_nodes = nx.astar_path(
-            self.G,
-            source=source,
-            target=target,
-            weight="cost",
-            heuristic=dist_heur_wrapper,
-        )
         if len(path_of_nodes) > 1:
             return self.node_list_to_edge_list(path_of_nodes)
         else:
