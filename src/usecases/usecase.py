@@ -9,6 +9,7 @@ from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.domain import TOSG, Capabilities
 from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.services.online_planner import OnlinePlanner
+from src.domain.services.offline_planner import OfflinePlanner
 from src.entrypoints.utils.vizualisation_listener import VizualisationListener
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar.sar_behaviors import SAR_BEHAVIORS
