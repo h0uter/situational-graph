@@ -11,18 +11,6 @@ def test_local_grid_init():
     assert lg.length_in_m == lg.cell_size_in_m * lg.length_num_cells
 
 
-def test_world_coord_in_local_grid():
-    lg = LocalGrid((9, 9), np.array([]))
-    a = (10, 10)
-    assert lg.is_inside(a) is True
-
-
-def test_world_coord_not_in_local_grid():
-    lg = LocalGrid((9, 9), np.array([]))
-    a = (16, 10)
-    assert lg.is_inside(a) is False
-
-
 def test_calc_length_num_cells():
     lg = LocalGrid((9, 9), np.array([]))
 
