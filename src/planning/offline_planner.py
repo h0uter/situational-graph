@@ -3,7 +3,7 @@ import logging
 from typing import Mapping, Optional, Sequence, Type
 import networkx as nx
 
-from src.configuration.config import cfg
+from src.config import cfg
 from src.domain import (
     TOSG,
     AbstractBehavior,
@@ -15,7 +15,7 @@ from src.domain import (
     Edge,
 )
 from src.platform.abstract_agent import AbstractAgent
-import src.entrypoints.utils.event as event
+import src.gui.utils.event as event
 
 
 class CouldNotFindPlan(Exception):

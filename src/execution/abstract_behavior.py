@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Sequence
 
 from src.domain import TOSG, Edge, Affordance
-from src.configuration.config import cfg
+from src.config import cfg
 from src.platform.abstract_agent import AbstractAgent
 
 

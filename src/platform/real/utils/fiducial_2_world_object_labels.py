@@ -1,6 +1,6 @@
 # 202==201
-from src.domain.entities.world_object import WorldObject
-from src.domain.entities.object_types import Situations
+from src.shared.world_object import WorldObject
+from src.shared.object_types import Situations
 
 # FIXME: update this with the new world objects
 # WORLD_OBJECT_ID_TO_NAME_MAPPING = {

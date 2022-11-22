@@ -6,7 +6,7 @@ import numpy as np
 import numpy.typing as npt
 from skimage import draw
 
-from src.configuration.config import Scenario, cfg
+from src.config import Scenario, cfg
 
 
 class LocalGrid:

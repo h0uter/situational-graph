@@ -20,14 +20,14 @@ from bosdyn.client.frame_helpers import (
     get_a_tform_b,
     get_vision_tform_body,
 )
-from src.domain.entities.capabilities import Capabilities
+from src.shared.capabilities import Capabilities
 
 from src.platform.real.utils.fiducial_2_world_object_labels import create_wo_from_fiducial
 from src.platform.real.utils.spot_wrapper import SpotWrapper
 from src.platform.abstract_agent import AbstractAgent
-from src.domain.entities.local_grid import LocalGrid
+from src.shared.local_grid import LocalGrid
 from src.platform.real.utils.get_login_config import get_login_config
-from src.domain.entities.capabilities import Capabilities
+from src.shared.capabilities import Capabilities
 
 # from src.entities.world_object import WorldObject
 

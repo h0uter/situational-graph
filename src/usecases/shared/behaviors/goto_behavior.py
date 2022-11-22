@@ -1,17 +1,17 @@
 from typing import Sequence
-from src.domain.entities.local_grid import LocalGrid
-from src.domain.entities.object_types import Situations
+from src.shared.local_grid import LocalGrid
+from src.shared.object_types import Situations
 from src.platform.abstract_agent import AbstractAgent
-from src.domain.entities.affordance import Affordance
-from src.domain.entities.node_and_edge import Edge
-from src.domain.services.behaviors.abstract_behavior import (
+from src.shared.affordance import Affordance
+from src.shared.node_and_edge import Edge
+from src.execution.abstract_behavior import (
     AbstractBehavior,
     BehaviorResult,
 )
-from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
 )
-from src.domain.services.tosg import TOSG
+from src.planning.tosg import TOSG
 
 
 class GotoBehavior(AbstractBehavior):

@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from uuid import uuid4
 
 import networkx as nx
-from src.configuration.config import cfg
+from src.config import cfg
 from src.domain import (
     Affordance,
     Behaviors,

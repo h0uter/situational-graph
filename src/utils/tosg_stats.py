@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
-from src.domain.entities.behaviors import Behaviors
-from src.domain.entities.object_types import Situations
-from src.domain.services.tosg import TOSG
+from src.shared.behaviors import Behaviors
+from src.shared.object_types import Situations
+from src.planning.tosg import TOSG
 
 from src.utils.saving_data_objects import load_something, save_something
-from src.entrypoints.utils.event import subscribe
+from src.gui.utils.event import subscribe
 
 
 @dataclass

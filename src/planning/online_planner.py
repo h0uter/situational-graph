@@ -1,6 +1,6 @@
 from src.platform.abstract_agent import AbstractAgent
-from src.domain.services.offline_planner import OfflinePlanner, CouldNotFindPlan, CouldNotFindTask, TargetNodeNotFound
-from src.domain.services.tosg import TOSG
+from src.planning.offline_planner import OfflinePlanner, CouldNotFindPlan, CouldNotFindTask, TargetNodeNotFound
+from src.planning.tosg import TOSG
 
 
 class OnlinePlanner(OfflinePlanner):

@@ -1,6 +1,6 @@
-from src.configuration.config import cfg, Scenario
-from src.domain.entities.object_types import Situations
-from src.domain.entities.world_object import WorldObject
+from src.config import cfg, Scenario
+from src.shared.object_types import Situations
+from src.shared.world_object import WorldObject
 
 
 class WorldObjectSpoofer:

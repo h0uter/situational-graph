@@ -4,14 +4,14 @@ from random import random
 from typing import Sequence
 from src.platform.abstract_agent import AbstractAgent
 from src.domain import Affordance, Edge, Situations
-from src.domain.services.behaviors.abstract_behavior import (
+from src.execution.abstract_behavior import (
     AbstractBehavior,
     BehaviorResult,
 )
 
-from src.configuration.config import cfg
+from src.config import cfg
 
-from src.domain.services.tosg import TOSG
+from src.planning.tosg import TOSG
 from src.utils.audio_feedback import play_file, generate_or_play_audio
 
 

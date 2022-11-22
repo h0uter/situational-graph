@@ -1,10 +1,10 @@
 import logging
 import time
-from src.configuration.config import PlotLvl, cfg
+from src.config import PlotLvl, cfg
 from src.platform.abstract_agent import AbstractAgent
-from src.domain.services.tosg import TOSG
+from src.planning.tosg import TOSG
 
-import src.entrypoints.utils.event as event
+import src.gui.utils.event as event
 from src.utils.audio_feedback import play_file
 from src.utils.tosg_stats import TOSGStats
 

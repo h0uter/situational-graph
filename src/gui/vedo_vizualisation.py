@@ -12,9 +12,9 @@ from vedo import io
 
 from src.platform.abstract_agent import AbstractAgent
 from src.domain import TOSG, Situations, LocalGrid, OfflinePlanner
-from src.domain.entities.node_and_edge import Node
-from src.entrypoints.abstract_vizualisation import AbstractVizualisation
-from src.configuration.config import cfg, PlotLvl, Scenario
+from src.shared.node_and_edge import Node
+from src.gui.abstract_vizualisation import AbstractVizualisation
+from src.config import cfg, PlotLvl, Scenario
 
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html

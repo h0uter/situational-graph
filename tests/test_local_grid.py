@@ -1,9 +1,9 @@
-from src.domain.entities.local_grid import LocalGrid
+from src.shared.local_grid import LocalGrid
 
 import numpy as np
 import pytest
 
-from src.configuration.config import cfg
+from src.config import cfg
 
 
 def test_local_grid_init():

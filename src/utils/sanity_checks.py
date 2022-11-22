@@ -1,5 +1,5 @@
-from src.domain.entities.behaviors import Behaviors
-from src.domain.services.tosg import TOSG
+from src.shared.behaviors import Behaviors
+from src.planning.tosg import TOSG
 import networkx as nx
 
 

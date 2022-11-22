@@ -1,13 +1,13 @@
 from typing import Optional, Sequence
 
-from src.configuration.config import cfg
+from src.config import cfg
 from src.domain import (TOSG, AbstractBehavior, Affordance, BehaviorResult,
                         Edge, LocalGrid, Node, Situations, WorldObject)
-from src.domain.entities.local_grid import (AngularLOSFrontierSamplingStrategy,
+from src.shared.local_grid import (AngularLOSFrontierSamplingStrategy,
                                             FrontierSamplingStrategy,
                                             LOSFrontierSamplingStrategy)
 from src.platform.abstract_agent import AbstractAgent
-from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import \
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
     add_shortcut_edges_between_wps_on_lg
 from src.utils.saving_data_objects import load_something, save_something
 

@@ -1,8 +1,8 @@
-from src.configuration.config import cfg
-from src.domain.entities.local_grid import LocalGrid
-from src.domain.entities.object_types import Situations
+from src.config import cfg
+from src.shared.local_grid import LocalGrid
+from src.shared.object_types import Situations
 from src.platform.abstract_agent import AbstractAgent
-from src.domain.services.tosg import TOSG
+from src.planning.tosg import TOSG
 
 
 # BUG: on the real robot sometimes impossible shortcuts are added.

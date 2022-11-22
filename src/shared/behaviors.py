@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from src.domain.entities.capabilities import Capabilities
+from src.shared.capabilities import Capabilities
 
 # TODO: make BaseBehaviors class to inherit from for specific domains
 class Behaviors(Enum):

@@ -1,4 +1,4 @@
-from src.domain.services.tosg import TOSG
+from src.planning.tosg import TOSG
 
 
 def test_get_node_by_pos():

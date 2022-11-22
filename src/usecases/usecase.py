@@ -2,15 +2,15 @@ import time
 from abc import abstractmethod
 from typing import Sequence
 
-import src.entrypoints.utils.event as event
-from src.configuration.config import Scenario, cfg
+import src.gui.utils.event as event
+from src.config import Scenario, cfg
 from src.platform.real.spot_agent import SpotAgent
 from src.platform.sim.simulated_agent import SimulatedAgent
 from src.domain import TOSG, Capabilities
 from src.platform.abstract_agent import AbstractAgent
-from src.domain.services.offline_planner import OfflinePlanner
-from src.domain.services.online_planner import OnlinePlanner
-from src.entrypoints.utils.vizualisation_listener import VizualisationListener
+from src.planning.offline_planner import OfflinePlanner
+from src.planning.online_planner import OnlinePlanner
+from src.gui.utils.vizualisation_listener import VizualisationListener
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar.sar_behaviors import SAR_BEHAVIORS
 from src.usecases.utils.feedback import (feedback_pipeline_completion,

@@ -18,22 +18,22 @@ __all__ = [
 ]
 
 # import domain model
-from src.domain.entities.node_and_edge import Edge, Node
-from src.domain.entities.behaviors import Behaviors
-from src.domain.entities.objectives import Objectives
-from src.domain.entities.object_types import Situations
-from src.domain.entities.task import Task
-from src.domain.entities.local_grid import LocalGrid
-from src.domain.entities.plan import Plan
-from src.domain.entities.capabilities import Capabilities
-from src.domain.entities.affordance import Affordance
-from src.domain.entities.world_object import WorldObject
+from src.shared.node_and_edge import Edge, Node
+from src.shared.behaviors import Behaviors
+from src.shared.objectives import Objectives
+from src.shared.object_types import Situations
+from src.shared.task import Task
+from src.shared.local_grid import LocalGrid
+from src.shared.plan import Plan
+from src.shared.capabilities import Capabilities
+from src.shared.affordance import Affordance
+from src.shared.world_object import WorldObject
 
 # import domain services
-from src.domain.services.tosg import TOSG
-from src.domain.services.behaviors.abstract_behavior import (
+from src.planning.tosg import TOSG
+from src.execution.abstract_behavior import (
     AbstractBehavior,
     BehaviorResult,
 )
-from src.domain.services.offline_planner import OfflinePlanner
-from src.domain.services.online_planner import OnlinePlanner
+from src.planning.offline_planner import OfflinePlanner
+from src.planning.online_planner import OnlinePlanner

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID, uuid4
 
 from src.domain import Objectives
-from src.domain.entities.node_and_edge import Edge
+from src.shared.node_and_edge import Edge
 
 
 @dataclass

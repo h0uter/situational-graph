@@ -1,12 +1,12 @@
 from typing import Sequence
 
-from src.configuration.config import cfg
+from src.config import cfg
 from src.domain import TOSG
-from src.domain.entities.object_types import Situations
-from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+from src.shared.object_types import Situations
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
 )
-from src.domain.services.tosg import TOSG
+from src.planning.tosg import TOSG
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.usecase import Usecase
 

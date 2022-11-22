@@ -1,7 +1,7 @@
 import numpy.typing as npt
 from PIL import Image
 
-from src.configuration.config import cfg
+from src.config import cfg
 from src.utils.coordinate_transforms import img_axes2world_axes
 
 
