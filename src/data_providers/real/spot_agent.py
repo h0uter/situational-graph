@@ -525,40 +525,40 @@ def move_vision_demo_usecase():
     time.sleep(15)
 
 
-def move_to_sampled_point_usecase():
-    spot = SpotAgent()
-    time.sleep(7)
-    plt.ion()
-    plt.show()
+# def move_to_sampled_point_usecase():
+#     spot = SpotAgent()
+#     time.sleep(7)
+#     plt.ion()
+#     plt.show()
 
-    spot.get_localization()
-    while True:
+#     spot.get_localization()
+#     while True:
 
-        plt.clf()
-        grid_img = get_local_grid(spot)
-        # plot_local_grid(grid_img)
-        plt.imshow(grid_img, origin="lower")
-        time.sleep(1)
+#         plt.clf()
+#         grid_img = get_local_grid(spot)
+#         # plot_local_grid(grid_img)
+#         plt.imshow(grid_img, origin="lower")
+#         time.sleep(1)
 
-        lg = LocalGrid((0, 0), grid_img, 3.84, 0.03)
-        print(lg)
-        frontiers = lg.los_sample_frontiers_on_cellmap(60, 50)
-        print(frontiers)
+#         lg = LocalGrid((0, 0), grid_img, 3.84, 0.03)
+#         print(lg)
+#         frontiers = lg.los_sample_frontiers_on_cellmap(60, 50)
+#         print(frontiers)
 
-        plt.imshow(grid_img, origin="lower")
-        # plt.imshow(grid_img)
-        plt.plot(frontiers[:, 0], frontiers[:, 1], "X")
-        # plt.show()
-        plt.pause(5)
+#         plt.imshow(grid_img, origin="lower")
+#         # plt.imshow(grid_img)
+#         plt.plot(frontiers[:, 0], frontiers[:, 1], "X")
+#         # plt.show()
+#         plt.pause(5)
 
-        x, y, z = spot.get_localization()
+#         x, y, z = spot.get_localization()
 
-        x_goal = x + (frontiers[0, 0] - 64) * 0.03
-        y_goal = y + (frontiers[0, 1] - 64) * 0.03
-        print(f"ima at {x}, {y}, moving to: {x_goal}, {y_goal}")
+#         x_goal = x + (frontiers[0, 0] - 64) * 0.03
+#         y_goal = y + (frontiers[0, 1] - 64) * 0.03
+#         print(f"ima at {x}, {y}, moving to: {x_goal}, {y_goal}")
 
-        spot.move_vision_frame((x_goal, y_goal))
-        time.sleep(5)
+#         spot.move_vision_frame((x_goal, y_goal))
+#         time.sleep(5)
 
 
 def movement_square_VISION_test(spot):
