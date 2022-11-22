@@ -1,5 +1,5 @@
-from abc import abstractmethod
 import time
+from abc import abstractmethod
 from typing import Sequence
 
 import src.entrypoints.utils.event as event
@@ -8,20 +8,18 @@ from src.data_providers.real.spot_agent import SpotAgent
 from src.data_providers.sim.simulated_agent import SimulatedAgent
 from src.domain import TOSG, Capabilities
 from src.domain.services.abstract_agent import AbstractAgent
-from src.domain.services.online_planner import OnlinePlanner
 from src.domain.services.offline_planner import OfflinePlanner
+from src.domain.services.online_planner import OnlinePlanner
 from src.entrypoints.utils.vizualisation_listener import VizualisationListener
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar.sar_behaviors import SAR_BEHAVIORS
-from src.usecases.utils.feedback import (
-    feedback_pipeline_completion,
-    feedback_pipeline_init,
-    feedback_pipeline_single_step,
-)
+from src.usecases.utils.feedback import (feedback_pipeline_completion,
+                                         feedback_pipeline_init,
+                                         feedback_pipeline_single_step)
 
 
 class Usecase:
-    def run_demo(
+    def main_loop(
         self,
         agents: list[AbstractAgent],
         tosg: TOSG,

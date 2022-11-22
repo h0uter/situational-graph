@@ -8,6 +8,7 @@ import coloredlogs
 
 """User Configuration can be found at the bottom of this file"""
 
+
 class Scenario(Enum):
     SIM_VILLA = auto()
     SIM_VILLA_ROOM = auto()
@@ -129,7 +130,9 @@ class Config:
 
         self.MAP_PATH = os.path.join("resource", "villa_holes_closed.png")
         self.MAP_PATH2 = os.path.join("resource", "villa_holes_closed_open_wall.png")
-        self.MAP_PATH_TASK_SWITCH = os.path.join("resource", "villa_holes_closed_task_switch.png")
+        self.MAP_PATH_TASK_SWITCH = os.path.join(
+            "resource", "villa_holes_closed_task_switch.png"
+        )
         self.TOT_MAP_LEN_M_X = 50
         self.IMG_TOTAL_X_PIX = 2026
         self.IMG_TOTAL_Y_PIX = 1686
@@ -185,6 +188,7 @@ class Config:
         ) * self.IMG_TOTAL_Y_PIX
         self.TOTAL_MAP_LEN_M = (self.TOT_MAP_LEN_M_X, self.TOT_MAP_LEN_M_Y)
         self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
+
 
 """Set configuration here"""
 # cfg = Config()

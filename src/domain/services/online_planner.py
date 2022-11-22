@@ -11,9 +11,7 @@ class OnlinePlanner(OfflinePlanner):
 
             filtered_tosg = self._filter_graph(tosg, agent)
 
-            # this fails because we overide the initialisation
             """select a task"""
-            # agent.task = self._task_selection(agent, tosg)
             agent.task = self._task_selection(agent, filtered_tosg)
             if not agent.task:
                 return self._check_if_tasks_exhausted(tosg)

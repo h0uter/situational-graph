@@ -4,6 +4,7 @@ from src.domain import TOSG, Behaviors, Objectives, Plan, Task
 from src.domain.services.abstract_agent import AbstractAgent
 from src.usecases.usecase import Usecase
 
+
 class SearchAndRescueUsecase(Usecase):
     def run(self):
         agents, tosg, usecases, viz_listener = self.init_entities()
@@ -14,7 +15,7 @@ class SearchAndRescueUsecase(Usecase):
         """setup the specifics of the usecase"""
         self.setup(tosg, agents)
 
-        success = self.run_demo(agents, tosg, usecases, viz_listener)
+        success = self.main_loop(agents, tosg, usecases, viz_listener)
 
         return success
 

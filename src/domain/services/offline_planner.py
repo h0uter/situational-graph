@@ -17,6 +17,7 @@ from src.domain import (
 from src.domain.services.abstract_agent import AbstractAgent
 import src.entrypoints.utils.event as event
 
+
 class CouldNotFindPlan(Exception):
     pass
 
@@ -140,6 +141,9 @@ class OfflinePlanner:
         task_to_utility = {task: calc_utility(task.reward, path_costs[task.edge[1]]) for task in tosg.tasks if task.edge[1] in path_costs}
 
         event.post_event("task_utilities", task_to_utility)
+
+        if len(task_to_utility) == 0:
+            return None
 
         return max(task_to_utility, key=task_to_utility.get)
 

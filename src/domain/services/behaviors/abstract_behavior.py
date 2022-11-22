@@ -68,14 +68,12 @@ class AbstractBehavior(ABC):
         behavior_edge: Edge,
         affordances: Sequence[Affordance],
     ):
-        """Mutate the graph according to the behavior."""
         pass
 
     @abstractmethod
     def _mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosgraph: TOSG, behavior_edge: Edge
     ):
-        """Mutate the graph according to the behavior."""
         pass
 
     # 1. check_preconditions(agent, edge)
