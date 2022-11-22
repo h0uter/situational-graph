@@ -1,25 +1,30 @@
 from typing import Optional, Sequence
 
-from src.domain.services.abstract_agent import AbstractAgent
+from src.configuration.config import cfg
 from src.domain import (
-    LocalGrid,
+    TOSG,
+    AbstractBehavior,
+    Affordance,
+    BehaviorResult,
     Edge,
+    LocalGrid,
     Node,
     Situations,
-    AbstractBehavior,
-    BehaviorResult,
-    TOSG,
-    Affordance,
     WorldObject,
 )
+from src.domain.services.abstract_agent import AbstractAgent
 from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
 )
+from src.domain.entities.local_grid import FrontierSamplingStrategy, LOSFrontierSamplingStrategy
 from src.utils.saving_data_objects import load_something, save_something
-from src.configuration.config import cfg
 
 
 class ExploreBehavior(AbstractBehavior):
+    def __init__(self, agent: AbstractAgent):
+        super().__init__(agent)
+        self._sampling_strategy = LOSFrontierSamplingStrategy()
+
     def _run_behavior_implementation(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge
     ) -> BehaviorResult:
@@ -30,7 +35,7 @@ class ExploreBehavior(AbstractBehavior):
         # HACK: this should just be an init behavior or something.
         if not agent.init_explore_step_completed:
             lg = agent.get_local_grid()
-            new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
+            new_frontier_cells = self._sampling_strategy.sample_frontiers(lg)
             self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
             agent.set_init_explore_step()
             return BehaviorResult(False)
@@ -79,7 +84,8 @@ class ExploreBehavior(AbstractBehavior):
             self._log.error("sampling waypoint failed")
 
         # XXX: this is my 2nd  most expensive function, so I should try to optimize it
-        new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
+        # new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
+        new_frontier_cells = self._sampling_strategy.sample_frontiers(lg)
         self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
 
         # XXX: this is my 3nd expensive function, so I should try to optimize it
@@ -191,21 +197,6 @@ class ExploreBehavior(AbstractBehavior):
             agent.localize_to_waypoint(tosg)
 
             return True
-
-    def __sample_new_frontiers(
-        self,
-        agent: AbstractAgent,
-        tosg: TOSG,
-        lg: LocalGrid,
-    ) -> Sequence:
-
-        new_frontier_cells = lg.los_sample_frontiers_on_cellmap(
-            radius=cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS,
-            num_frontiers_to_sample=cfg.N_SAMPLES,
-        )
-        self._log.debug(f"{agent.name}: found {len(new_frontier_cells)} new frontiers")
-
-        return new_frontier_cells
 
     def __add_new_frontiers_to_tosg(self, new_frontier_cells, lg, tosg: TOSG, agent):
         for frontier_cell in new_frontier_cells:

@@ -1,17 +1,19 @@
 import logging
+from abc import ABC, abstractmethod
 from typing import Optional
 
 import numpy as np
 import numpy.typing as npt
 from skimage import draw
 
-from src.configuration.config import cfg, Scenario
-
+from src.configuration.config import Scenario, cfg
 
 
 class LocalGrid:
     def __init__(self, world_pos: tuple, img_data: npt.NDArray):
-        self._logger = logging.getLogger(__name__)
+        self._log = logging.getLogger(__name__)
+
+        self.sampling_strategy = LOSFrontierSamplingStrategy()
 
         self.world_pos = world_pos
         self.data = img_data
@@ -23,7 +25,7 @@ class LocalGrid:
         self.sample_ring_width = cfg.SAMPLE_RING_WIDTH
 
         if not self.data.shape[0:2] == (self.length_num_cells, self.length_num_cells):
-            self._logger.warning(
+            self._log.warning(
                 f"ERROR: data.shape = {self.data.shape[0:2]}, length_num_cells = {self.length_num_cells}"
             )
 
@@ -79,26 +81,6 @@ class LocalGrid:
                 self.world_pos[1] + idxs[0] * self.cell_size_in_m - self.length_in_m / 2
             )
         return x_coord, y_coord
-
-    # # TODO: optimize this function for speed
-    # def cell_idxs2world_coords(self, idxs: tuple) -> tuple:
-    #     """
-    #     Convert the cell indices to the world coordinates.
-    #     """
-    #     x_coords = []
-    #     y_coords = []
-    #     for i in range(len(idxs[0])):
-    #         x_coords.append(
-    #             self.world_pos[0]
-    #             + idxs[1][i] * self.cell_size_in_m
-    #             - self.length_in_m / 2
-    #         )
-    #         y_coords.append(
-    #             self.world_pos[1]
-    #             + idxs[0][i] * self.cell_size_in_m
-    #             - self.length_in_m / 2
-    #         )
-    #     return x_coords, y_coords
 
     def _get_cells_under_line(self, a: tuple, b: tuple) -> tuple:
         rr, cc = draw.line(int(a[0]), int(a[1]), int(b[0]), int(b[1]))
@@ -180,23 +162,36 @@ class LocalGrid:
             return x_sample, y_sample
         else:
             # raise Exception("Could not sample a valid cell around other cell")
-            self._logger.warning("Could not sample a valid cell around other cell")
+            self._log.warning("Could not sample a valid cell around other cell")
             # raise Exception("Could not sample a valid cell around other cell")
 
-    # TODO: make this a a strategy
-    # alternatice strategy should be sampling with dijkstra on a lattice graph.
-    def los_sample_frontiers_on_cellmap(
-        self, radius: int, num_frontiers_to_sample: int
+
+class FrontierSamplingStrategy(ABC):
+    """Base class for frontier sampling strategies."""
+
+    @abstractmethod
+    def sample_frontiers(self, local_grid: LocalGrid) -> npt.NDArray:
+        """Sample frontiers from the local grid."""
+        pass
+
+
+class LOSFrontierSamplingStrategy(FrontierSamplingStrategy):
+    def sample_frontiers(
+        self,
+        local_grid: LocalGrid,
     ) -> npt.NDArray:
         """
         Given a local grid, sample N points around a given point, and return the sampled points.
         """
+        radius: int = cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS
+        num_frontiers_to_sample: int = cfg.N_SAMPLES
+
         candidate_frontiers = []
         while len(candidate_frontiers) < num_frontiers_to_sample:
-            x_center = self.length_num_cells // 2
-            y_center = self.length_num_cells // 2
+            x_center = local_grid.length_num_cells // 2
+            y_center = local_grid.length_num_cells // 2
 
-            sample = self._sample_cell_around_other_cell(
+            sample = local_grid._sample_cell_around_other_cell(
                 x_center,
                 y_center,
                 radius=radius,
@@ -206,9 +201,7 @@ class LocalGrid:
 
                 candidate_frontiers.append((y_sample, x_sample))
             else:
-                self._logger.warning("sample_cell_around_other_cell() returned None")
                 break
-            # candidate_frontiers.append((x_sample, y_sample))
 
         # FIXME: this is hella random
         candidate_frontiers = np.array(candidate_frontiers).astype(int)
