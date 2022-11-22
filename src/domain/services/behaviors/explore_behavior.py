@@ -1,29 +1,22 @@
 from typing import Optional, Sequence
 
 from src.configuration.config import cfg
-from src.domain import (
-    TOSG,
-    AbstractBehavior,
-    Affordance,
-    BehaviorResult,
-    Edge,
-    LocalGrid,
-    Node,
-    Situations,
-    WorldObject,
-)
+from src.domain import (TOSG, AbstractBehavior, Affordance, BehaviorResult,
+                        Edge, LocalGrid, Node, Situations, WorldObject)
+from src.domain.entities.local_grid import (AngularLOSFrontierSamplingStrategy,
+                                            FrontierSamplingStrategy,
+                                            LOSFrontierSamplingStrategy)
 from src.domain.services.abstract_agent import AbstractAgent
-from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import (
-    add_shortcut_edges_between_wps_on_lg,
-)
-from src.domain.entities.local_grid import FrontierSamplingStrategy, LOSFrontierSamplingStrategy
+from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import \
+    add_shortcut_edges_between_wps_on_lg
 from src.utils.saving_data_objects import load_something, save_something
 
 
 class ExploreBehavior(AbstractBehavior):
     def __init__(self, agent: AbstractAgent):
         super().__init__(agent)
-        self._sampling_strategy = LOSFrontierSamplingStrategy()
+        # self._sampling_strategy = LOSFrontierSamplingStrategy()
+        self._sampling_strategy = AngularLOSFrontierSamplingStrategy()
 
     def _run_behavior_implementation(
         self, agent: AbstractAgent, tosg: TOSG, behavior_edge
