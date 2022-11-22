@@ -1,6 +1,6 @@
-from src.domain.services.abstract_agent import AbstractAgent
-from src.data_providers.sim.local_grid_image_spoofer import LocalGridImageSpoofer
-from src.data_providers.sim.world_object_spoofer import WorldObjectSpoofer
+from src.platform.abstract_agent import AbstractAgent
+from src.platform.sim.local_grid_image_spoofer import LocalGridImageSpoofer
+from src.platform.sim.world_object_spoofer import WorldObjectSpoofer
 import numpy.typing as npt
 from src.domain.entities.capabilities import Capabilities
 

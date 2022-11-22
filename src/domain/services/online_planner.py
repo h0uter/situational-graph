@@ -1,4 +1,4 @@
-from src.domain.services.abstract_agent import AbstractAgent
+from src.platform.abstract_agent import AbstractAgent
 from src.domain.services.offline_planner import OfflinePlanner, CouldNotFindPlan, CouldNotFindTask, TargetNodeNotFound
 from src.domain.services.tosg import TOSG
 

@@ -6,7 +6,7 @@ from src.domain import (TOSG, AbstractBehavior, Affordance, BehaviorResult,
 from src.domain.entities.local_grid import (AngularLOSFrontierSamplingStrategy,
                                             FrontierSamplingStrategy,
                                             LOSFrontierSamplingStrategy)
-from src.domain.services.abstract_agent import AbstractAgent
+from src.platform.abstract_agent import AbstractAgent
 from src.domain.services.behaviors.actions.find_shortcuts_between_wps_on_lg import \
     add_shortcut_edges_between_wps_on_lg
 from src.utils.saving_data_objects import load_something, save_something

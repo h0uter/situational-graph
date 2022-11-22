@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from src.domain import TOSG, Behaviors, Objectives, Plan, Task
-from src.domain.services.abstract_agent import AbstractAgent
+from src.platform.abstract_agent import AbstractAgent
 from src.usecases.usecase import Usecase
 
 

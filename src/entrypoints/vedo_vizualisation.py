@@ -10,7 +10,7 @@ import numpy as np
 import vedo
 from vedo import io
 
-from src.domain.services.abstract_agent import AbstractAgent
+from src.platform.abstract_agent import AbstractAgent
 from src.domain import TOSG, Situations, LocalGrid, OfflinePlanner
 from src.domain.entities.node_and_edge import Node
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation

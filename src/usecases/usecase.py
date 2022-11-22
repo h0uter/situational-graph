@@ -4,10 +4,10 @@ from typing import Sequence
 
 import src.entrypoints.utils.event as event
 from src.configuration.config import Scenario, cfg
-from src.data_providers.real.spot_agent import SpotAgent
-from src.data_providers.sim.simulated_agent import SimulatedAgent
+from src.platform.real.spot_agent import SpotAgent
+from src.platform.sim.simulated_agent import SimulatedAgent
 from src.domain import TOSG, Capabilities
-from src.domain.services.abstract_agent import AbstractAgent
+from src.platform.abstract_agent import AbstractAgent
 from src.domain.services.offline_planner import OfflinePlanner
 from src.domain.services.online_planner import OnlinePlanner
 from src.entrypoints.utils.vizualisation_listener import VizualisationListener

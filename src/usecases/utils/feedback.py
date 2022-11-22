@@ -1,7 +1,7 @@
 import logging
 import time
 from src.configuration.config import PlotLvl, cfg
-from src.domain.services.abstract_agent import AbstractAgent
+from src.platform.abstract_agent import AbstractAgent
 from src.domain.services.tosg import TOSG
 
 import src.entrypoints.utils.event as event

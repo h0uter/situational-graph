@@ -9,7 +9,7 @@ from src.configuration.config import cfg
 from src.domain.entities.behaviors import Behaviors
 from src.domain.entities.local_grid import LocalGrid
 from src.domain.entities.object_types import Situations
-from src.domain.services.abstract_agent import AbstractAgent
+from src.platform.abstract_agent import AbstractAgent
 from src.domain.services.tosg import TOSG
 from src.entrypoints.abstract_vizualisation import AbstractVizualisation
 from src.utils.coordinate_transforms import img_axes2world_axes

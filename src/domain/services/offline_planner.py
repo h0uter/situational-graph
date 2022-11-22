@@ -14,7 +14,7 @@ from src.domain import (
     Task,
     Edge,
 )
-from src.domain.services.abstract_agent import AbstractAgent
+from src.platform.abstract_agent import AbstractAgent
 import src.entrypoints.utils.event as event
 
 
