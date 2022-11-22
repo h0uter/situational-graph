@@ -61,5 +61,6 @@ def feedback_pipeline_completion(
         {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
     )
 
-    if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
-        tosg_stats.plot_krm_stats()
+    # XXX dont plot krm stats
+    # if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
+    #     tosg_stats.plot_krm_stats()
