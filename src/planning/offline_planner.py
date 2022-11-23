@@ -4,17 +4,26 @@ from typing import Mapping, Optional, Sequence, Type
 import networkx as nx
 
 from src.config import cfg
-from src.domain import (
-    TOSG,
-    AbstractBehavior,
-    Affordance,
-    Behaviors,
-    Node,
-    Plan,
-    Task,
-    Edge,
-)
+
+# from src.domain import (
+#     TOSG,
+#     AbstractBehavior,
+#     Affordance,
+#     Behaviors,
+#     Node,
+#     Plan,
+#     Task,
+#     Edge,
+# )
+from src.planning.tosg import TOSG
+from src.execution.abstract_behavior import AbstractBehavior
+from src.shared.affordance import Affordance
 from src.platform.abstract_agent import AbstractAgent
+from src.shared.behaviors import Behaviors
+from src.shared.node_and_edge import Node, Edge
+from src.planning.plan import Plan
+from src.shared.task import Task
+
 import src.gui.utils.event as event
 
 

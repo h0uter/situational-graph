@@ -29,3 +29,5 @@ results/
 
 graphnav/
 situational_graph.egg-info/
+
+.idea/
