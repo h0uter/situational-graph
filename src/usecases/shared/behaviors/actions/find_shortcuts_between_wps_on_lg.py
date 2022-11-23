@@ -1,6 +1,6 @@
 from src.config import cfg
-from src.shared.local_grid import LocalGrid
-from src.shared.object_types import Situations
+from src.perception_processing.local_grid import LocalGrid
+from src.shared.situations import Situations
 from src.platform.abstract_agent import AbstractAgent
 from src.planning.tosg import TOSG
 

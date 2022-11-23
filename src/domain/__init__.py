@@ -21,10 +21,10 @@ __all__ = [
 from src.shared.node_and_edge import Edge, Node
 from src.shared.behaviors import Behaviors
 from src.shared.objectives import Objectives
-from src.shared.object_types import Situations
+from src.shared.situations import Situations
 from src.shared.task import Task
-from src.shared.local_grid import LocalGrid
-from src.shared.plan import Plan
+from src.perception_processing.local_grid import LocalGrid
+from src.planning.plan import Plan
 from src.shared.capabilities import Capabilities
 from src.shared.affordance import Affordance
 from src.shared.world_object import WorldObject

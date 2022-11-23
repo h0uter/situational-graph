@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
 
-from src.domain import Objectives
+from src.shared.objectives import Objectives
 from src.shared.node_and_edge import Edge
 
 
@@ -14,6 +14,6 @@ class Task:
     @property
     def reward(self) -> float:
         return self.objective_enum.reward
-    
+
     def __hash__(self):
         return id(self)

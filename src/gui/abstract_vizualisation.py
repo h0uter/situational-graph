@@ -6,7 +6,7 @@ from src.planning.tosg import TOSG
 from src.planning.offline_planner import OfflinePlanner
 
 # from src.usecases.exploration_usecase import ExplorationUsecase
-from src.shared.local_grid import LocalGrid
+from src.perception_processing.local_grid import LocalGrid
 
 
 class AbstractVizualisation(ABC):

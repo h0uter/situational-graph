@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.shared.object_types import Situations
+from src.shared.situations import Situations
 
 
 @dataclass

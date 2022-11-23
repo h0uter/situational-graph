@@ -1,4 +1,4 @@
-from src.shared.local_grid import LocalGrid
+from src.perception_processing.local_grid import LocalGrid
 
 import numpy as np
 import pytest

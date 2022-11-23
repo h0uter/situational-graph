@@ -11,7 +11,6 @@ from src.domain import (
     Node,
     Objectives,
     Situations,
-    Plan,
     Task,
 )
 
@@ -326,13 +325,3 @@ class TOSG:
             if not self.G.has_edge(*task.edge):
                 self._log.error(f"remove_invalid_tasks(): removing task {task}")
                 self.tasks.remove(task)
-
-    def validate_plan(self, plan: Plan) -> bool:
-        if not plan:
-            return False
-        if len(plan) < 1:
-            return False
-        if not self.G.has_node(plan[-1][1]):
-            return False
-
-        return True

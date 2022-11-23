@@ -3,6 +3,7 @@ from typing import Optional
 
 from src.shared.capabilities import Capabilities
 
+
 # TODO: make BaseBehaviors class to inherit from for specific domains
 class Behaviors(Enum):
     GOTO = (set(), 1, "Go to a waypoint.")
@@ -13,7 +14,10 @@ class Behaviors(Enum):
     # GUIDE_WP_EDGE = auto()
 
     def __init__(
-        self, required_capabilities: set[Optional[Capabilities]], cost: float, description: str
+        self,
+        required_capabilities: set[Optional[Capabilities]],
+        cost: float,
+        description: str,
     ):
         self.required_capabilities = required_capabilities
         self.cost = cost

@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from src.config import cfg
 from src.domain import (TOSG, AbstractBehavior, Affordance, BehaviorResult,
                         Edge, LocalGrid, Node, Situations, WorldObject)
-from src.shared.local_grid import (AngularLOSFrontierSamplingStrategy,
+from src.perception_processing.local_grid import (AngularLOSFrontierSamplingStrategy,
                                             FrontierSamplingStrategy,
                                             LOSFrontierSamplingStrategy)
 from src.platform.abstract_agent import AbstractAgent

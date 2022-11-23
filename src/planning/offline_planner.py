@@ -165,12 +165,22 @@ class OfflinePlanner:
 
         return Plan(edge_path)
 
+    def validate_plan(self, plan: Plan, tosg: TOSG) -> bool:
+        if not plan:
+            return False
+        if len(plan) < 1:
+            return False
+        if not tosg.G.has_node(plan[-1][1]):
+            return False
+
+        return True
+
     # this is the plan executor, maybe make it its own class.
     def _plan_execution(
         self, agent: AbstractAgent, tosg: TOSG, plan: Plan
     ) -> Optional[Plan]:
 
-        if not tosg.validate_plan(plan):
+        if not self.validate_plan(plan, tosg):
             return None
 
         behavior_of_current_edge = tosg.get_behavior_of_edge(plan.upcoming_edge)

@@ -6,11 +6,15 @@ import numpy as np
 import numpy.typing as npt
 
 from src.config import cfg
-from src.domain import TOSG, Node, Plan, Situations, Task
-from src.shared.capabilities import Capabilities
-from src.shared.local_grid import LocalGrid
-from src.shared.world_object import WorldObject
 from src.gui.utils.event import post_event
+from src.perception_processing.local_grid import LocalGrid
+from src.planning.plan import Plan
+from src.planning.tosg import TOSG
+from src.shared.capabilities import Capabilities
+from src.shared.node_and_edge import Node
+from src.shared.situations import Situations
+from src.shared.task import Task
+from src.shared.world_object import WorldObject
 
 
 class AbstractAgent(ABC):
@@ -51,7 +55,6 @@ class AbstractAgent(ABC):
         lg = LocalGrid(
             world_pos=self.get_localization(),
             img_data=lg_img,
-            # cfg=cfg,
         )
         post_event("new lg", lg)
 
@@ -59,11 +62,6 @@ class AbstractAgent(ABC):
 
     @abstractmethod
     def _get_local_grid_img(self) -> npt.NDArray:
-        """
-        Return the local grid image around the agent.
-
-        :return: The local grid image.
-        """
         pass
 
     @abstractmethod
@@ -72,21 +70,10 @@ class AbstractAgent(ABC):
 
     @abstractmethod
     def look_for_world_objects_in_perception_scene(self) -> Sequence[WorldObject]:
-        """
-        Look for world objects in the perception scene.
-
-        :return: The world objects in the perception scene.
-        """
         pass
 
     @abstractmethod
     def _move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
-        """
-        Move the agent to a new position.
-
-        :param pos: the position of the agent
-        :return: None
-        """
         pass
 
     # TODO: this should return a succes/ failure bool

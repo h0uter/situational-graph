@@ -2,7 +2,7 @@ from typing import Sequence
 
 from src.config import cfg
 from src.domain import TOSG
-from src.shared.object_types import Situations
+from src.shared.situations import Situations
 from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
 )

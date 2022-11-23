@@ -25,7 +25,7 @@ from src.shared.capabilities import Capabilities
 from src.platform.real.utils.fiducial_2_world_object_labels import create_wo_from_fiducial
 from src.platform.real.utils.spot_wrapper import SpotWrapper
 from src.platform.abstract_agent import AbstractAgent
-from src.shared.local_grid import LocalGrid
+from src.perception_processing.local_grid import LocalGrid
 from src.platform.real.utils.get_login_config import get_login_config
 from src.shared.capabilities import Capabilities
 

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
 from src.shared.behaviors import Behaviors
-from src.shared.object_types import Situations
+from src.shared.situations import Situations
 from src.planning.tosg import TOSG
 
 from src.utils.saving_data_objects import load_something, save_something
