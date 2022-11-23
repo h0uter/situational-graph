@@ -9,10 +9,8 @@ from src.config import cfg
 from src.gui.utils.event import post_event
 from src.perception_processing.local_grid import LocalGrid
 from src.planning.plan import Plan
-from src.planning.tosg import TOSG
 from src.shared.capabilities import Capabilities
 from src.shared.node_and_edge import Node
-from src.shared.situations import Situations
 from src.shared.task import Task
 from src.shared.world_object import WorldObject
 
@@ -113,28 +111,6 @@ class AbstractAgent(ABC):
             # self.previous_pos = self.get_localization()  # can also put this in the condition
             self.pos = self.get_localization()  # dont make sense for sim agent.
             return False
-
-    # perhaps something like this should go into robot services, to not murk the dependencies.
-    def localize_to_waypoint(self, krm: TOSG):
-        loc_candidates = krm.get_nodes_of_type_in_margin(
-            self.get_localization(), cfg.AT_WP_MARGIN, Situations.WAYPOINT
-        )
-
-        if len(loc_candidates) == 0:
-            self._log.error(
-                f"{self.name}: could not find a waypoint in the margin to localize to"
-            )
-            # self.at_wp = None
-        elif len(loc_candidates) == 1:
-            self.at_wp = loc_candidates[0]
-
-        elif len(loc_candidates) > 1:
-            self._log.warning(
-                f"{self.name}: found multiple waypoints in the margin {loc_candidates}, picking the first one ({loc_candidates[0]}) for localization"
-            )
-            self.at_wp = loc_candidates[0]
-
-        assert self.at_wp is not None, "self.at_wp is None"
 
     def calc_heading_to_target(self, target_pos: tuple) -> float:
         """

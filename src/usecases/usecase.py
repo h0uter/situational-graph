@@ -1,6 +1,7 @@
 import time
 from abc import abstractmethod
 from typing import Sequence
+from src.execution.abstract_behavior import AbstractBehavior
 
 import src.gui.utils.event as event
 from src.config import Scenario, cfg
@@ -109,7 +110,8 @@ class Usecase:
         """setup vizualisation of start poses"""
         for agent in agents:
             agent.get_local_grid()
-            agent.localize_to_waypoint(tosg)
+            # agent.localize_to_waypoint(tosg)
+            AbstractBehavior._localize_to_waypoint(agent, tosg)  # HACK: not ideal but this removes dependency of agent on tosg
             event.post_event("viz point", agent.pos)  # viz start position
 
     @abstractmethod

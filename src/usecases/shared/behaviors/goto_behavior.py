@@ -20,7 +20,7 @@ class GotoBehavior(AbstractBehavior):
     ) -> BehaviorResult:
         node_data = tosg.get_node_data_by_node(behavior_edge[1])
         success = agent.move_to_pos(node_data["pos"])
-        agent.localize_to_waypoint(tosg)
+        self._localize_to_waypoint(agent, tosg)
 
         # return BehaviorResult(success)
         return BehaviorResult(True)
