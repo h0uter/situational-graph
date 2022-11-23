@@ -1,6 +1,11 @@
 from typing import Sequence
 
-from src.domain import TOSG, Behaviors, Objectives, Plan, Task
+from src.planning.tosg import TOSG
+from src.shared.behaviors import Behaviors
+from src.shared.objectives import Objectives
+from src.shared.task import Task
+from src.planning.plan import Plan
+
 from src.platform.abstract_agent import AbstractAgent
 from src.usecases.usecase import Usecase
 

@@ -3,7 +3,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Sequence
 
-from src.domain import TOSG, Edge, Affordance
+from src.planning.tosg import TOSG
+from src.shared.node_and_edge import Edge
+from src.shared.affordance import Affordance
 from src.config import cfg
 from src.platform.abstract_agent import AbstractAgent
 

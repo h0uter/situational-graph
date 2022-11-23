@@ -1,6 +1,6 @@
 from src.platform.abstract_agent import AbstractAgent
-from src.platform.sim.local_grid_image_spoofer import LocalGridImageSpoofer
-from src.platform.sim.world_object_spoofer import WorldObjectSpoofer
+from src.platform.sim.utils.local_grid_image_spoofer import LocalGridImageSpoofer
+from src.platform.sim.utils.world_object_spoofer import WorldObjectSpoofer
 import numpy.typing as npt
 from src.shared.capabilities import Capabilities
 

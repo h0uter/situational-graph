@@ -4,18 +4,21 @@ from typing import Sequence
 
 import src.gui.utils.event as event
 from src.config import Scenario, cfg
-from src.platform.real.spot_agent import SpotAgent
-from src.platform.sim.simulated_agent import SimulatedAgent
-from src.domain import TOSG, Capabilities
-from src.platform.abstract_agent import AbstractAgent
+from src.gui.utils.vizualisation_listener import VizualisationListener
 from src.planning.offline_planner import OfflinePlanner
 from src.planning.online_planner import OnlinePlanner
-from src.gui.utils.vizualisation_listener import VizualisationListener
+from src.planning.tosg import TOSG
+from src.platform.abstract_agent import AbstractAgent
+from src.platform.real.spot_agent import SpotAgent
+from src.platform.sim.simulated_agent import SimulatedAgent
+from src.shared.capabilities import Capabilities
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar.sar_behaviors import SAR_BEHAVIORS
-from src.usecases.utils.feedback import (feedback_pipeline_completion,
-                                         feedback_pipeline_init,
-                                         feedback_pipeline_single_step)
+from src.usecases.utils.feedback import (
+    feedback_pipeline_completion,
+    feedback_pipeline_init,
+    feedback_pipeline_single_step,
+)
 
 
 class Usecase:

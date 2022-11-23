@@ -11,8 +11,11 @@ import vedo
 from vedo import io
 
 from src.platform.abstract_agent import AbstractAgent
-from src.domain import TOSG, Situations, LocalGrid, OfflinePlanner
-from src.shared.node_and_edge import Node
+from src.shared.situations import Situations
+from src.planning.tosg import TOSG
+from src.perception_processing.local_grid import LocalGrid
+from src.planning.offline_planner import OfflinePlanner
+
 from src.gui.abstract_vizualisation import AbstractVizualisation
 from src.config import cfg, PlotLvl, Scenario
 

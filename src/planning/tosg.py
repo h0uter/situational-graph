@@ -3,16 +3,14 @@ from typing import Optional, Sequence
 from uuid import uuid4
 
 import networkx as nx
+
 from src.config import cfg
-from src.domain import (
-    Affordance,
-    Behaviors,
-    Edge,
-    Node,
-    Objectives,
-    Situations,
-    Task,
-)
+from src.shared.affordance import Affordance
+from src.shared.behaviors import Behaviors
+from src.shared.node_and_edge import Edge, Node
+from src.shared.objectives import Objectives
+from src.shared.situations import Situations
+from src.shared.task import Task
 
 
 class TOSG:
