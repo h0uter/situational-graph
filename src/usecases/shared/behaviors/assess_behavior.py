@@ -1,18 +1,15 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 from random import random
-from typing import Sequence
-from src.platform.abstract_agent import AbstractAgent
-from src.domain import Affordance, Edge, Situations
-from src.execution.abstract_behavior import (
-    AbstractBehavior,
-    BehaviorResult,
-)
 
 from src.config import cfg
-
+from src.execution.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.planning.tosg import TOSG
-from src.utils.audio_feedback import play_file, generate_or_play_audio
+from src.platform.abstract_agent import AbstractAgent
+from src.shared.affordance import Affordance
+from src.shared.node_and_edge import Edge
+from src.shared.situations import Situations
+from src.utils.audio_feedback import generate_or_play_audio, play_file
 
 
 class VictimState(Enum):

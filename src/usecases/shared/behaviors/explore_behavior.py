@@ -1,12 +1,16 @@
 from typing import Optional, Sequence
 
 from src.config import cfg
-from src.domain import (TOSG, AbstractBehavior, Affordance, BehaviorResult,
-                        Edge, LocalGrid, Node, Situations, WorldObject)
-from src.perception_processing.local_grid import (AngularLOSFrontierSamplingStrategy,
-                                            FrontierSamplingStrategy,
-                                            LOSFrontierSamplingStrategy)
+from src.execution.abstract_behavior import AbstractBehavior, BehaviorResult
+from src.perception_processing.local_grid import (
+    AngularLOSFrontierSamplingStrategy, FrontierSamplingStrategy,
+    LOSFrontierSamplingStrategy)
+from src.planning.tosg import TOSG
 from src.platform.abstract_agent import AbstractAgent
+from src.shared.affordance import Affordance
+from src.shared.node_and_edge import Edge, Node
+from src.shared.situations import Situations
+from src.shared.world_object import WorldObject
 from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
     add_shortcut_edges_between_wps_on_lg
 from src.utils.saving_data_objects import load_something, save_something
