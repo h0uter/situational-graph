@@ -114,7 +114,9 @@ class Config:
         # self.PRUNE_RADIUS_FACTOR = 0.23
         # self.SAMPLE_RING_WIDTH = 0.5
         self.SAMPLE_RING_WIDTH = 0.7
-        self.SAMPLE_RADIUS_FACTOR = 0.9
+        self.SAMPLE_RADIUS_FACTOR = (
+            0.9  # this cannot be 1 for Angular sampling strategy
+        )
         self.WP_SHORTCUT_FACTOR = 1.0
         self.AT_WP_MARGIN = (
             # 0.35  # hopefully this makes it more robust on real spot in doorways
