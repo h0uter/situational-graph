@@ -1,8 +1,8 @@
 # OBSERVER PATTERN
 
-from src.gui.utils.event import subscribe
-from src.gui.mpl_vizualisation import MplVizualisation
-from src.gui.vedo_vizualisation import VedoVisualisation
+from src.usecases.operator.utils.event import subscribe
+from src.usecases.operator.mpl_vizualisation import MplVizualisation
+from src.usecases.operator.vedo_vizualisation import VedoVisualisation
 from src.config import cfg, Vizualiser, PlotLvl
 
 

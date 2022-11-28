@@ -2,16 +2,15 @@ import time
 from abc import abstractmethod
 from typing import Sequence
 
-import src.gui.utils.event as event
+import src.usecases.operator.utils.event as event
 from src.config import Scenario, cfg
-from src.execution.abstract_behavior import AbstractBehavior
-from src.gui.utils.vizualisation_listener import VizualisationListener
-from src.planning.offline_planner import OfflinePlanner
-from src.planning.online_planner import OnlinePlanner
-from src.platform.abstract_agent import AbstractAgent
-from src.platform.real.spot_agent import SpotAgent
-from src.platform.sim.simulated_agent import SimulatedAgent
-from src.state.situational_graph import SituationalGraph
+from src.execution_autonomy.abstract_behavior import AbstractBehavior
+from src.usecases.operator.utils.vizualisation_listener import VizualisationListener
+from src.mission_autonomy.online_planner import OnlinePlanner
+from src.platform_control.abstract_agent import AbstractAgent
+from src.platform_control.real.spot_agent import SpotAgent
+from src.platform_control.sim.simulated_agent import SimulatedAgent
+from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.capabilities import Capabilities
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar.sar_behaviors import SAR_BEHAVIORS

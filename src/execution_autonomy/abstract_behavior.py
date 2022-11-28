@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import Sequence
 
 from src.config import cfg
-from src.platform.abstract_agent import AbstractAgent
-from src.state.situational_graph import SituationalGraph
+from src.platform_control.abstract_agent import AbstractAgent
+from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.affordance import Affordance
 from src.shared.node_and_edge import Edge
 from src.shared.situations import Situations

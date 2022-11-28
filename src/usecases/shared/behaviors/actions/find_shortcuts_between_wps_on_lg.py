@@ -1,8 +1,8 @@
 import math
 from src.config import cfg
-from src.perception_processing.local_grid import LocalGrid
-from src.platform.abstract_agent import AbstractAgent
-from src.state.situational_graph import SituationalGraph
+from src.platform_state.local_grid import LocalGrid
+from src.platform_control.abstract_agent import AbstractAgent
+from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.situations import Situations
 
 

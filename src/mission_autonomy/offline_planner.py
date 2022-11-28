@@ -3,11 +3,11 @@ from typing import Mapping, Optional, Sequence, Type
 
 import networkx as nx
 
-import src.gui.utils.event as event
-from src.execution.abstract_behavior import AbstractBehavior
-from src.planning.plan import Plan
-from src.platform.abstract_agent import AbstractAgent
-from src.state.situational_graph import SituationalGraph
+import src.usecases.operator.utils.event as event
+from src.execution_autonomy.abstract_behavior import AbstractBehavior
+from src.execution_autonomy.plan_model import PlanModel
+from src.platform_control.abstract_agent import AbstractAgent
+from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.affordance import Affordance
 from src.shared.behaviors import Behaviors
 from src.shared.node_and_edge import Node
@@ -149,7 +149,7 @@ class OfflinePlanner:
 
     def _find_plan_for_task(
         self, agent_localized_to: Node, full_tosg: SituationalGraph, task: Task, filtered_tosg: SituationalGraph
-    ) -> Plan:
+    ) -> PlanModel:
         target_node = task.edge[1]
 
         if not self._check_target_still_valid(full_tosg, target_node):
@@ -163,9 +163,9 @@ class OfflinePlanner:
             full_tosg.tasks.remove(task)
             raise CouldNotFindPlan(f"Could not find a plan for task {task}")
 
-        return Plan(edge_path)
+        return PlanModel(edge_path)
 
-    def validate_plan(self, plan: Plan, tosg: SituationalGraph) -> bool:
+    def validate_plan(self, plan: PlanModel, tosg: SituationalGraph) -> bool:
         if not plan:
             return False
         if len(plan) < 1:
@@ -177,8 +177,8 @@ class OfflinePlanner:
 
     # this is the plan executor, maybe make it its own class.
     def _plan_execution(
-        self, agent: AbstractAgent, tosg: SituationalGraph, plan: Plan
-    ) -> Optional[Plan]:
+        self, agent: AbstractAgent, tosg: SituationalGraph, plan: PlanModel
+    ) -> Optional[PlanModel]:
 
         if not self.validate_plan(plan, tosg):
             return None

@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 from typing import Sequence, Union
 
 # from src.usecases.exploration_usecase import ExplorationUsecase
-from src.perception_processing.local_grid import LocalGrid
-from src.planning.offline_planner import OfflinePlanner
-from src.platform.abstract_agent import AbstractAgent
-from src.state.situational_graph import SituationalGraph
+from src.platform_state.local_grid import LocalGrid
+from src.mission_autonomy.offline_planner import OfflinePlanner
+from src.platform_control.abstract_agent import AbstractAgent
+from src.mission_autonomy.situational_graph import SituationalGraph
 
 
 class AbstractVizualisation(ABC):

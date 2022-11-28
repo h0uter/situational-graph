@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from src.config import cfg
-from src.state.situational_graph import SituationalGraph
+from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.situations import Situations
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \

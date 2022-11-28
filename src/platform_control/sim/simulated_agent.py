@@ -1,8 +1,8 @@
 import numpy.typing as npt
 
-from src.platform.abstract_agent import AbstractAgent
-from src.platform.sim.utils.local_grid_image_spoofer import LocalGridImageSpoofer
-from src.platform.sim.utils.world_object_spoofer import WorldObjectSpoofer
+from src.platform_control.abstract_agent import AbstractAgent
+from src.platform_control.sim.utils.local_grid_image_spoofer import LocalGridImageSpoofer
+from src.platform_control.sim.utils.world_object_spoofer import WorldObjectSpoofer
 
 
 class SimulatedAgent(AbstractAgent):

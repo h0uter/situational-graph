@@ -2,7 +2,7 @@ import time
 
 import matplotlib.pyplot as plt
 
-from src.platform.real.spot_agent import SpotAgent
+from src.platform_control.real.spot_agent import SpotAgent
 
 
 ### Test functions

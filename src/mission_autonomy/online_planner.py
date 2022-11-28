@@ -1,11 +1,13 @@
-from src.planning.offline_planner import (CouldNotFindPlan, CouldNotFindTask,
-                                          OfflinePlanner, TargetNodeNotFound)
-from src.platform.abstract_agent import AbstractAgent
-from src.state.situational_graph import SituationalGraph
+from src.mission_autonomy.offline_planner import (CouldNotFindPlan,
+                                                  OfflinePlanner,
+                                                  TargetNodeNotFound)
+from src.mission_autonomy.situational_graph import SituationalGraph
+from src.platform_control.abstract_agent import AbstractAgent
 
 
 class OnlinePlanner(OfflinePlanner):
-    '''This planner selects the optimal task and makes a plan each iteration'''
+    """This planner selects the optimal task and makes a plan each iteration"""
+
     def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
 
         if agent.init_explore_step_completed:
@@ -19,7 +21,9 @@ class OnlinePlanner(OfflinePlanner):
 
             """ generate a plan"""
             try:
-                agent.plan = self._find_plan_for_task(agent.at_wp, tosg, agent.task, filtered_tosg)
+                agent.plan = self._find_plan_for_task(
+                    agent.at_wp, tosg, agent.task, filtered_tosg
+                )
             except CouldNotFindPlan:
                 self._log.error(f"Could not find a plan for task {agent.task}")
                 agent.clear_task()

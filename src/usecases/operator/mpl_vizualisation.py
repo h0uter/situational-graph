@@ -6,10 +6,10 @@ import networkx as nx
 from PIL import Image
 
 from src.config import cfg
-from src.gui.abstract_vizualisation import AbstractVizualisation
-from src.perception_processing.local_grid import LocalGrid
-from src.platform.abstract_agent import AbstractAgent
-from src.state.situational_graph import SituationalGraph
+from src.usecases.operator.abstract_vizualisation import AbstractVizualisation
+from src.platform_state.local_grid import LocalGrid
+from src.platform_control.abstract_agent import AbstractAgent
+from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.behaviors import Behaviors
 from src.shared.situations import Situations
 from src.utils.coordinate_transforms import img_axes2world_axes

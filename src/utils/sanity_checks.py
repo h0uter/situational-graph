@@ -1,6 +1,6 @@
 import networkx as nx
 
-from src.state.situational_graph import SituationalGraph
+from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.behaviors import Behaviors
 
 

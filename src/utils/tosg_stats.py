@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
 
-from src.gui.utils.event import subscribe
-from src.state.situational_graph import SituationalGraph
+from src.usecases.operator.utils.event import subscribe
+from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.behaviors import Behaviors
 from src.shared.situations import Situations
 from src.utils.saving_data_objects import load_something, save_something

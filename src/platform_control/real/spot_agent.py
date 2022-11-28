@@ -15,11 +15,11 @@ from bosdyn.client.frame_helpers import (BODY_FRAME_NAME, ODOM_FRAME_NAME,
 from bosdyn.client.lease import Error as LeaseBaseError
 from bosdyn.client.robot_command import RobotCommandBuilder
 
-from src.platform.abstract_agent import AbstractAgent
-from src.platform.real.utils.fiducial_2_world_object_labels import \
+from src.platform_control.abstract_agent import AbstractAgent
+from src.platform_control.real.utils.fiducial_2_world_object_labels import \
     create_wo_from_fiducial
-from src.platform.real.utils.get_login_config import get_login_config
-from src.platform.real.utils.spot_wrapper import SpotWrapper
+from src.platform_control.real.utils.get_login_config import get_login_config
+from src.platform_control.real.utils.spot_wrapper import SpotWrapper
 
 
 class SpotAgent(AbstractAgent):

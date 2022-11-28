@@ -1,6 +1,5 @@
 import os
 import time
-from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
@@ -10,11 +9,11 @@ import vedo
 from vedo import io
 
 from src.config import PlotLvl, Scenario, cfg
-from src.gui.abstract_vizualisation import AbstractVizualisation
-from src.perception_processing.local_grid import LocalGrid
-from src.planning.offline_planner import OfflinePlanner
-from src.platform.abstract_agent import AbstractAgent
-from src.state.situational_graph import SituationalGraph
+from src.usecases.operator.abstract_vizualisation import AbstractVizualisation
+from src.platform_state.local_grid import LocalGrid
+from src.mission_autonomy.offline_planner import OfflinePlanner
+from src.platform_control.abstract_agent import AbstractAgent
+from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.situations import Situations
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
