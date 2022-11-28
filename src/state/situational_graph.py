@@ -4,7 +4,6 @@ from uuid import uuid4
 
 import networkx as nx
 
-from src.config import cfg
 from src.shared.affordance import Affordance
 from src.shared.behaviors import Behaviors
 from src.shared.node_and_edge import Edge, Node
@@ -13,9 +12,9 @@ from src.shared.situations import Situations
 from src.shared.task import Task
 
 
-class TOSG:
+class SituationalGraph:
     # TODO: separate behavior from data
-    """Task-Oriented Situational Graph"""
+    """Behavior-Oriented Situational Graph"""
 
     def __init__(self) -> None:
         self._log = logging.getLogger(__name__)
@@ -44,6 +43,7 @@ class TOSG:
 
         def dist_heur_wrapper(a: Node, b: Node):
             return self.calc_edge_len(a, b)
+
         try:
             path_of_nodes = nx.astar_path(
                 self.G,
@@ -53,9 +53,7 @@ class TOSG:
                 heuristic=dist_heur_wrapper,
             )
         except nx.NetworkXNoPath:
-            self._log.debug(
-                f"shortest_path: No path found from {source} to {target}."
-            )
+            self._log.debug(f"shortest_path: No path found from {source} to {target}.")
             return None
 
         if len(path_of_nodes) > 1:

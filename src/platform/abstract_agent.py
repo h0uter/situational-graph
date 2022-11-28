@@ -18,7 +18,6 @@ from src.shared.world_object import WorldObject
 class AbstractAgent(ABC):
     """ "This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
-    @abstractmethod
     def __init__(self, capabilities: set[Capabilities], name_idx: int = 0) -> None:
         self.capabilities = capabilities
         self.name = name_idx
@@ -38,6 +37,12 @@ class AbstractAgent(ABC):
         self.steps_taken = 0
         self.algo_iterations = 0
         self._log = logging.getLogger(__name__)
+
+        self.__post_init__()
+
+    @abstractmethod
+    def __post_init__(self) -> None:
+        pass
 
     @property
     def target_node(self) -> Optional[Node]:

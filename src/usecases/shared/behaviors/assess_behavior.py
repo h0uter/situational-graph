@@ -4,8 +4,8 @@ from random import random
 
 from src.config import cfg
 from src.execution.abstract_behavior import AbstractBehavior, BehaviorResult
-from src.planning.tosg import TOSG
 from src.platform.abstract_agent import AbstractAgent
+from src.state.situational_graph import SituationalGraph
 from src.shared.affordance import Affordance
 from src.shared.node_and_edge import Edge
 from src.shared.situations import Situations
@@ -35,7 +35,7 @@ class AssessBehavior(AbstractBehavior):
     def _check_postconditions(
         self,
         agent: AbstractAgent,
-        tosg: TOSG,
+        tosg: SituationalGraph,
         result: AssessResult,
         behavior_edge: Edge,
     ) -> bool:
@@ -48,7 +48,7 @@ class AssessBehavior(AbstractBehavior):
     def _mutate_graph_and_tasks_success(
         self,
         agent: AbstractAgent,
-        tosg: TOSG,
+        tosg: SituationalGraph,
         result: AssessResult,
         behavior_edge: Edge,
         affordances: list[Affordance],
@@ -76,7 +76,7 @@ class AssessBehavior(AbstractBehavior):
         )
 
     def _mutate_graph_and_tasks_failure(
-        self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
+        self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
     ):
         """Mutate the graph according to the behavior."""
         # return tosgraph

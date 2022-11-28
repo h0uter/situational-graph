@@ -1,10 +1,10 @@
 import logging
 import time
-from src.config import PlotLvl, cfg
-from src.platform.abstract_agent import AbstractAgent
-from src.planning.tosg import TOSG
 
 import src.gui.utils.event as event
+from src.config import PlotLvl, cfg
+from src.platform.abstract_agent import AbstractAgent
+from src.state.situational_graph import SituationalGraph
 from src.utils.audio_feedback import play_file
 from src.utils.tosg_stats import TOSGStats
 
@@ -41,7 +41,7 @@ def feedback_pipeline_single_step(
 
 
 def feedback_pipeline_completion(
-    step: int, agents: list[AbstractAgent], tosg: TOSG, tosg_stats, planning_pipelines, my_logger, start
+    step: int, agents: list[AbstractAgent], tosg: SituationalGraph, tosg_stats, planning_pipelines, my_logger, start
 ):
     """Results"""
     my_logger.info(

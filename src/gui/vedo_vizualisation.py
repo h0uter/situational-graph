@@ -1,8 +1,7 @@
-from datetime import datetime
-
 import os
-from pathlib import Path
 import time
+from datetime import datetime
+from pathlib import Path
 from typing import Sequence, Union
 
 import networkx as nx
@@ -10,15 +9,13 @@ import numpy as np
 import vedo
 from vedo import io
 
-from src.platform.abstract_agent import AbstractAgent
-from src.shared.situations import Situations
-from src.planning.tosg import TOSG
+from src.config import PlotLvl, Scenario, cfg
+from src.gui.abstract_vizualisation import AbstractVizualisation
 from src.perception_processing.local_grid import LocalGrid
 from src.planning.offline_planner import OfflinePlanner
-
-from src.gui.abstract_vizualisation import AbstractVizualisation
-from src.config import cfg, PlotLvl, Scenario
-
+from src.platform.abstract_agent import AbstractAgent
+from src.state.situational_graph import SituationalGraph
+from src.shared.situations import Situations
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allowInteraction = True
@@ -100,7 +97,7 @@ class VedoVisualisation(AbstractVizualisation):
 
     def figure_update(
         self,
-        tosg: TOSG,
+        tosg: SituationalGraph,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
         usecases: Sequence[OfflinePlanner],
@@ -109,7 +106,7 @@ class VedoVisualisation(AbstractVizualisation):
 
     def figure_final_result(
         self,
-        tosg: TOSG,
+        tosg: SituationalGraph,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
         usecases: Sequence[OfflinePlanner],
@@ -118,7 +115,7 @@ class VedoVisualisation(AbstractVizualisation):
         # self.plt.show(interactive=True, resetcam=True)
         self.plt.show(interactive=True)
 
-    def get_scaled_pos_dict(self, tosg: TOSG) -> dict:
+    def get_scaled_pos_dict(self, tosg: SituationalGraph) -> dict:
         positions_of_all_nodes = nx.get_node_attributes(tosg.G, "pos")
         pos_dict = positions_of_all_nodes
 
@@ -128,7 +125,7 @@ class VedoVisualisation(AbstractVizualisation):
 
         return pos_dict
 
-    def viz_all(self, tosg: TOSG, agents, usecases=None):
+    def viz_all(self, tosg: SituationalGraph, agents, usecases=None):
         actors = []
         pos_dict = self.get_scaled_pos_dict(tosg)
         ed_ls = list(tosg.G.edges)
@@ -197,7 +194,7 @@ class VedoVisualisation(AbstractVizualisation):
     def viz_action_graph(
         self,
         actors: list,
-        krm: TOSG,
+        krm: SituationalGraph,
         usecases: Sequence[OfflinePlanner],
         pos_dict: dict,
         agents: Sequence[AbstractAgent],

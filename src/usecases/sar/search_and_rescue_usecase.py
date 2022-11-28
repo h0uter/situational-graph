@@ -1,12 +1,11 @@
 from typing import Sequence
 
-from src.planning.tosg import TOSG
+from src.planning.plan import Plan
+from src.platform.abstract_agent import AbstractAgent
+from src.state.situational_graph import SituationalGraph
 from src.shared.behaviors import Behaviors
 from src.shared.objectives import Objectives
 from src.shared.task import Task
-from src.planning.plan import Plan
-
-from src.platform.abstract_agent import AbstractAgent
 from src.usecases.usecase import Usecase
 
 
@@ -24,7 +23,7 @@ class SearchAndRescueUsecase(Usecase):
 
         return success
 
-    def setup(self, tosg: TOSG, agents: Sequence[AbstractAgent]):
+    def setup(self, tosg: SituationalGraph, agents: Sequence[AbstractAgent]):
         """Manually set first task to exploring current position."""
         # for the demo I dont need this setup, I can instead manually craft the graph.
         for agent in agents:

@@ -1,21 +1,19 @@
+import numpy.typing as npt
+
 from src.platform.abstract_agent import AbstractAgent
 from src.platform.sim.utils.local_grid_image_spoofer import LocalGridImageSpoofer
 from src.platform.sim.utils.world_object_spoofer import WorldObjectSpoofer
-import numpy.typing as npt
-from src.shared.capabilities import Capabilities
 
 
 class SimulatedAgent(AbstractAgent):
     """provide a simulated agent"""
 
-    def __init__(
-        self, capabilities: set[Capabilities] = set(), name_idx: int = 0
-    ) -> None:
-        super().__init__(capabilities, name_idx)
+    def __post_init__(self) -> None:
         self.lg_spoofer = LocalGridImageSpoofer()
         self.world_object_spoofer = WorldObjectSpoofer()
 
     def _get_local_grid_img(self) -> npt.NDArray:
+
         return self.lg_spoofer.sim_spoof_local_grid_from_img_world(self.pos)
 
     def get_localization(self) -> tuple[float, float]:

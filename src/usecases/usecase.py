@@ -1,32 +1,30 @@
 import time
 from abc import abstractmethod
 from typing import Sequence
-from src.execution.abstract_behavior import AbstractBehavior
 
 import src.gui.utils.event as event
 from src.config import Scenario, cfg
+from src.execution.abstract_behavior import AbstractBehavior
 from src.gui.utils.vizualisation_listener import VizualisationListener
 from src.planning.offline_planner import OfflinePlanner
 from src.planning.online_planner import OnlinePlanner
-from src.planning.tosg import TOSG
 from src.platform.abstract_agent import AbstractAgent
 from src.platform.real.spot_agent import SpotAgent
 from src.platform.sim.simulated_agent import SimulatedAgent
+from src.state.situational_graph import SituationalGraph
 from src.shared.capabilities import Capabilities
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar.sar_behaviors import SAR_BEHAVIORS
-from src.usecases.utils.feedback import (
-    feedback_pipeline_completion,
-    feedback_pipeline_init,
-    feedback_pipeline_single_step,
-)
+from src.usecases.utils.feedback import (feedback_pipeline_completion,
+                                         feedback_pipeline_init,
+                                         feedback_pipeline_single_step)
 
 
 class Usecase:
     def main_loop(
         self,
         agents: list[AbstractAgent],
-        tosg: TOSG,
+        tosg: SituationalGraph,
         planner: OnlinePlanner,
         viz_listener: VizualisationListener,
     ):
@@ -86,7 +84,7 @@ class Usecase:
             ]  # make the first agent only posses the capabilities
             agents.extend([SimulatedAgent(set(), i) for i in range(1, cfg.NUM_AGENTS)])
 
-        tosg = TOSG()
+        tosg = SituationalGraph()
 
         domain_behaviors = SAR_BEHAVIORS
         affordances = SAR_AFFORDANCES
@@ -99,7 +97,7 @@ class Usecase:
         return agents, tosg, planner, viz_listener
 
     # base file
-    def common_setup(self, tosg: TOSG, agents: Sequence[AbstractAgent], start_poses):
+    def common_setup(self, tosg: SituationalGraph, agents: Sequence[AbstractAgent], start_poses):
         """Add a waypoint to the tosg for each agent, but check for duplicates"""
         duplicate_start_poses = []
         for start_pos in start_poses:

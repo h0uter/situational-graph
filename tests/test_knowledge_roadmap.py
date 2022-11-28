@@ -1,7 +1,7 @@
-from src.planning.tosg import TOSG
+from src.state.situational_graph import SituationalGraph
 
 
 def test_get_node_by_pos():
-    krm = TOSG()
+    krm = SituationalGraph()
     node = krm.add_waypoint_node((55, 55))
     assert node == krm.get_node_by_pos((55, 55))

@@ -1,11 +1,12 @@
 from dataclasses import dataclass
+
 import matplotlib.pyplot as plt
+
+from src.gui.utils.event import subscribe
+from src.state.situational_graph import SituationalGraph
 from src.shared.behaviors import Behaviors
 from src.shared.situations import Situations
-from src.planning.tosg import TOSG
-
 from src.utils.saving_data_objects import load_something, save_something
-from src.gui.utils.event import subscribe
 
 
 @dataclass
@@ -26,7 +27,7 @@ class TOSGStats:
     def handle_task_utilities_event(self, task_utilities: dict):
         self.task_utilities.append(task_utilities)
 
-    def update(self, tosg: TOSG, step_duration):
+    def update(self, tosg: SituationalGraph, step_duration):
 
         self.num_nodes.append(tosg.G.number_of_nodes())
         self.num_edges.append(tosg.G.number_of_edges())

@@ -1,15 +1,14 @@
 from typing import Sequence
 
 from src.config import cfg
+from src.state.situational_graph import SituationalGraph
 from src.shared.situations import Situations
-from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
-    add_shortcut_edges_between_wps_on_lg,
-)
-from src.planning.tosg import TOSG
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
+    add_shortcut_edges_between_wps_on_lg
 from src.usecases.usecase import Usecase
 
-"""This is a usecase to obtain the task swithc results."""
+"""This is a usecase to obtain the task switch results for my MSc. Thesis."""
 
 
 class TaskSwitchUsecase(Usecase):
@@ -30,7 +29,7 @@ class TaskSwitchUsecase(Usecase):
         success = self.main_loop(agents, tosg, usecases, viz_listener)
         return success
 
-    def setup(self, tosg: TOSG):
+    def setup(self, tosg: SituationalGraph):
         X1 = 7.5
         X2 = 11
 

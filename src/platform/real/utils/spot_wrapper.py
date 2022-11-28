@@ -1,64 +1,36 @@
-import os
+import logging
 import time
-import subprocess
-import numpy as np
-import cv2
-# from cv_bridge import CvBridge
 
-from bosdyn.geometry import EulerZXY
-from bosdyn.client import (
-    power,
-    create_standard_sdk,
-    ResponseError,
-    RpcError,
-)
-from bosdyn.client.async_tasks import AsyncPeriodicQuery, AsyncTasks
-from bosdyn.client.frame_helpers import (
-    BODY_FRAME_NAME,
-    VISION_FRAME_NAME,
-    ODOM_FRAME_NAME,
-    get_odom_tform_body,
-    get_vision_tform_body,
-    add_edge_to_tree,
-    get_a_tform_b,
-)
-import bosdyn.client.math_helpers as math_helpers
-from bosdyn.client.robot_state import RobotStateClient
-from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder
-from bosdyn.client.power import PowerClient
-from bosdyn.client.lease import LeaseClient, LeaseKeepAlive
-from bosdyn.client.image import ImageClient, build_image_request
-from bosdyn.client.graph_nav import GraphNavClient
-from bosdyn.client.local_grid import LocalGridClient
-from bosdyn.client.payload import PayloadClient
-from bosdyn.client.payload_registration import PayloadRegistrationClient, PayloadRegistrationKeepAlive
-
-
-from bosdyn.client.world_object import WorldObjectClient
-from bosdyn.client.world_object import (
-    make_add_world_object_req,
-    make_change_world_object_req,
-    make_delete_world_object_req,
-)
-from bosdyn.client.estop import EstopClient, EstopEndpoint, EstopKeepAlive
-from bosdyn.api import (
-    image_pb2,
-    geometry_pb2,
-    trajectory_pb2,
-)
-from bosdyn.api import basic_command_pb2
-from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
-from bosdyn.api import robot_command_pb2
-from bosdyn.api.geometry_pb2 import SE2Velocity, SE2VelocityLimit, Vec2
-from bosdyn.api.trajectory_pb2 import SE2Trajectory
-import bosdyn.api.robot_state_pb2 as robot_state_proto
-import bosdyn.api.payload_pb2 as payload_protos
 import bosdyn.api.full_body_command_pb2 as full_body_command_proto
 import bosdyn.api.payload_estimation_pb2 as payload_estimation_proto
+import bosdyn.api.payload_pb2 as payload_protos
+import bosdyn.api.robot_state_pb2 as robot_state_proto
+import bosdyn.client.math_helpers as math_helpers
+import numpy as np
+from bosdyn.api import (basic_command_pb2, geometry_pb2, image_pb2,
+                        robot_command_pb2, trajectory_pb2)
+from bosdyn.api.geometry_pb2 import SE2Velocity, SE2VelocityLimit, Vec2
+from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
+from bosdyn.api.trajectory_pb2 import SE2Trajectory
+from bosdyn.client import ResponseError, RpcError, create_standard_sdk, power
+from bosdyn.client.async_tasks import AsyncPeriodicQuery, AsyncTasks
+from bosdyn.client.estop import EstopClient, EstopEndpoint, EstopKeepAlive
+from bosdyn.client.frame_helpers import (ODOM_FRAME_NAME, VISION_FRAME_NAME,
+                                         get_odom_tform_body,
+                                         get_vision_tform_body)
+from bosdyn.client.graph_nav import GraphNavClient
+from bosdyn.client.image import ImageClient, build_image_request
+from bosdyn.client.lease import LeaseClient, LeaseKeepAlive
+from bosdyn.client.local_grid import LocalGridClient
+from bosdyn.client.payload import PayloadClient
+from bosdyn.client.payload_registration import PayloadRegistrationClient
+from bosdyn.client.power import PowerClient
+from bosdyn.client.robot_command import RobotCommandBuilder, RobotCommandClient
+from bosdyn.client.robot_state import RobotStateClient
+from bosdyn.client.world_object import WorldObjectClient
+from bosdyn.geometry import EulerZXY
 from bosdyn.util import now_timestamp
-
 from google.protobuf.timestamp_pb2 import Timestamp
-import logging
 
 """List of image sources for periodic query"""
 front_image_sources = [

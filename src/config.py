@@ -6,7 +6,7 @@ from enum import Enum, IntEnum, auto
 
 import coloredlogs
 
-"""User Configuration can be found at the bottom of this file"""
+"""User Configuration can be selected at the bottom of this file"""
 
 
 class Scenario(Enum):
@@ -99,6 +99,9 @@ class Config:
         mylogs = logging.getLogger(__name__)
         coloredlogs.install(level=LOG_LVL, logger=mylogs)
 
+        # LOGIN
+        self.LOGIN_PATH = os.path.join("src", "platform", "real")
+
     def set_real_params(self):
         self.LG_NUM_CELLS = 128
         self.LG_CELL_SIZE_M = 0.03
@@ -111,7 +114,7 @@ class Config:
         # self.PRUNE_RADIUS_FACTOR = 0.23
         # self.SAMPLE_RING_WIDTH = 0.5
         self.SAMPLE_RING_WIDTH = 0.7
-        self.SAMPLE_RADIUS_FACTOR = 1.0
+        self.SAMPLE_RADIUS_FACTOR = 0.9
         self.WP_SHORTCUT_FACTOR = 1.0
         self.AT_WP_MARGIN = (
             # 0.35  # hopefully this makes it more robust on real spot in doorways
@@ -195,7 +198,7 @@ class Config:
 # cfg = Config(max_steps=10)
 # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM)
 # cfg = Config(num_agents=5, scenario=Scenario.SIM_MAZE_MEDIUM)
-cfg = Config(num_agents=2)
+# cfg = Config(num_agents=2)
 # cfg = Config(num_agents=10, scenario=Scenario.SIM_MAZE_MEDIUM)
 # cfg = Config(plot_lvl=PlotLvl.NONE)
 # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
@@ -206,7 +209,7 @@ cfg = Config(num_agents=2)
 # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
 # cfg = Config(scenario=Scenario.REAL, screenshot=True, screenshot_folder_name="vonweiler2")
 # cfg = Config(screenshot=True, screenshot_folder_name="vonweiler2")
-# cfg = Config(scenario=Scenario.REAL)
+cfg = Config(scenario=Scenario.REAL)
 
 # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
 # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)

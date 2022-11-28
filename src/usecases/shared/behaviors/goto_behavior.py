@@ -1,22 +1,19 @@
 from typing import Sequence
+
+from src.execution.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.perception_processing.local_grid import LocalGrid
-from src.shared.situations import Situations
 from src.platform.abstract_agent import AbstractAgent
+from src.state.situational_graph import SituationalGraph
 from src.shared.affordance import Affordance
 from src.shared.node_and_edge import Edge
-from src.execution.abstract_behavior import (
-    AbstractBehavior,
-    BehaviorResult,
-)
-from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
-    add_shortcut_edges_between_wps_on_lg,
-)
-from src.planning.tosg import TOSG
+from src.shared.situations import Situations
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
+    add_shortcut_edges_between_wps_on_lg
 
 
 class GotoBehavior(AbstractBehavior):
     def _run_behavior_implementation(
-        self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
+        self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
     ) -> BehaviorResult:
         node_data = tosg.get_node_data_by_node(behavior_edge[1])
         success = agent.move_to_pos(node_data["pos"])
@@ -28,7 +25,7 @@ class GotoBehavior(AbstractBehavior):
     def _check_postconditions(
         self,
         agent: AbstractAgent,
-        tosg: TOSG,
+        tosg: SituationalGraph,
         result: BehaviorResult,
         behavior_edge: Edge,
     ) -> bool:
@@ -38,7 +35,7 @@ class GotoBehavior(AbstractBehavior):
     def _mutate_graph_and_tasks_success(
         self,
         agent: AbstractAgent,
-        tosg: TOSG,
+        tosg: SituationalGraph,
         result: BehaviorResult,
         behavior_edge: Edge,
         affordances: Sequence[Affordance],
@@ -48,7 +45,7 @@ class GotoBehavior(AbstractBehavior):
         add_shortcut_edges_between_wps_on_lg(lg, tosg, agent)
 
     def _mutate_graph_and_tasks_failure(
-        self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
+        self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
     ):
         """Mutate the graph according to the behavior."""
         # return tosg

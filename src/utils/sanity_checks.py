@@ -1,9 +1,10 @@
-from src.shared.behaviors import Behaviors
-from src.planning.tosg import TOSG
 import networkx as nx
 
+from src.state.situational_graph import SituationalGraph
+from src.shared.behaviors import Behaviors
 
-def check_no_duplicate_wp_edges(krm: TOSG):
+
+def check_no_duplicate_wp_edges(krm: SituationalGraph):
     """
     Check if there are no duplicate waypoint edges in the graph.
     """

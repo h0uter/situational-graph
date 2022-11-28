@@ -1,4 +1,3 @@
-import copy
 import logging
 from typing import Mapping, Optional, Sequence, Type
 
@@ -7,8 +6,8 @@ import networkx as nx
 import src.gui.utils.event as event
 from src.execution.abstract_behavior import AbstractBehavior
 from src.planning.plan import Plan
-from src.planning.tosg import TOSG
 from src.platform.abstract_agent import AbstractAgent
+from src.state.situational_graph import SituationalGraph
 from src.shared.affordance import Affordance
 from src.shared.behaviors import Behaviors
 from src.shared.node_and_edge import Node
@@ -37,14 +36,13 @@ class OfflinePlanner:
         self.DOMAIN_BEHAVIORS = domain_behaviors
         self.AFFORDANCES = affordances
 
-    def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
+    def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
         """filter the graph over the agent capabilities"""
 
         filtered_tosg = self._filter_graph(tosg, agent)
 
         """select a task"""
         if not agent.task:
-            # agent.task = self._task_selection(agent, tosg)
             try:
                 agent.task = self._task_selection(agent, filtered_tosg)
                 if not agent.task:
@@ -78,8 +76,8 @@ class OfflinePlanner:
 
         """check completion of mission"""
         return self._check_if_tasks_exhausted(tosg)
-    
-    def _filter_graph(self, tosg: TOSG, agent: AbstractAgent) -> TOSG:
+
+    def _filter_graph(self, tosg: SituationalGraph, agent: AbstractAgent) -> SituationalGraph:
         def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
             behavior_enum = tosg.G.edges[u, v, k]["type"]  # Behaviors
             for req_cap in behavior_enum.required_capabilities:
@@ -92,13 +90,13 @@ class OfflinePlanner:
         )
 
         # here we insert the filtered graph into a new tosg object
-        filtered_tosg = TOSG()
+        filtered_tosg = SituationalGraph()
         filtered_tosg.tasks = tosg.tasks
         filtered_tosg.G = filtered_G
         return filtered_tosg
 
     # TODO: instead of removing tasks we should remove unssuccessfull edges, and this can then indirectly remove a task.
-    def _destroy_task(self, agent: AbstractAgent, tosg: TOSG):
+    def _destroy_task(self, agent: AbstractAgent, tosg: SituationalGraph):
         self._log.debug(f"{agent.name}:  has a task  {agent.task}")
 
         if agent.task:
@@ -109,16 +107,18 @@ class OfflinePlanner:
         agent.clear_task()
 
     def _check_target_still_valid(
-        self, tosg: TOSG, target_node: Optional[Node]
+        self, tosg: SituationalGraph, target_node: Optional[Node]
     ) -> bool:
         if target_node is None:
             return False
         return tosg.G.has_node(target_node)
 
-    def _task_selection(self, agent: AbstractAgent, tosg: TOSG) -> Optional[Task]:
+    def _task_selection(self, agent: AbstractAgent, tosg: SituationalGraph) -> Optional[Task]:
         target_node_to_task = {task.edge[1]: task for task in tosg.tasks}
 
-        path_costs, paths = tosg.distance_and_path_dijkstra(agent.at_wp, target_node_to_task.keys())
+        path_costs, paths = tosg.distance_and_path_dijkstra(
+            agent.at_wp, target_node_to_task.keys()
+        )
 
         # TODO: depending on the number of tasks switch between dijkstra lookup and A* lookup
         # path_cost = tosg.distance_astar(agent.at_wp, task_target_node)
@@ -129,13 +129,16 @@ class OfflinePlanner:
             else:
                 return reward / path_cost
 
-        
         # utility_to_task = {calc_utility(task.reward, path_costs[task.edge[1]]): task for task in tosg.tasks if task.edge[1] in path_costs}
         # highest_utility = max(utility_to_task.keys())
         # event.post_event("task_utilities", utility_to_task)
         # return utility_to_task[highest_utility]
 
-        task_to_utility = {task: calc_utility(task.reward, path_costs[task.edge[1]]) for task in tosg.tasks if task.edge[1] in path_costs}
+        task_to_utility = {
+            task: calc_utility(task.reward, path_costs[task.edge[1]])
+            for task in tosg.tasks
+            if task.edge[1] in path_costs
+        }
 
         event.post_event("task_utilities", task_to_utility)
 
@@ -145,7 +148,7 @@ class OfflinePlanner:
         return max(task_to_utility, key=task_to_utility.get)
 
     def _find_plan_for_task(
-        self, agent_localized_to: Node, full_tosg: TOSG, task: Task, filtered_tosg: TOSG
+        self, agent_localized_to: Node, full_tosg: SituationalGraph, task: Task, filtered_tosg: SituationalGraph
     ) -> Plan:
         target_node = task.edge[1]
 
@@ -162,7 +165,7 @@ class OfflinePlanner:
 
         return Plan(edge_path)
 
-    def validate_plan(self, plan: Plan, tosg: TOSG) -> bool:
+    def validate_plan(self, plan: Plan, tosg: SituationalGraph) -> bool:
         if not plan:
             return False
         if len(plan) < 1:
@@ -174,7 +177,7 @@ class OfflinePlanner:
 
     # this is the plan executor, maybe make it its own class.
     def _plan_execution(
-        self, agent: AbstractAgent, tosg: TOSG, plan: Plan
+        self, agent: AbstractAgent, tosg: SituationalGraph, plan: Plan
     ) -> Optional[Plan]:
 
         if not self.validate_plan(plan, tosg):
@@ -202,7 +205,7 @@ class OfflinePlanner:
             self._destroy_task(agent, tosg)
             return None
 
-    def _check_if_tasks_exhausted(self, tosg: TOSG) -> bool:
+    def _check_if_tasks_exhausted(self, tosg: SituationalGraph) -> bool:
         num_of_tasks = len(tosg.tasks)
         if num_of_tasks < 1:
             return True

@@ -1,11 +1,12 @@
+from src.planning.offline_planner import (CouldNotFindPlan, CouldNotFindTask,
+                                          OfflinePlanner, TargetNodeNotFound)
 from src.platform.abstract_agent import AbstractAgent
-from src.planning.offline_planner import OfflinePlanner, CouldNotFindPlan, CouldNotFindTask, TargetNodeNotFound
-from src.planning.tosg import TOSG
+from src.state.situational_graph import SituationalGraph
 
 
 class OnlinePlanner(OfflinePlanner):
     '''This planner selects the optimal task and makes a plan each iteration'''
-    def pipeline(self, agent: AbstractAgent, tosg: TOSG) -> bool:
+    def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
 
         if agent.init_explore_step_completed:
 

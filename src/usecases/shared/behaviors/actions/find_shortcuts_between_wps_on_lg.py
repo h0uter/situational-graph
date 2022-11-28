@@ -1,13 +1,14 @@
+import math
 from src.config import cfg
 from src.perception_processing.local_grid import LocalGrid
-from src.shared.situations import Situations
 from src.platform.abstract_agent import AbstractAgent
-from src.planning.tosg import TOSG
+from src.state.situational_graph import SituationalGraph
+from src.shared.situations import Situations
 
 
 # BUG: on the real robot sometimes impossible shortcuts are added.
 def add_shortcut_edges_between_wps_on_lg(
-    lg: LocalGrid, tosg: TOSG, agent: AbstractAgent
+    lg: LocalGrid, tosg: SituationalGraph, agent: AbstractAgent
 ):
     close_nodes = tosg.get_nodes_of_type_in_margin(
         lg.world_pos, cfg.WP_SHORTCUT_MARGIN, Situations.WAYPOINT
@@ -19,7 +20,8 @@ def add_shortcut_edges_between_wps_on_lg(
 
     if shortcut_candidate_positions:
         for point in shortcut_candidate_positions:
-            at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
+            # at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
+            at_cell = math.floor(lg.length_num_cells / 2), math.floor(lg.length_num_cells / 2)
             to_cell = lg.world_coords2cell_idxs(point)
             is_collision_free, _ = lg.is_collision_free_straight_line_between_cells(
                 at_cell, to_cell

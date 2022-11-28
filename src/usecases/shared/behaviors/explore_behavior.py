@@ -5,8 +5,8 @@ from src.execution.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.perception_processing.local_grid import (
     AngularLOSFrontierSamplingStrategy, FrontierSamplingStrategy,
     LOSFrontierSamplingStrategy)
-from src.planning.tosg import TOSG
 from src.platform.abstract_agent import AbstractAgent
+from src.state.situational_graph import SituationalGraph
 from src.shared.affordance import Affordance
 from src.shared.node_and_edge import Edge, Node
 from src.shared.situations import Situations
@@ -23,7 +23,7 @@ class ExploreBehavior(AbstractBehavior):
         self._sampling_strategy = AngularLOSFrontierSamplingStrategy()
 
     def _run_behavior_implementation(
-        self, agent: AbstractAgent, tosg: TOSG, behavior_edge
+        self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge
     ) -> BehaviorResult:
         target_node = behavior_edge[1]
         target_node_pos = tosg.get_node_data_by_node(target_node)["pos"]
@@ -33,6 +33,7 @@ class ExploreBehavior(AbstractBehavior):
         if not agent.init_explore_step_completed:
             lg = agent.get_local_grid()
             new_frontier_cells = self._sampling_strategy.sample_frontiers(lg)
+            # BUG: something goes wrong when sampling with the Angular strategy here
             self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
             agent.set_init_explore_step()
             return BehaviorResult(False)
@@ -50,7 +51,7 @@ class ExploreBehavior(AbstractBehavior):
     def _check_postconditions(
         self,
         agent: AbstractAgent,
-        tosg: TOSG,
+        tosg: SituationalGraph,
         result: BehaviorResult,
         behavior_edge: Edge,
     ):
@@ -62,7 +63,7 @@ class ExploreBehavior(AbstractBehavior):
     def _mutate_graph_and_tasks_success(
         self,
         agent: AbstractAgent,
-        tosg: TOSG,
+        tosg: SituationalGraph,
         result: BehaviorResult,
         behavior_edge: Edge,
         affordances: list[Affordance],
@@ -114,7 +115,7 @@ class ExploreBehavior(AbstractBehavior):
                 )
 
     def _mutate_graph_and_tasks_failure(
-        self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
+        self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
     ):
         # Recovery behaviour
         self._log.warning(
@@ -138,13 +139,13 @@ class ExploreBehavior(AbstractBehavior):
 
     # TODO: move this to agent services or smth
     def __process_world_objects(
-        self, agent: AbstractAgent, tosg: TOSG, affordances: Sequence[Affordance]
+        self, agent: AbstractAgent, tosg: SituationalGraph, affordances: Sequence[Affordance]
     ) -> Optional[Sequence[WorldObject]]:
         return agent.look_for_world_objects_in_perception_scene()
         # TODO: this should  return the object type and pose so that we can process it in the mutate graph step
 
     def __check_at_destination(
-        self, agent: AbstractAgent, tosg: TOSG, destination_node: Node
+        self, agent: AbstractAgent, tosg: SituationalGraph, destination_node: Node
     ) -> bool:
         at_destination = False
         destination_node_type = tosg.get_node_data_by_node(destination_node)["type"]
@@ -161,7 +162,7 @@ class ExploreBehavior(AbstractBehavior):
         self._log.debug(f"{agent.name}: at_destination: {at_destination}")
         return at_destination
 
-    def __sample_waypoint_from_pose(self, agent: AbstractAgent, tosg: TOSG) -> bool:
+    def __sample_waypoint_from_pose(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         """
@@ -195,13 +196,13 @@ class ExploreBehavior(AbstractBehavior):
 
             return True
 
-    def __add_new_frontiers_to_tosg(self, new_frontier_cells, lg, tosg: TOSG, agent):
+    def __add_new_frontiers_to_tosg(self, new_frontier_cells, lg, tosg: SituationalGraph, agent):
         for frontier_cell in new_frontier_cells:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             tosg.add_frontier(frontier_pos_global, agent.at_wp)
 
     # 50% of compute time goes to this function for multiple agents
-    def __prune_frontiers(self, tosg: TOSG) -> None:
+    def __prune_frontiers(self, tosg: SituationalGraph) -> None:
 
         ft_and_pos = [(ft, tosg.G.nodes[ft]["pos"]) for ft in tosg.frontier_idxs]
 

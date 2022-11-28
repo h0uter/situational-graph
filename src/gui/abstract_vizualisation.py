@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Union, Sequence
-
-from src.platform.abstract_agent import AbstractAgent
-from src.planning.tosg import TOSG
-from src.planning.offline_planner import OfflinePlanner
+from typing import Sequence, Union
 
 # from src.usecases.exploration_usecase import ExplorationUsecase
 from src.perception_processing.local_grid import LocalGrid
+from src.planning.offline_planner import OfflinePlanner
+from src.platform.abstract_agent import AbstractAgent
+from src.state.situational_graph import SituationalGraph
 
 
 class AbstractVizualisation(ABC):
@@ -17,7 +16,7 @@ class AbstractVizualisation(ABC):
     @abstractmethod
     def figure_update(
         self,
-        krm: TOSG,
+        krm: SituationalGraph,
         agents: Sequence[AbstractAgent],
         lg: Union[None, LocalGrid],
         usecases: Sequence[OfflinePlanner],
@@ -26,6 +25,6 @@ class AbstractVizualisation(ABC):
 
     @abstractmethod
     def figure_final_result(
-        self, krm: TOSG, agents: Sequence[AbstractAgent], lg: Union[None, LocalGrid]
+        self, krm: SituationalGraph, agents: Sequence[AbstractAgent], lg: Union[None, LocalGrid]
     ):
         pass

@@ -36,10 +36,10 @@ class OODA:
         pass
 
     def loop(self):
-        plan_model = self.initialization
+        decision_model = self.initialization
 
         while True:
-            perception_model = self.observe()
-            plan_model = self.orient(plan_model, perception_model)
-            execution_model = self.decide(plan_model)
-            plan_model = self.act(execution_model)
+            orientation_model = self.observe()
+            decision_model = self.orient(decision_model, orientation_model)
+            execution_model = self.decide(decision_model)
+            decision_model = self.act(execution_model)

@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+import math
 from typing import Optional, Sequence
 
 import numpy as np
@@ -195,8 +196,8 @@ class AngularLOSFrontierSamplingStrategy(FrontierSamplingStrategy):
         for angle in np.linspace(0, 2 * np.pi, cfg.N_SAMPLES):
 
             r = cfg.FRONTIER_SAMPLE_RADIUS_NUM_CELLS
-            x_center = local_grid.length_num_cells // 2
-            y_center = local_grid.length_num_cells // 2
+            x_center = math.floor(local_grid.length_num_cells // 2)
+            y_center = math.floor(local_grid.length_num_cells // 2)
 
             x_sample = int(x_center + r * np.cos(angle))
             y_sample = int(y_center + r * np.sin(angle))

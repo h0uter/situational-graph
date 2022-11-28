@@ -3,18 +3,17 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Sequence
 
-from src.planning.tosg import TOSG
-from src.shared.node_and_edge import Edge
-from src.shared.affordance import Affordance
 from src.config import cfg
 from src.platform.abstract_agent import AbstractAgent
+from src.state.situational_graph import SituationalGraph
+from src.shared.affordance import Affordance
+from src.shared.node_and_edge import Edge
 from src.shared.situations import Situations
 
 
 @dataclass
 class BehaviorResult:
     success: bool
-    # can_task_be_cleared: bool
 
 
 class AbstractBehavior(ABC):
@@ -23,7 +22,7 @@ class AbstractBehavior(ABC):
         self.AFFORDANCES = affordances
 
     def pipeline(
-        self, agent: AbstractAgent, tosg: TOSG, behavior_edge: Edge
+        self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
     ) -> BehaviorResult:
         """Execute the behavior pipeline."""
 
@@ -47,7 +46,7 @@ class AbstractBehavior(ABC):
 
     # perhaps something like this should go into robot services, to not murk the dependencies.
     @staticmethod
-    def _localize_to_waypoint(agent: AbstractAgent, tosg: TOSG):
+    def _localize_to_waypoint(agent: AbstractAgent, tosg: SituationalGraph):
         """Localize the agent to the waypoint it is currently at."""
         # agent.localize_to_waypoint(tosg)
         loc_candidates = tosg.get_nodes_of_type_in_margin(
@@ -72,26 +71,22 @@ class AbstractBehavior(ABC):
 
     @abstractmethod
     def _run_behavior_implementation(
-        self, agent, tosgraph: TOSG, behavior_edge: Edge
+        self, agent, tosgraph: SituationalGraph, behavior_edge: Edge
     ) -> BehaviorResult:
         pass
 
     @abstractmethod
     def _check_postconditions(
-        self, agent: AbstractAgent, tosgraph: TOSG, result, behavior_edge: Edge
+        self, agent: AbstractAgent, tosgraph: SituationalGraph, result, behavior_edge: Edge
     ) -> bool:
         """Check if the postconditions for the behavior are met."""
         pass
-
-    # @abstractmethod
-    # def perception_to_tasks(self):  # -> list[Object]
-    #     pass
 
     @abstractmethod
     def _mutate_graph_and_tasks_success(
         self,
         agent: AbstractAgent,
-        tosg: TOSG,
+        tosg: SituationalGraph,
         result: BehaviorResult,
         behavior_edge: Edge,
         affordances: Sequence[Affordance],
@@ -100,7 +95,7 @@ class AbstractBehavior(ABC):
 
     @abstractmethod
     def _mutate_graph_and_tasks_failure(
-        self, agent: AbstractAgent, tosgraph: TOSG, behavior_edge: Edge
+        self, agent: AbstractAgent, tosgraph: SituationalGraph, behavior_edge: Edge
     ):
         pass
 
