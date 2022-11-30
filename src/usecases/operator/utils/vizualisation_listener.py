@@ -1,9 +1,9 @@
 # OBSERVER PATTERN
 
-from src.usecases.operator.utils.event import subscribe
+from src.config import PlotLvl, Vizualiser, cfg
 from src.usecases.operator.mpl_vizualisation import MplVizualisation
-from src.usecases.operator.vedo_vizualisation import VedoVisualisation
-from src.config import cfg, Vizualiser, PlotLvl
+from src.usecases.operator.mission_vizualisation import MissionVisualisation
+from src.utils.event import subscribe
 
 
 class VizualisationListener:
@@ -11,7 +11,7 @@ class VizualisationListener:
         if cfg.VIZUALISER == Vizualiser.MATPLOTLIB:
             self.viz = MplVizualisation()
         else:
-            self.viz = VedoVisualisation()
+            self.viz = MissionVisualisation()
 
     # BUG: multi agents all post their lg events and overwrite eachother
     # result is that you always see the lg of the last agent

@@ -31,3 +31,5 @@ graphnav/
 situational_graph.egg-info/
 
 .idea/
+
+src.svg

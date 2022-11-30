@@ -2,7 +2,7 @@ import time
 from abc import abstractmethod
 from typing import Sequence
 
-import src.usecases.operator.utils.event as event
+import src.utils.event as event
 from src.config import Scenario, cfg
 from src.execution_autonomy.abstract_behavior import AbstractBehavior
 from src.usecases.operator.utils.vizualisation_listener import VizualisationListener

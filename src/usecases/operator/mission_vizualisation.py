@@ -9,18 +9,18 @@ import vedo
 from vedo import io
 
 from src.config import PlotLvl, Scenario, cfg
-from src.usecases.operator.abstract_vizualisation import AbstractVizualisation
-from src.platform_state.local_grid import LocalGrid
 from src.mission_autonomy.offline_planner import OfflinePlanner
-from src.platform_control.abstract_agent import AbstractAgent
 from src.mission_autonomy.situational_graph import SituationalGraph
+from src.platform_control.abstract_agent import AbstractAgent
+from src.platform_state.local_grid import LocalGrid
 from src.shared.situations import Situations
+from src.usecases.operator.abstract_vizualisation import AbstractVizualisation
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allowInteraction = True
 
 
-class VedoVisualisation(AbstractVizualisation):
+class MissionVisualisation(AbstractVizualisation):
     def __init__(self) -> None:
         self.factor = 1 / cfg.LG_CELL_SIZE_M
         self.screenshot_step = 0

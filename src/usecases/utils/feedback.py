@@ -1,7 +1,7 @@
 import logging
 import time
 
-import src.usecases.operator.utils.event as event
+import src.utils.event as event
 from src.config import cfg
 from src.platform_control.abstract_agent import AbstractAgent
 from src.mission_autonomy.situational_graph import SituationalGraph

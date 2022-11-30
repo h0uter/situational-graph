@@ -3,7 +3,7 @@ from typing import Mapping, Optional, Sequence, Type
 
 import networkx as nx
 
-import src.usecases.operator.utils.event as event
+import src.utils.event as event
 from src.execution_autonomy.abstract_behavior import AbstractBehavior
 from src.execution_autonomy.plan_model import PlanModel
 from src.platform_control.abstract_agent import AbstractAgent

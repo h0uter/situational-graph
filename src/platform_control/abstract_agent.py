@@ -6,7 +6,7 @@ import numpy as np
 import numpy.typing as npt
 
 from src.config import cfg
-from src.usecases.operator.utils.event import post_event
+from src.utils.event import post_event
 from src.platform_state.local_grid import LocalGrid
 from src.execution_autonomy.plan_model import PlanModel
 from src.shared.capabilities import Capabilities
