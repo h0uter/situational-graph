@@ -81,8 +81,20 @@ class MissionVisualisation(AbstractVizualisation):
             self.plt.show(resetcam=True)
         else:
             self.plt.show(resetcam=False)
+        
+        self.init_plt2()
 
         time.sleep(0.1)
+    
+    def init_plt2(self):
+        self.plt2 = vedo.Plotter(
+            axes=13,
+            interactive=False,
+            resetcam=True,
+            title="local_grid",
+            # size=(3456, 2000),
+        )
+        self.plt2.show(resetcam=True)
 
     def set_map(self, map_path: str) -> None:
         if cfg.SCENARIO is not Scenario.REAL:
@@ -101,7 +113,8 @@ class MissionVisualisation(AbstractVizualisation):
         lg: Union[None, LocalGrid],
         usecases: Sequence[OfflinePlanner],
     ) -> None:
-        self.viz_all(tosg, agents, usecases)
+        self.viz_mission_overview(tosg, agents, usecases)
+        self.viz_local_grid(lg)
 
     def figure_final_result(
         self,
@@ -110,7 +123,7 @@ class MissionVisualisation(AbstractVizualisation):
         lg: Union[None, LocalGrid],
         usecases: Sequence[OfflinePlanner],
     ) -> None:
-        self.viz_all(tosg, agents)
+        self.viz_mission_overview(tosg, agents)
         # self.plt.show(interactive=True, resetcam=True)
         self.plt.show(interactive=True)
 
@@ -124,7 +137,7 @@ class MissionVisualisation(AbstractVizualisation):
 
         return pos_dict
 
-    def viz_all(self, tosg: SituationalGraph, agents, usecases=None):
+    def viz_mission_overview(self, tosg: SituationalGraph, agents, usecases=None):
         actors = []
         pos_dict = self.get_scaled_pos_dict(tosg)
         ed_ls = list(tosg.G.edges)
@@ -183,7 +196,16 @@ class MissionVisualisation(AbstractVizualisation):
         if cfg.SCREENSHOT:
             self.take_screenshot()  # this makes it take the screenshots
 
+
+
         self.clear_annoying_captions()
+        
+    def viz_local_grid(self, local_grid: LocalGrid):
+
+        self.plt2.clear()
+        lg_actor = vedo.Picture(local_grid.data)
+        self.plt2.show(lg_actor, resetcam=True)
+
 
     def clear_annoying_captions(self):
         """Captions apparently are persistent, so we need to clear them."""
