@@ -81,11 +81,11 @@ class MissionVisualisation(AbstractVizualisation):
             self.plt.show(resetcam=True)
         else:
             self.plt.show(resetcam=False)
-        
+
         self.init_plt2()
 
         time.sleep(0.1)
-    
+
     def init_plt2(self):
         self.plt2 = vedo.Plotter(
             axes=13,
@@ -114,7 +114,10 @@ class MissionVisualisation(AbstractVizualisation):
         usecases: Sequence[OfflinePlanner],
     ) -> None:
         self.viz_mission_overview(tosg, agents, usecases)
-        self.viz_local_grid(lg)
+        # self.viz_local_grid(lg)
+
+        if self.plt.escaped:
+            exit()
 
     def figure_final_result(
         self,
@@ -139,6 +142,10 @@ class MissionVisualisation(AbstractVizualisation):
 
     def viz_mission_overview(self, tosg: SituationalGraph, agents, usecases=None):
         actors = []
+
+        self.plt.clear()
+        actors.append(self.map_actor)
+
         pos_dict = self.get_scaled_pos_dict(tosg)
         ed_ls = list(tosg.G.edges)
 
@@ -196,16 +203,33 @@ class MissionVisualisation(AbstractVizualisation):
         if cfg.SCREENSHOT:
             self.take_screenshot()  # this makes it take the screenshots
 
-
-
         self.clear_annoying_captions()
-        
-    def viz_local_grid(self, local_grid: LocalGrid):
 
+    def viz_local_grid(self, local_grid: LocalGrid, collision_points=None, candidate_shortcut_wps=None):
+        actors = []
         self.plt2.clear()
-        lg_actor = vedo.Picture(local_grid.data)
-        self.plt2.show(lg_actor, resetcam=True)
 
+        lg_actor = vedo.Picture(local_grid.data, flip=True)
+        actors.append(lg_actor)
+
+        centre = int(lg_actor.dimensions()[0] / 2), int(lg_actor.dimensions()[1] / 2)
+
+        agent_actor = vedo.Point(centre, r=10, c="b")
+        actors.append(agent_actor)
+
+        if candidate_shortcut_wps:
+            for wp in candidate_shortcut_wps:
+                wp_actor = vedo.Point(wp, r=10, c="r")
+                actors.append(wp_actor)
+                wp_line_actor = vedo.Line(centre, (wp[0], wp[1]), c="g", lw=5)
+                actors.append(wp_line_actor)
+
+        if collision_points:
+            for cp in collision_points:
+                cp_point_actor = vedo.Cross3D((cp[0], cp[1]), s=0.3*self.factor, c="p")
+                actors.append(cp_point_actor)
+
+        self.plt2.show(actors, resetcam=True)
 
     def clear_annoying_captions(self):
         """Captions apparently are persistent, so we need to clear them."""
@@ -262,7 +286,7 @@ class MissionVisualisation(AbstractVizualisation):
             agent_pos = (self.factor * agent.pos[0], self.factor * agent.pos[1], 0)
             grid_len = self.factor * cfg.LG_LENGTH_IN_M
             local_grid_viz = vedo.Grid(
-                pos=agent_pos, sx=grid_len, sy=grid_len, lw=2, alpha=0.3
+                pos=agent_pos, s=(grid_len, grid_len), lw=2, alpha=0.3
             )
             actors.append(local_grid_viz)
 
