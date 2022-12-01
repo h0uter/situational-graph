@@ -1,6 +1,6 @@
 import logging
-from abc import ABC, abstractmethod
 import math
+from abc import ABC, abstractmethod
 from typing import Optional, Sequence
 
 import numpy as np
@@ -37,6 +37,7 @@ class LocalGrid:
         y_idx = int(
             (coords[1] - self.world_pos[1] + self.length_in_m / 2) / self.cell_size_in_m
         )
+
         return x_idx, y_idx
 
     def cell_idx2world_coords(self, idxs: tuple[int, int]) -> tuple[float, float]:

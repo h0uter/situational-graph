@@ -1,6 +1,6 @@
 import vedo
 
-vedo.settings.allowInteraction = True
+vedo.settings.allow_interaction = True
 
 
 plot_a = vedo.Plotter(interactive=False, shape="2|1")

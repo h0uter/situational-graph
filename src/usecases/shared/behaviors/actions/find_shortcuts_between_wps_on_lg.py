@@ -24,16 +24,16 @@ def add_shortcut_edges_between_wps_on_lg(
 
     if shortcut_candidate_positions:
         for point in shortcut_candidate_positions:
-            # at_cell = lg.length_num_cells / 2, lg.length_num_cells / 2
-            at_cell = math.floor(lg.length_num_cells / 2), math.floor(
-                lg.length_num_cells / 2
-            )
+            at_cell = lg.length_num_cells // 2, lg.length_num_cells // 2
+
             to_cell = lg.world_coords2cell_idxs(point)
             shortcut_candidate_cells.append(to_cell)
+
             (
                 is_collision_free,
                 collision_point,
             ) = lg.is_collision_free_straight_line_between_cells(at_cell, to_cell)
+            # I think this function might be messing it up
 
             if collision_point:
                 collision_point_cell = lg.world_coords2cell_idxs(collision_point)

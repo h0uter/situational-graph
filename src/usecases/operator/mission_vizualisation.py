@@ -17,7 +17,7 @@ from src.shared.situations import Situations
 from src.usecases.operator.abstract_vizualisation import AbstractVizualisation
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
-vedo.settings.allowInteraction = True
+vedo.settings.allow_interaction = True
 
 
 class MissionVisualisation(AbstractVizualisation):
