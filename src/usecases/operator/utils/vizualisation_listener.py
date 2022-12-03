@@ -1,6 +1,7 @@
 # OBSERVER PATTERN
 
 from dataclasses import dataclass
+from typing import Sequence
 
 from src.config import PlotLvl, Vizualiser, cfg
 from src.shared.node_and_edge import Edge
@@ -66,9 +67,14 @@ class VizualisationListener:
     def viz_point(self, data):
         self.viz.viz_start_point((data[0], data[1]))
 
-    def handle_shortcut_checking_data(self, data):
+    def handle_shortcut_checking_data(self, data: dict):
         # print(data["collision_points"])
-        self.viz.viz_local_grid(self.lg, data["collision_points"], data["shortcut_candidate_cells"])
+        self.viz.viz_waypoint_shortcuts(
+            self.lg, data["collision_points"], data["shortcut_candidate_cells"]
+        )
+
+    def handle_frontier_sampling_data(self, data: Sequence[tuple[int, int]]):
+        self.viz.viz_frontier_sampling(self.lg, data)
 
     def setup_event_handler(self):
         subscribe("new lg", self.handle_new_lg_event)
@@ -77,3 +83,4 @@ class VizualisationListener:
         subscribe("viz point", self.viz_point)
 
         subscribe("shortcut checking data", self.handle_shortcut_checking_data)
+        subscribe("new_frontier_cells", self.handle_frontier_sampling_data)

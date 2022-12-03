@@ -12,6 +12,7 @@ from src.shared.situations import Situations
 from src.shared.world_object import WorldObject
 from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
     add_shortcut_edges_between_wps_on_lg
+from src.utils.event import post_event
 
 
 class ExploreBehavior(AbstractBehavior):
@@ -82,6 +83,8 @@ class ExploreBehavior(AbstractBehavior):
         # XXX: this is my 2nd  most expensive function, so I should try to optimize it
         # new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
         new_frontier_cells = self._sampling_strategy.sample_frontiers(lg)
+        post_event("new_frontier_cells", new_frontier_cells)
+        
         self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
 
         # XXX: this is my 3nd expensive function, so I should try to optimize it

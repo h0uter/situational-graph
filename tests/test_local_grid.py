@@ -16,6 +16,7 @@ def test_calc_length_num_cells():
 
     assert lg.length_num_cells == cfg.LG_LENGTH_IN_M / cfg.LG_CELL_SIZE_M
 
+
 def test_transformation_back_to_back():
     lg = LocalGrid((10, 10), np.array([]))
     a = (10, 10)

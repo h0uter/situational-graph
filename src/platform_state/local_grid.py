@@ -64,10 +64,10 @@ class LocalGrid:
             )
         return x_coord, y_coord
 
-    def _get_cells_under_line(self, a: tuple, b: tuple) -> tuple:
-        rr, cc = draw.line(int(a[0]), int(a[1]), int(b[0]), int(b[1]))
+    def _get_cells_under_line(self, a: tuple[int, int], b: tuple[int, int]) -> tuple:
+        line_row_cells, line_column_cells = draw.line(int(a[0]), int(a[1]), int(b[0]), int(b[1]))
 
-        return rr, cc
+        return line_row_cells, line_column_cells
 
     def is_collision_free_straight_line_between_cells(
         self, at: tuple[int, int], to: tuple[int, int]
