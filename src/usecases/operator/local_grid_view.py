@@ -1,3 +1,4 @@
+import numpy.typing as npt
 import vedo
 
 from src.config import cfg
@@ -54,12 +55,12 @@ class LocalGridView:
 
         self.plt2.show(actors, resetcam=True)
 
-    def viz_frontier_sampling(self, local_grid: LocalGrid, frontier_points=None):
+    def viz_frontier_sampling(self, local_grid_img: npt.NDArray, frontier_points=None):
         actors = []
         self.plt3.clear()
 
         # lg_actor = vedo.Picture(local_grid.data, flip=True)
-        lg_actor = vedo.Picture(local_grid.data, flip=False)
+        lg_actor = vedo.Picture(local_grid_img, flip=False)
         actors.append(lg_actor)
 
         centre = int(lg_actor.dimensions()[0] / 2), int(lg_actor.dimensions()[1] / 2)

@@ -1,18 +1,27 @@
+from dataclasses import dataclass
 from typing import Optional, Sequence
+
+import numpy.typing as npt
 
 from src.config import cfg
 from src.execution_autonomy.abstract_behavior import AbstractBehavior, BehaviorResult
-from src.platform_state.local_grid import (
-    AngularLOSFrontierSamplingStrategy)
-from src.platform_control.abstract_agent import AbstractAgent
 from src.mission_autonomy.situational_graph import SituationalGraph
+from src.platform_control.abstract_agent import AbstractAgent
+from src.platform_state.local_grid import AngularLOSFrontierSamplingStrategy
 from src.shared.affordance import Affordance
 from src.shared.node_and_edge import Edge, Node
 from src.shared.situations import Situations
 from src.shared.world_object import WorldObject
-from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
-    add_shortcut_edges_between_wps_on_lg
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    add_shortcut_edges_between_wps_on_lg,
+)
 from src.utils.event import post_event
+
+
+@dataclass
+class FrontierSamplingViewModel:
+    local_grid_img: npt.NDArray
+    new_frontier_cells: Sequence[tuple[int, int]]
 
 
 class ExploreBehavior(AbstractBehavior):
@@ -83,8 +92,14 @@ class ExploreBehavior(AbstractBehavior):
         # XXX: this is my 2nd  most expensive function, so I should try to optimize it
         # new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
         new_frontier_cells = self._sampling_strategy.sample_frontiers(lg)
-        post_event("new_frontier_cells", new_frontier_cells)
-        
+
+        post_event(
+            "new_frontier_cells",
+            FrontierSamplingViewModel(
+                local_grid_img=lg.data, new_frontier_cells=new_frontier_cells
+            ),
+        )
+
         self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
 
         # XXX: this is my 3nd expensive function, so I should try to optimize it
@@ -140,7 +155,10 @@ class ExploreBehavior(AbstractBehavior):
 
     # TODO: move this to agent services or smth
     def __process_world_objects(
-        self, agent: AbstractAgent, tosg: SituationalGraph, affordances: Sequence[Affordance]
+        self,
+        agent: AbstractAgent,
+        tosg: SituationalGraph,
+        affordances: Sequence[Affordance],
     ) -> Optional[Sequence[WorldObject]]:
         return agent.look_for_world_objects_in_perception_scene()
         # TODO: this should  return the object type and pose so that we can process it in the mutate graph step
@@ -163,7 +181,9 @@ class ExploreBehavior(AbstractBehavior):
         self._log.debug(f"{agent.name}: at_destination: {at_destination}")
         return at_destination
 
-    def __sample_waypoint_from_pose(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
+    def __sample_waypoint_from_pose(
+        self, agent: AbstractAgent, tosg: SituationalGraph
+    ) -> bool:
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         """
@@ -197,7 +217,9 @@ class ExploreBehavior(AbstractBehavior):
 
             return True
 
-    def __add_new_frontiers_to_tosg(self, new_frontier_cells, lg, tosg: SituationalGraph, agent):
+    def __add_new_frontiers_to_tosg(
+        self, new_frontier_cells, lg, tosg: SituationalGraph, agent
+    ):
         for frontier_cell in new_frontier_cells:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
             tosg.add_frontier(frontier_pos_global, agent.at_wp)

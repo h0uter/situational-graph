@@ -12,7 +12,7 @@ from src.utils.event import post_event
 @dataclass
 class WaypointShortcutViewModel:
     """A view model for a shortcut between two waypoints on the local grid."""
-
+    local_grid: LocalGrid
     collision_cells: list[tuple[int, int]]
     shortcut_candidate_cells: list[tuple[int, int]]
 
@@ -56,6 +56,7 @@ def add_shortcut_edges_between_wps_on_lg(
                     tosg.add_waypoint_diedge(from_wp, to_wp)
 
     data = WaypointShortcutViewModel(
+        local_grid=lg,
         collision_cells=collision_cells,
         shortcut_candidate_cells=shortcut_candidate_cells,
     )

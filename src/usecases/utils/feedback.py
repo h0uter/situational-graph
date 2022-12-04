@@ -1,5 +1,7 @@
+from dataclasses import dataclass
 import logging
 import time
+from src.platform_state.local_grid import LocalGrid
 
 import src.utils.event as event
 from src.config import cfg
@@ -7,6 +9,14 @@ from src.platform_control.abstract_agent import AbstractAgent
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.utils.audio_feedback import play_file
 from src.utils.tosg_stats import TOSGStats
+
+@dataclass
+class MissionViewModel:
+    """A view model for the mission."""
+    # local_grid: LocalGrid
+    situational_graph: SituationalGraph
+    agents: list[AbstractAgent]
+    usecases: list
 
 
 def feedback_pipeline_init():
@@ -22,7 +32,7 @@ def feedback_pipeline_init():
 
 
 def feedback_pipeline_single_step(
-    step, step_start, agents, tosg, tosg_stats, planning_pipelines, my_logger
+    step, step_start, agents, tosg, tosg_stats, usecases, my_logger
 ):
     """Data collection"""
     step_duration = time.perf_counter() - step_start
@@ -30,9 +40,12 @@ def feedback_pipeline_single_step(
 
     """ Visualisation """
     my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
+
     event.post_event(
         "figure update",
-        {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
+                MissionViewModel(
+            situational_graph=tosg, agents=agents, usecases=usecases
+        )
     )
 
     if step % 50 == 0:
@@ -41,7 +54,7 @@ def feedback_pipeline_single_step(
 
 
 def feedback_pipeline_completion(
-    step: int, agents: list[AbstractAgent], tosg: SituationalGraph, tosg_stats, planning_pipelines, my_logger, start
+    step: int, agents: list[AbstractAgent], tosg: SituationalGraph, tosg_stats, usecases, my_logger, start
 ):
     """Results"""
     my_logger.info(
@@ -58,8 +71,14 @@ def feedback_pipeline_completion(
 
     event.post_event(
         "figure final result",
-        {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
+        MissionViewModel(
+            situational_graph=tosg, agents=agents, usecases=usecases
+        )
     )
+    # event.post_event(
+    #     "figure final result",
+    #     {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
+    # )
 
     # XXX dont plot krm stats
     # if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:
