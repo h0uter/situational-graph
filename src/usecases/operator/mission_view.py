@@ -97,7 +97,7 @@ class MissionView:
         self,
         tosg: SituationalGraph,
         agents: Sequence[AbstractAgent],
-        lg: Union[None, LocalGrid],
+        # lg: Union[None, LocalGrid],
         usecases: Sequence[OfflinePlanner],
     ) -> None:
         self.viz_mission_overview(tosg, agents, usecases)
@@ -110,7 +110,7 @@ class MissionView:
         self,
         tosg: SituationalGraph,
         agents: Sequence[AbstractAgent],
-        lg: Union[None, LocalGrid],
+        # lg: Union[None, LocalGrid],
         usecases: Sequence[OfflinePlanner],
     ) -> None:
         self.viz_mission_overview(tosg, agents)

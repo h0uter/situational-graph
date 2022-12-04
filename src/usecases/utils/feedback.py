@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import logging
 import time
 from src.platform_state.local_grid import LocalGrid
+from src.shared.topics import Topics
 
 import src.utils.event as event
 from src.config import cfg
@@ -42,7 +43,7 @@ def feedback_pipeline_single_step(
     my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
 
     event.post_event(
-        "figure update",
+        str(Topics.MISSION_VIEW_UPDATE),
                 MissionViewModel(
             situational_graph=tosg, agents=agents, usecases=usecases
         )
@@ -70,15 +71,11 @@ def feedback_pipeline_completion(
         play_file("exploration_complete.mp3")
 
     event.post_event(
-        "figure final result",
+        str(Topics.MISSION_VIEW_UPDATE_FINAL),
         MissionViewModel(
             situational_graph=tosg, agents=agents, usecases=usecases
         )
     )
-    # event.post_event(
-    #     "figure final result",
-    #     {"krm": tosg, "agents": agents, "usecases": planning_pipelines},
-    # )
 
     # XXX dont plot krm stats
     # if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:

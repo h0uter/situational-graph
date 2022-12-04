@@ -6,6 +6,7 @@ from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 from src.platform_state.local_grid import LocalGrid
 from src.shared.situations import Situations
+from src.shared.topics import Topics
 from src.utils.event import post_event
 
 
@@ -60,4 +61,5 @@ def add_shortcut_edges_between_wps_on_lg(
         collision_cells=collision_cells,
         shortcut_candidate_cells=shortcut_candidate_cells,
     )
-    post_event("shortcut checking data", data)
+    # post_event("shortcut checking data", data)
+    post_event(str(Topics.SHORTCUT_CHECKING), data)

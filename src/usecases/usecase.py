@@ -1,6 +1,7 @@
 import time
 from abc import abstractmethod
 from typing import Sequence
+from src.shared.topics import Topics
 
 import src.utils.event as event
 from src.config import Scenario, cfg
@@ -109,7 +110,7 @@ class Usecase:
             agent.get_local_grid()
             # agent.localize_to_waypoint(tosg)
             AbstractBehavior._localize_to_waypoint(agent, tosg)  # HACK: not ideal but this removes dependency of agent on tosg
-            event.post_event("viz point", agent.pos)  # viz start position
+            event.post_event(str(Topics.MISSION_VIEW_START_POINT), agent.pos)  # viz start position
 
     @abstractmethod
     def run(self):

@@ -11,6 +11,7 @@ from src.platform_state.local_grid import AngularLOSFrontierSamplingStrategy
 from src.shared.affordance import Affordance
 from src.shared.node_and_edge import Edge, Node
 from src.shared.situations import Situations
+from src.shared.topics import Topics
 from src.shared.world_object import WorldObject
 from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
@@ -94,7 +95,7 @@ class ExploreBehavior(AbstractBehavior):
         new_frontier_cells = self._sampling_strategy.sample_frontiers(lg)
 
         post_event(
-            "new_frontier_cells",
+            str(Topics.FRONTIER_SAMPLING),
             FrontierSamplingViewModel(
                 local_grid_img=lg.data, new_frontier_cells=new_frontier_cells
             ),

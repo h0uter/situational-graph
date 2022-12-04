@@ -59,7 +59,6 @@ class AbstractAgent(ABC):
             world_pos=self.get_localization(),
             img_data=lg_img,
         )
-        post_event("new lg", lg)
 
         return lg
 
