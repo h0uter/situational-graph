@@ -7,7 +7,7 @@ from src.config import cfg
 from src.execution_autonomy.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
-from src.platform_state.local_grid import AngularLOSFrontierSamplingStrategy
+from src.platform_state.local_grid import AngularLOSFrontierSamplingStrategy, LOSFrontierSamplingStrategy
 from src.shared.affordance import Affordance
 from src.shared.node_and_edge import Edge, Node
 from src.shared.situations import Situations
@@ -90,7 +90,7 @@ class ExploreBehavior(AbstractBehavior):
         if not self.__sample_waypoint_from_pose(agent, tosg):
             self._log.error("sampling waypoint failed")
 
-        # XXX: this is my 2nd  most expensive function, so I should try to optimize it
+        # FIXME: this is my 2nd  most expensive function, so I should try to optimize it
         # new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
         new_frontier_cells = self._sampling_strategy.sample_frontiers(lg)
 
@@ -103,7 +103,7 @@ class ExploreBehavior(AbstractBehavior):
 
         self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
 
-        # XXX: this is my 3nd expensive function, so I should try to optimize it
+        # FIXME: this is my 3nd expensive function, so I should try to optimize it
         self.__prune_frontiers(tosg)
         # self.__find_shortcuts_between_wps(lg, tosg, agent)
         add_shortcut_edges_between_wps_on_lg(lg, tosg, agent)
@@ -230,7 +230,7 @@ class ExploreBehavior(AbstractBehavior):
 
         ft_and_pos = [(ft, tosg.G.nodes[ft]["pos"]) for ft in tosg.frontier_idxs]
 
-        # XXX: this function is most expensive
+        # FIXME: this function is most expensive
         # One solution would be using neightbors property in the graph
         # so instead of doing it for the entire graph, only do it locally next to where the graph was modified
         close_frontiers = set()  # avoid duplicates

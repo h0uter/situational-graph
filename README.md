@@ -31,3 +31,5 @@ My goal is to advance the design principles of semantic mapping to generalize it
 ## Acknowledgments
 This work was supported by TNO and the AIRlab.
 
+# Line count
+- **Sunday, Dec 4@20:03::** 5426 total

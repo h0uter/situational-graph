@@ -1,4 +1,4 @@
-from src.data_providers.sim.local_grid_image_spoofer import LocalGridImageSpoofer
+from src.platform_control.sim.utils.local_grid_image_spoofer import LocalGridImageSpoofer
 
 import os
 from src.utils.coordinate_transforms import img_axes2world_axes

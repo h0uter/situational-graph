@@ -255,7 +255,7 @@ class SituationalGraph:
         """
         Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.
         """
-        # XXX: solve this by using neighbors
+        # TODO: solve this by using neighbors
         # node_pos_data_dict = nx.get_node_attributes(self.G, "pos")
         # nodes_at_pos = [
         #     node

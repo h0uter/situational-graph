@@ -4,7 +4,7 @@ from typing import Sequence
 from src.shared.topics import Topics
 from src.usecases.operator.frontier_sampling_view import FrontierSamplingDebugView
 from src.usecases.operator.waypoint_shortcuts_view import WaypointShortcutDebugView
-from src.usecases.operator.mission_view import MissionView, MissionViewListener
+from src.usecases.operator.mission_view import MissionView
 
 import src.utils.event as event
 from src.config import Scenario, cfg

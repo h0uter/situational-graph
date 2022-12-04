@@ -15,7 +15,9 @@ class LocalGrid:
         self._log = logging.getLogger(__name__)
 
         self.world_pos = world_pos
+        # XXX: what is the format of img_data here x,y or y,x?
         self.data = img_data
+
         self.length_in_m = cfg.LG_LENGTH_IN_M
         self.cell_size_in_m = cfg.LG_CELL_SIZE_M
         self.length_num_cells = int(self.length_in_m / self.cell_size_in_m)
