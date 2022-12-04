@@ -1,15 +1,17 @@
-bosdyn-client==3.1.2.1 
-bosdyn-mission==3.1.2.1 
-bosdyn-choreography-client==3.1.2.1
-coloredlogs==15.0.1
-matplotlib==3.5.1
-networkx==2.7.1
-numpy==1.22.1
-Pillow==9.0.1
+bosdyn-client==3.1.*
+bosdyn-mission==3.1.*
+bosdyn-choreography-client==3.1.*
+coloredlogs==15.0.*
+# matplotlib==3.5.*
+networkx==2.7.*
+numpy==1.23.*
+Pillow==9.3.*
 scikit-image==0.19.1
 opencv-python==4.5.5.62
-vedo==2022.0.1
-pytest==6.2.0
-playsound==1.2.2
-gTTS==2.2.3
+vedo==2022.4.*
+pytest==6.2.*
+vtk==9.0.3
+playsound==1.2.*
+gTTS==2.2
 pyttsx3
+# on MacOS it is neccesary to `conda install grpcio` because of ARM64
