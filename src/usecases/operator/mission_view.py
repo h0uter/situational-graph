@@ -1,7 +1,7 @@
 import os
 import time
 from pathlib import Path
-from typing import Sequence, Union
+from typing import Sequence
 
 import networkx as nx
 import numpy as np
@@ -12,8 +12,10 @@ from src.config import PlotLvl, Scenario, cfg
 from src.mission_autonomy.offline_planner import OfflinePlanner
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
-from src.platform_state.local_grid import LocalGrid
 from src.shared.situations import Situations
+from src.shared.topics import Topics
+from src.usecases.utils.feedback import MissionViewModel
+from src.utils.event import subscribe
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allow_interaction = True
@@ -30,7 +32,6 @@ class MissionView:
             interactive=False,
             resetcam=True,
             title=TITLE,
-            # size=(3456, 2234),
             size=(3456, 2000),
         )
         self.map_actor = None
@@ -39,42 +40,11 @@ class MissionView:
         if cfg.PLOT_LVL is not PlotLvl.NONE:
             if cfg.SCENARIO is not Scenario.REAL:
                 self.set_map(cfg.MAP_PATH)
-                # map_pic = vedo.Picture(cfg.MAP_PATH)
-                # map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
-                # self.plt.show(map_pic, interactive=False)
 
-            # logo_path = os.path.join("resource", "KRM.png")
-            # logo = vedo.load(logo_path)
-            # self.plt.addIcon(logo, pos=1, size=0.15)
-
-        self.debug_actors = list()
-        self.wp_counter = []
-        self.ft_counter = []
-
-        self.actors_which_need_to_be_cleared = list()
+        self.debug_actors: list[vedo.BaseActor] = []
+        self.actors_which_need_to_be_cleared: list[vedo.BaseActor] = []
 
         self.plt.show(resetcam=True)
-        """set camera to collect specific results"""
-        # whole villa
-        # self.plt.camera.SetPosition( [57.46, -1437.605, 2488.884] )
-        # self.plt.camera.SetFocalPoint( [-0.5, -0.5, 0.0] )
-        # self.plt.camera.SetViewUp( [0.000, 0.866, 0.5] )
-        # self.plt.camera.SetDistance( 2874.573 )
-        # self.plt.camera.SetClippingRange( [1885.396, 4126.678] )
-
-        # scenario1 villa
-        # self.plt.camera.SetPosition( [422.177, -1016.904, 1666.483] )
-        # self.plt.camera.SetFocalPoint( [416.908, -143.99, -92.16] )
-        # self.plt.camera.SetViewUp( [0.004, 0.896, 0.445] )
-        # self.plt.camera.SetDistance( 1963.372 )
-        # self.plt.camera.SetClippingRange( [1091.026, 3026.337] )
-
-        # # scenario1 villa tilter
-        # self.plt.camera.SetPosition( [772.225, -1289.612, 1462.231] )
-        # self.plt.camera.SetFocalPoint( [416.908, -143.99, -92.159] )
-        # self.plt.camera.SetViewUp( [0.028, 0.808, 0.589] )
-        # self.plt.camera.SetDistance( 1963.372 )
-        # self.plt.camera.SetClippingRange( [611.63, 3864.823] )
 
         if cfg.SCENARIO is Scenario.REAL:
             self.plt.show(resetcam=True)
@@ -97,11 +67,9 @@ class MissionView:
         self,
         tosg: SituationalGraph,
         agents: Sequence[AbstractAgent],
-        # lg: Union[None, LocalGrid],
         usecases: Sequence[OfflinePlanner],
     ) -> None:
         self.viz_mission_overview(tosg, agents, usecases)
-        # self.viz_local_grid(lg)
 
         if self.plt.escaped:
             exit()
@@ -110,25 +78,13 @@ class MissionView:
         self,
         tosg: SituationalGraph,
         agents: Sequence[AbstractAgent],
-        # lg: Union[None, LocalGrid],
         usecases: Sequence[OfflinePlanner],
     ) -> None:
         self.viz_mission_overview(tosg, agents)
-        # self.plt.show(interactive=True, resetcam=True)
         self.plt.show(interactive=True)
 
-    def get_scaled_pos_dict(self, tosg: SituationalGraph) -> dict:
-        positions_of_all_nodes = nx.get_node_attributes(tosg.G, "pos")
-        pos_dict = positions_of_all_nodes
-
-        # scale the sizes to the scale of the simulated map image
-        for pos in pos_dict:
-            pos_dict[pos] = tuple([self.factor * x for x in pos_dict[pos]])
-
-        return pos_dict
-
     def viz_mission_overview(self, tosg: SituationalGraph, agents, usecases=None):
-        actors = []
+        actors: list[vedo.BaseActor] = []
 
         self.plt.clear()
         actors.append(self.map_actor)
@@ -146,19 +102,14 @@ class MissionView:
 
         waypoint_nodes = tosg.get_nodes_by_type(Situations.WAYPOINT)
         wps = [pos_dict[wp] for wp in waypoint_nodes]
-        self.wp_counter.append(len(wps))
-        # waypoints = vedo.Points(wps, r=8, c="r")
-        # waypoints = vedo.Points(wps, r=15, c="FireBrick")
         waypoints = vedo.Points(wps, r=35, c="FireBrick")
         actors.append(waypoints)
 
         frontier_nodes = tosg.get_nodes_by_type(Situations.FRONTIER)
         fts = [pos_dict[f] for f in frontier_nodes]
-        self.ft_counter.append(len(fts))
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
-        # world_object_nodes = self.get_nodes_by_type(krm, ObjectTypes.WORLD_OBJECT)
         # HACK: we need this to extend to new world objects.
         world_object_nodes = tosg.get_nodes_by_type(Situations.UNKNOWN_VICTIM)
         world_object_nodes.extend(tosg.get_nodes_by_type(Situations.IMMOBILE_VICTIM))
@@ -168,10 +119,6 @@ class MissionView:
 
         if usecases is not None:
             self.viz_action_graph(actors, tosg, usecases, pos_dict, agents)
-
-        # TODO: add legend
-        # lbox = vedo.LegendBox([world_objects], width=0.25)
-        # actors.append(lbox)
 
         if self.debug_actors:
             actors.extend(self.debug_actors)
@@ -208,8 +155,6 @@ class MissionView:
         # FIXME: this is way too high in real scenario
         ACTION_PATH_OFFSET = self.factor * 5
 
-        # for mission in usecases:
-        #     if mission.plan:
         for agent in agents:
             if agent.plan:
                 action_path = agent.plan.edge_sequence
@@ -221,9 +166,7 @@ class MissionView:
                             return
 
                 # TODO: make it actually plot based on type of action
-                # ed_ls = [action_path[i : i + 2] for i in range(len(action_path) - 1)]
                 ed_ls = action_path
-                # raw_lines = [(pos_dict[x], pos_dict[y]) for x, y in ed_ls]
                 raw_lines = [
                     (pos_dict[node_a], pos_dict[node_b]) for node_a, node_b, _ in ed_ls
                 ]
@@ -256,6 +199,7 @@ class MissionView:
             cone_r = self.factor * 1.35
             cone_height = self.factor * 3.1
             # FIXME: this is inconsistent
+
             if cfg.SCENARIO == Scenario.REAL:
                 cone_r *= 0.4
                 cone_height *= 0.4
@@ -321,7 +265,6 @@ class MissionView:
         point = vedo.Point(
             (pos[0] * self.factor, pos[1] * self.factor, 0), r=35, c="blue"
         )
-        # print(f"adding point {pos} to debug actors")
         self.debug_actors.append(point)
 
         # FIXME: this is way to big in real scenario
@@ -340,17 +283,50 @@ class MissionView:
             )
         self.debug_actors.append(start_vig)
 
+    def get_scaled_pos_dict(self, tosg: SituationalGraph) -> dict:
+        positions_of_all_nodes = nx.get_node_attributes(tosg.G, "pos")
+        pos_dict = positions_of_all_nodes
+
+        # scale the sizes to the scale of the simulated map image
+        for pos in pos_dict:
+            pos_dict[pos] = tuple([self.factor * x for x in pos_dict[pos]])
+
+        return pos_dict
+
     def take_screenshot(self):
-        # FOLDER_NAME = "scenario1"
-        # scenario_name = "sc2"
-        # scenario_name = "sc1"
         scenario_name = cfg.SCREENSHOT_FOLDER_NAME
         new_folder_path = os.path.join("results", scenario_name)
         Path(new_folder_path).mkdir(parents=True, exist_ok=True)
 
-        # name = f"{datetime.now().strftime('%Y%m%d-%H:%M:%S-%f')}"
         name = f"{scenario_name}-step{self.screenshot_step}"
         file_path = os.path.join(new_folder_path, name + ".png")
 
         io.screenshot(file_path)
         self.screenshot_step += 1
+
+
+class MissionViewListener:
+    def __init__(self):
+        self.mission_view = MissionView()
+
+        subscribe(str(Topics.MISSION_VIEW_START_POINT), self.viz_start_point)
+
+        subscribe(str(Topics.MISSION_VIEW_UPDATE), self.handle_figure_update_event)
+        subscribe(
+            str(Topics.MISSION_VIEW_UPDATE_FINAL), self.handle_figure_final_result_event
+        )
+
+    def viz_start_point(self, data):
+        self.mission_view.viz_start_point((data[0], data[1]))
+
+    def handle_figure_update_event(self, data: MissionViewModel):
+        if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
+            self.mission_view.figure_update(
+                data.situational_graph, data.agents, data.usecases
+            )
+
+    def handle_figure_final_result_event(self, data: MissionViewModel):
+        if cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or cfg.PLOT_LVL == PlotLvl.ALL:
+            self.mission_view.figure_final_result(
+                data.situational_graph, data.agents, data.usecases
+            )

@@ -2,7 +2,8 @@ import time
 from abc import abstractmethod
 from typing import Sequence
 from src.shared.topics import Topics
-from src.usecases.operator.local_grid_view import LocalGridView
+from src.usecases.operator.local_grid_view import LocalGridViewListener
+from src.usecases.operator.mission_view import MissionViewListener
 
 import src.utils.event as event
 from src.config import Scenario, cfg
@@ -13,7 +14,6 @@ from src.platform_control.abstract_agent import AbstractAgent
 from src.platform_control.real.spot_agent import SpotAgent
 from src.platform_control.sim.simulated_agent import SimulatedAgent
 from src.shared.capabilities import Capabilities
-from src.usecases.operator.view_listener import ViewListener
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar.sar_behaviors import SAR_BEHAVIORS
 from src.usecases.utils.feedback import (feedback_pipeline_completion,
@@ -73,8 +73,9 @@ class Usecase:
         # planner = OfflinePlanner(domain_behaviors, affordances)
         planner = OnlinePlanner(domain_behaviors, affordances)
 
-        ViewListener()
-        LocalGridView()
+        # ViewListener()
+        MissionViewListener()
+        LocalGridViewListener()
 
         # return agents, tosg, planner, viz_listener
         return agents, tosg, planner

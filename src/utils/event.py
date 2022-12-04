@@ -10,7 +10,7 @@ def subscribe(topic: str, callback_fn: Callable):
     subscriptions[topic].append(callback_fn)
 
 
-def post_event(topic: str, message):
+def post_event(topic: str, message: object):
     if not (topic in subscriptions):
         return
 

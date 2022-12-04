@@ -28,10 +28,6 @@ class LocalGridView:
         )
         self.plt2.show(resetcam=True)
 
-        # setup event handlers
-        subscribe(str(Topics.SHORTCUT_CHECKING), self.viz_waypoint_shortcuts)
-        subscribe(str(Topics.FRONTIER_SAMPLING), self.viz_frontier_sampling)
-
     def viz_waypoint_shortcuts(self, data: WaypointShortcutViewModel):
         actors = []
         self.plt2.clear()
@@ -83,3 +79,16 @@ class LocalGridView:
                 actors.append(ft_actor)
 
         self.plt3.show(actors, resetcam=True)
+
+
+class LocalGridViewListener:
+    def __init__(self):
+        self.local_grid_view = LocalGridView()
+
+        # setup event handlers
+        subscribe(
+            str(Topics.SHORTCUT_CHECKING), self.local_grid_view.viz_waypoint_shortcuts
+        )
+        subscribe(
+            str(Topics.FRONTIER_SAMPLING), self.local_grid_view.viz_frontier_sampling
+        )

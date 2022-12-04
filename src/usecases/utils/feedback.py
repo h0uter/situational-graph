@@ -14,7 +14,6 @@ from src.utils.tosg_stats import TOSGStats
 @dataclass
 class MissionViewModel:
     """A view model for the mission."""
-    # local_grid: LocalGrid
     situational_graph: SituationalGraph
     agents: list[AbstractAgent]
     usecases: list
