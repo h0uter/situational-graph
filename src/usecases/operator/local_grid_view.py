@@ -1,16 +1,16 @@
-import numpy.typing as npt
 import vedo
 
 from src.config import cfg
-from src.platform_state.local_grid import LocalGrid
+from src.shared.topics import Topics
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    WaypointShortcutViewModel,
+)
+from src.usecases.shared.behaviors.explore_behavior import FrontierSamplingViewModel
+from src.utils.event import subscribe
 
 
 class LocalGridView:
     def __init__(self):
-
-        # subscribe(str(Topics.SHORTCUT_CHECKING), self.handle_shortcut_checking_data)
-        # subscribe(str(Topics.FRONTIER_SAMPLING), self.handle_frontier_sampling_data)
-
         self.factor = 1 / cfg.LG_CELL_SIZE_M
 
         self.plt2 = vedo.Plotter(
@@ -18,7 +18,6 @@ class LocalGridView:
             interactive=False,
             resetcam=True,
             title="wp_shortcuts",
-            # size=(3456, 2000),
         )
         self.plt2.show(resetcam=True)
         self.plt3 = vedo.Plotter(
@@ -29,13 +28,15 @@ class LocalGridView:
         )
         self.plt2.show(resetcam=True)
 
-    def viz_waypoint_shortcuts(
-        self, local_grid: LocalGrid, collision_points=None, candidate_shortcut_wps=None
-    ):
+        # setup event handlers
+        subscribe(str(Topics.SHORTCUT_CHECKING), self.viz_waypoint_shortcuts)
+        subscribe(str(Topics.FRONTIER_SAMPLING), self.viz_frontier_sampling)
+
+    def viz_waypoint_shortcuts(self, data: WaypointShortcutViewModel):
         actors = []
         self.plt2.clear()
 
-        lg_actor = vedo.Picture(local_grid.data, flip=True)
+        lg_actor = vedo.Picture(data.local_grid.data, flip=True)
         actors.append(lg_actor)
 
         centre = int(lg_actor.dimensions()[0] / 2), int(lg_actor.dimensions()[1] / 2)
@@ -43,15 +44,15 @@ class LocalGridView:
         agent_actor = vedo.Point(centre, r=10, c="b")
         actors.append(agent_actor)
 
-        if candidate_shortcut_wps:
-            for wp in candidate_shortcut_wps:
+        if data.shortcut_candidate_cells:
+            for wp in data.shortcut_candidate_cells:
                 wp_actor = vedo.Point(wp, r=10, c="r")
                 actors.append(wp_actor)
                 wp_line_actor = vedo.Line(centre, (wp[0], wp[1]), c="g", lw=5)
                 actors.append(wp_line_actor)
 
-        if collision_points:
-            for cp in collision_points:
+        if data.collision_cells:
+            for cp in data.collision_cells:
                 cp_point_actor = vedo.Cross3D(
                     (cp[0], cp[1]), s=0.3 * self.factor, c="p"
                 )
@@ -59,12 +60,12 @@ class LocalGridView:
 
         self.plt2.show(actors, resetcam=True)
 
-    def viz_frontier_sampling(self, local_grid_img: npt.NDArray, frontier_points=None):
+    def viz_frontier_sampling(self, data: FrontierSamplingViewModel):
         actors = []
         self.plt3.clear()
 
         # lg_actor = vedo.Picture(local_grid.data, flip=True)
-        lg_actor = vedo.Picture(local_grid_img, flip=False)
+        lg_actor = vedo.Picture(data.local_grid_img, flip=False)
         actors.append(lg_actor)
 
         centre = int(lg_actor.dimensions()[0] / 2), int(lg_actor.dimensions()[1] / 2)
@@ -72,8 +73,8 @@ class LocalGridView:
         agent_actor = vedo.Point(centre, r=10, c="b")
         actors.append(agent_actor)
 
-        if frontier_points:
-            for ft in frontier_points:
+        if data.new_frontier_cells:
+            for ft in data.new_frontier_cells:
 
                 # frontier_cells = (ft[1], ft[0])
                 frontier_cells = ft

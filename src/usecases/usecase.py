@@ -2,6 +2,7 @@ import time
 from abc import abstractmethod
 from typing import Sequence
 from src.shared.topics import Topics
+from src.usecases.operator.local_grid_view import LocalGridView
 
 import src.utils.event as event
 from src.config import Scenario, cfg
@@ -73,6 +74,7 @@ class Usecase:
         planner = OnlinePlanner(domain_behaviors, affordances)
 
         ViewListener()
+        LocalGridView()
 
         # return agents, tosg, planner, viz_listener
         return agents, tosg, planner
