@@ -7,6 +7,10 @@ from src.platform_state.local_grid import LocalGrid
 
 class LocalGridView:
     def __init__(self):
+
+        # subscribe(str(Topics.SHORTCUT_CHECKING), self.handle_shortcut_checking_data)
+        # subscribe(str(Topics.FRONTIER_SAMPLING), self.handle_frontier_sampling_data)
+
         self.factor = 1 / cfg.LG_CELL_SIZE_M
 
         self.plt2 = vedo.Plotter(

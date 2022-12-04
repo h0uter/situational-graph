@@ -26,16 +26,9 @@ class Usecase:
         agents: list[AbstractAgent],
         tosg: SituationalGraph,
         planner: OnlinePlanner,
-        viz_listener: ViewListener,
     ):
 
         step, start, tosg_stats, my_logger = feedback_pipeline_init()
-
-        # # HACK: for the task switch usecase
-        # for agent in agents:
-        #     agent: SimulatedAgent
-        #     agent.lg_spoofer.set_map(cfg.MAP_PATH_TASK_SWITCH)
-        #     viz_listener.viz.set_map(cfg.MAP_PATH_TASK_SWITCH)
 
         """ Main Logic Loop"""
         mission_completed = False
@@ -53,19 +46,7 @@ class Usecase:
                 step, step_start, agents, tosg, tosg_stats, planner, my_logger
             )
             step += 1
-            # time.sleep(2.5)
 
-            # # HACK: debug stuff to show the method can exploit new shortcuts in the world
-            # # what I should do instead is make his part of the usecase
-            # MAP_SWITCHED = False
-            # for agent in agents:
-            #     agent.algo_iterations += 1
-            #     if not MAP_SWITCHED and cfg.SCENARIO is not Scenario.REAL:
-            #         if agent.algo_iterations > 150:
-            #             agent: SimulatedAgent
-            #             agent.lg_spoofer.set_map(cfg.MAP_PATH2)
-            #             viz_listener.viz.set_map(cfg.MAP_PATH2)
-            #             MAP_SWITCHED = True
 
         feedback_pipeline_completion(
             step, agents, tosg, tosg_stats, planner, my_logger, start
@@ -91,10 +72,10 @@ class Usecase:
         # planner = OfflinePlanner(domain_behaviors, affordances)
         planner = OnlinePlanner(domain_behaviors, affordances)
 
-        viz_listener = ViewListener()
-        viz_listener.setup_event_handler()
+        ViewListener()
 
-        return agents, tosg, planner, viz_listener
+        # return agents, tosg, planner, viz_listener
+        return agents, tosg, planner
 
     # base file
     def common_setup(self, tosg: SituationalGraph, agents: Sequence[AbstractAgent], start_poses):

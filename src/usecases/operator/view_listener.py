@@ -16,6 +16,8 @@ class ViewListener:
         self.mission_view = MissionView()
         self.local_grid_view = LocalGridView()
 
+        self.setup_event_handler()
+
     def viz_start_point(self, data):
         self.mission_view.viz_start_point((data[0], data[1]))
 

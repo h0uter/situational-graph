@@ -1,8 +1,8 @@
 from typing import Sequence
 
 from src.execution_autonomy.plan_model import PlanModel
-from src.platform_control.abstract_agent import AbstractAgent
 from src.mission_autonomy.situational_graph import SituationalGraph
+from src.platform_control.abstract_agent import AbstractAgent
 from src.shared.behaviors import Behaviors
 from src.shared.objectives import Objectives
 from src.shared.task import Task
@@ -11,15 +11,13 @@ from src.usecases.usecase import Usecase
 
 class SearchAndRescueUsecase(Usecase):
     def run(self):
-        agents, tosg, usecases, viz_listener = self.init_entities()
-        self.common_setup(
-            tosg, agents, start_poses=[agent.pos for agent in agents]
-        )
+        agents, tosg, usecases = self.init_entities()
+        self.common_setup(tosg, agents, start_poses=[agent.pos for agent in agents])
 
         """setup the specifics of the usecase"""
         self.setup(tosg, agents)
 
-        success = self.main_loop(agents, tosg, usecases, viz_listener)
+        success = self.main_loop(agents, tosg, usecases)
 
         return success
 
