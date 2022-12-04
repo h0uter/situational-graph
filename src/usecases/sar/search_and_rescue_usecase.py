@@ -23,7 +23,7 @@ class SearchAndRescueUsecase(Usecase):
 
     def setup(self, tosg: SituationalGraph, agents: Sequence[AbstractAgent]):
         """Manually set first task to exploring current position."""
-        # for the demo I dont need this setup, I can instead manually craft the graph.
+
         for agent in agents:
 
             # Add an explore self edge on the start node to ensure a exploration sampling action

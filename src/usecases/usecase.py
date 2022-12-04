@@ -2,8 +2,9 @@ import time
 from abc import abstractmethod
 from typing import Sequence
 from src.shared.topics import Topics
-from src.usecases.operator.local_grid_view import LocalGridViewListener
-from src.usecases.operator.mission_view import MissionViewListener
+from src.usecases.operator.frontier_sampling_view import FrontierSamplingDebugView
+from src.usecases.operator.waypoint_shortcuts_view import WaypointShortcutDebugView
+from src.usecases.operator.mission_view import MissionView, MissionViewListener
 
 import src.utils.event as event
 from src.config import Scenario, cfg
@@ -73,11 +74,11 @@ class Usecase:
         # planner = OfflinePlanner(domain_behaviors, affordances)
         planner = OnlinePlanner(domain_behaviors, affordances)
 
-        # ViewListener()
-        MissionViewListener()
-        LocalGridViewListener()
+        '''initiliaze view subscribers'''
+        MissionView()
+        WaypointShortcutDebugView()
+        FrontierSamplingDebugView()
 
-        # return agents, tosg, planner, viz_listener
         return agents, tosg, planner
 
     # base file

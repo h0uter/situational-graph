@@ -30,7 +30,6 @@ class MissionView:
         self.plt = vedo.Plotter(
             axes=13,
             interactive=False,
-            resetcam=True,
             title=TITLE,
             size=(3456, 2000),
         )
@@ -51,6 +50,11 @@ class MissionView:
         else:
             self.plt.show(resetcam=False)
 
+        subscribe(str(Topics.MISSION_VIEW_START_POINT), self.viz_start_point)
+
+        subscribe(str(Topics.MISSION_VIEW_UPDATE), self.figure_update)
+        subscribe(str(Topics.MISSION_VIEW_UPDATE_FINAL), self.figure_final_result)
+
         time.sleep(0.1)
 
     def set_map(self, map_path: str) -> None:
@@ -63,24 +67,18 @@ class MissionView:
             self.map_actor = map_pic
             self.plt.add(self.map_actor)
 
-    def figure_update(
-        self,
-        tosg: SituationalGraph,
-        agents: Sequence[AbstractAgent],
-        usecases: Sequence[OfflinePlanner],
-    ) -> None:
-        self.viz_mission_overview(tosg, agents, usecases)
+    def figure_update(self, data: MissionViewModel) -> None:
+
+        if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
+            self.viz_mission_overview(
+                data.situational_graph, data.agents, data.usecases
+            )
 
         if self.plt.escaped:
             exit()
 
-    def figure_final_result(
-        self,
-        tosg: SituationalGraph,
-        agents: Sequence[AbstractAgent],
-        usecases: Sequence[OfflinePlanner],
-    ) -> None:
-        self.viz_mission_overview(tosg, agents)
+    def figure_final_result(self, data: MissionViewModel):
+        self.viz_mission_overview(data.situational_graph, data.agents)
         self.plt.show(interactive=True)
 
     def viz_mission_overview(self, tosg: SituationalGraph, agents, usecases=None):
@@ -129,7 +127,6 @@ class MissionView:
             self.plt.show(
                 actors,
                 resetcam=False,
-                # rate=15 # limit rendering
             )
 
         self.plt.render()  # this makes it work with REAL scenario
@@ -261,7 +258,7 @@ class MissionView:
 
         return actors
 
-    def viz_start_point(self, pos):
+    def viz_start_point(self, pos: tuple[float, float]):
         point = vedo.Point(
             (pos[0] * self.factor, pos[1] * self.factor, 0), r=35, c="blue"
         )
@@ -303,30 +300,3 @@ class MissionView:
 
         io.screenshot(file_path)
         self.screenshot_step += 1
-
-
-class MissionViewListener:
-    def __init__(self):
-        self.mission_view = MissionView()
-
-        subscribe(str(Topics.MISSION_VIEW_START_POINT), self.viz_start_point)
-
-        subscribe(str(Topics.MISSION_VIEW_UPDATE), self.handle_figure_update_event)
-        subscribe(
-            str(Topics.MISSION_VIEW_UPDATE_FINAL), self.handle_figure_final_result_event
-        )
-
-    def viz_start_point(self, data):
-        self.mission_view.viz_start_point((data[0], data[1]))
-
-    def handle_figure_update_event(self, data: MissionViewModel):
-        if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
-            self.mission_view.figure_update(
-                data.situational_graph, data.agents, data.usecases
-            )
-
-    def handle_figure_final_result_event(self, data: MissionViewModel):
-        if cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or cfg.PLOT_LVL == PlotLvl.ALL:
-            self.mission_view.figure_final_result(
-                data.situational_graph, data.agents, data.usecases
-            )
