@@ -14,13 +14,12 @@ from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 from src.platform_state.local_grid import LocalGrid
 from src.shared.situations import Situations
-from src.usecases.operator.abstract_vizualisation import AbstractVizualisation
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allow_interaction = True
 
 
-class MissionView(AbstractVizualisation):
+class MissionView:
     def __init__(self) -> None:
         self.factor = 1 / cfg.LG_CELL_SIZE_M
         self.screenshot_step = 0
@@ -192,7 +191,6 @@ class MissionView(AbstractVizualisation):
             self.take_screenshot()  # this makes it take the screenshots
 
         self.clear_annoying_captions()
-
 
     def clear_annoying_captions(self):
         """Captions apparently are persistent, so we need to clear them."""

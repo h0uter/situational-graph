@@ -1,53 +1,21 @@
 # OBSERVER PATTERN
 
-from dataclasses import dataclass
 from typing import Sequence
 
-from src.config import PlotLvl, Vizualiser, cfg
-from src.shared.node_and_edge import Edge
+from src.config import PlotLvl, cfg
 from src.usecases.operator.local_grid_view import LocalGridView
 from src.usecases.operator.mission_view import MissionView
-from src.usecases.operator.mpl_vizualisation import MplVizualisation
-from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
-    WaypointShortcutViewModel,
-)
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
+    WaypointShortcutViewModel
 from src.utils.event import subscribe
 
 # this class should build a view model
 
 
-@dataclass
-class SituationalGraphViewModel:
-    nodes: list
-    edges: list
-
-
-@dataclass
-class PlanViewModel:
-    plan: list[Edge]
-
-
-@dataclass
-class PlatformViewModel:
-    pos: tuple
-    heading: float
-
-
-@dataclass
-class ExplorationViewModel:
-    local_grid_img: list
-    lines: list
-    collision_points: list
-    frontiers: list
-    waypoints: list
-
-
-class VizualisationListener:
+class ViewListener:
     def __init__(self):
-        if cfg.VIZUALISER == Vizualiser.MATPLOTLIB:
-            self.mission_view = MplVizualisation()
-        else:
-            self.mission_view = MissionView()
+
+        self.mission_view = MissionView()
 
         self.local_grid_view = LocalGridView()
 

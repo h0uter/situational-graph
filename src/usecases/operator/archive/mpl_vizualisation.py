@@ -6,7 +6,7 @@ import networkx as nx
 from PIL import Image
 
 from src.config import cfg
-from src.usecases.operator.abstract_vizualisation import AbstractVizualisation
+# from src.usecases.operator.archive.abstract_vizualisation import AbstractVizualisation
 from src.platform_state.local_grid import LocalGrid
 from src.platform_control.abstract_agent import AbstractAgent
 from src.mission_autonomy.situational_graph import SituationalGraph

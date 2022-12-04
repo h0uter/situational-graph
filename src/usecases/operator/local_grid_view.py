@@ -1,6 +1,6 @@
 import vedo
 
-from src.config import PlotLvl, Scenario, cfg
+from src.config import cfg
 from src.platform_state.local_grid import LocalGrid
 
 
