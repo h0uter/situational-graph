@@ -5,8 +5,12 @@ from typing import Sequence
 
 from src.config import PlotLvl, Vizualiser, cfg
 from src.shared.node_and_edge import Edge
-from src.usecases.operator.mission_vizualisation import MissionVisualisation
+from src.usecases.operator.local_grid_view import LocalGridView
+from src.usecases.operator.mission_view import MissionView
 from src.usecases.operator.mpl_vizualisation import MplVizualisation
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    WaypointShortcutViewModel,
+)
 from src.utils.event import subscribe
 
 # this class should build a view model
@@ -41,9 +45,11 @@ class ExplorationViewModel:
 class VizualisationListener:
     def __init__(self):
         if cfg.VIZUALISER == Vizualiser.MATPLOTLIB:
-            self.viz = MplVizualisation()
+            self.mission_view = MplVizualisation()
         else:
-            self.viz = MissionVisualisation()
+            self.mission_view = MissionView()
+
+        self.local_grid_view = LocalGridView()
 
     # BUG: multi agents all post their lg events and overwrite eachother
     # result is that you always see the lg of the last agent
@@ -55,26 +61,25 @@ class VizualisationListener:
             krm = data["krm"]
             agents = data["agents"]
             usecases = data["usecases"]
-            self.viz.figure_update(krm, agents, self.lg, usecases)
+            self.mission_view.figure_update(krm, agents, self.lg, usecases)
 
     def handle_figure_final_result_event(self, data):
         if cfg.PLOT_LVL == PlotLvl.RESULT_ONLY or cfg.PLOT_LVL == PlotLvl.ALL:
             krm = data["krm"]
             agents = data["agents"]
             usecases = data["usecases"]
-            self.viz.figure_final_result(krm, agents, self.lg, usecases)
+            self.mission_view.figure_final_result(krm, agents, self.lg, usecases)
 
     def viz_point(self, data):
-        self.viz.viz_start_point((data[0], data[1]))
+        self.mission_view.viz_start_point((data[0], data[1]))
 
-    def handle_shortcut_checking_data(self, data: dict):
-        # print(data["collision_points"])
-        self.viz.viz_waypoint_shortcuts(
-            self.lg, data["collision_points"], data["shortcut_candidate_cells"]
+    def handle_shortcut_checking_data(self, data: WaypointShortcutViewModel):
+        self.local_grid_view.viz_waypoint_shortcuts(
+            self.lg, data.collision_cells, data.shortcut_candidate_cells
         )
 
     def handle_frontier_sampling_data(self, data: Sequence[tuple[int, int]]):
-        self.viz.viz_frontier_sampling(self.lg, data)
+        self.local_grid_view.viz_frontier_sampling(self.lg, data)
 
     def setup_event_handler(self):
         subscribe("new lg", self.handle_new_lg_event)
