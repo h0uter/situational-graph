@@ -17,6 +17,8 @@ class WaypointShortcutDebugView:
             interactive=False,
             resetcam=True,
             title=str(Topics.SHORTCUT_CHECKING),
+            pos=(0, 500),
+            size=(800,800)
         )
         self.plt.show(resetcam=True)
 

@@ -31,7 +31,9 @@ class MissionView:
             axes=13,
             interactive=False,
             title=TITLE,
-            size=(3456, 2000),
+            # size=(3456, 2000),
+            pos=(1500, 0),
+            size=(2200, 2200),
         )
         self.map_actor = None
 
@@ -129,7 +131,7 @@ class MissionView:
                 resetcam=False,
             )
 
-        self.plt.render()  # this makes it work with REAL scenario
+        self.plt.render()  # ???: this makes it work with REAL scenario somehow
 
         if cfg.SCREENSHOT:
             self.take_screenshot()  # this makes it take the screenshots

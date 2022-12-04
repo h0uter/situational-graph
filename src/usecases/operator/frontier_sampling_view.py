@@ -7,12 +7,13 @@ from src.utils.event import subscribe
 
 class FrontierSamplingDebugView:
     def __init__(self):
-
         self.plt = vedo.Plotter(
             axes=13,
             interactive=False,
             resetcam=True,
             title=str(Topics.FRONTIER_SAMPLING),
+            pos=(0, 1500),
+            size=(800,800)
         )
         self.plt.show(resetcam=True)
 
