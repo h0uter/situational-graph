@@ -37,20 +37,19 @@ class MissionView:
         )
         self.map_actor = None
 
-        # NOTE: perhaps I just should not instantiate viz classes if we run headless
-        if cfg.PLOT_LVL is not PlotLvl.NONE:
-            if cfg.SCENARIO is not Scenario.REAL:
-                self.set_map(cfg.MAP_PATH)
 
         self.debug_actors: list[vedo.BaseActor] = []
         self.actors_which_need_to_be_cleared: list[vedo.BaseActor] = []
-
-        self.plt.show(resetcam=True)
 
         if cfg.SCENARIO is Scenario.REAL:
             self.plt.show(resetcam=True)
         else:
             self.plt.show(resetcam=False)
+
+        # NOTE: perhaps I just should not instantiate viz classes if we run headless
+        if cfg.PLOT_LVL is not PlotLvl.NONE:
+            if cfg.SCENARIO is not Scenario.REAL:
+                self.set_map(cfg.MAP_PATH)
 
         subscribe(str(Topics.MISSION_VIEW_START_POINT), self.viz_start_point)
 

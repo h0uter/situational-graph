@@ -8,3 +8,5 @@ class Topics(Enum):
     MISSION_VIEW_UPDATE = "mission view update"
     MISSION_VIEW_UPDATE_FINAL = "mission view update final"
     MISSION_VIEW_START_POINT = "mission view start point"
+
+    IMAGE_MAPDEBUG_VIEW = "debug map view"
