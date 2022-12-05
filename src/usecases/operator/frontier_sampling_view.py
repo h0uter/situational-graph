@@ -23,8 +23,8 @@ class FrontierSamplingDebugView:
         actors = []
         self.plt.clear()
 
-        # lg_actor = vedo.Picture(local_grid.data, flip=True)
-        lg_actor = vedo.Picture(data.local_grid_img, flip=False)
+        lg_actor = vedo.Picture(data.local_grid_img, flip=True)
+        # lg_actor = vedo.Picture(data.local_grid_img, flip=False)
         actors.append(lg_actor)
 
         centre = int(lg_actor.dimensions()[0] / 2), int(lg_actor.dimensions()[1] / 2)

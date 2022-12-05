@@ -28,7 +28,7 @@ class WaypointShortcutDebugView:
         actors = []
         self.plt.clear()
 
-        lg_actor = vedo.Picture(data.local_grid.data, flip=True)
+        lg_actor = vedo.Picture(data.local_grid.data, flip=True)  # XXX: flip=True is important
         actors.append(lg_actor)
 
         centre = int(lg_actor.dimensions()[0] / 2), int(lg_actor.dimensions()[1] / 2)

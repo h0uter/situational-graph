@@ -1,7 +1,7 @@
 import math
 from dataclasses import dataclass
 
-from src.config import cfg
+from src.config import Scenario, cfg
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 from src.platform_state.local_grid import LocalGrid
@@ -39,6 +39,9 @@ def add_shortcut_edges_between_wps_on_lg(
             to_cell = lg.world_coords2cell_idxs(point)
             shortcut_candidate_cells.append(to_cell)
 
+            # if cfg.SCENARIO == Scenario.REAL:
+            #     to_cell = to_cell[1], to_cell[0]
+
             (
                 is_collision_free,
                 collision_point,
@@ -47,6 +50,8 @@ def add_shortcut_edges_between_wps_on_lg(
 
             if collision_point:
                 collision_cell = lg.world_coords2cell_idxs(collision_point)
+                # if cfg.SCENARIO == Scenario.REAL:
+                #     collision_cell = collision_cell[1], collision_cell[0]
                 collision_cells.append(collision_cell)
 
             if is_collision_free:
