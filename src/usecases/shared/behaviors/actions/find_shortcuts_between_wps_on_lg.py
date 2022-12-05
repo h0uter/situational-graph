@@ -39,7 +39,7 @@ def add_shortcut_edges_between_wps_on_lg(
             to_cell = lg.world_coords2cell_idxs(point)
             shortcut_candidate_cells.append(to_cell)
 
-            # if cfg.SCENARIO == Scenario.REAL:
+            # if cfg.SCENARIO is Scenario.REAL:
             #     to_cell = to_cell[1], to_cell[0]
 
             (
@@ -50,8 +50,9 @@ def add_shortcut_edges_between_wps_on_lg(
 
             if collision_point:
                 collision_cell = lg.world_coords2cell_idxs(collision_point)
-                # if cfg.SCENARIO == Scenario.REAL:
-                #     collision_cell = collision_cell[1], collision_cell[0]
+                if cfg.SCENARIO is Scenario.REAL:
+                    collision_cell = collision_cell[1], collision_cell[0]
+                
                 collision_cells.append(collision_cell)
 
             if is_collision_free:

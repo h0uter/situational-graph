@@ -22,8 +22,8 @@ class FrontierSamplingDebugView:
     def viz_frontier_sampling(self, data: FrontierSamplingViewModel):
         actors = []
         self.plt.clear()
-
-        lg_actor = vedo.Picture(data.local_grid_img, flip=True)
+        data.local_grid_img[5, 1:50] = 1  # this is still indexed y, x from the top
+        lg_actor = vedo.Picture(data.local_grid_img, flip=True)  # vizualises according to numpy convention top left is zero, zero. (rr, cc) = (-y, x)
         # lg_actor = vedo.Picture(data.local_grid_img, flip=False)
         actors.append(lg_actor)
 
@@ -37,8 +37,8 @@ class FrontierSamplingDebugView:
 
                 # frontier_cells = (ft[1], ft[0])
                 frontier_cells = ft
-                ft_actor = vedo.Point(frontier_cells, r=20, c="g")
-                ft_actor = vedo.Line(centre, frontier_cells, c="g")
+                ft_actor = vedo.Point(frontier_cells, r=25, c="g")
+                ft_actor = vedo.Line(centre, frontier_cells, c="g", lw=10)
                 actors.append(ft_actor)
 
         self.plt.show(actors, resetcam=True)

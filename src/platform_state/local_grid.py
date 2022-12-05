@@ -67,6 +67,7 @@ class LocalGrid:
         return x_coord, y_coord
 
     def _get_cells_under_line(self, a: tuple[int, int], b: tuple[int, int]) -> tuple:
+        """follows numpy conventions"""
         line_row_cells, line_column_cells = draw.line(int(a[0]), int(a[1]), int(b[0]), int(b[1]))
 
         return line_row_cells, line_column_cells
@@ -211,6 +212,6 @@ class AngularLOSFrontierSamplingStrategy(FrontierSamplingStrategy):
             )
 
             if sample_valid:
-                candidate_frontiers.append((y_sample, x_sample))
+                candidate_frontiers.append((y_sample, x_sample))  # this is the wrong way around and it becomes apparent when we viz it
 
         return candidate_frontiers

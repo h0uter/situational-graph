@@ -211,7 +211,7 @@ cfg = Config()
 # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
 # cfg = Config(scenario=Scenario.REAL, screenshot=True, screenshot_folder_name="vonweiler2")
 # cfg = Config(screenshot=True, screenshot_folder_name="vonweiler2")
-cfg = Config(scenario=Scenario.REAL)
+# cfg = Config(scenario=Scenario.REAL)
 
 # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
 # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)
