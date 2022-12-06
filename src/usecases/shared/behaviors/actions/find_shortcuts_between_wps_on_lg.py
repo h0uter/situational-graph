@@ -22,42 +22,38 @@ class WaypointShortcutViewModel:
 def add_shortcut_edges_between_wps_on_lg(
     lg: LocalGrid, tosg: SituationalGraph, agent: AbstractAgent
 ):
+
     collision_cells = []
     close_nodes = tosg.get_nodes_of_type_in_margin(
-        lg.lg_in_world_carthesian, cfg.WP_SHORTCUT_MARGIN, Situations.WAYPOINT
+        lg.lg_xy, cfg.WP_SHORTCUT_MARGIN, Situations.WAYPOINT
     )
-    shortcut_candidate_positions = []
+    wp_positions_to_shortcut_to_candidates = []
     shortcut_candidate_cells = []
     for node in close_nodes:
         if node != agent.at_wp:
-            shortcut_candidate_positions.append(tosg.get_node_data_by_node(node)["pos"])
+            wp_positions_to_shortcut_to_candidates.append(tosg.get_node_data_by_node(node)["pos"])
 
-    if shortcut_candidate_positions:
-        for point in shortcut_candidate_positions:
-            at_cell = lg.length_num_cells // 2, lg.length_num_cells // 2
+    agent_at_rc = lg.LG_LENGTH_AS_NUMBER_OF_CELLS // 2, lg.LG_LENGTH_AS_NUMBER_OF_CELLS // 2
+    
+    if wp_positions_to_shortcut_to_candidates:
+        for wp_pos in wp_positions_to_shortcut_to_candidates:
 
-            to_cell = lg.world_coords2cell_idxs(point)
+            to_cell = lg.xy2rc(wp_pos)
             shortcut_candidate_cells.append(to_cell)
-
-            # if cfg.SCENARIO is Scenario.REAL:
-            #     to_cell = to_cell[1], to_cell[0]
 
             (
                 is_collision_free,
                 collision_point,
-            ) = lg.is_collision_free_straight_line_between_cells(at_cell, to_cell)
+            ) = lg.is_collision_free_straight_line_between_cells(agent_at_rc, to_cell)
             # I think this function might be messing it up
 
             if collision_point:
-                collision_cell = lg.world_coords2cell_idxs(collision_point)
-                if cfg.SCENARIO is Scenario.REAL:
-                    collision_cell = collision_cell[1], collision_cell[0]
-                
+                collision_cell = lg.xy2rc(collision_point)
                 collision_cells.append(collision_cell)
 
             if is_collision_free:
                 from_wp = agent.at_wp
-                to_wp = tosg.get_node_by_pos(point)
+                to_wp = tosg.get_node_by_pos(wp_pos)
 
                 if not tosg.G.has_edge(from_wp, to_wp):
                     tosg.add_waypoint_diedge(from_wp, to_wp)

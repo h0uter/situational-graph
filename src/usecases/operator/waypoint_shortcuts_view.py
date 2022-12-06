@@ -1,10 +1,10 @@
+import numpy as np
 import vedo
 
 from src.config import cfg
 from src.shared.topics import Topics
-from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
-    WaypointShortcutViewModel,
-)
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
+    WaypointShortcutViewModel
 from src.utils.event import subscribe
 
 
@@ -27,9 +27,12 @@ class WaypointShortcutDebugView:
     def viz_waypoint_shortcuts(self, data: WaypointShortcutViewModel):
         actors = []
         self.plt.clear()
+        # data.local_grid.data[5:15, 10:100] = 1
 
         # lg_actor = vedo.Picture(data.local_grid.data, flip=True)  # XXX: flip=True is important
+        
         lg_actor = vedo.Picture(data.local_grid.data, flip=False)  # XXX: flip=True is important
+        # lg_actor = vedo.Picture(np.rot90(data.local_grid.data, axes=(0, 1)), flip=False)  # this vizualised correct
         actors.append(lg_actor)
 
         centre = int(lg_actor.dimensions()[0] / 2), int(lg_actor.dimensions()[1] / 2)
@@ -39,15 +42,16 @@ class WaypointShortcutDebugView:
 
         if data.shortcut_candidate_cells:
             for wp in data.shortcut_candidate_cells:
+                # wp = (wp[1], wp[0])
                 wp_actor = vedo.Point(wp, r=10, c="r")
                 actors.append(wp_actor)
-                wp_line_actor = vedo.Line(centre, (wp[0], wp[1]), c="g", lw=5)
+                wp_line_actor = vedo.Line(centre, wp, c="g", lw=5)
                 actors.append(wp_line_actor)
 
         if data.collision_cells:
             for cp in data.collision_cells:
                 cp_point_actor = vedo.Cross3D(
-                    (cp[0], cp[1]), s=0.3 * self.factor, c="p"
+                    cp, s=0.3 * self.factor, c="p"
                 )
                 actors.append(cp_point_actor)
 

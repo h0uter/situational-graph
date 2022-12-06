@@ -1,28 +1,21 @@
-from dataclasses import dataclass
 from typing import Optional, Sequence
 
 import numpy.typing as npt
 
 from src.config import cfg
-from src.execution_autonomy.abstract_behavior import AbstractBehavior, BehaviorResult
+from src.execution_autonomy.abstract_behavior import (AbstractBehavior,
+                                                      BehaviorResult)
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
-from src.platform_state.local_grid import AngularLOSFrontierSamplingStrategy, LOSFrontierSamplingStrategy, LocalGrid
+from src.platform_state.local_grid import (AngularLOSFrontierSamplingStrategy,
+                                           LocalGrid,
+                                           LOSFrontierSamplingStrategy)
 from src.shared.affordance import Affordance
 from src.shared.node_and_edge import Edge, Node
 from src.shared.situations import Situations
-from src.shared.topics import Topics
 from src.shared.world_object import WorldObject
-from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
-    add_shortcut_edges_between_wps_on_lg,
-)
-from src.utils.event import post_event
-
-
-@dataclass
-class FrontierSamplingViewModel:
-    local_grid_img: npt.NDArray
-    new_frontier_cells: Sequence[tuple[int, int]]
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
+    add_shortcut_edges_between_wps_on_lg
 
 
 class ExploreBehavior(AbstractBehavior):
@@ -94,12 +87,7 @@ class ExploreBehavior(AbstractBehavior):
         # new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
         new_frontier_cells = self._sampling_strategy.sample_frontiers(lg)
 
-        post_event(
-            str(Topics.FRONTIER_SAMPLING),
-            FrontierSamplingViewModel(
-                local_grid_img=lg.data, new_frontier_cells=new_frontier_cells
-            ),
-        )
+
 
         self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
 
@@ -222,7 +210,7 @@ class ExploreBehavior(AbstractBehavior):
         self, new_frontier_cells, lg: LocalGrid, tosg: SituationalGraph, agent
     ):
         for frontier_cell in new_frontier_cells:
-            frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)
+            frontier_pos_global = lg.rc2xy(frontier_cell)
             tosg.add_frontier(frontier_pos_global, agent.at_wp)
 
     # 50% of compute time goes to this function for multiple agents

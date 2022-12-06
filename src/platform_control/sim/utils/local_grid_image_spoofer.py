@@ -117,20 +117,10 @@ class LocalGridImageSpoofer:
         c_start = c - HALF_LG_SIZE_IN_PIX
         c_end = c + HALF_LG_SIZE_IN_PIX
 
-        # print(f"{self.map_img.shape=}")
-
         local_grid_img = self.map_img[
             r_start:r_end,
             c_start:c_end,
         ]
-        # print(f"{local_grid_img.shape=}")
-        # post_event(
-        #     str(Topics.IMAGE_MAPDEBUG_VIEW),
-        #     ImageMapViewModel(
-        #         upside_down_map_img_data, map_img_rotated, map_img_axes_alligned
-        #     ),
-        # )
-        # local_grid_img = np.flip(local_grid_img, axis=0)
 
         return local_grid_img
 
