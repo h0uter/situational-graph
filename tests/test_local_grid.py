@@ -1,14 +1,13 @@
-from src.platform_state.local_grid import LocalGrid
-
 import numpy as np
 import pytest
 
 from src.config import cfg
+from src.platform_state.local_grid import LocalGrid
 
 
 def test_local_grid_init():
     lg = LocalGrid((0, 0), np.array([]))
-    assert lg.length_in_m == lg.cell_size_in_m * lg.length_num_cells
+    assert lg.lg_length_in_m == lg.cell_size_in_m * lg.length_num_cells
 
 
 def test_calc_length_num_cells():

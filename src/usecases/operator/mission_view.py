@@ -66,7 +66,7 @@ class MissionView:
             map_pic = vedo.Picture(map_path)
             map_pic.x(-cfg.IMG_TOTAL_X_PIX // 2).y(-cfg.IMG_TOTAL_Y_PIX // 2)
             self.map_actor = map_pic
-            self.plt.add(self.map_actor)
+            self.plt.show(self.map_actor, resetcam=True)
 
     def figure_update(self, data: MissionViewModel) -> None:
 

@@ -7,7 +7,7 @@ from src.config import cfg
 from src.execution_autonomy.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
-from src.platform_state.local_grid import AngularLOSFrontierSamplingStrategy, LOSFrontierSamplingStrategy
+from src.platform_state.local_grid import AngularLOSFrontierSamplingStrategy, LOSFrontierSamplingStrategy, LocalGrid
 from src.shared.affordance import Affordance
 from src.shared.node_and_edge import Edge, Node
 from src.shared.situations import Situations
@@ -219,7 +219,7 @@ class ExploreBehavior(AbstractBehavior):
             return True
 
     def __add_new_frontiers_to_tosg(
-        self, new_frontier_cells, lg, tosg: SituationalGraph, agent
+        self, new_frontier_cells, lg: LocalGrid, tosg: SituationalGraph, agent
     ):
         for frontier_cell in new_frontier_cells:
             frontier_pos_global = lg.cell_idx2world_coords(frontier_cell)

@@ -13,7 +13,7 @@ if __name__ == "__main__":
     WaypointShortcutDebugView()
     FrontierSamplingDebugView()
 
-    ImageMapDebugView()
+    # ImageMapDebugView()
 
     SearchAndRescueUsecase().run()
 

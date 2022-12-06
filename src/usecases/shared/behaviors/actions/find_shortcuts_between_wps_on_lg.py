@@ -24,7 +24,7 @@ def add_shortcut_edges_between_wps_on_lg(
 ):
     collision_cells = []
     close_nodes = tosg.get_nodes_of_type_in_margin(
-        lg.world_pos, cfg.WP_SHORTCUT_MARGIN, Situations.WAYPOINT
+        lg.lg_in_world_carthesian, cfg.WP_SHORTCUT_MARGIN, Situations.WAYPOINT
     )
     shortcut_candidate_positions = []
     shortcut_candidate_cells = []
