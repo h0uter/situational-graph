@@ -73,18 +73,18 @@ class Config:
         elif self.SCENARIO == Scenario.REAL:
             self.set_real_params()
 
-        self.LG_LENGTH_IN_M = self.LG_NUM_CELLS * self.LG_CELL_SIZE_M
+        self.LG_LEN_IN_M = self.LG_NUM_CELLS * self.LG_MTR_PER_CELL
 
         # exploration hyperparameters
         # self.PATH_FINDING_METHOD = "bellman-ford"
         self.PATH_FINDING_METHOD = "dijkstra"
         self.N_SAMPLES = 30
-        self.PRUNE_RADIUS = self.LG_LENGTH_IN_M * self.PRUNE_RADIUS_FACTOR
+        self.PRUNE_RADIUS = self.LG_LEN_IN_M * self.PRUNE_RADIUS_FACTOR
         self.AT_WP_MARGIN = 0.25
         # self.PREV_POS_MARGIN = 0.15
         self.PREV_POS_MARGIN = 0.35
         self.ARRIVAL_MARGIN = 0.5
-        self.WP_SHORTCUT_MARGIN = (self.LG_LENGTH_IN_M / 2) * self.WP_SHORTCUT_FACTOR
+        self.WP_SHORTCUT_MARGIN = (self.LG_LEN_IN_M / 2) * self.WP_SHORTCUT_FACTOR
 
         # SIM PARAMS
         self.NUM_AGENTS = num_agents
@@ -104,7 +104,7 @@ class Config:
 
     def set_real_params(self):
         self.LG_NUM_CELLS = 128
-        self.LG_CELL_SIZE_M = 0.03
+        self.LG_MTR_PER_CELL = 0.03
         self.MAP_PATH = ""
         self.AGENT_START_POS = (0, 0)
 
@@ -155,7 +155,7 @@ class Config:
             self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
         ) * self.IMG_TOTAL_Y_PIX
         self.TOTAL_MAP_LEN_M = (self.TOT_MAP_LEN_M_X, self.TOT_MAP_LEN_M_Y)
-        self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
+        self.LG_MTR_PER_CELL = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
         if self.SCENARIO == Scenario.SIM_VILLA_ROOM:
             self.AGENT_START_POS = (13, 14)
 
@@ -174,7 +174,7 @@ class Config:
             self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
         ) * self.IMG_TOTAL_Y_PIX
         self.TOTAL_MAP_LEN_M = (self.TOT_MAP_LEN_M_X, self.TOT_MAP_LEN_M_Y)
-        self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
+        self.LG_MTR_PER_CELL = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
 
     def set_sim_maze_medium_params(self):
         self.MAP_PATH = os.path.join("resource", "medium_maze.png")
@@ -192,7 +192,7 @@ class Config:
             self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
         ) * self.IMG_TOTAL_Y_PIX
         self.TOTAL_MAP_LEN_M = (self.TOT_MAP_LEN_M_X, self.TOT_MAP_LEN_M_Y)
-        self.LG_CELL_SIZE_M = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
+        self.LG_MTR_PER_CELL = self.TOT_MAP_LEN_M_X / self.IMG_TOTAL_X_PIX
 
 
 """Set configuration here"""
@@ -211,7 +211,7 @@ cfg = Config()
 # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
 # cfg = Config(scenario=Scenario.REAL, screenshot=True, screenshot_folder_name="vonweiler2")
 # cfg = Config(screenshot=True, screenshot_folder_name="vonweiler2")
-cfg = Config(scenario=Scenario.REAL)
+# cfg = Config(scenario=Scenario.REAL)
 
 # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
 # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)

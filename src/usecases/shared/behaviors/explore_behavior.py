@@ -3,19 +3,20 @@ from typing import Optional, Sequence
 import numpy.typing as npt
 
 from src.config import cfg
-from src.execution_autonomy.abstract_behavior import (AbstractBehavior,
-                                                      BehaviorResult)
+from src.execution_autonomy.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
-from src.platform_state.local_grid import (AngularLOSFrontierSamplingStrategy,
-                                           LocalGrid,
-                                           LOSFrontierSamplingStrategy)
+from src.platform_state.frontier_sampling_strategies import (
+    AngularLOSFrontierSamplingStrategy,
+)
+from src.platform_state.local_grid import LocalGrid
 from src.shared.affordance import Affordance
 from src.shared.node_and_edge import Edge, Node
 from src.shared.situations import Situations
 from src.shared.world_object import WorldObject
-from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
-    add_shortcut_edges_between_wps_on_lg
+from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    add_shortcut_edges_between_wps_on_lg,
+)
 
 
 class ExploreBehavior(AbstractBehavior):
@@ -86,8 +87,6 @@ class ExploreBehavior(AbstractBehavior):
         # FIXME: this is my 2nd  most expensive function, so I should try to optimize it
         # new_frontier_cells = self.__sample_new_frontiers(agent, tosg, lg)
         new_frontier_cells = self._sampling_strategy.sample_frontiers(lg)
-
-
 
         self.__add_new_frontiers_to_tosg(new_frontier_cells, lg, tosg, agent)
 

@@ -33,7 +33,7 @@ def add_shortcut_edges_between_wps_on_lg(
         if node != agent.at_wp:
             wp_positions_to_shortcut_to_candidates.append(tosg.get_node_data_by_node(node)["pos"])
 
-    agent_at_rc = lg.LG_LENGTH_AS_NUMBER_OF_CELLS // 2, lg.LG_LENGTH_AS_NUMBER_OF_CELLS // 2
+    agent_at_rc = lg.LG_LEN_IN_N_CELLS // 2, lg.LG_LEN_IN_N_CELLS // 2
     
     if wp_positions_to_shortcut_to_candidates:
         for wp_pos in wp_positions_to_shortcut_to_candidates:

@@ -6,13 +6,13 @@ import numpy as np
 import numpy.typing as npt
 
 from src.config import cfg
-from src.utils.event import post_event
-from src.platform_state.local_grid import LocalGrid
 from src.execution_autonomy.plan_model import PlanModel
+from src.platform_state.local_grid import LocalGrid
 from src.shared.capabilities import Capabilities
 from src.shared.node_and_edge import Node
 from src.shared.task import Task
 from src.shared.world_object import WorldObject
+from src.utils.event import post_event
 
 
 class AbstractAgent(ABC):
@@ -56,7 +56,7 @@ class AbstractAgent(ABC):
         lg_img = self._get_local_grid_img()
         # save_something(lg_img, "lg_img")
         lg = LocalGrid(
-            world_pos=self.get_localization(),
+            xy=self.get_localization(),
             img_data=lg_img,
         )
 

@@ -23,7 +23,7 @@ vedo.settings.allow_interaction = True
 
 class MissionView:
     def __init__(self) -> None:
-        self.factor = 1 / cfg.LG_CELL_SIZE_M
+        self.factor = 1 / cfg.LG_MTR_PER_CELL
         self.screenshot_step = 0
         TITLE = f"{cfg.SCENARIO} - {cfg.PLOT_LVL}"
 
@@ -186,7 +186,7 @@ class MissionView:
     def add_agents(self, agents: list[AbstractAgent], actors):
         for agent in agents:
             agent_pos = (self.factor * agent.pos[0], self.factor * agent.pos[1], 0)
-            grid_len = self.factor * cfg.LG_LENGTH_IN_M
+            grid_len = self.factor * cfg.LG_LEN_IN_M
             local_grid_viz = vedo.Grid(
                 pos=agent_pos, s=(grid_len, grid_len), lw=2, alpha=0.3
             )

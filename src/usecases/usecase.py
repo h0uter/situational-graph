@@ -12,9 +12,9 @@ from src.platform_control.real.spot_agent import SpotAgent
 from src.platform_control.sim.simulated_agent import SimulatedAgent
 from src.shared.capabilities import Capabilities
 from src.shared.topics import Topics
-from src.usecases.operator.frontier_sampling_view import FrontierSamplingDebugView
-from src.usecases.operator.mission_view import MissionView
-from src.usecases.operator.waypoint_shortcuts_view import WaypointShortcutDebugView
+from src.usecases.views.frontier_sampling_view import FrontierSamplingDebugView
+from src.usecases.views.mission_view import MissionView
+from src.usecases.views.waypoint_shortcuts_view import WaypointShortcutDebugView
 from src.usecases.sar.sar_affordances import SAR_AFFORDANCES
 from src.usecases.sar.sar_behaviors import SAR_BEHAVIORS
 from src.usecases.utils.feedback import (

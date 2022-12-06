@@ -10,7 +10,7 @@ from src.utils.event import subscribe
 
 class WaypointShortcutDebugView:
     def __init__(self):
-        self.factor = 1 / cfg.LG_CELL_SIZE_M
+        self.factor = 1 / cfg.LG_MTR_PER_CELL
 
         self.plt = vedo.Plotter(
             axes=13,
@@ -18,7 +18,7 @@ class WaypointShortcutDebugView:
             resetcam=True,
             title=str(Topics.SHORTCUT_CHECKING),
             pos=(0, 500),
-            size=(800,800)
+            size=(800, 800),
         )
         self.plt.show(resetcam=True)
 
@@ -27,32 +27,27 @@ class WaypointShortcutDebugView:
     def viz_waypoint_shortcuts(self, data: WaypointShortcutViewModel):
         actors = []
         self.plt.clear()
-        # data.local_grid.data[5:15, 10:100] = 1
 
-        # lg_actor = vedo.Picture(data.local_grid.data, flip=True)  # XXX: flip=True is important
-        
-        lg_actor = vedo.Picture(data.local_grid.data, flip=False)  # XXX: flip=True is important
-        # lg_actor = vedo.Picture(np.rot90(data.local_grid.data, axes=(0, 1)), flip=False)  # this vizualised correct
+        # lg_actor = vedo.Picture(data.local_grid.data, flip=False)
+        # BUG: this vizualises correct, still dont understand why 2022-12-6
+        lg_actor = vedo.Picture(np.rot90(data.local_grid.img_data, axes=(0, 1)), flip=False)
         actors.append(lg_actor)
 
         centre = int(lg_actor.dimensions()[0] / 2), int(lg_actor.dimensions()[1] / 2)
 
-        agent_actor = vedo.Point(centre, r=10, c="b")
+        agent_actor = vedo.Point(centre, r=20, c="cyan")
         actors.append(agent_actor)
 
         if data.shortcut_candidate_cells:
             for wp in data.shortcut_candidate_cells:
-                # wp = (wp[1], wp[0])
-                wp_actor = vedo.Point(wp, r=10, c="r")
-                actors.append(wp_actor)
-                wp_line_actor = vedo.Line(centre, wp, c="g", lw=5)
+                wp_line_actor = vedo.Line(centre, wp, c="g", lw=10)
                 actors.append(wp_line_actor)
+                wp_actor = vedo.Point(wp, r=45, c="FireBrick")
+                actors.append(wp_actor)
 
         if data.collision_cells:
             for cp in data.collision_cells:
-                cp_point_actor = vedo.Cross3D(
-                    cp, s=0.3 * self.factor, c="p"
-                )
+                cp_point_actor = vedo.Cross3D(cp, s=0.3 * self.factor, c="p")
                 actors.append(cp_point_actor)
 
         self.plt.show(actors, resetcam=True)
