@@ -1,4 +1,4 @@
-from src.shared.behaviors import Behaviors
+from src.shared.prior_knowledge.behaviors import Behaviors
 from src.usecases.shared.behaviors.explore_behavior import ExploreBehavior
 from src.usecases.shared.behaviors.goto_behavior import GotoBehavior
 from src.usecases.shared.behaviors.assess_behavior import AssessBehavior

@@ -6,9 +6,9 @@ from src.config import cfg
 from src.execution_autonomy.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.platform_control.abstract_agent import AbstractAgent
 from src.mission_autonomy.situational_graph import SituationalGraph
-from src.shared.affordance import Affordance
+from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.node_and_edge import Edge
-from src.shared.situations import Situations
+from src.shared.prior_knowledge.situations import Situations
 from src.utils.audio_feedback import play_file
 
 
@@ -82,7 +82,6 @@ class AssessBehavior(AbstractBehavior):
         # return tosgraph
         # deactivate the target node,
         tosg.G.remove_node(behavior_edge[1])
-        # pass
 
     def __scan_victim(self, target_node_pos: tuple[float, float]):
         # todo make this actually orient the robot towards the target and perform some scan or assessment.

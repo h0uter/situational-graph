@@ -8,7 +8,7 @@ from numpy import typing as npt
 from src.config import cfg
 from src.platform_state.local_grid import LocalGrid
 from src.shared.topics import Topics
-from src.utils.event_system import post_event
+from src.shared.event_system import post_event
 
 
 class FrontierSamplingStrategy(ABC):

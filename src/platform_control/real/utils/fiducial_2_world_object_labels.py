@@ -1,6 +1,6 @@
 # 202==201
 from src.shared.world_object import WorldObject
-from src.shared.situations import Situations
+from src.shared.prior_knowledge.situations import Situations
 
 # FIXME: update this with the new world objects
 # WORLD_OBJECT_ID_TO_NAME_MAPPING = {

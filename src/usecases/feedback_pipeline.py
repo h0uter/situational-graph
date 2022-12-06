@@ -2,7 +2,7 @@ import logging
 import time
 from dataclasses import dataclass
 
-import src.utils.event_system as event_system
+import src.shared.event_system as event_system
 from src.config import cfg
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent

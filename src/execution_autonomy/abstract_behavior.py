@@ -6,9 +6,9 @@ from typing import Sequence
 from src.config import cfg
 from src.platform_control.abstract_agent import AbstractAgent
 from src.mission_autonomy.situational_graph import SituationalGraph
-from src.shared.affordance import Affordance
+from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.node_and_edge import Edge
-from src.shared.situations import Situations
+from src.shared.prior_knowledge.situations import Situations
 
 
 @dataclass

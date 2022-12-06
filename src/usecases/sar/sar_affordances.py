@@ -1,6 +1,6 @@
-from src.shared.behaviors import Behaviors
-from src.shared.objectives import Objectives
-from src.shared.situations import Situations
+from src.shared.prior_knowledge.behaviors import Behaviors
+from src.shared.prior_knowledge.objectives import Objectives
+from src.shared.prior_knowledge.situations import Situations
 
 SAR_AFFORDANCES = [
     (Situations.WAYPOINT, Behaviors.GOTO, None),

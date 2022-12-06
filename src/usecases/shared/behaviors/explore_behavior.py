@@ -10,9 +10,9 @@ from src.platform_state.frontier_sampling_strategies import (
     AngularLOSFrontierSamplingStrategy,
 )
 from src.platform_state.local_grid import LocalGrid
-from src.shared.affordance import Affordance
+from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.node_and_edge import Edge, Node
-from src.shared.situations import Situations
+from src.shared.prior_knowledge.situations import Situations
 from src.shared.world_object import WorldObject
 from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,

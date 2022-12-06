@@ -3,13 +3,13 @@ from typing import Mapping, Optional, Sequence, Type
 
 import networkx as nx
 
-import src.utils.event_system as event_system
+import src.shared.event_system as event_system
 from src.execution_autonomy.abstract_behavior import AbstractBehavior
 from src.execution_autonomy.plan_model import PlanModel
 from src.platform_control.abstract_agent import AbstractAgent
 from src.mission_autonomy.situational_graph import SituationalGraph
-from src.shared.affordance import Affordance
-from src.shared.behaviors import Behaviors
+from src.shared.prior_knowledge.affordance import Affordance
+from src.shared.prior_knowledge.behaviors import Behaviors
 from src.shared.node_and_edge import Node
 from src.shared.task import Task
 

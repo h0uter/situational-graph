@@ -3,8 +3,8 @@ from typing import Sequence
 from src.execution_autonomy.plan_model import PlanModel
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
-from src.shared.behaviors import Behaviors
-from src.shared.objectives import Objectives
+from src.shared.prior_knowledge.behaviors import Behaviors
+from src.shared.prior_knowledge.objectives import Objectives
 from src.shared.task import Task
 from src.usecases.usecase import Usecase
 

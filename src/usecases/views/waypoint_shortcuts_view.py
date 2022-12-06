@@ -5,7 +5,7 @@ from src.config import cfg
 from src.shared.topics import Topics
 from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
     WaypointShortcutViewModel
-from src.utils.event_system import subscribe
+from src.shared.event_system import subscribe
 
 
 class WaypointShortcutDebugView:

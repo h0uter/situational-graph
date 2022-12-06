@@ -3,7 +3,7 @@ from typing import Sequence
 from src.execution_autonomy.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.platform_control.abstract_agent import AbstractAgent
 from src.mission_autonomy.situational_graph import SituationalGraph
-from src.shared.affordance import Affordance
+from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.node_and_edge import Edge
 from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
     add_shortcut_edges_between_wps_on_lg

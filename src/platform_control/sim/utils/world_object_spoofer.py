@@ -1,5 +1,5 @@
 from src.config import cfg, Scenario
-from src.shared.situations import Situations
+from src.shared.prior_knowledge.situations import Situations
 from src.shared.world_object import WorldObject
 
 
