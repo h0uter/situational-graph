@@ -2,7 +2,7 @@ import numpy as np
 import vedo
 
 from src.config import cfg
-from src.platform_state.local_grid import FrontierSamplingViewModel
+from src.platform_state.frontier_sampling_strategies import FrontierSamplingViewModel
 from src.shared.topics import Topics
 from src.utils.event import subscribe
 
