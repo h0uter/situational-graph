@@ -4,7 +4,7 @@ from src.shared.world_object import WorldObject
 
 
 class WorldObjectSpoofer:
-    def __init__(self) -> None:
+    def __init__(self):
         self.world_object_list = []
 
         if cfg.SCENARIO == Scenario.SIM_VILLA:

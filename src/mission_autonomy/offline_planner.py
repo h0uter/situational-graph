@@ -3,7 +3,7 @@ from typing import Mapping, Optional, Sequence, Type
 
 import networkx as nx
 
-import src.utils.event as event
+import src.utils.event_system as event_system
 from src.execution_autonomy.abstract_behavior import AbstractBehavior
 from src.execution_autonomy.plan_model import PlanModel
 from src.platform_control.abstract_agent import AbstractAgent
@@ -140,7 +140,7 @@ class OfflinePlanner:
             if task.edge[1] in path_costs
         }
 
-        event.post_event("task_utilities", task_to_utility)
+        event_system.post_event("task_utilities", task_to_utility)
 
         if len(task_to_utility) == 0:
             return None

@@ -2,7 +2,7 @@ import vedo
 
 from src.platform_control.sim.utils.local_grid_image_spoofer import ImageMapViewModel
 from src.shared.topics import Topics
-from src.utils.event import subscribe
+from src.utils.event_system import subscribe
 
 
 class ImageMapDebugView:

@@ -15,7 +15,7 @@ from src.platform_control.abstract_agent import AbstractAgent
 from src.shared.situations import Situations
 from src.shared.topics import Topics
 from src.usecases.utils.feedback import MissionViewModel
-from src.utils.event import subscribe
+from src.utils.event_system import subscribe
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allow_interaction = True

@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Optional, Sequence
 
 import numpy as np
@@ -8,17 +9,15 @@ import numpy.typing as npt
 from src.config import cfg
 from src.execution_autonomy.plan_model import PlanModel
 from src.platform_state.local_grid import LocalGrid
-from src.shared.capabilities import Capabilities
 from src.shared.node_and_edge import Node
 from src.shared.task import Task
 from src.shared.world_object import WorldObject
-from src.utils.event import post_event
 
 
 class AbstractAgent(ABC):
     """ "This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
-    def __init__(self, capabilities: set[Capabilities], name_idx: int = 0) -> None:
+    def __init__(self, capabilities: set[Enum], name_idx: int = 0) -> None:
         self.capabilities = capabilities
         self.name = name_idx
 
@@ -75,11 +74,15 @@ class AbstractAgent(ABC):
         pass
 
     @abstractmethod
-    def _move_to_pos_implementation(self, target_pos: tuple, target_heading: float):
+    def _move_to_pos_implementation(
+        self, target_pos: tuple[float, float], target_heading: float
+    ):
         pass
 
     # TODO: this should return a succes/ failure bool
-    def move_to_pos(self, target_pos: tuple, heading=None) -> bool:
+    def move_to_pos(
+        self, target_pos: tuple[float, float], heading: float = None
+    ) -> bool:
         if not heading:
             target_heading = self.calc_heading_to_target(target_pos)
         else:
@@ -116,7 +119,7 @@ class AbstractAgent(ABC):
             self.pos = self.get_localization()  # dont make sense for sim agent.
             return False
 
-    def calc_heading_to_target(self, target_pos: tuple) -> float:
+    def calc_heading_to_target(self, target_pos: tuple[float, float]) -> float:
         """
         Calculate the heading to the target.
 

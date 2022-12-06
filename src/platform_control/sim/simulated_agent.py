@@ -3,6 +3,7 @@ import numpy.typing as npt
 from src.platform_control.abstract_agent import AbstractAgent
 from src.platform_control.sim.utils.local_grid_image_spoofer import LocalGridImageSpoofer
 from src.platform_control.sim.utils.world_object_spoofer import WorldObjectSpoofer
+from src.shared.world_object import WorldObject
 
 
 class SimulatedAgent(AbstractAgent):
@@ -33,6 +34,6 @@ class SimulatedAgent(AbstractAgent):
         """
         self.pos = pos  # teleport
 
-    def look_for_world_objects_in_perception_scene(self) -> list:
+    def look_for_world_objects_in_perception_scene(self) -> list[WorldObject]:
         w_os = self.world_object_spoofer.spoof_world_objects_from_position(self.pos)
         return w_os

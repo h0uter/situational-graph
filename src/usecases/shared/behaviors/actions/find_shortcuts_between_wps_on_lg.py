@@ -7,7 +7,7 @@ from src.platform_control.abstract_agent import AbstractAgent
 from src.platform_state.local_grid import LocalGrid
 from src.shared.situations import Situations
 from src.shared.topics import Topics
-from src.utils.event import post_event
+from src.utils.event_system import post_event
 
 
 @dataclass

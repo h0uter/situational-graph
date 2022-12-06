@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
 
-from src.utils.event import subscribe
+from src.utils.event_system import subscribe
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.behaviors import Behaviors
 from src.shared.situations import Situations
