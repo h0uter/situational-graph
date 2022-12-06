@@ -66,15 +66,28 @@ class LocalGrid:
         if not self.is_within_local_grid(xy):
             raise ValueError(f"World coordinate {xy} is not within the local grid.")
 
-        # c = int((xy[0] - self.lg_xy[0] + self.lg_length_in_m / 2) / self.cell_size_in_m)
-        # r = int(
-        #     (xy[1] - self.lg_xy[1] - self.lg_length_in_m / 2) / -self.cell_size_in_m
-        # )
 
-        c = int((xy[0] - self.lg_xy[0] + self.lg_length_in_m / 2) / self.meter_per_cell)
-        r = int(
-            (-xy[1] + self.lg_xy[1] + self.lg_length_in_m / 2) / self.meter_per_cell
-        )
+        # x = self.lg_xy[0] + (rc[1] - self.LG_LENGTH_AS_NUMBER_OF_CELLS / 2) * self.meter_per_cell
+        # x - self.lg_xy[0] =  (rc[1] - self.LG_LENGTH_AS_NUMBER_OF_CELLS / 2) * self.meter_per_cell
+        # (x - self.lg_xy[0]) / self.meter_per_cell =  rc[1] - self.LG_LENGTH_AS_NUMBER_OF_CELLS / 2
+        # (x - self.lg_xy[0]) / self.meter_per_cell + self.LG_LENGTH_AS_NUMBER_OF_CELLS / 2=  rc[1] 
+
+
+        if cfg.SCENARIO == Scenario.REAL:
+            c = int((xy[0] - self.lg_xy[0]) / self.meter_per_cell + self.LG_LENGTH_AS_NUMBER_OF_CELLS / 2)
+
+            # y = self.lg_xy[1] + (rc[0] - self.LG_LENGTH_AS_NUMBER_OF_CELLS / 2) * self.meter_per_cell
+            # y - self.lg_xy[1] = (rc[0] - self.LG_LENGTH_AS_NUMBER_OF_CELLS / 2) * self.meter_per_cell
+            # (y - self.lg_xy[1])/self.meter_per_cell = rc[0] - self.LG_LENGTH_AS_NUMBER_OF_CELLS / 2
+            # (y - self.lg_xy[1])/self.meter_per_cell  + self.LG_LENGTH_AS_NUMBER_OF_CELLS / 2 = rc[0]
+            r = int((xy[1] - self.lg_xy[1])/self.meter_per_cell  + self.LG_LENGTH_AS_NUMBER_OF_CELLS / 2)
+
+        
+        else:
+            c = int((xy[0] - self.lg_xy[0] + self.lg_length_in_m / 2) / self.meter_per_cell)
+            r = int(
+                (-xy[1] + self.lg_xy[1] + self.lg_length_in_m / 2) / self.meter_per_cell
+            )
 
         return r, c
 
