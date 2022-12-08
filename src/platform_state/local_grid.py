@@ -101,7 +101,7 @@ class LocalGrid:
 
                     return False, collision_point
 
-            if cfg.SCENARIO == Scenario.SIM_MAZE_MEDIUM:
+            elif cfg.SCENARIO == Scenario.SIM_MAZE_MEDIUM:
                 if np.greater(
                     self.img_data[r, c][3],
                     [self.PIXEL_OCCUPIED_THRESHOLD],
