@@ -13,7 +13,6 @@ class LocalGrid:
         self._log = logging.getLogger(__name__)
 
         self.lg_xy = xy # Robot pose when the lg image was obtained
-
         self.img_data = img_data  # r,c with (0,0) top left (numpy convention)
 
         self.LG_LEN_IN_N_CELLS = int(cfg.LG_LEN_IN_M / cfg.LG_MTR_PER_CELL)

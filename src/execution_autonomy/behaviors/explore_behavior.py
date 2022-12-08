@@ -1,7 +1,5 @@
 from typing import Optional, Sequence
 
-import numpy.typing as npt
-
 from src.config import cfg
 from src.execution_autonomy.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.mission_autonomy.situational_graph import SituationalGraph
@@ -14,7 +12,7 @@ from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.node_and_edge import Edge, Node
 from src.shared.prior_knowledge.situations import Situations
 from src.shared.world_object import WorldObject
-from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+from src.execution_autonomy.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
 )
 

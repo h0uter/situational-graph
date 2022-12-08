@@ -1,7 +1,7 @@
 from src.shared.prior_knowledge.behaviors import Behaviors
-from src.usecases.shared.behaviors.explore_behavior import ExploreBehavior
-from src.usecases.shared.behaviors.goto_behavior import GotoBehavior
-from src.usecases.shared.behaviors.assess_behavior import AssessBehavior
+from src.execution_autonomy.behaviors.explore_behavior import ExploreBehavior
+from src.execution_autonomy.behaviors.goto_behavior import GotoBehavior
+from src.execution_autonomy.behaviors.assess_behavior import AssessBehavior
 
 # FIXME: generate this dynamically, or in cfg
 SAR_BEHAVIORS = {

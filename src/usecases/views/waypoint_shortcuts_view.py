@@ -3,7 +3,7 @@ import vedo
 
 from src.config import cfg
 from src.shared.topics import Topics
-from src.usecases.shared.behaviors.actions.find_shortcuts_between_wps_on_lg import \
+from src.execution_autonomy.behaviors.actions.find_shortcuts_between_wps_on_lg import \
     WaypointShortcutViewModel
 from src.shared.event_system import subscribe
 
@@ -17,8 +17,8 @@ class WaypointShortcutDebugView:
             interactive=False,
             resetcam=True,
             title=str(Topics.SHORTCUT_CHECKING),
-            pos=(0, 500),
-            size=(800, 800),
+            pos=(0, 0),
+            size=(1000, 1000),
         )
         self.plt.show(resetcam=True)
 

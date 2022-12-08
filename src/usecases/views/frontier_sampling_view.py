@@ -17,7 +17,7 @@ class FrontierSamplingDebugView:
             resetcam=True,
             title=str(Topics.FRONTIER_SAMPLING),
             pos=(0, 1500),
-            size=(800,800)
+            size=(1000,1000)
         )
         self.plt.show(resetcam=True)
 
@@ -28,8 +28,8 @@ class FrontierSamplingDebugView:
         self.plt.clear()
         
         # lg_actor = vedo.Picture(data.local_grid_img, flip=False)
-        # BUG: this vizualises correct, still dont understand why 2022-12-6
-        lg_actor = vedo.Picture(np.rot90(data.local_grid_img, axes=(0, 1)), flip=False) # BUG: this vizualises correct, still dont understand why 2022-12-6
+        # BUG: this vizualises correct, still dont understand why @ 2022-12-6
+        lg_actor = vedo.Picture(np.rot90(data.local_grid_img, axes=(0, 1)), flip=False)
         actors.append(lg_actor)
 
         centre = int(lg_actor.dimensions()[0] / 2), int(lg_actor.dimensions()[1] / 2)
