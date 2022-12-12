@@ -9,13 +9,13 @@ import vedo
 from vedo import io
 
 from src.config import PlotLvl, Scenario, cfg
-from src.mission_autonomy.offline_planner import OfflinePlanner
+from src.mission_autonomy.abstract_planner import AbstractPlanner
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
+from src.shared.event_system import subscribe
 from src.shared.prior_knowledge.situations import Situations
 from src.shared.topics import Topics
 from src.usecases.feedback_pipeline import MissionViewModel
-from src.shared.event_system import subscribe
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allow_interaction = True
@@ -146,7 +146,7 @@ class MissionView:
         self,
         actors: list,
         krm: SituationalGraph,
-        usecases: Sequence[OfflinePlanner],
+        usecases: Sequence[AbstractPlanner],
         pos_dict: dict,
         agents: Sequence[AbstractAgent],
     ):

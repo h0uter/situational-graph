@@ -1,11 +1,11 @@
-from src.mission_autonomy.offline_planner import (CouldNotFindPlan,
-                                                  OfflinePlanner,
+from src.mission_autonomy.abstract_planner import (AbstractPlanner,
+                                                  CouldNotFindPlan,
                                                   TargetNodeNotFound)
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 
 
-class OnlinePlanner(OfflinePlanner):
+class OnlinePlanner(AbstractPlanner):
     """This planner selects the optimal task and makes a plan each iteration"""
 
     def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
