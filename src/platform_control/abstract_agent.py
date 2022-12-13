@@ -17,7 +17,7 @@ from src.shared.world_object import WorldObject
 class AbstractAgent(ABC):
     """ "This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
-    def __init__(self, capabilities: set[Enum], name_idx: int = 0) -> None:
+    def __init__(self, capabilities: set[Enum] = set(), name_idx: int = 0) -> None:
         self.capabilities = capabilities
         self.name = name_idx
 
