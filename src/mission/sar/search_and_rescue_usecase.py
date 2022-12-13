@@ -5,12 +5,13 @@ from typing import Sequence
 import src.core.event_system as event_system
 from src.config import Scenario, cfg
 from src.core.topics import Topics
-from src.mission.abstract_planner import PlannerInterface, TaskAllocator
-from src.mission.online_planner import PlanningPipeline
+from src.mission.planning_pipeline import PlanningPipeline
 from src.mission.plan_executor import PlanExecutor
+from src.mission.graph_planner_interface import GraphPlannerInterface
 from src.mission.sar.sar_affordances import SAR_AFFORDANCES
 from src.mission.sar.sar_behaviors import SAR_BEHAVIORS
 from src.mission.situational_graph import SituationalGraph
+from src.mission.task_allocator import TaskAllocator
 from src.operator.feedback_pipeline import (
     feedback_pipeline_completion,
     feedback_pipeline_init,
@@ -69,14 +70,16 @@ class Usecase(ABC):
     @abstractmethod
     def domain_initialization(
         self,
-    ) -> tuple[list[AbstractAgent], SituationalGraph, PlannerInterface, TaskAllocator]:
+    ) -> tuple[
+        list[AbstractAgent], SituationalGraph, GraphPlannerInterface, TaskAllocator
+    ]:
         pass
 
     def main_loop(
         self,
         agents: list[AbstractAgent],
         tosg: SituationalGraph,
-        planner: PlannerInterface,
+        planner: GraphPlannerInterface,
         executor: PlanExecutor,
         task_allocator: TaskAllocator,
     ):
@@ -101,7 +104,7 @@ class Usecase(ABC):
         self,
         agents,
         tosg,
-        planner: PlannerInterface,
+        planner: GraphPlannerInterface,
         my_logger,
         tosg_stats,
         plan_executor: PlanExecutor,
@@ -145,7 +148,7 @@ class SearchAndRescueUsecase(Usecase):
     def init_search_and_rescue_entities() -> tuple[
         list[AbstractAgent],
         SituationalGraph,
-        PlannerInterface,
+        GraphPlannerInterface,
         PlanExecutor,
         TaskAllocator,
     ]:

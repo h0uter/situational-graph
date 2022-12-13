@@ -1,12 +1,12 @@
-from src.mission.abstract_planner import (
+from src.mission.graph_task_planner import (
     CouldNotFindPlan,
     GraphTaskPlanner,
-    PlannerInterface,
     TargetNodeNotFound,
-    TaskAllocator,
 )
 from src.mission.plan_executor import PlanExecutor
+from src.mission.graph_planner_interface import GraphPlannerInterface
 from src.mission.situational_graph import SituationalGraph
+from src.mission.task_allocator import TaskAllocator
 from src.platform.control.abstract_agent import AbstractAgent
 
 
@@ -35,6 +35,7 @@ class PlanningPipeline(GraphTaskPlanner):
 
             """ generate a plan"""
             try:
+                # this is the planner interface
                 agent.plan = self._find_plan_for_task(
                     agent.at_wp, tosg, agent.task, filtered_tosg
                 )

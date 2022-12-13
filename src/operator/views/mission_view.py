@@ -9,13 +9,13 @@ import vedo
 from vedo import io
 
 from src.config import PlotLvl, Scenario, cfg
-from src.mission.abstract_planner import PlannerInterface
-from src.mission.situational_graph import SituationalGraph
-from src.platform.control.abstract_agent import AbstractAgent
 from src.core.event_system import subscribe
-from src.shared.prior_knowledge.situations import Situations
 from src.core.topics import Topics
+from src.mission.graph_planner_interface import GraphPlannerInterface
+from src.mission.situational_graph import SituationalGraph
 from src.operator.feedback_pipeline import MissionViewModel
+from src.platform.control.abstract_agent import AbstractAgent
+from src.shared.prior_knowledge.situations import Situations
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allow_interaction = True
@@ -64,7 +64,9 @@ class MissionView:
         # print("left clicked on: ", coords)
         node_pos = tuple(coords[0:2])
         # my_node = self.tosg.get_node_by_pos(node_pos)
-        my_node = self.tosg.get_nodes_of_type_in_margin(node_pos, 2, Situations.WAYPOINT)
+        my_node = self.tosg.get_nodes_of_type_in_margin(
+            node_pos, 2, Situations.WAYPOINT
+        )
         print("node: ", my_node, " | pos: ", node_pos)
         # print(event)
 
@@ -92,7 +94,9 @@ class MissionView:
         self.viz_mission_overview(data.situational_graph, data.agents)
         self.plt.show(interactive=True)
 
-    def viz_mission_overview(self, tosg: SituationalGraph, agents: list[AbstractAgent], usecases=None):
+    def viz_mission_overview(
+        self, tosg: SituationalGraph, agents: list[AbstractAgent], usecases=None
+    ):
         actors: list[vedo.BaseActor] = []
         self.tosg = tosg
 
@@ -157,7 +161,7 @@ class MissionView:
         self,
         actors: list,
         krm: SituationalGraph,
-        usecases: Sequence[PlannerInterface],
+        usecases: Sequence[GraphPlannerInterface],
         pos_dict: dict,
         agents: Sequence[AbstractAgent],
     ):

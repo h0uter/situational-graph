@@ -1,10 +1,6 @@
-import logging
-from abc import ABC, abstractmethod
-from typing import Optional
-
 import networkx as nx
 
-import src.core.event_system as event_system
+from src.mission.graph_planner_interface import GraphPlannerInterface
 from src.mission.situational_graph import SituationalGraph
 from src.platform.autonomy.plan_model import PlanModel
 from src.platform.control.abstract_agent import AbstractAgent
@@ -24,60 +20,7 @@ class TargetNodeNotFound(Exception):
     pass
 
 
-class PlannerInterface(ABC):
-    def __init__(self):
-        self._log = logging.getLogger(__name__)
-
-    @abstractmethod
-    def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
-        pass
-
-    @abstractmethod
-    def _find_plan_for_task(
-        self,
-        agent_localized_to: Node,
-        full_tosg: SituationalGraph,
-        task: Task,
-        filtered_tosg: SituationalGraph,
-    ) -> PlanModel:
-        pass
-
-
-class TaskAllocator:
-    @staticmethod
-    def _single_agent_task_selection(
-        agent: AbstractAgent, tosg: SituationalGraph
-    ) -> Optional[Task]:
-        target_node_to_task = {task.edge[1]: task for task in tosg.tasks}
-
-        path_costs, paths = tosg.distance_and_path_dijkstra(
-            agent.at_wp, target_node_to_task.keys()
-        )
-
-        # TODO: depending on the number of tasks switch between dijkstra lookup and A* lookup
-        # path_cost = tosg.distance_astar(agent.at_wp, task_target_node)
-
-        def calc_utility(reward: float, path_cost: float) -> float:
-            if path_cost == 0:
-                return float("inf")
-            else:
-                return reward / path_cost
-
-        task_to_utility = {
-            task: calc_utility(task.reward, path_costs[task.edge[1]])
-            for task in tosg.tasks
-            if task.edge[1] in path_costs
-        }
-
-        event_system.post_event("task_utilities", task_to_utility)
-
-        if len(task_to_utility) == 0:
-            return None
-
-        return max(task_to_utility, key=task_to_utility.get)
-
-
-class GraphTaskPlanner(PlannerInterface):
+class GraphTaskPlanner(GraphPlannerInterface):
     def _filter_graph(
         self, tosg: SituationalGraph, agent: AbstractAgent
     ) -> SituationalGraph:
