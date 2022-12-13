@@ -55,7 +55,7 @@ class Executor:
 
 class AbstractPlanner(ABC):
     def __init__(
-        self, executor: Executor, 
+        self
     ) -> None:
         self._log = logging.getLogger(__name__)
 

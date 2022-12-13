@@ -111,7 +111,7 @@ class Usecase(ABC):
             else:
                 continue
 
-            
+
             if planner.process_execution_result(result, agents[agent_idx], tosg):
                 """pipeline returns true if there are no more tasks."""
                 self.mission_completed = True
@@ -146,7 +146,7 @@ class SearchAndRescueUsecase(Usecase):
         affordances = SAR_AFFORDANCES
         # planner = OfflinePlanner(domain_behaviors, affordances)
         executor = Executor(domain_behaviors, affordances)
-        planner = OnlinePlanner(executor)
+        planner = OnlinePlanner()
 
         return agents, tosg, planner, executor
 
