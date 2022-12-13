@@ -55,7 +55,18 @@ class MissionView:
         subscribe(str(Topics.MISSION_VIEW_UPDATE), self.figure_update)
         subscribe(str(Topics.MISSION_VIEW_UPDATE_FINAL), self.figure_final_result)
 
+        self.plt.add_callback("LeftButtonPress", self.left_click_callback)
+
         time.sleep(0.1)
+
+    def left_click_callback(self, event):
+        coords = [coord / self.factor for coord in event.picked3d]
+        # print("left clicked on: ", coords)
+        node_pos = tuple(coords[0:2])
+        # my_node = self.tosg.get_node_by_pos(node_pos)
+        my_node = self.tosg.get_nodes_of_type_in_margin(node_pos, 2, Situations.WAYPOINT)
+        print("node: ", my_node, " | pos: ", node_pos)
+        # print(event)
 
     def set_map(self, map_path: str) -> None:
         if cfg.SCENARIO is not Scenario.REAL:
@@ -81,8 +92,9 @@ class MissionView:
         self.viz_mission_overview(data.situational_graph, data.agents)
         self.plt.show(interactive=True)
 
-    def viz_mission_overview(self, tosg: SituationalGraph, agents, usecases=None):
+    def viz_mission_overview(self, tosg: SituationalGraph, agents: list[AbstractAgent], usecases=None):
         actors: list[vedo.BaseActor] = []
+        self.tosg = tosg
 
         self.plt.clear()
         actors.append(self.map_actor)

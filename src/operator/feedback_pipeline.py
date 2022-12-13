@@ -7,7 +7,7 @@ from src.config import cfg
 from src.mission.situational_graph import SituationalGraph
 from src.platform.control.abstract_agent import AbstractAgent
 from src.core.topics import Topics
-from src.utils.audio_feedback import play_file
+from src.platform.control.audio_feedback import play_file
 from src.utils.tosg_stats import TOSGStats
 
 
