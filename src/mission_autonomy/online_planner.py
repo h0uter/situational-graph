@@ -1,6 +1,9 @@
-from src.mission_autonomy.abstract_planner import (AbstractPlanner,
-                                                  CouldNotFindPlan,
-                                                  TargetNodeNotFound)
+from src.mission_autonomy.abstract_planner import (
+    AbstractPlanner,
+    CouldNotFindPlan,
+    Executor,
+    TargetNodeNotFound,
+)
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 
@@ -8,7 +11,7 @@ from src.platform_control.abstract_agent import AbstractAgent
 class OnlinePlanner(AbstractPlanner):
     """This planner selects the optimal task and makes a plan each iteration"""
 
-    def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
+    def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph, executor: Executor) -> bool:
 
         if agent.init_explore_step_completed:
 
@@ -35,7 +38,7 @@ class OnlinePlanner(AbstractPlanner):
             return None
 
         """ execute the plan"""
-        result = self.executor._plan_execution(agent, tosg, agent.plan)
+        result = executor._plan_execution(agent, tosg, agent.plan)
 
         # FIXME: this can be shorter
         if result.success:
@@ -53,4 +56,6 @@ class OnlinePlanner(AbstractPlanner):
             self._destroy_task(agent, tosg)
 
         """check completion of mission"""
-        return self._check_if_tasks_exhausted(tosg)
+        tasks_exhausted = self._check_if_tasks_exhausted(tosg)
+        
+        return tasks_exhausted

@@ -59,9 +59,9 @@ class Usecase(ABC):
 
     def run(self):
         """setup the specifics of the usecase"""
-        agents, tosg, planner = self.domain_initialization()
+        agents, tosg, planner, executor = self.domain_initialization()
 
-        success = self.main_loop(agents, tosg, planner)
+        success = self.main_loop(agents, tosg, planner, executor)
 
         return success
 
@@ -76,6 +76,7 @@ class Usecase(ABC):
         agents: list[AbstractAgent],
         tosg: SituationalGraph,
         planner: OnlinePlanner,
+        executor: Executor,
     ):
 
         start, tosg_stats, my_logger = feedback_pipeline_init()
@@ -83,7 +84,7 @@ class Usecase(ABC):
         """ Main Logic Loop"""
         while (not self.mission_completed) and self.step < cfg.MAX_STEPS:
 
-            self.inner_loop(agents, tosg, planner, my_logger, tosg_stats)
+            self.inner_loop(agents, tosg, planner, my_logger, tosg_stats, executor)
 
         feedback_pipeline_completion(
             self.step, agents, tosg, tosg_stats, planner, my_logger, start
@@ -92,16 +93,18 @@ class Usecase(ABC):
         # krm_stats.save()
         return self.mission_completed
 
-    def inner_loop(self, agents, tosg, planner, my_logger, tosg_stats):
+    def inner_loop(self, agents, tosg, planner, my_logger, tosg_stats, executor):
         step_start = time.perf_counter()
 
         # task allocation
+        # my window event will put something in a queue here that will result in that task being done first.
+        # and also to lock the goto task in place
 
         for agent_idx in range(len(agents)):
             # TODO: split this into task allocation, planning and execution
             
             # planning 
-            if planner.pipeline(agents[agent_idx], tosg):
+            if planner.pipeline(agents[agent_idx], tosg, executor):
 
                 """pipeline returns true if there are no more tasks."""
                 self.mission_completed = True
@@ -119,7 +122,7 @@ class Usecase(ABC):
 class SearchAndRescueUsecase(Usecase):
     @staticmethod
     def init_search_and_rescue_entities() -> tuple[
-        list[AbstractAgent], SituationalGraph, OnlinePlanner
+        list[AbstractAgent], SituationalGraph, OnlinePlanner, Executor
     ]:
         agent1_capabilities = {Capabilities.CAN_ASSESS}
         if cfg.SCENARIO == Scenario.REAL:
@@ -138,12 +141,12 @@ class SearchAndRescueUsecase(Usecase):
         executor = Executor(domain_behaviors, affordances)
         planner = OnlinePlanner(executor)
 
-        return agents, tosg, planner
+        return agents, tosg, planner, executor
 
     def domain_initialization(self):
         """Manually set first task to exploring current position."""
 
-        agents, tosg, planner = self.init_search_and_rescue_entities()
+        agents, tosg, planner, executor = self.init_search_and_rescue_entities()
 
         common_initialization(tosg, agents, start_poses=[agent.pos for agent in agents])
 
@@ -161,4 +164,4 @@ class SearchAndRescueUsecase(Usecase):
 
             agent.plan = PlanModel([init_explore_edge])
 
-        return agents, tosg, planner
+        return agents, tosg, planner, executor
