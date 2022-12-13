@@ -58,7 +58,6 @@ class AbstractPlanner(ABC):
         self, executor: Executor, 
     ) -> None:
         self._log = logging.getLogger(__name__)
-        self.executor = executor
 
     @abstractmethod
     def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:

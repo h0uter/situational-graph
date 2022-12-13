@@ -104,8 +104,15 @@ class Usecase(ABC):
             # TODO: split this into task allocation, planning and execution
             
             # planning 
-            if planner.pipeline(agents[agent_idx], tosg, executor):
+            planner.pipeline(agents[agent_idx], tosg, executor)
 
+            if agents[agent_idx].plan:
+                result = executor._plan_execution(agents[agent_idx], tosg, agents[agent_idx].plan)
+            else:
+                continue
+
+            
+            if planner.process_execution_result(result, agents[agent_idx], tosg):
                 """pipeline returns true if there are no more tasks."""
                 self.mission_completed = True
                 my_logger.info(f"Agent {agent_idx} completed exploration")

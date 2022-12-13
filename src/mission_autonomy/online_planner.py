@@ -12,7 +12,6 @@ class OnlinePlanner(AbstractPlanner):
     """This planner selects the optimal task and makes a plan each iteration"""
 
     def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph, executor: Executor) -> bool:
-
         if agent.init_explore_step_completed:
 
             filtered_tosg = self._filter_graph(tosg, agent)
@@ -38,8 +37,9 @@ class OnlinePlanner(AbstractPlanner):
             return None
 
         """ execute the plan"""
-        result = executor._plan_execution(agent, tosg, agent.plan)
+        # result = executor._plan_execution(agent, tosg, agent.plan)
 
+    def process_execution_result(self, result, agent, tosg):
         # FIXME: this can be shorter
         if result.success:
             # self._log.debug(f"the plan is {plan}")
