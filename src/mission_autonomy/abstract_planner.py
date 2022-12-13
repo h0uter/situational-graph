@@ -136,10 +136,4 @@ class AbstractPlanner(ABC):
 
         agent.clear_task()
 
-# TODO: move to tosg
-def check_if_tasks_exhausted(tosg: SituationalGraph) -> bool:
-    num_of_tasks = len(tosg.tasks)
-    if num_of_tasks < 1:
-        return True
-    else:
-        return False
+

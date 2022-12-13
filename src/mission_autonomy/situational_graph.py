@@ -321,3 +321,10 @@ class SituationalGraph:
             if not self.G.has_edge(*task.edge):
                 self._log.error(f"remove_invalid_tasks(): removing task {task}")
                 self.tasks.remove(task)
+
+    def check_if_tasks_exhausted(self) -> bool:
+        num_of_tasks = len(self.tasks)
+        if num_of_tasks < 1:
+            return True
+        else:
+            return False
