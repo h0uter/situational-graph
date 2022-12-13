@@ -3,7 +3,7 @@ import vedo
 
 from src.config import cfg
 from src.core.topics import Topics
-from src.platform.autonomy.behaviors.actions.find_shortcuts_between_wps_on_lg import \
+from src.platform.execution.behaviors.actions.find_shortcuts_between_wps_on_lg import \
     WaypointShortcutViewModel
 from src.core.event_system import subscribe
 

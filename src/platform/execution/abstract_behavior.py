@@ -7,7 +7,7 @@ from src.config import cfg
 from src.platform.control.abstract_agent import AbstractAgent
 from src.mission.situational_graph import SituationalGraph
 from src.shared.prior_knowledge.affordance import Affordance
-from src.shared.node_and_edge import Edge
+from src.shared.types.node_and_edge import Edge
 from src.shared.prior_knowledge.situations import Situations
 
 

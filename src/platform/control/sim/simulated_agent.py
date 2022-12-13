@@ -1,8 +1,8 @@
 import numpy.typing as npt
 
 from src.platform.control.abstract_agent import AbstractAgent
-from src.platform.control.sim.utils.local_grid_image_spoofer import LocalGridImageSpoofer
-from src.platform.control.sim.utils.world_object_spoofer import WorldObjectSpoofer
+from src.platform.control.sim.spoofers.local_grid_image_spoofer import LocalGridImageSpoofer
+from src.platform.control.sim.spoofers.world_object_spoofer import WorldObjectSpoofer
 from src.shared.world_object import WorldObject
 
 

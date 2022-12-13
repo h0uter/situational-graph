@@ -5,9 +5,10 @@ from typing import Sequence
 import src.core.event_system as event_system
 from src.config import Scenario, cfg
 from src.core.topics import Topics
-from src.mission.planning_pipeline import PlanningPipeline
-from src.mission.plan_executor import PlanExecutor
+from src.mission.autonomy_pipeline import AutonomyPipeline
 from src.mission.graph_planner_interface import GraphPlannerInterface
+from src.mission.graph_task_planner import GraphTaskPlanner
+from src.mission.plan_executor import PlanExecutor
 from src.mission.sar.sar_affordances import SAR_AFFORDANCES
 from src.mission.sar.sar_behaviors import SAR_BEHAVIORS
 from src.mission.situational_graph import SituationalGraph
@@ -17,8 +18,8 @@ from src.operator.feedback_pipeline import (
     feedback_pipeline_init,
     feedback_pipeline_single_step,
 )
-from src.platform.autonomy.abstract_behavior import AbstractBehavior
-from src.platform.autonomy.plan_model import PlanModel
+from src.platform.execution.abstract_behavior import AbstractBehavior
+from src.platform.execution.plan_model import PlanModel
 from src.platform.control.abstract_agent import AbstractAgent
 from src.platform.control.real.spot_agent import SpotAgent
 from src.platform.control.sim.simulated_agent import SimulatedAgent
@@ -61,9 +62,18 @@ class Usecase(ABC):
 
     def run(self):
         """setup the specifics of the usecase"""
-        agents, tosg, planner, executor, task_allocator = self.domain_initialization()
+        (
+            agents,
+            tosg,
+            planner,
+            executor,
+            task_allocator,
+            pipeline,
+        ) = self.domain_initialization()
 
-        success = self.main_loop(agents, tosg, planner, executor, task_allocator)
+        success = self.main_loop(
+            agents, tosg, planner, executor, task_allocator, pipeline
+        )
 
         return success
 
@@ -71,7 +81,12 @@ class Usecase(ABC):
     def domain_initialization(
         self,
     ) -> tuple[
-        list[AbstractAgent], SituationalGraph, GraphPlannerInterface, TaskAllocator
+        list[AbstractAgent],
+        SituationalGraph,
+        GraphPlannerInterface,
+        PlanExecutor,
+        TaskAllocator,
+        AutonomyPipeline,
     ]:
         pass
 
@@ -82,6 +97,7 @@ class Usecase(ABC):
         planner: GraphPlannerInterface,
         executor: PlanExecutor,
         task_allocator: TaskAllocator,
+        pipeline: AutonomyPipeline,
     ):
 
         start, tosg_stats, my_logger = feedback_pipeline_init()
@@ -90,7 +106,14 @@ class Usecase(ABC):
         while (not self.mission_completed) and self.step < cfg.MAX_STEPS:
 
             self.inner_loop(
-                agents, tosg, planner, my_logger, tosg_stats, executor, task_allocator
+                agents,
+                tosg,
+                planner,
+                my_logger,
+                tosg_stats,
+                executor,
+                task_allocator,
+                pipeline,
             )
 
         feedback_pipeline_completion(
@@ -109,6 +132,7 @@ class Usecase(ABC):
         tosg_stats,
         plan_executor: PlanExecutor,
         task_allocator: TaskAllocator,
+        pipeline: AutonomyPipeline,
     ):
         step_start = time.perf_counter()
 
@@ -120,7 +144,9 @@ class Usecase(ABC):
             # TODO: split this into task allocation, planning and execution
 
             # planning
-            planner.pipeline(agents[agent_idx], tosg, plan_executor, task_allocator)
+            pipeline.pipeline(
+                agents[agent_idx], tosg, task_allocator, planner
+            )
 
             if agents[agent_idx].plan:
                 result = plan_executor._plan_execution(
@@ -151,6 +177,7 @@ class SearchAndRescueUsecase(Usecase):
         GraphPlannerInterface,
         PlanExecutor,
         TaskAllocator,
+        AutonomyPipeline,
     ]:
         agent1_capabilities = {Capabilities.CAN_ASSESS}
         if cfg.SCENARIO == Scenario.REAL:
@@ -168,9 +195,10 @@ class SearchAndRescueUsecase(Usecase):
         # planner = OfflinePlanner(domain_behaviors, affordances)
         executor = PlanExecutor(domain_behaviors, affordances)
         task_allocator = TaskAllocator()
-        planner = PlanningPipeline()
+        planner = GraphTaskPlanner()
+        pipeline = AutonomyPipeline()
 
-        return agents, tosg, planner, executor, task_allocator
+        return agents, tosg, planner, executor, task_allocator, pipeline
 
     def domain_initialization(self):
         """Manually set first task to exploring current position."""
@@ -181,6 +209,7 @@ class SearchAndRescueUsecase(Usecase):
             planner,
             executor,
             task_allocator,
+            pipeline,
         ) = self.init_search_and_rescue_entities()
 
         common_initialization(tosg, agents, start_poses=[agent.pos for agent in agents])
@@ -199,4 +228,4 @@ class SearchAndRescueUsecase(Usecase):
 
             agent.plan = PlanModel([init_explore_edge])
 
-        return agents, tosg, planner, executor, task_allocator
+        return agents, tosg, planner, executor, task_allocator, pipeline

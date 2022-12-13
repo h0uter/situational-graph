@@ -6,7 +6,7 @@ import networkx as nx
 
 from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.prior_knowledge.behaviors import Behaviors
-from src.shared.node_and_edge import Edge, Node
+from src.shared.types.node_and_edge import Edge, Node
 from src.shared.prior_knowledge.objectives import Objectives
 from src.shared.prior_knowledge.situations import Situations
 from src.shared.task import Task

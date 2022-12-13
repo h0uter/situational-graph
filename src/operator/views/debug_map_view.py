@@ -1,6 +1,6 @@
 import vedo
 
-from src.platform.control.sim.utils.local_grid_image_spoofer import ImageMapViewModel
+from src.platform.control.sim.spoofers.local_grid_image_spoofer import ImageMapViewModel
 from src.core.topics import Topics
 from src.core.event_system import subscribe
 

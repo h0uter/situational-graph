@@ -1,6 +1,6 @@
 from typing import Optional, Sequence
 
-from src.shared.node_and_edge import Edge
+from src.shared.types.node_and_edge import Edge
 
 
 class PlanModel:

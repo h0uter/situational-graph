@@ -1,7 +1,7 @@
 from typing import Optional, Sequence
 
 from src.config import cfg
-from src.platform.autonomy.abstract_behavior import AbstractBehavior, BehaviorResult
+from src.platform.execution.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.mission.situational_graph import SituationalGraph
 from src.platform.control.abstract_agent import AbstractAgent
 from src.platform.state.frontier_sampling_strategies import (
@@ -9,10 +9,10 @@ from src.platform.state.frontier_sampling_strategies import (
 )
 from src.platform.state.local_grid import LocalGrid
 from src.shared.prior_knowledge.affordance import Affordance
-from src.shared.node_and_edge import Edge, Node
+from src.shared.types.node_and_edge import Edge, Node
 from src.shared.prior_knowledge.situations import Situations
 from src.shared.world_object import WorldObject
-from src.platform.autonomy.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+from src.platform.execution.behaviors.actions.find_shortcuts_between_wps_on_lg import (
     add_shortcut_edges_between_wps_on_lg,
 )
 

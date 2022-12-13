@@ -6,7 +6,7 @@ from src.core.event_system import subscribe
 from src.mission.situational_graph import SituationalGraph
 from src.shared.prior_knowledge.behaviors import Behaviors
 from src.shared.prior_knowledge.situations import Situations
-from src.utils.saving_data_objects import load_something, save_something
+from src.logging.saving_data_objects import load_something, save_something
 
 
 @dataclass
