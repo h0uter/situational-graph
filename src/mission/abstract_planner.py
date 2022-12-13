@@ -4,9 +4,9 @@ from typing import Optional
 
 import networkx as nx
 
-import src.shared.event_system as event_system
-from src.execution_autonomy.plan_model import PlanModel
-from src.mission.autonomy.situational_graph import SituationalGraph
+import src.core.event_system as event_system
+from src.platform.autonomy.plan_model import PlanModel
+from src.mission.situational_graph import SituationalGraph
 from src.platform.control.abstract_agent import AbstractAgent
 from src.shared.node_and_edge import Node
 from src.shared.task import Task

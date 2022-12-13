@@ -1,8 +1,7 @@
-from src.usecases.views.frontier_sampling_view import FrontierSamplingDebugView
-from src.usecases.views.mission_view import MissionView
-from src.usecases.views.waypoint_shortcuts_view import WaypointShortcutDebugView
-from src.usecases.sar.search_and_rescue_usecase import SearchAndRescueUsecase
-from src.usecases.views.debug_map_view import ImageMapDebugView
+from src.operator.views.frontier_sampling_view import FrontierSamplingDebugView
+from src.operator.views.mission_view import MissionView
+from src.operator.views.waypoint_shortcuts_view import WaypointShortcutDebugView
+from src.mission.sar.search_and_rescue_usecase import SearchAndRescueUsecase
 
 if __name__ == "__main__":
     # matplotlib.use("Qt5agg")
