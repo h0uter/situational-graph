@@ -306,7 +306,6 @@ class SituationalGraph:
         """returns the type of the edge between two nodes"""
         if len(edge) == 2:
             yolo = self.G.edges[edge]["type"]
-            # print(yolo)
             return yolo
         elif len(edge) == 3:
             node_a, node_b, edge_id = edge

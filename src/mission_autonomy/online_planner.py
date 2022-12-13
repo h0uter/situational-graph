@@ -3,7 +3,7 @@ from src.mission_autonomy.abstract_planner import (
     CouldNotFindPlan,
     TargetNodeNotFound,
 )
-from src.mission_autonomy.executor import PlanExecutor
+from src.mission_autonomy.plan_executor import PlanExecutor, destroy_task
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 
@@ -37,19 +37,3 @@ class OnlinePlanner(AbstractPlanner):
 
         if not self.validate_plan(agent.plan, tosg):
             return None
-
-    def process_execution_result(self, result, agent: AbstractAgent, tosg):
-
-        if result.success:
-            agent.plan.mutate_success()
-            if len(agent.plan) == 0:
-                self._destroy_task(agent, tosg)
-                agent.plan = None
-        else:
-            self._destroy_task(agent, tosg)
-            agent.plan = None
-
-        """check completion of mission"""
-        tasks_exhausted = tosg.check_if_tasks_exhausted()
-
-        return tasks_exhausted

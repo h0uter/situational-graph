@@ -1,6 +1,13 @@
-from src.mission_autonomy.abstract_planner import AbstractPlanner, CouldNotFindPlan, CouldNotFindTask, TargetNodeNotFound
-from src.platform_control.abstract_agent import AbstractAgent
+from src.mission_autonomy.abstract_planner import (
+    AbstractPlanner,
+    CouldNotFindPlan,
+    CouldNotFindTask,
+    TargetNodeNotFound,
+)
+from src.mission_autonomy.plan_executor import destroy_task
 from src.mission_autonomy.situational_graph import SituationalGraph
+from src.platform_control.abstract_agent import AbstractAgent
+
 
 class OfflinePlanner(AbstractPlanner):
     def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
@@ -39,7 +46,7 @@ class OfflinePlanner(AbstractPlanner):
             agent.plan = self._plan_execution(agent, tosg, agent.plan)
 
             if agent.plan and len(agent.plan) == 0:
-                self._destroy_task(agent, tosg)
+                destroy_task(agent, tosg)
 
         """check completion of mission"""
         return _check_if_tasks_exhausted(tosg)

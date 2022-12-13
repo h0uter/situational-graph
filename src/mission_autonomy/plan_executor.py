@@ -33,3 +33,31 @@ class PlanExecutor:
         ).pipeline(agent, tosg, current_edge)
 
         return result
+
+    @staticmethod
+    def process_execution_result(result, agent: AbstractAgent, tosg: SituationalGraph):
+
+        if result.success:
+            agent.plan.mutate_success()
+            if len(agent.plan) == 0:
+                destroy_task(agent, tosg)
+                agent.plan = None
+        else:
+            destroy_task(agent, tosg)
+            agent.plan = None
+
+        """check completion of mission"""
+        tasks_exhausted = tosg.check_if_tasks_exhausted()
+
+        return tasks_exhausted
+
+
+def destroy_task(agent: AbstractAgent, tosg: SituationalGraph):
+    # self._log.debug(f"{agent.name}:  has a task  {agent.task}")
+
+    if agent.task:
+        if agent.task in tosg.tasks:
+            tosg.tasks.remove(agent.task)
+    # self._log.debug(f"{agent.name}: destroying task  {agent.task}")
+
+    agent.clear_task()

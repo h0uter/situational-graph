@@ -122,18 +122,3 @@ class AbstractPlanner(ABC):
             return False
 
         return True
-
-    # TODO: instead of removing tasks we should remove unssuccessfull edges, and this can then indirectly remove a task.
-    # also move this to the tosg
-    @staticmethod
-    def _destroy_task(agent: AbstractAgent, tosg: SituationalGraph):
-        # self._log.debug(f"{agent.name}:  has a task  {agent.task}")
-
-        if agent.task:
-            if agent.task in tosg.tasks:
-                tosg.tasks.remove(agent.task)
-        # self._log.debug(f"{agent.name}: destroying task  {agent.task}")
-
-        agent.clear_task()
-
-

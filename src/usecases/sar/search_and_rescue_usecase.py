@@ -6,7 +6,7 @@ import src.shared.event_system as event_system
 from src.config import Scenario, cfg
 from src.execution_autonomy.abstract_behavior import AbstractBehavior
 from src.execution_autonomy.plan_model import PlanModel
-from src.mission_autonomy.executor import PlanExecutor
+from src.mission_autonomy.plan_executor import PlanExecutor
 from src.mission_autonomy.online_planner import OnlinePlanner
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
@@ -93,7 +93,7 @@ class Usecase(ABC):
         # krm_stats.save()
         return self.mission_completed
 
-    def inner_loop(self, agents, tosg, planner, my_logger, tosg_stats, executor):
+    def inner_loop(self, agents, tosg, planner: OnlinePlanner, my_logger, tosg_stats, executor):
         step_start = time.perf_counter()
 
         # task allocation
@@ -113,7 +113,7 @@ class Usecase(ABC):
             else:
                 continue
 
-            if planner.process_execution_result(result, agents[agent_idx], tosg):
+            if executor.process_execution_result(result, agents[agent_idx], tosg):
                 """pipeline returns true if there are no more tasks."""
                 self.mission_completed = True
                 my_logger.info(f"Agent {agent_idx} completed exploration")
