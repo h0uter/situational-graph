@@ -54,12 +54,12 @@ class Usecase:
         return mission_completed
 
     def init_entities(self):
-        a1_capabilities = {Capabilities.CAN_ASSESS}
+        agent1_capabilities = {Capabilities.CAN_ASSESS}
         if cfg.SCENARIO == Scenario.REAL:
-            agents = [SpotAgent(a1_capabilities)]
+            agents = [SpotAgent(agent1_capabilities)]
         else:
             agents = [
-                SimulatedAgent(a1_capabilities)
+                SimulatedAgent(agent1_capabilities)
             ]  # make the first agent only posses the capabilities
             agents.extend([SimulatedAgent(set(), i) for i in range(1, cfg.NUM_AGENTS)])
 
