@@ -1,7 +1,7 @@
 from src.mission_autonomy.abstract_planner import (
-    AbstractPlanner,
     CouldNotFindPlan,
     CouldNotFindTask,
+    PlannerInterface,
     TargetNodeNotFound,
 )
 from src.mission_autonomy.plan_executor import destroy_task
@@ -9,7 +9,7 @@ from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 
 
-class OfflinePlanner(AbstractPlanner):
+class OfflinePlanner(PlannerInterface):
     def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
         """filter the graph over the agent capabilities"""
 

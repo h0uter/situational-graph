@@ -9,7 +9,7 @@ import vedo
 from vedo import io
 
 from src.config import PlotLvl, Scenario, cfg
-from src.mission_autonomy.abstract_planner import AbstractPlanner
+from src.mission_autonomy.abstract_planner import PlannerInterface
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 from src.shared.event_system import subscribe
@@ -36,7 +36,6 @@ class MissionView:
             size=(2200, 2200),
         )
         self.map_actor = None
-
 
         self.debug_actors: list[vedo.BaseActor] = []
         self.actors_which_need_to_be_cleared: list[vedo.BaseActor] = []
@@ -146,7 +145,7 @@ class MissionView:
         self,
         actors: list,
         krm: SituationalGraph,
-        usecases: Sequence[AbstractPlanner],
+        usecases: Sequence[PlannerInterface],
         pos_dict: dict,
         agents: Sequence[AbstractAgent],
     ):

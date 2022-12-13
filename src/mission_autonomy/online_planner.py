@@ -1,6 +1,6 @@
 from src.mission_autonomy.abstract_planner import (
-    AbstractPlanner,
     CouldNotFindPlan,
+    PlannerInterface,
     TargetNodeNotFound,
 )
 from src.mission_autonomy.plan_executor import PlanExecutor, destroy_task
@@ -8,7 +8,7 @@ from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 
 
-class OnlinePlanner(AbstractPlanner):
+class OnlinePlanner(PlannerInterface):
     """This planner selects the optimal task and makes a plan each iteration"""
 
     def pipeline(

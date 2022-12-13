@@ -24,7 +24,7 @@ class TargetNodeNotFound(Exception):
     pass
 
 
-class AbstractPlanner(ABC):
+class PlannerInterface(ABC):
     def __init__(self):
         self._log = logging.getLogger(__name__)
 
@@ -59,6 +59,7 @@ class AbstractPlanner(ABC):
             return False
         return tosg.G.has_node(target_node)
 
+    # refactor this to task allocation
     def _task_selection(
         self, agent: AbstractAgent, tosg: SituationalGraph
     ) -> Optional[Task]:

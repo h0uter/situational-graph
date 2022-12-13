@@ -53,11 +53,8 @@ class PlanExecutor:
 
 
 def destroy_task(agent: AbstractAgent, tosg: SituationalGraph):
-    # self._log.debug(f"{agent.name}:  has a task  {agent.task}")
-
     if agent.task:
         if agent.task in tosg.tasks:
             tosg.tasks.remove(agent.task)
-    # self._log.debug(f"{agent.name}: destroying task  {agent.task}")
 
     agent.clear_task()
