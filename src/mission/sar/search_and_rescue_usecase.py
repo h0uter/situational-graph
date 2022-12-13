@@ -4,11 +4,20 @@ from typing import Sequence
 
 import src.core.event_system as event_system
 from src.config import Scenario, cfg
+from src.core.topics import Topics
+from src.mission.abstract_planner import PlannerInterface, TaskAllocator
+from src.mission.online_planner import PlanningPipeline
+from src.mission.plan_executor import PlanExecutor
+from src.mission.sar.sar_affordances import SAR_AFFORDANCES
+from src.mission.sar.sar_behaviors import SAR_BEHAVIORS
+from src.mission.situational_graph import SituationalGraph
+from src.operator.feedback_pipeline import (
+    feedback_pipeline_completion,
+    feedback_pipeline_init,
+    feedback_pipeline_single_step,
+)
 from src.platform.autonomy.abstract_behavior import AbstractBehavior
 from src.platform.autonomy.plan_model import PlanModel
-from src.mission.plan_executor import PlanExecutor
-from src.mission.online_planner import OnlinePlanner
-from src.mission.situational_graph import SituationalGraph
 from src.platform.control.abstract_agent import AbstractAgent
 from src.platform.control.real.spot_agent import SpotAgent
 from src.platform.control.sim.simulated_agent import SimulatedAgent
@@ -16,14 +25,6 @@ from src.shared.prior_knowledge.behaviors import Behaviors
 from src.shared.prior_knowledge.capabilities import Capabilities
 from src.shared.prior_knowledge.objectives import Objectives
 from src.shared.task import Task
-from src.core.topics import Topics
-from src.operator.feedback_pipeline import (
-    feedback_pipeline_completion,
-    feedback_pipeline_init,
-    feedback_pipeline_single_step,
-)
-from src.mission.sar.sar_affordances import SAR_AFFORDANCES
-from src.mission.sar.sar_behaviors import SAR_BEHAVIORS
 
 # I want my mainloop to only contain 4 high level steps:
 # 1. mission_logic
@@ -59,24 +60,25 @@ class Usecase(ABC):
 
     def run(self):
         """setup the specifics of the usecase"""
-        agents, tosg, planner, executor = self.domain_initialization()
+        agents, tosg, planner, executor, task_allocator = self.domain_initialization()
 
-        success = self.main_loop(agents, tosg, planner, executor)
+        success = self.main_loop(agents, tosg, planner, executor, task_allocator)
 
         return success
 
     @abstractmethod
     def domain_initialization(
         self,
-    ) -> tuple[list[AbstractAgent], SituationalGraph, OnlinePlanner]:
+    ) -> tuple[list[AbstractAgent], SituationalGraph, PlannerInterface, TaskAllocator]:
         pass
 
     def main_loop(
         self,
         agents: list[AbstractAgent],
         tosg: SituationalGraph,
-        planner: OnlinePlanner,
+        planner: PlannerInterface,
         executor: PlanExecutor,
+        task_allocator: TaskAllocator,
     ):
 
         start, tosg_stats, my_logger = feedback_pipeline_init()
@@ -84,7 +86,9 @@ class Usecase(ABC):
         """ Main Logic Loop"""
         while (not self.mission_completed) and self.step < cfg.MAX_STEPS:
 
-            self.inner_loop(agents, tosg, planner, my_logger, tosg_stats, executor)
+            self.inner_loop(
+                agents, tosg, planner, my_logger, tosg_stats, executor, task_allocator
+            )
 
         feedback_pipeline_completion(
             self.step, agents, tosg, tosg_stats, planner, my_logger, start
@@ -93,7 +97,16 @@ class Usecase(ABC):
         # krm_stats.save()
         return self.mission_completed
 
-    def inner_loop(self, agents, tosg, planner: OnlinePlanner, my_logger, tosg_stats, executor):
+    def inner_loop(
+        self,
+        agents,
+        tosg,
+        planner: PlannerInterface,
+        my_logger,
+        tosg_stats,
+        plan_executor: PlanExecutor,
+        task_allocator: TaskAllocator,
+    ):
         step_start = time.perf_counter()
 
         # task allocation
@@ -104,16 +117,16 @@ class Usecase(ABC):
             # TODO: split this into task allocation, planning and execution
 
             # planning
-            planner.pipeline(agents[agent_idx], tosg, executor)
+            planner.pipeline(agents[agent_idx], tosg, plan_executor, task_allocator)
 
             if agents[agent_idx].plan:
-                result = executor._plan_execution(
+                result = plan_executor._plan_execution(
                     agents[agent_idx], tosg, agents[agent_idx].plan
                 )
             else:
                 continue
 
-            if executor.process_execution_result(result, agents[agent_idx], tosg):
+            if plan_executor.process_execution_result(result, agents[agent_idx], tosg):
                 """pipeline returns true if there are no more tasks."""
                 self.mission_completed = True
                 my_logger.info(f"Agent {agent_idx} completed exploration")
@@ -130,7 +143,11 @@ class Usecase(ABC):
 class SearchAndRescueUsecase(Usecase):
     @staticmethod
     def init_search_and_rescue_entities() -> tuple[
-        list[AbstractAgent], SituationalGraph, OnlinePlanner, PlanExecutor
+        list[AbstractAgent],
+        SituationalGraph,
+        PlannerInterface,
+        PlanExecutor,
+        TaskAllocator,
     ]:
         agent1_capabilities = {Capabilities.CAN_ASSESS}
         if cfg.SCENARIO == Scenario.REAL:
@@ -147,14 +164,21 @@ class SearchAndRescueUsecase(Usecase):
         affordances = SAR_AFFORDANCES
         # planner = OfflinePlanner(domain_behaviors, affordances)
         executor = PlanExecutor(domain_behaviors, affordances)
-        planner = OnlinePlanner()
+        task_allocator = TaskAllocator()
+        planner = PlanningPipeline()
 
-        return agents, tosg, planner, executor
+        return agents, tosg, planner, executor, task_allocator
 
     def domain_initialization(self):
         """Manually set first task to exploring current position."""
 
-        agents, tosg, planner, executor = self.init_search_and_rescue_entities()
+        (
+            agents,
+            tosg,
+            planner,
+            executor,
+            task_allocator,
+        ) = self.init_search_and_rescue_entities()
 
         common_initialization(tosg, agents, start_poses=[agent.pos for agent in agents])
 
@@ -172,4 +196,4 @@ class SearchAndRescueUsecase(Usecase):
 
             agent.plan = PlanModel([init_explore_edge])
 
-        return agents, tosg, planner, executor
+        return agents, tosg, planner, executor, task_allocator

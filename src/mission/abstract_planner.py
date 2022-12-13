@@ -5,8 +5,8 @@ from typing import Optional
 import networkx as nx
 
 import src.core.event_system as event_system
-from src.platform.autonomy.plan_model import PlanModel
 from src.mission.situational_graph import SituationalGraph
+from src.platform.autonomy.plan_model import PlanModel
 from src.platform.control.abstract_agent import AbstractAgent
 from src.shared.node_and_edge import Node
 from src.shared.task import Task
@@ -32,36 +32,21 @@ class PlannerInterface(ABC):
     def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
         pass
 
-    def _filter_graph(
-        self, tosg: SituationalGraph, agent: AbstractAgent
-    ) -> SituationalGraph:
-        def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
-            behavior_enum = tosg.G.edges[u, v, k]["type"]  # Behaviors
-            for req_cap in behavior_enum.required_capabilities:
-                if req_cap not in agent.capabilities:
-                    return False
-            return True
+    @abstractmethod
+    def _find_plan_for_task(
+        self,
+        agent_localized_to: Node,
+        full_tosg: SituationalGraph,
+        task: Task,
+        filtered_tosg: SituationalGraph,
+    ) -> PlanModel:
+        pass
 
-        filtered_G = nx.subgraph_view(
-            tosg.G, filter_edge=filter_edges_based_on_agent_capabilities
-        )
 
-        # here we insert the filtered graph into a new tosg object
-        filtered_tosg = SituationalGraph()
-        filtered_tosg.tasks = tosg.tasks
-        filtered_tosg.G = filtered_G
-        return filtered_tosg
-
-    def _check_target_still_valid(
-        self, tosg: SituationalGraph, target_node: Optional[Node]
-    ) -> bool:
-        if target_node is None:
-            return False
-        return tosg.G.has_node(target_node)
-
-    # refactor this to task allocation
-    def _task_selection(
-        self, agent: AbstractAgent, tosg: SituationalGraph
+class TaskAllocator:
+    @staticmethod
+    def _single_agent_task_selection(
+        agent: AbstractAgent, tosg: SituationalGraph
     ) -> Optional[Task]:
         target_node_to_task = {task.edge[1]: task for task in tosg.tasks}
 
@@ -91,6 +76,29 @@ class PlannerInterface(ABC):
 
         return max(task_to_utility, key=task_to_utility.get)
 
+
+class GraphTaskPlanner(PlannerInterface):
+    def _filter_graph(
+        self, tosg: SituationalGraph, agent: AbstractAgent
+    ) -> SituationalGraph:
+        def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
+            behavior_enum = tosg.G.edges[u, v, k]["type"]  # Behaviors
+            for req_cap in behavior_enum.required_capabilities:
+                if req_cap not in agent.capabilities:
+                    return False
+            return True
+
+        filtered_G = nx.subgraph_view(
+            tosg.G, filter_edge=filter_edges_based_on_agent_capabilities
+        )
+
+        # here we insert the filtered graph into a new tosg object
+        filtered_tosg = SituationalGraph()
+        filtered_tosg.tasks = tosg.tasks
+        filtered_tosg.G = filtered_G
+        return filtered_tosg
+
+    # this is the api
     def _find_plan_for_task(
         self,
         agent_localized_to: Node,
@@ -100,7 +108,8 @@ class PlannerInterface(ABC):
     ) -> PlanModel:
         target_node = task.edge[1]
 
-        if not self._check_target_still_valid(full_tosg, target_node):
+        # if not self._check_target_still_valid(full_tosg, target_node):
+        if target_node is None or not full_tosg.G.has_node(target_node):
             raise TargetNodeNotFound("Target node is not valid")
 
         edge_path = filtered_tosg.shortest_path(agent_localized_to, target_node)
