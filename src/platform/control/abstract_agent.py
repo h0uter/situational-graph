@@ -7,7 +7,7 @@ import numpy as np
 import numpy.typing as npt
 
 from src.config import cfg
-from src.platform.execution.plan_model import PlanModel
+from src.shared.plan_model import PlanModel
 from src.platform.state.local_grid import LocalGrid
 from src.shared.types.node_and_edge import Node
 from src.shared.task import Task

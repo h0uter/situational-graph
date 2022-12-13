@@ -2,7 +2,7 @@ import networkx as nx
 
 from src.mission.graph_planner_interface import GraphPlannerInterface
 from src.mission.situational_graph import SituationalGraph
-from src.platform.execution.plan_model import PlanModel
+from src.shared.plan_model import PlanModel
 from src.platform.control.abstract_agent import AbstractAgent
 from src.shared.types.node_and_edge import Node
 from src.shared.task import Task

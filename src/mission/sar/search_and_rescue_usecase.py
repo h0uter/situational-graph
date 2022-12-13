@@ -19,7 +19,7 @@ from src.operator.feedback_pipeline import (
     feedback_pipeline_single_step,
 )
 from src.platform.execution.abstract_behavior import AbstractBehavior
-from src.platform.execution.plan_model import PlanModel
+from src.shared.plan_model import PlanModel
 from src.platform.control.abstract_agent import AbstractAgent
 from src.platform.control.real.spot_agent import SpotAgent
 from src.platform.control.sim.simulated_agent import SimulatedAgent

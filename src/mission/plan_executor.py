@@ -2,7 +2,7 @@ import logging
 from typing import Mapping, Sequence, Type
 
 from src.platform.execution.abstract_behavior import AbstractBehavior
-from src.platform.execution.plan_model import PlanModel
+from src.shared.plan_model import PlanModel
 from src.mission.situational_graph import SituationalGraph
 from src.platform.control.abstract_agent import AbstractAgent
 from src.shared.prior_knowledge.affordance import Affordance
