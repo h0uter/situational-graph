@@ -1,12 +1,12 @@
 import time
 from abc import ABC, abstractmethod
 from typing import Sequence
-from src.mission_autonomy.executor import Executor
 
 import src.shared.event_system as event_system
 from src.config import Scenario, cfg
 from src.execution_autonomy.abstract_behavior import AbstractBehavior
 from src.execution_autonomy.plan_model import PlanModel
+from src.mission_autonomy.executor import PlanExecutor
 from src.mission_autonomy.online_planner import OnlinePlanner
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
@@ -76,7 +76,7 @@ class Usecase(ABC):
         agents: list[AbstractAgent],
         tosg: SituationalGraph,
         planner: OnlinePlanner,
-        executor: Executor,
+        executor: PlanExecutor,
     ):
 
         start, tosg_stats, my_logger = feedback_pipeline_init()
@@ -102,15 +102,16 @@ class Usecase(ABC):
 
         for agent_idx in range(len(agents)):
             # TODO: split this into task allocation, planning and execution
-            
-            # planning 
+
+            # planning
             planner.pipeline(agents[agent_idx], tosg, executor)
 
             if agents[agent_idx].plan:
-                result = executor._plan_execution(agents[agent_idx], tosg, agents[agent_idx].plan)
+                result = executor._plan_execution(
+                    agents[agent_idx], tosg, agents[agent_idx].plan
+                )
             else:
                 continue
-
 
             if planner.process_execution_result(result, agents[agent_idx], tosg):
                 """pipeline returns true if there are no more tasks."""
@@ -129,7 +130,7 @@ class Usecase(ABC):
 class SearchAndRescueUsecase(Usecase):
     @staticmethod
     def init_search_and_rescue_entities() -> tuple[
-        list[AbstractAgent], SituationalGraph, OnlinePlanner, Executor
+        list[AbstractAgent], SituationalGraph, OnlinePlanner, PlanExecutor
     ]:
         agent1_capabilities = {Capabilities.CAN_ASSESS}
         if cfg.SCENARIO == Scenario.REAL:
@@ -145,7 +146,7 @@ class SearchAndRescueUsecase(Usecase):
         domain_behaviors = SAR_BEHAVIORS
         affordances = SAR_AFFORDANCES
         # planner = OfflinePlanner(domain_behaviors, affordances)
-        executor = Executor(domain_behaviors, affordances)
+        executor = PlanExecutor(domain_behaviors, affordances)
         planner = OnlinePlanner()
 
         return agents, tosg, planner, executor

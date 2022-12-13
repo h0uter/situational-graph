@@ -1,5 +1,5 @@
 import logging
-from typing import Mapping, Type, Sequence
+from typing import Mapping, Sequence, Type
 
 from src.execution_autonomy.abstract_behavior import AbstractBehavior
 from src.execution_autonomy.plan_model import PlanModel
@@ -9,7 +9,7 @@ from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.prior_knowledge.behaviors import Behaviors
 
 
-class Executor:
+class PlanExecutor:
     def __init__(
         self,
         domain_behaviors: Mapping[Behaviors, Type[AbstractBehavior]],

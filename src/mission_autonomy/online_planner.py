@@ -3,7 +3,7 @@ from src.mission_autonomy.abstract_planner import (
     CouldNotFindPlan,
     TargetNodeNotFound,
 )
-from src.mission_autonomy.executor import Executor
+from src.mission_autonomy.executor import PlanExecutor
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 
@@ -11,7 +11,9 @@ from src.platform_control.abstract_agent import AbstractAgent
 class OnlinePlanner(AbstractPlanner):
     """This planner selects the optimal task and makes a plan each iteration"""
 
-    def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph, executor: Executor) -> bool:
+    def pipeline(
+        self, agent: AbstractAgent, tosg: SituationalGraph, executor: PlanExecutor
+    ) -> bool:
         if agent.init_explore_step_completed:
 
             filtered_tosg = self._filter_graph(tosg, agent)
@@ -36,15 +38,10 @@ class OnlinePlanner(AbstractPlanner):
         if not self.validate_plan(agent.plan, tosg):
             return None
 
-        """ execute the plan"""
-        # result = executor._plan_execution(agent, tosg, agent.plan)
-
-    def process_execution_result(self, result, agent, tosg):
-        # FIXME: this can be shorter
+    def process_execution_result(self, result, agent: AbstractAgent, tosg):
+        
         if result.success:
-            # self._log.debug(f"the plan is {plan}")
             agent.plan.mutate_success()
-            # this is duplicate with the check in calling the plan executor
             if len(agent.plan) == 0:
                 self._destroy_task(agent, tosg)
                 agent.plan = None
@@ -52,10 +49,7 @@ class OnlinePlanner(AbstractPlanner):
             self._destroy_task(agent, tosg)
             agent.plan = None
 
-        if agent.plan and len(agent.plan) == 0:
-            self._destroy_task(agent, tosg)
-
         """check completion of mission"""
         tasks_exhausted = self._check_if_tasks_exhausted(tosg)
-        
+
         return tasks_exhausted
