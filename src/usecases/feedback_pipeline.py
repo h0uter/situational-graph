@@ -21,14 +21,14 @@ class MissionViewModel:
 
 def feedback_pipeline_init():
     """Logging start."""
-    step, start = 0, time.perf_counter()  # timing
+    start = time.perf_counter()  # timing
     tosg_stats = TOSGStats()  # statistics logging object
     tosg_stats.setup_event_handlers()
     my_logger = logging.getLogger(__name__)
     my_logger.info(f"starting exploration demo {cfg.SCENARIO=}")
     if cfg.AUDIO_FEEDBACK:
         play_file("commencing_search.mp3")  # audio announcement of start
-    return step, start, tosg_stats, my_logger
+    return start, tosg_stats, my_logger
 
 
 def feedback_pipeline_single_step(

@@ -31,8 +31,23 @@ class OnlinePlanner(AbstractPlanner):
                 self._log.error(f"Could not find a target node for task {agent.task}")
                 agent.clear_task()
 
+        if not self.validate_plan(agent.plan, tosg):
+            return None
+
         """ execute the plan"""
-        agent.plan = self._plan_execution(agent, tosg, agent.plan)
+        result = self.executor._plan_execution(agent, tosg, agent.plan)
+
+        # FIXME: this can be shorter
+        if result.success:
+            # self._log.debug(f"the plan is {plan}")
+            agent.plan.mutate_success()
+            # this is duplicate with the check in calling the plan executor
+            if len(agent.plan) == 0:
+                self._destroy_task(agent, tosg)
+                agent.plan = None
+        else:
+            self._destroy_task(agent, tosg)
+            agent.plan = None
 
         if agent.plan and len(agent.plan) == 0:
             self._destroy_task(agent, tosg)

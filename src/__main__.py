@@ -1,4 +1,3 @@
-# from src.usecases.task_switch.task_switch_usecase import TaskSwitchUseCase
 from src.usecases.views.frontier_sampling_view import FrontierSamplingDebugView
 from src.usecases.views.mission_view import MissionView
 from src.usecases.views.waypoint_shortcuts_view import WaypointShortcutDebugView
@@ -17,6 +16,5 @@ if __name__ == "__main__":
 
     SearchAndRescueUsecase().run()
 
-    # TaskSwitchUseCase().run()
 
     # benchmark_func()

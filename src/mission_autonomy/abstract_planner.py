@@ -27,7 +27,7 @@ class TargetNodeNotFound(Exception):
     pass
 
 
-class AbstractPlanner(ABC):
+class Executor:
     def __init__(
         self,
         domain_behaviors: Mapping[Behaviors, Type[AbstractBehavior]],
@@ -36,6 +36,29 @@ class AbstractPlanner(ABC):
         self._log = logging.getLogger(__name__)
         self.DOMAIN_BEHAVIORS = domain_behaviors
         self.AFFORDANCES = affordances
+
+    def _plan_execution(
+        self, agent: AbstractAgent, tosg: SituationalGraph, plan: PlanModel
+    ):
+
+        behavior_of_current_edge = tosg.get_behavior_of_edge(plan.upcoming_edge)
+
+        current_edge = plan.upcoming_edge
+
+        """Execute the behavior of the current edge"""
+        result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](
+            self.AFFORDANCES
+        ).pipeline(agent, tosg, current_edge)
+
+        return result
+
+
+class AbstractPlanner(ABC):
+    def __init__(
+        self, executor: Executor, 
+    ) -> None:
+        self._log = logging.getLogger(__name__)
+        self.executor = executor
 
     @abstractmethod
     def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
@@ -59,17 +82,6 @@ class AbstractPlanner(ABC):
         filtered_tosg.G = filtered_G
         return filtered_tosg
 
-    # TODO: instead of removing tasks we should remove unssuccessfull edges, and this can then indirectly remove a task.
-    def _destroy_task(self, agent: AbstractAgent, tosg: SituationalGraph):
-        self._log.debug(f"{agent.name}:  has a task  {agent.task}")
-
-        if agent.task:
-            if agent.task in tosg.tasks:
-                tosg.tasks.remove(agent.task)
-        self._log.debug(f"{agent.name}: destroying task  {agent.task}")
-
-        agent.clear_task()
-
     def _check_target_still_valid(
         self, tosg: SituationalGraph, target_node: Optional[Node]
     ) -> bool:
@@ -92,11 +104,6 @@ class AbstractPlanner(ABC):
                 return float("inf")
             else:
                 return reward / path_cost
-
-        # utility_to_task = {calc_utility(task.reward, path_costs[task.edge[1]]): task for task in tosg.tasks if task.edge[1] in path_costs}
-        # highest_utility = max(utility_to_task.keys())
-        # event.post_event("task_utilities", utility_to_task)
-        # return utility_to_task[highest_utility]
 
         task_to_utility = {
             task: calc_utility(task.reward, path_costs[task.edge[1]])
@@ -129,7 +136,8 @@ class AbstractPlanner(ABC):
 
         return PlanModel(edge_path)
 
-    def validate_plan(self, plan: PlanModel, tosg: SituationalGraph) -> bool:
+    @staticmethod
+    def validate_plan(plan: PlanModel, tosg: SituationalGraph) -> bool:
         if not plan:
             return False
         if len(plan) < 1:
@@ -139,39 +147,22 @@ class AbstractPlanner(ABC):
 
         return True
 
-    # this is the plan executor, maybe make it its own class.
-    def _plan_execution(
-        self, agent: AbstractAgent, tosg: SituationalGraph, plan: PlanModel
-    ) -> Optional[PlanModel]:
-
-        if not self.validate_plan(plan, tosg):
-            return None
-
-        behavior_of_current_edge = tosg.get_behavior_of_edge(plan.upcoming_edge)
-
-        current_edge = plan.upcoming_edge
-
-        """Execute the behavior of the current edge"""
-        result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](
-            self.AFFORDANCES
-        ).pipeline(agent, tosg, current_edge)
-
-        # FIXME: this can be shorter
-        if result.success:
-            # self._log.debug(f"the plan is {plan}")
-            plan.mutate_success()
-            # this is duplicate with the check in calling the plan executor
-            if len(plan) == 0:
-                self._destroy_task(agent, tosg)
-                return None
-            return plan
-        else:
-            self._destroy_task(agent, tosg)
-            return None
-
-    def _check_if_tasks_exhausted(self, tosg: SituationalGraph) -> bool:
+    @staticmethod
+    def _check_if_tasks_exhausted(tosg: SituationalGraph) -> bool:
         num_of_tasks = len(tosg.tasks)
         if num_of_tasks < 1:
             return True
         else:
             return False
+
+    # TODO: instead of removing tasks we should remove unssuccessfull edges, and this can then indirectly remove a task.
+    @staticmethod
+    def _destroy_task(agent: AbstractAgent, tosg: SituationalGraph):
+        # self._log.debug(f"{agent.name}:  has a task  {agent.task}")
+
+        if agent.task:
+            if agent.task in tosg.tasks:
+                tosg.tasks.remove(agent.task)
+        # self._log.debug(f"{agent.name}: destroying task  {agent.task}")
+
+        agent.clear_task()
