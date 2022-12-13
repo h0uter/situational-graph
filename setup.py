@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='knowledge_roadmap',
+    name='situational-graph',
     version='1.0.0',
     packages=find_packages(include=['src', 'src.*'])
 )

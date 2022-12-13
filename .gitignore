@@ -25,3 +25,11 @@ saved_data/
 */.DS_Store
 
 documentation/presentations/horizontal/colloquia.fls
+results/
+
+graphnav/
+situational_graph.egg-info/
+
+.idea/
+
+src.svg

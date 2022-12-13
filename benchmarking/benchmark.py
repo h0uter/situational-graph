@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 
-from src.usecases.sar.sar_usecase import run_sar_usecase
+from src.usecases.sar.search_and_rescue_usecase import run_sar_usecase
 
 
 def run_profiler_benchmark():
