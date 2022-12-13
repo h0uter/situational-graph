@@ -123,15 +123,8 @@ class AbstractPlanner(ABC):
 
         return True
 
-    @staticmethod
-    def _check_if_tasks_exhausted(tosg: SituationalGraph) -> bool:
-        num_of_tasks = len(tosg.tasks)
-        if num_of_tasks < 1:
-            return True
-        else:
-            return False
-
     # TODO: instead of removing tasks we should remove unssuccessfull edges, and this can then indirectly remove a task.
+    # also move this to the tosg
     @staticmethod
     def _destroy_task(agent: AbstractAgent, tosg: SituationalGraph):
         # self._log.debug(f"{agent.name}:  has a task  {agent.task}")
@@ -142,3 +135,11 @@ class AbstractPlanner(ABC):
         # self._log.debug(f"{agent.name}: destroying task  {agent.task}")
 
         agent.clear_task()
+
+# TODO: move to tosg
+def check_if_tasks_exhausted(tosg: SituationalGraph) -> bool:
+    num_of_tasks = len(tosg.tasks)
+    if num_of_tasks < 1:
+        return True
+    else:
+        return False

@@ -42,4 +42,4 @@ class OfflinePlanner(AbstractPlanner):
                 self._destroy_task(agent, tosg)
 
         """check completion of mission"""
-        return self._check_if_tasks_exhausted(tosg)
+        return _check_if_tasks_exhausted(tosg)

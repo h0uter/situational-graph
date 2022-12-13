@@ -2,6 +2,7 @@ from src.mission_autonomy.abstract_planner import (
     AbstractPlanner,
     CouldNotFindPlan,
     TargetNodeNotFound,
+    check_if_tasks_exhausted,
 )
 from src.mission_autonomy.executor import PlanExecutor
 from src.mission_autonomy.situational_graph import SituationalGraph
@@ -21,7 +22,7 @@ class OnlinePlanner(AbstractPlanner):
             """select a task"""
             agent.task = self._task_selection(agent, filtered_tosg)
             if not agent.task:
-                return self._check_if_tasks_exhausted(tosg)
+                return check_if_tasks_exhausted(tosg)
 
             """ generate a plan"""
             try:
@@ -39,7 +40,7 @@ class OnlinePlanner(AbstractPlanner):
             return None
 
     def process_execution_result(self, result, agent: AbstractAgent, tosg):
-        
+
         if result.success:
             agent.plan.mutate_success()
             if len(agent.plan) == 0:
@@ -50,6 +51,6 @@ class OnlinePlanner(AbstractPlanner):
             agent.plan = None
 
         """check completion of mission"""
-        tasks_exhausted = self._check_if_tasks_exhausted(tosg)
+        tasks_exhausted = check_if_tasks_exhausted(tosg)
 
         return tasks_exhausted
