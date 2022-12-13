@@ -1,9 +1,9 @@
 from src.mission_autonomy.abstract_planner import (
     AbstractPlanner,
     CouldNotFindPlan,
-    Executor,
     TargetNodeNotFound,
 )
+from src.mission_autonomy.executor import Executor
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 

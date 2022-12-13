@@ -1,7 +1,7 @@
 import time
 from abc import ABC, abstractmethod
 from typing import Sequence
-from src.mission_autonomy.abstract_planner import Executor
+from src.mission_autonomy.executor import Executor
 
 import src.shared.event_system as event_system
 from src.config import Scenario, cfg

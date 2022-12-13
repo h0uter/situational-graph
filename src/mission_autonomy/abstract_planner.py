@@ -1,17 +1,14 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Mapping, Optional, Sequence, Type
+from typing import Optional
 
 import networkx as nx
 
 import src.shared.event_system as event_system
-from src.execution_autonomy.abstract_behavior import AbstractBehavior
 from src.execution_autonomy.plan_model import PlanModel
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_control.abstract_agent import AbstractAgent
 from src.shared.node_and_edge import Node
-from src.shared.prior_knowledge.affordance import Affordance
-from src.shared.prior_knowledge.behaviors import Behaviors
 from src.shared.task import Task
 
 
@@ -27,43 +24,17 @@ class TargetNodeNotFound(Exception):
     pass
 
 
-class Executor:
-    def __init__(
-        self,
-        domain_behaviors: Mapping[Behaviors, Type[AbstractBehavior]],
-        affordances: Sequence[Affordance],
-    ) -> None:
-        self._log = logging.getLogger(__name__)
-        self.DOMAIN_BEHAVIORS = domain_behaviors
-        self.AFFORDANCES = affordances
-
-    def _plan_execution(
-        self, agent: AbstractAgent, tosg: SituationalGraph, plan: PlanModel
-    ):
-
-        behavior_of_current_edge = tosg.get_behavior_of_edge(plan.upcoming_edge)
-
-        current_edge = plan.upcoming_edge
-
-        """Execute the behavior of the current edge"""
-        result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](
-            self.AFFORDANCES
-        ).pipeline(agent, tosg, current_edge)
-
-        return result
-
-
 class AbstractPlanner(ABC):
-    def __init__(
-        self
-    ) -> None:
+    def __init__(self):
         self._log = logging.getLogger(__name__)
 
     @abstractmethod
     def pipeline(self, agent: AbstractAgent, tosg: SituationalGraph) -> bool:
         pass
 
-    def _filter_graph(self, tosg: SituationalGraph, agent: AbstractAgent) -> SituationalGraph:
+    def _filter_graph(
+        self, tosg: SituationalGraph, agent: AbstractAgent
+    ) -> SituationalGraph:
         def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
             behavior_enum = tosg.G.edges[u, v, k]["type"]  # Behaviors
             for req_cap in behavior_enum.required_capabilities:
@@ -88,7 +59,9 @@ class AbstractPlanner(ABC):
             return False
         return tosg.G.has_node(target_node)
 
-    def _task_selection(self, agent: AbstractAgent, tosg: SituationalGraph) -> Optional[Task]:
+    def _task_selection(
+        self, agent: AbstractAgent, tosg: SituationalGraph
+    ) -> Optional[Task]:
         target_node_to_task = {task.edge[1]: task for task in tosg.tasks}
 
         path_costs, paths = tosg.distance_and_path_dijkstra(
@@ -118,7 +91,11 @@ class AbstractPlanner(ABC):
         return max(task_to_utility, key=task_to_utility.get)
 
     def _find_plan_for_task(
-        self, agent_localized_to: Node, full_tosg: SituationalGraph, task: Task, filtered_tosg: SituationalGraph
+        self,
+        agent_localized_to: Node,
+        full_tosg: SituationalGraph,
+        task: Task,
+        filtered_tosg: SituationalGraph,
     ) -> PlanModel:
         target_node = task.edge[1]
 
