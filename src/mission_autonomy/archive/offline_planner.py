@@ -1,12 +1,12 @@
+from src.mission_autonomy.graph_planner_interface import GraphPlannerInterface
 from src.mission_autonomy.graph_task_planner import (
     CouldNotFindPlan,
     CouldNotFindTask,
     TargetNodeNotFound,
 )
-from src.platform_autonomy.plan_executor import destroy_task
-from src.mission_autonomy.graph_planner_interface import GraphPlannerInterface
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
+from src.platform_autonomy.plan_executor import destroy_task
 
 
 class OfflinePlanner(GraphPlannerInterface):
@@ -30,7 +30,7 @@ class OfflinePlanner(GraphPlannerInterface):
         """ generate a plan"""
         if not agent.plan:
             try:
-                agent.plan = self._find_plan_for_task(
+                agent.plan = self.find_plan_for_task(
                     agent.at_wp, tosg, agent.task, filtered_tosg
                 )
             except CouldNotFindPlan:

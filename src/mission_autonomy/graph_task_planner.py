@@ -3,9 +3,8 @@ import networkx as nx
 from src.mission_autonomy.graph_planner_interface import GraphPlannerInterface
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.shared.plan_model import PlanModel
-from src.platform_autonomy.control.abstract_agent import AbstractAgent
-from src.shared.types.node_and_edge import Node
 from src.shared.task import Task
+from src.shared.types.node_and_edge import Node
 
 
 class CouldNotFindPlan(Exception):
@@ -21,13 +20,12 @@ class TargetNodeNotFound(Exception):
 
 
 class GraphTaskPlanner(GraphPlannerInterface):
-    def _filter_graph(
-        self, tosg: SituationalGraph, agent: AbstractAgent
-    ) -> SituationalGraph:
+    @staticmethod
+    def _filter_graph(tosg: SituationalGraph, capabilities: set) -> SituationalGraph:
         def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
             behavior_enum = tosg.G.edges[u, v, k]["type"]  # Behaviors
             for req_cap in behavior_enum.required_capabilities:
-                if req_cap not in agent.capabilities:
+                if req_cap not in capabilities:
                     return False
             return True
 
@@ -42,7 +40,7 @@ class GraphTaskPlanner(GraphPlannerInterface):
         return filtered_tosg
 
     # this is the api
-    def _find_plan_for_task(
+    def find_plan_for_task(
         self,
         agent_localized_to: Node,
         full_tosg: SituationalGraph,

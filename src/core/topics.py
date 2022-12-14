@@ -10,3 +10,5 @@ class Topics(Enum):
     MISSION_VIEW_START_POINT = "mission view start point"
 
     IMAGE_MAPDEBUG_VIEW = "debug map view"
+
+    RUN_PLATFORM = "run platform"

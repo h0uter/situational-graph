@@ -7,12 +7,9 @@ from src.config import Scenario, cfg
 from src.core.topics import Topics
 from src.mission_autonomy.graph_planner_interface import GraphPlannerInterface
 from src.mission_autonomy.graph_task_planner import (
-    CouldNotFindPlan,
     GraphTaskPlanner,
-    TargetNodeNotFound,
 )
-from src.mission_autonomy.sar.sar_affordances import SAR_AFFORDANCES
-from src.mission_autonomy.sar.sar_behaviors import SAR_BEHAVIORS
+
 from src.mission_autonomy.situational_graph import SituationalGraph
 from src.mission_autonomy.task_allocator import TaskAllocator
 from src.operator.feedback_pipeline import (
@@ -24,12 +21,14 @@ from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.platform_autonomy.control.real.spot_agent import SpotAgent
 from src.platform_autonomy.control.sim.simulated_agent import SimulatedAgent
 from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior
-from src.platform_autonomy.plan_executor import PlanExecutor
+from src.platform_autonomy.platform_runner import PlatformRunnerMessage
 from src.shared.plan_model import PlanModel
 from src.shared.prior_knowledge.behaviors import Behaviors
 from src.shared.prior_knowledge.capabilities import Capabilities
 from src.shared.prior_knowledge.objectives import Objectives
 from src.shared.task import Task
+
+from src.core import event_system
 
 # I want my mainloop to only contain 4 high level steps:
 # 1. mission_logic
@@ -70,7 +69,6 @@ class Usecase(ABC):
         list[AbstractAgent],
         SituationalGraph,
         GraphPlannerInterface,
-        PlanExecutor,
         TaskAllocator,
     ]:
         pass
@@ -81,7 +79,6 @@ class Usecase(ABC):
             agents,
             tosg,
             planner,
-            executor,
             task_allocator,
         ) = self.mission_initialization()
 
@@ -96,7 +93,6 @@ class Usecase(ABC):
                 planner,
                 my_logger,
                 tosg_stats,
-                executor,
                 task_allocator,
             )
 
@@ -109,12 +105,11 @@ class Usecase(ABC):
 
     def inner_loop(
         self,
-        agents,
-        tosg,
+        agents: list[AbstractAgent],
+        tosg: SituationalGraph,
         planner: GraphPlannerInterface,
         my_logger,
         tosg_stats,
-        plan_executor: PlanExecutor,
         task_allocator: TaskAllocator,
     ):
         step_start = time.perf_counter()
@@ -129,7 +124,7 @@ class Usecase(ABC):
             if agent.init_explore_step_completed:
 
                 # TODO: conceptually figure out who should do the filtering of the graph
-                filtered_tosg = planner._filter_graph(tosg, agent)
+                filtered_tosg = planner._filter_graph(tosg, agent.capabilities)
 
                 # task allocation
                 """select a task"""
@@ -139,38 +134,12 @@ class Usecase(ABC):
                 if not agent.task:
                     return tosg.check_if_tasks_exhausted()
 
-                # TODO: this should be a post event that posts a task to a platform
-                # so I send a task and a sg to the platform. it changes the sg.
-                # so still shared state in the sg object
-                # but the plan_excutor, the planner can be moved to the platform.
+            data = PlatformRunnerMessage(agent, tosg)
+            event_system.post_event(Topics.RUN_PLATFORM, data)
+            
+            self.mission_completed = tosg.check_if_tasks_exhausted()
 
-                # planning
-                try:
-                    agent.plan = planner._find_plan_for_task(
-                        agent.at_wp, tosg, agent.task, filtered_tosg
-                    )
-                except CouldNotFindPlan:
-                    planner._log.error(f"Could not find a plan for task {agent.task}")
-                    agent.clear_task()
-                except TargetNodeNotFound:
-                    planner._log.error(
-                        f"Could not find a target node for task {agent.task}"
-                    )
-                    agent.clear_task()
-
-            # execution
-            if agents[agent_idx].plan:
-                result = plan_executor._plan_execution(
-                    agents[agent_idx], tosg, agents[agent_idx].plan
-                )
-            else:
-                continue
-
-            if plan_executor.process_execution_result(result, agents[agent_idx], tosg):
-                """pipeline returns true if there are no more tasks."""
-                self.mission_completed = True
-                my_logger.info(f"Agent {agent_idx} completed exploration")
-                break
+        """---------------------------------------"""
 
         feedback_pipeline_single_step(
             self.step, step_start, agents, tosg, tosg_stats, planner, my_logger
@@ -186,7 +155,6 @@ class MissionRunner(Usecase):
             agents,
             tosg,
             planner,
-            executor,
             task_allocator,
         ) = self.init_search_and_rescue_entities()
 
@@ -206,14 +174,13 @@ class MissionRunner(Usecase):
 
             agent.plan = PlanModel([init_explore_edge])
 
-        return agents, tosg, planner, executor, task_allocator
+        return agents, tosg, planner, task_allocator
 
     @staticmethod
     def init_search_and_rescue_entities() -> tuple[
         list[AbstractAgent],
         SituationalGraph,
         GraphPlannerInterface,
-        PlanExecutor,
         TaskAllocator,
     ]:
         agent1_capabilities = {Capabilities.CAN_ASSESS}
@@ -226,12 +193,7 @@ class MissionRunner(Usecase):
             agents.extend([SimulatedAgent(set(), i) for i in range(1, cfg.NUM_AGENTS)])
 
         tosg = SituationalGraph()
-
-        domain_behaviors = SAR_BEHAVIORS
-        affordances = SAR_AFFORDANCES
-        # planner = OfflinePlanner(domain_behaviors, affordances)
-        executor = PlanExecutor(domain_behaviors, affordances)
         task_allocator = TaskAllocator()
         planner = GraphTaskPlanner()
 
-        return agents, tosg, planner, executor, task_allocator
+        return agents, tosg, planner, task_allocator

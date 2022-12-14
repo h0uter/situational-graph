@@ -45,10 +45,10 @@ class PlanExecutor:
             destroy_task(agent, tosg)
             agent.plan = None
 
-        """check completion of mission"""
-        tasks_exhausted = tosg.check_if_tasks_exhausted()
+        # """check completion of mission"""
+        # tasks_exhausted = tosg.check_if_tasks_exhausted()
 
-        return tasks_exhausted
+        # return tasks_exhausted
 
 
 def destroy_task(agent: AbstractAgent, tosg: SituationalGraph):

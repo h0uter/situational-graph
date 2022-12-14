@@ -22,7 +22,7 @@ class WaypointShortcutDebugView:
         )
         self.plt.show(resetcam=True)
 
-        subscribe(str(Topics.SHORTCUT_CHECKING), self.viz_waypoint_shortcuts)
+        subscribe(Topics.SHORTCUT_CHECKING, self.viz_waypoint_shortcuts)
 
     def viz_waypoint_shortcuts(self, data: WaypointShortcutViewModel):
         actors = []
