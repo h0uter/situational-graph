@@ -53,7 +53,7 @@ def common_initialization(
         )  # viz start position
 
 
-class Usecase(ABC):
+class Mission(ABC):
     def __init__(self):
         self.step = 0
         self.mission_completed = False
@@ -143,7 +143,7 @@ class Usecase(ABC):
         self.step += 1
 
 
-class MissionRunner(Usecase):
+class MissionRunner(Mission):
     def mission_initialization(self):
         """Manually set first task to exploring current position."""
 
@@ -173,6 +173,7 @@ class MissionRunner(Usecase):
         return agents, tosg, planner, task_allocator
 
     @staticmethod
+    # TODO: refactor out the dependency on a specific agent.
     def init_search_and_rescue_entities() -> tuple[
         list[AbstractAgent],
         SituationalGraph,
