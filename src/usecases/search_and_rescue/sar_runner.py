@@ -6,6 +6,8 @@ from src.platform_autonomy.control.real.spot_agent import SpotAgent
 from src.platform_autonomy.control.sim.simulated_agent import SimulatedAgent
 from src.platform_autonomy.platform_runner import PlatformRunner
 from src.shared.prior_knowledge.capabilities import Capabilities
+from src.shared.situational_graph import SituationalGraph
+from src.usecases.search_and_rescue.exploration_mission_initializer import ExplorationMissionInitializer
 
 
 def run_usecase():
@@ -14,14 +16,20 @@ def run_usecase():
 
     PlatformRunner()
     
-    agent1_capabilities = {Capabilities.CAN_ASSESS}
-    
+    AGENT1_CAPABILITIES = {Capabilities.CAN_ASSESS}
+
     if cfg.SCENARIO == Scenario.REAL:
-        agents = [SpotAgent(agent1_capabilities)]
+        agents = [SpotAgent(AGENT1_CAPABILITIES)]
     else:
         agents = [
-            SimulatedAgent(agent1_capabilities)
+            SimulatedAgent(AGENT1_CAPABILITIES)
         ]  # make the first agent only posses the capabilities
         agents.extend([SimulatedAgent(set(), i) for i in range(1, cfg.NUM_AGENTS)])
+    
+    # TODO: make it so that here we can also load an existing tosg.
+    tosg = SituationalGraph()
 
-    MissionRunner().mission_main_loop(agents)
+    mission_initializer = ExplorationMissionInitializer()
+    
+    mission_runner = MissionRunner(agents, tosg, mission_initializer)
+    mission_runner.mission_main_loop(agents, tosg)

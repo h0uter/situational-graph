@@ -1,6 +1,5 @@
-import networkx as nx
+import logging
 
-from src.core.planning.graph_planner_interface import GraphPlannerInterface
 from src.shared.situational_graph import SituationalGraph
 from src.shared.plan_model import PlanModel
 from src.shared.task import Task
@@ -19,7 +18,10 @@ class TargetNodeNotFound(Exception):
     pass
 
 
-class GraphTaskPlanner(GraphPlannerInterface):
+class GraphTaskPlanner():
+    def __init__(self):
+        self._log = logging.getLogger(__name__)
+
     #TODO: refactor this to use just 1 graph not both
     def find_plan_for_task(
         self,
@@ -30,7 +32,6 @@ class GraphTaskPlanner(GraphPlannerInterface):
     ) -> PlanModel:
         target_node = task.edge[1]
 
-        # if not self._check_target_still_valid(full_tosg, target_node):
         if target_node is None or not full_tosg.G.has_node(target_node):
             raise TargetNodeNotFound("Target node is not valid")
 

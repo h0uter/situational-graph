@@ -8,8 +8,13 @@ from src.shared.types.node_and_edge import Node
 
 
 class TaskAllocator:
+    """
+    Naive task allocator that selects the task with the highest utility.
+    Multiple agents can be assigned to the same task.
+    """
+
     @staticmethod
-    def _single_agent_task_selection(
+    def single_agent_task_selection(
         agent_at_wp: Node, tosg: SituationalGraph
     ) -> Optional[Task]:
         target_node_to_task = {task.edge[1]: task for task in tosg.tasks}
@@ -17,9 +22,6 @@ class TaskAllocator:
         path_costs, paths = tosg.distance_and_path_dijkstra(
             agent_at_wp, target_node_to_task.keys()
         )
-
-        # TODO: depending on the number of tasks switch between dijkstra lookup and A* lookup
-        # path_cost = tosg.distance_astar(agent.at_wp, task_target_node)
 
         def calc_utility(reward: float, path_cost: float) -> float:
             if path_cost == 0:

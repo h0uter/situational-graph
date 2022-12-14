@@ -7,15 +7,16 @@ import numpy as np
 import numpy.typing as npt
 
 from src.config import cfg
-from src.shared.plan_model import PlanModel
 from src.platform_autonomy.state.local_grid import LocalGrid
-from src.shared.types.node_and_edge import Node
+from src.shared.plan_model import PlanModel
 from src.shared.task import Task
+from src.shared.types.node_and_edge import Node
 from src.shared.world_object import WorldObject
 
+# TODO: split this into agent and platform concerns.
 
 class AbstractAgent(ABC):
-    """ "This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
+    """This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
     def __init__(self, capabilities: set[Enum] = set(), name_idx: int = 0) -> None:
         self.capabilities = capabilities

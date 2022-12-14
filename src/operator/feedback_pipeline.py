@@ -1,6 +1,7 @@
 import logging
 import time
 from dataclasses import dataclass
+from typing import Sequence
 
 import src.core.event_system as event_system
 from src.config import cfg
@@ -17,8 +18,6 @@ class MissionViewModel:
 
     situational_graph: SituationalGraph
     agents: list[AbstractAgent]
-    usecases: list
-
 
 def feedback_pipeline_init():
     """Logging start."""
@@ -33,7 +32,7 @@ def feedback_pipeline_init():
 
 
 def feedback_pipeline_single_step(
-    step, step_start, agents, tosg, tosg_stats, usecases, my_logger
+    step, step_start, agents, tosg, tosg_stats, my_logger
 ):
     """Data collection"""
     step_duration = time.perf_counter() - step_start
@@ -44,7 +43,7 @@ def feedback_pipeline_single_step(
 
     event_system.post_event(
         Topics.VIEW__MISSION_UPDATE,
-        MissionViewModel(situational_graph=tosg, agents=agents, usecases=usecases),
+        MissionViewModel(situational_graph=tosg, agents=agents),
     )
 
     if step % 50 == 0:
@@ -57,7 +56,6 @@ def feedback_pipeline_completion(
     agents: list[AbstractAgent],
     tosg: SituationalGraph,
     tosg_stats,
-    usecases,
     my_logger,
     start,
 ):
@@ -76,7 +74,7 @@ def feedback_pipeline_completion(
 
     event_system.post_event(
         Topics.VIEW__MISSION_UPDATE_FINAL,
-        MissionViewModel(situational_graph=tosg, agents=agents, usecases=usecases),
+        MissionViewModel(situational_graph=tosg, agents=agents),
     )
 
     # if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:

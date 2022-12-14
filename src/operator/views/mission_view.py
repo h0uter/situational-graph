@@ -10,7 +10,6 @@ from vedo import io
 
 from src.config import PlotLvl, Scenario, cfg
 from src.core.event_system import subscribe
-from src.core.planning.graph_planner_interface import GraphPlannerInterface
 from src.core.topics import Topics
 from src.operator.feedback_pipeline import MissionViewModel
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
@@ -78,11 +77,11 @@ class MissionView:
             self.map_actor = map_pic
             self.plt.show(self.map_actor, resetcam=True)
 
-    def figure_update(self, data: MissionViewModel) -> None:
+    def figure_update(self, data: MissionViewModel):
 
         if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
             self.viz_mission_overview(
-                data.situational_graph, data.agents, data.usecases
+                data.situational_graph, data.agents
             )
 
         if self.plt.escaped:
@@ -93,7 +92,7 @@ class MissionView:
         self.plt.show(interactive=True)
 
     def viz_mission_overview(
-        self, tosg: SituationalGraph, agents: list[AbstractAgent], usecases=None
+        self, tosg: SituationalGraph, agents: list[AbstractAgent]
     ):
         self.clear_annoying_captions()
 
@@ -131,8 +130,9 @@ class MissionView:
         actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict, tosg)
         actors = self.add_agents(agents, actors)
 
-        if usecases is not None:
-            self.viz_action_graph(actors, tosg, usecases, pos_dict, agents)
+        # if usecases is not None:
+        #     self.viz_action_graph(actors, tosg, pos_dict, agents)
+        self.viz_action_graph(actors, tosg, pos_dict, agents)
 
         if self.debug_actors:
             actors.extend(self.debug_actors)
@@ -156,7 +156,6 @@ class MissionView:
         self,
         actors: list,
         krm: SituationalGraph,
-        usecases: Sequence[GraphPlannerInterface],
         pos_dict: dict,
         agents: Sequence[AbstractAgent],
     ):

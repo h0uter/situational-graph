@@ -1,17 +1,17 @@
 from dataclasses import dataclass
 
-from src.usecases.search_and_rescue.sar_behaviors import SAR_BEHAVIORS
 from src.core.event_system import subscribe
-from src.core.topics import Topics
 from src.core.planning.graph_task_planner import (
     CouldNotFindPlan,
     GraphTaskPlanner,
     TargetNodeNotFound,
 )
-from src.shared.situational_graph import SituationalGraph
+from src.core.topics import Topics
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
-from src.platform_autonomy.plan_executor import PlanExecutor
+from src.platform_autonomy.execution.plan_executor import PlanExecutor
 from src.shared.sar_affordances import SAR_AFFORDANCES
+from src.shared.situational_graph import SituationalGraph
+from src.usecases.search_and_rescue.sar_behaviors import SAR_BEHAVIORS
 
 
 @dataclass
@@ -25,10 +25,12 @@ class PlatformRunner:
     def __init__(self):
         subscribe(Topics.RUN_PLATFORM, self.platform_runner)
 
-        self.planner = GraphTaskPlanner()
+        # TODO: this prior knowledge needs to be injected from the usecase
         domain_behaviors = SAR_BEHAVIORS
         affordances = SAR_AFFORDANCES
+
         self.plan_executor = PlanExecutor(domain_behaviors, affordances)
+        self.planner = GraphTaskPlanner()
 
     def platform_runner(self, data: PlatformRunnerMessage):
         agent = data.agent
@@ -36,12 +38,6 @@ class PlatformRunner:
 
         if agent.init_explore_step_completed:
             filtered_tosg = tosg._filter_graph(agent.capabilities)
-
-            """---------------------------------------"""
-            # TODO: this should be a post event that posts a task to a platform
-            # so I send a task and a sg to the platform. it changes the sg.
-            # so still shared state in the sg object
-            # but the plan_excutor, the planner can be moved to the platform.
 
             """planning"""
             try:
@@ -62,3 +58,5 @@ class PlatformRunner:
             result = self.plan_executor._plan_execution(agent, tosg, agent.plan)
 
             self.plan_executor.process_execution_result(result, agent, tosg)
+
+        # TODO: make this publish execution results to the mission system.

@@ -28,6 +28,7 @@ class PlanExecutor:
         current_edge = plan.upcoming_edge
 
         """Execute the behavior of the current edge"""
+        # HACK: this is ugly, but used to remove dependencyo nthe behavior implementations
         result = self.DOMAIN_BEHAVIORS[behavior_of_current_edge](
             self.AFFORDANCES
         ).pipeline(agent, tosg, current_edge)
