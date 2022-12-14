@@ -1,7 +1,6 @@
 import time
 from typing import Sequence
 
-import src.core.event_system as event_system
 from src.config import cfg
 from src.core import event_system
 from src.core.planning.graph_planner_interface import GraphPlannerInterface
@@ -14,7 +13,6 @@ from src.operator.feedback_pipeline import (
     feedback_pipeline_single_step,
 )
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
-from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior
 from src.platform_autonomy.platform_runner import PlatformRunnerMessage
 from src.shared.plan_model import PlanModel
 from src.shared.prior_knowledge.behaviors import Behaviors
@@ -36,11 +34,9 @@ def common_initialization(
     """setup vizualisation of start poses"""
     for agent in agents:
         agent.get_local_grid()
-        # HACK: not ideal but this removes dependency of agent on tosg
-        AbstractBehavior._localize_to_closest_waypoint(agent, tosg)
-        event_system.post_event(
-            Topics.VIEW__MISSION_START_POINT, agent.pos
-        )  # viz start position
+        agent.at_wp = tosg._get_closest_waypoint(agent.pos)
+
+        event_system.post_event(Topics.VIEW__MISSION_START_POINT, agent.pos)
 
 
 class MissionRunner:
@@ -89,7 +85,6 @@ class MissionRunner:
     ):
         step_start = time.perf_counter()
 
-        # task allocation
         # NAVIGATION: my window event will put something in a queue here that will result in that task being done first.
         # and also to lock the goto task in place
 
@@ -100,8 +95,7 @@ class MissionRunner:
 
                 filtered_tosg = tosg._filter_graph(agent.capabilities)
 
-                # task allocation
-                """select a task"""
+                """task allocation"""
                 agent.task = task_allocator._single_agent_task_selection(
                     agent.at_wp, filtered_tosg
                 )

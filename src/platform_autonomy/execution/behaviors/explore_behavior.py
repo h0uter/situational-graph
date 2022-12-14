@@ -185,7 +185,8 @@ class ExploreBehavior(AbstractBehavior):
                 f"{agent.name}: No waypoint at previous pos {agent.previous_pos}, no wp added.\n {agent.name}: {agent.pos=} and {agent.get_localization()=}."
             )
 
-            self._localize_to_closest_waypoint(agent, tosg)
+            # self._localize_to_closest_waypoint(agent, tosg)
+            agent.at_wp = tosg._get_closest_waypoint(agent.get_localization())
 
             return False
 
@@ -195,14 +196,16 @@ class ExploreBehavior(AbstractBehavior):
             )
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
             tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
-            self._localize_to_closest_waypoint(agent, tosg)
+            # self._localize_to_closest_waypoint(agent, tosg)
+            agent.at_wp = tosg._get_closest_waypoint(agent.get_localization())
 
             return True
 
         elif len(wp_at_previous_pos_candidates) == 1:
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
             tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
-            self._localize_to_closest_waypoint(agent, tosg)
+            # self._localize_to_closest_waypoint(agent, tosg)
+            agent.at_wp = tosg._get_closest_waypoint(agent.get_localization())
 
             return True
 

@@ -116,6 +116,12 @@ class SituationalGraph:
         (x2, y2) = self.G.nodes[b]["pos"]
         return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
 
+    def calc_edge_len_pos(self, a: tuple[float, float], b: tuple[float, float]) -> float:
+        """calculates the distance between two nodes"""
+        (x1, y1) = a
+        (x2, y2) = b
+        return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+
     def node_list_to_edge_list(self, node_list: Sequence[Node]) -> Sequence[Edge]:
         action_path: list[Edge] = []
         for i in range(len(node_list) - 1):
@@ -334,3 +340,16 @@ class SituationalGraph:
         filtered_tosg.tasks = self.tasks
         filtered_tosg.G = filtered_G
         return filtered_tosg
+
+    def _get_closest_waypoint(self, pos: tuple[float, float]) -> Node:
+        """returns the closest waypoint to the given position"""
+        closest_node = None
+        min_dist = float("inf")
+        for node in self.G.nodes:
+            if self.G.nodes[node]["type"] == Situations.WAYPOINT:
+                dist = self.calc_edge_len_pos(pos, self.G.nodes[node]["pos"])
+                if dist < min_dist:
+                    min_dist = dist
+                    closest_node = node
+        
+        return closest_node
