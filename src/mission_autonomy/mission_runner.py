@@ -13,6 +13,7 @@ from src.operator.feedback_pipeline import (
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.platform_autonomy.platform_runner import PlatformRunnerMessage
 from src.shared.situational_graph import SituationalGraph
+from src.shared.task import Task
 
 
 class MissionRunner:
@@ -24,11 +25,15 @@ class MissionRunner:
     ):
         self.step = 0
         self.mission_completed = False
+        self.operator_task_queue: list[Task] = []
 
         self.task_allocator = TaskAllocator()
         initializer.initialize_mission(agents, tosg)
 
         self.start, self.tosg_stats, self.my_logger = feedback_pipeline_init()
+
+        #TODO: subscribe to operator task events.
+        event_system.subscribe(Topics.OPERATOR_TASK, self.handle_operator_task_event)
 
     def mission_main_loop(self, agents: list[AbstractAgent], tosg: SituationalGraph):
 
@@ -68,11 +73,15 @@ class MissionRunner:
             if agent.init_explore_step_completed:
                 filtered_tosg = tosg._filter_graph(agent.capabilities)
 
-        
-                """task allocation"""
-                agent.task = self.task_allocator.single_agent_task_selection(
-                    agent.at_wp, filtered_tosg
-                )
+                # HACK: this if statement does not have correct logic
+                if len(self.operator_task_queue) == 0 and agent.task is None:
+                    """Autonomous task allocation"""
+                    agent.task = self.task_allocator.single_agent_task_selection(
+                        agent.at_wp, filtered_tosg
+                    )
+                elif len(self.operator_task_queue) > 0:
+                    """Operator task allocation"""
+                    agent.task = self.operator_task_queue.pop(0)
 
             data = PlatformRunnerMessage(agent, tosg)
             event_system.post_event(Topics.RUN_PLATFORM, data)
@@ -88,3 +97,7 @@ class MissionRunner:
             self.my_logger,
         )
         self.step += 1
+
+    def handle_operator_task_event(self, data):
+        print(f"Operator task event received: {data}")
+        self.operator_task_queue.append(data)

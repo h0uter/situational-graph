@@ -4,6 +4,8 @@ from enum import Enum
 class Topics(Enum):
     RUN_PLATFORM = "run platform"
 
+    OPERATOR_TASK = "operator task"
+
     VIEW__SHORTCUT_CHECKING = "shortcut checking data"
     VIEW__FRONTIER_SAMPLING = "frontier sampling data"
     #

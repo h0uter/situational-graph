@@ -30,6 +30,7 @@ class GraphTaskPlanner():
         task: Task,
         filtered_tosg: SituationalGraph,
     ) -> PlanModel:
+        # BUG: we just crashed here while bashing my leftmouse click 2022-12-14.
         target_node = task.edge[1]
 
         if target_node is None or not full_tosg.G.has_node(target_node):

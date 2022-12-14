@@ -15,7 +15,7 @@ from src.operator.feedback_pipeline import MissionViewModel
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.shared.prior_knowledge.situations import Situations
 from src.shared.situational_graph import SituationalGraph
-
+from src.operator.mission_controller import MissionController
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allow_interaction = True
 
@@ -63,9 +63,10 @@ class MissionView:
         # my_node = self.tosg.get_node_by_pos(node_pos)
         my_node = self.tosg.get_nodes_of_type_in_margin(
             node_pos, 2, Situations.WAYPOINT
-        )
+        )[0]
         print("node: ", my_node, " | pos: ", node_pos)
-        # print(event)
+
+        MissionController().add_task_to_queue(my_node)
 
     def set_map(self, map_path: str) -> None:
         if cfg.SCENARIO is not Scenario.REAL:
