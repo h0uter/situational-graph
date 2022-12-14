@@ -3,7 +3,7 @@ from typing import Mapping, Sequence, Type
 
 from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior
 from src.shared.plan_model import PlanModel
-from src.mission_autonomy.situational_graph import SituationalGraph
+from src.shared.situational_graph import SituationalGraph
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.prior_knowledge.behaviors import Behaviors
@@ -44,11 +44,6 @@ class PlanExecutor:
         else:
             destroy_task(agent, tosg)
             agent.plan = None
-
-        # """check completion of mission"""
-        # tasks_exhausted = tosg.check_if_tasks_exhausted()
-
-        # return tasks_exhausted
 
 
 def destroy_task(agent: AbstractAgent, tosg: SituationalGraph):

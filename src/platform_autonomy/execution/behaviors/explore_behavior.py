@@ -2,7 +2,7 @@ from typing import Optional, Sequence
 
 from src.config import cfg
 from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior, BehaviorResult
-from src.mission_autonomy.situational_graph import SituationalGraph
+from src.shared.situational_graph import SituationalGraph
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.platform_autonomy.state.frontier_sampling_strategies import (
     AngularLOSFrontierSamplingStrategy,

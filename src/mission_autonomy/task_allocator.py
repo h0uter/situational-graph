@@ -1,20 +1,20 @@
 from typing import Optional
 
 from src.core import event_system as event_system
-from src.mission_autonomy.situational_graph import SituationalGraph
-from src.platform_autonomy.control.abstract_agent import AbstractAgent
+from src.shared.situational_graph import SituationalGraph
 from src.shared.task import Task
+from src.shared.types.node_and_edge import Node
 
 
 class TaskAllocator:
     @staticmethod
     def _single_agent_task_selection(
-        agent: AbstractAgent, tosg: SituationalGraph
+        agent_at_wp: Node, tosg: SituationalGraph
     ) -> Optional[Task]:
         target_node_to_task = {task.edge[1]: task for task in tosg.tasks}
 
         path_costs, paths = tosg.distance_and_path_dijkstra(
-            agent.at_wp, target_node_to_task.keys()
+            agent_at_wp, target_node_to_task.keys()
         )
 
         # TODO: depending on the number of tasks switch between dijkstra lookup and A* lookup

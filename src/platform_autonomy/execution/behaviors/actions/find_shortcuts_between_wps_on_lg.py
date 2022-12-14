@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from src.config import cfg
-from src.mission_autonomy.situational_graph import SituationalGraph
+from src.shared.situational_graph import SituationalGraph
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.platform_autonomy.state.local_grid import LocalGrid
 from src.shared.prior_knowledge.situations import Situations

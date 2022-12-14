@@ -1,7 +1,7 @@
 import networkx as nx
 
-from src.mission_autonomy.graph_planner_interface import GraphPlannerInterface
-from src.mission_autonomy.situational_graph import SituationalGraph
+from src.core.planning.graph_planner_interface import GraphPlannerInterface
+from src.shared.situational_graph import SituationalGraph
 from src.shared.plan_model import PlanModel
 from src.shared.task import Task
 from src.shared.types.node_and_edge import Node

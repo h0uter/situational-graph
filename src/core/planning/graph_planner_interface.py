@@ -1,8 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 
-from src.mission_autonomy.situational_graph import SituationalGraph
-from src.platform_autonomy.control.abstract_agent import AbstractAgent
+from src.shared.situational_graph import SituationalGraph
 from src.shared.plan_model import PlanModel
 from src.shared.task import Task
 from src.shared.types.node_and_edge import Node
@@ -22,6 +21,7 @@ class GraphPlannerInterface(ABC):
     ) -> PlanModel:
         pass
 
+    #TODO: remove this abstract method, it should not be part of the interface.
     @staticmethod
     @abstractmethod
     def _filter_graph(tosg: SituationalGraph, capabilities: set) -> SituationalGraph:

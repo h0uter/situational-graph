@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 
 from src.core.event_system import subscribe
-from src.mission_autonomy.situational_graph import SituationalGraph
+from src.shared.situational_graph import SituationalGraph
 from src.shared.prior_knowledge.behaviors import Behaviors
 from src.shared.prior_knowledge.situations import Situations
 from src.logging.saving_data_objects import load_something, save_something

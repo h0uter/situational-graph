@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import src.core.event_system as event_system
 from src.config import cfg
-from src.mission_autonomy.situational_graph import SituationalGraph
+from src.shared.situational_graph import SituationalGraph
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.core.topics import Topics
 from src.platform_autonomy.control.audio_feedback import play_file

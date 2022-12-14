@@ -4,13 +4,10 @@ from typing import Sequence
 
 import src.core.event_system as event_system
 from src.config import Scenario, cfg
+from src.core import event_system
 from src.core.topics import Topics
-from src.mission_autonomy.graph_planner_interface import GraphPlannerInterface
-from src.mission_autonomy.graph_task_planner import (
-    GraphTaskPlanner,
-)
-
-from src.mission_autonomy.situational_graph import SituationalGraph
+from src.core.planning.graph_planner_interface import GraphPlannerInterface
+from src.core.planning.graph_task_planner import GraphTaskPlanner
 from src.mission_autonomy.task_allocator import TaskAllocator
 from src.operator.feedback_pipeline import (
     feedback_pipeline_completion,
@@ -26,9 +23,8 @@ from src.shared.plan_model import PlanModel
 from src.shared.prior_knowledge.behaviors import Behaviors
 from src.shared.prior_knowledge.capabilities import Capabilities
 from src.shared.prior_knowledge.objectives import Objectives
+from src.shared.situational_graph import SituationalGraph
 from src.shared.task import Task
-
-from src.core import event_system
 
 # I want my mainloop to only contain 4 high level steps:
 # 1. mission_logic
@@ -129,14 +125,14 @@ class Usecase(ABC):
                 # task allocation
                 """select a task"""
                 agent.task = task_allocator._single_agent_task_selection(
-                    agent, filtered_tosg
+                    agent.at_wp, filtered_tosg
                 )
                 if not agent.task:
                     return tosg.check_if_tasks_exhausted()
 
             data = PlatformRunnerMessage(agent, tosg)
             event_system.post_event(Topics.RUN_PLATFORM, data)
-            
+
             self.mission_completed = tosg.check_if_tasks_exhausted()
 
         """---------------------------------------"""
