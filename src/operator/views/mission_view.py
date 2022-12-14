@@ -68,6 +68,7 @@ class MissionView:
         # self.plt.render()
 
         MissionController().add_task_to_queue(my_node)
+        self.plt.show(interactive=False)
 
     def set_map(self, map_path: str) -> None:
         if cfg.SCENARIO is not Scenario.REAL:

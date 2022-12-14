@@ -38,22 +38,22 @@ class MissionRunner:
     def mission_main_loop(self, agents: list[AbstractAgent], tosg: SituationalGraph):
 
         """Main Logic Loop"""
-        # while (not self.mission_completed) and self.step < cfg.MAX_STEPS:
         while True:
 
-            self.inner_loop(
+            while (not self.mission_completed) and self.step < cfg.MAX_STEPS:
+                self.inner_loop(
+                    agents,
+                    tosg,
+                )
+
+            feedback_pipeline_completion(
+                self.step,
                 agents,
                 tosg,
+                self.tosg_stats,
+                self.my_logger,
+                self.start,
             )
-
-        feedback_pipeline_completion(
-            self.step,
-            agents,
-            tosg,
-            self.tosg_stats,
-            self.my_logger,
-            self.start,
-        )
 
         # krm_stats.save()
         return self.mission_completed
@@ -76,8 +76,12 @@ class MissionRunner:
             if agent.init_explore_step_completed:
                 filtered_tosg = tosg._filter_graph(agent.capabilities)
 
+                for task in self.operator_task_queue:
+                    if task not in tosg.tasks:
+                        tosg.tasks.append(task)
+                        
                 # HACK: this if statement does not have correct logic
-                if len(self.operator_task_queue) > 0:
+                if len(self.operator_task_queue) > 0 and agent.task is None:
                     """Operator task allocation"""
                     agent.task = self.operator_task_queue.pop(0)
 
@@ -107,4 +111,4 @@ class MissionRunner:
     def handle_operator_task_event(self, data: Task):
         print(f"Operator task event received: {data}")
         self.operator_task_queue.append(data)
-        # self.mission_completed = False
+        self.mission_completed = False
