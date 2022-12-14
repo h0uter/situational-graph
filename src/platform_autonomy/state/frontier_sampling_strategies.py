@@ -6,9 +6,9 @@ import numpy as np
 from numpy import typing as npt
 
 from src.config import cfg
-from src.platform_autonomy.state.local_grid import LocalGrid
-from src.core.topics import Topics
 from src.core.event_system import post_event
+from src.core.topics import Topics
+from src.platform_autonomy.state.local_grid import LocalGrid
 
 
 class FrontierSamplingStrategy(ABC):
@@ -56,7 +56,7 @@ class AngularLOSFrontierSamplingStrategy(FrontierSamplingStrategy):
                 collision_cells.append(collision_cell)
 
         post_event(
-            Topics.FRONTIER_SAMPLING,
+            Topics.VIEW__FRONTIER_SAMPLING,
             FrontierSamplingViewModel(
                 local_grid_img=local_grid.img_data,
                 new_frontier_cells=candidate_frontiers,

@@ -4,16 +4,17 @@ from dataclasses import dataclass
 
 import src.core.event_system as event_system
 from src.config import cfg
-from src.shared.situational_graph import SituationalGraph
-from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.core.topics import Topics
-from src.platform_autonomy.control.audio_feedback import play_file
 from src.logging.tosg_stats import TOSGStats
+from src.platform_autonomy.control.abstract_agent import AbstractAgent
+from src.platform_autonomy.control.audio_feedback import play_file
+from src.shared.situational_graph import SituationalGraph
 
 
 @dataclass
 class MissionViewModel:
     """A view model for the mission."""
+
     situational_graph: SituationalGraph
     agents: list[AbstractAgent]
     usecases: list
@@ -42,7 +43,7 @@ def feedback_pipeline_single_step(
     my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
 
     event_system.post_event(
-        Topics.MISSION_VIEW_UPDATE,
+        Topics.VIEW__MISSION_UPDATE,
         MissionViewModel(situational_graph=tosg, agents=agents, usecases=usecases),
     )
 
@@ -74,7 +75,7 @@ def feedback_pipeline_completion(
         play_file("exploration_complete.mp3")
 
     event_system.post_event(
-        Topics.MISSION_VIEW_UPDATE_FINAL,
+        Topics.VIEW__MISSION_UPDATE_FINAL,
         MissionViewModel(situational_graph=tosg, agents=agents, usecases=usecases),
     )
 

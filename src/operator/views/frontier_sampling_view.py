@@ -4,7 +4,9 @@ import vedo
 from src.config import cfg
 from src.core.event_system import subscribe
 from src.core.topics import Topics
-from src.platform_autonomy.state.frontier_sampling_strategies import FrontierSamplingViewModel
+from src.platform_autonomy.state.frontier_sampling_strategies import (
+    FrontierSamplingViewModel,
+)
 
 
 class FrontierSamplingDebugView:
@@ -15,13 +17,13 @@ class FrontierSamplingDebugView:
             axes=13,
             interactive=False,
             resetcam=True,
-            title=str(Topics.FRONTIER_SAMPLING),
+            title=str(Topics.VIEW__FRONTIER_SAMPLING),
             pos=(0, 1500),
             size=(1000, 1000),
         )
         self.plt.show(resetcam=True)
 
-        subscribe(Topics.FRONTIER_SAMPLING, self.viz_frontier_sampling)
+        subscribe(Topics.VIEW__FRONTIER_SAMPLING, self.viz_frontier_sampling)
 
     def viz_frontier_sampling(self, data: FrontierSamplingViewModel):
         actors = []

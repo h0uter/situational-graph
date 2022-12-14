@@ -2,15 +2,13 @@ from enum import Enum
 
 
 class Topics(Enum):
-    SHORTCUT_CHECKING = "shortcut checking data"
-    FRONTIER_SAMPLING = "frontier sampling data"
-    
-    MISSION_VIEW_UPDATE = "mission view update"
-    MISSION_VIEW_UPDATE_FINAL = "mission view update final"
-    MISSION_VIEW_START_POINT = "mission view start point"
-
-    IMAGE_MAPDEBUG_VIEW = "debug map view"
-
     RUN_PLATFORM = "run platform"
 
-    TASK_UTILITIES = "task utilities"
+    VIEW__SHORTCUT_CHECKING = "shortcut checking data"
+    VIEW__FRONTIER_SAMPLING = "frontier sampling data"
+    #
+    VIEW__MISSION_UPDATE = "mission view update"
+    VIEW__MISSION_UPDATE_FINAL = "mission view update final"
+    VIEW__MISSION_START_POINT = "mission view start point"
+
+    LOG__TASK_UTILITIES = "task utilities"

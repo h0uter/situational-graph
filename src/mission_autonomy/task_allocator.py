@@ -33,7 +33,7 @@ class TaskAllocator:
             if task.edge[1] in path_costs
         }
 
-        event_system.post_event(Topics.TASK_UTILITIES, task_to_utility)
+        event_system.post_event(Topics.LOG__TASK_UTILITIES, task_to_utility)
 
         if len(task_to_utility) == 0:
             return None

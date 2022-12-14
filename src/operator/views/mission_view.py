@@ -50,14 +50,12 @@ class MissionView:
             if cfg.SCENARIO is not Scenario.REAL:
                 self.set_map(cfg.MAP_PATH)
 
-        subscribe(Topics.MISSION_VIEW_START_POINT, self.viz_start_point)
+        subscribe(Topics.VIEW__MISSION_START_POINT, self.viz_start_point)
 
-        subscribe(Topics.MISSION_VIEW_UPDATE, self.figure_update)
-        subscribe(Topics.MISSION_VIEW_UPDATE_FINAL, self.figure_final_result)
+        subscribe(Topics.VIEW__MISSION_UPDATE, self.figure_update)
+        subscribe(Topics.VIEW__MISSION_UPDATE_FINAL, self.figure_final_result)
 
         self.plt.add_callback("LeftButtonPress", self.left_click_callback)
-
-        # time.sleep(0.1)
 
     def left_click_callback(self, event):
         coords = [coord / self.factor for coord in event.picked3d]

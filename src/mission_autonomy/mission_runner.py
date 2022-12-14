@@ -40,7 +40,7 @@ def common_initialization(
         # HACK: not ideal but this removes dependency of agent on tosg
         AbstractBehavior._localize_to_waypoint(agent, tosg)
         event_system.post_event(
-            Topics.MISSION_VIEW_START_POINT, agent.pos
+            Topics.VIEW__MISSION_START_POINT, agent.pos
         )  # viz start position
 
 

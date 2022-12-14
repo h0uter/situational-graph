@@ -2,10 +2,11 @@ import numpy as np
 import vedo
 
 from src.config import cfg
-from src.core.topics import Topics
-from src.platform_autonomy.execution.behaviors.actions.find_shortcuts_between_wps_on_lg import \
-    WaypointShortcutViewModel
 from src.core.event_system import subscribe
+from src.core.topics import Topics
+from src.platform_autonomy.execution.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    WaypointShortcutViewModel,
+)
 
 
 class WaypointShortcutDebugView:
@@ -16,13 +17,13 @@ class WaypointShortcutDebugView:
             axes=13,
             interactive=False,
             resetcam=True,
-            title=str(Topics.SHORTCUT_CHECKING),
+            title=str(Topics.VIEW__SHORTCUT_CHECKING),
             pos=(0, 0),
             size=(1000, 1000),
         )
         self.plt.show(resetcam=True)
 
-        subscribe(Topics.SHORTCUT_CHECKING, self.viz_waypoint_shortcuts)
+        subscribe(Topics.VIEW__SHORTCUT_CHECKING, self.viz_waypoint_shortcuts)
 
     def viz_waypoint_shortcuts(self, data: WaypointShortcutViewModel):
         actors = []
@@ -30,7 +31,9 @@ class WaypointShortcutDebugView:
 
         # lg_actor = vedo.Picture(data.local_grid.data, flip=False)
         # BUG: this vizualises correct, still dont understand why 2022-12-6
-        lg_actor = vedo.Picture(np.rot90(data.local_grid.img_data, axes=(0, 1)), flip=False)
+        lg_actor = vedo.Picture(
+            np.rot90(data.local_grid.img_data, axes=(0, 1)), flip=False
+        )
         actors.append(lg_actor)
 
         centre = int(lg_actor.dimensions()[0] / 2), int(lg_actor.dimensions()[1] / 2)

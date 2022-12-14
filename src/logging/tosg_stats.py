@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 
 from src.core.event_system import subscribe
 from src.core.topics import Topics
-from src.shared.situational_graph import SituationalGraph
+from src.logging.saving_data_objects import load_something, save_something
 from src.shared.prior_knowledge.behaviors import Behaviors
 from src.shared.prior_knowledge.situations import Situations
-from src.logging.saving_data_objects import load_something, save_something
+from src.shared.situational_graph import SituationalGraph
 
 
 @dataclass
@@ -23,7 +23,7 @@ class TOSGStats:
         self.task_utilities: list[dict] = [{}]
 
     def setup_event_handlers(self):
-        subscribe(Topics.TASK_UTILITIES, self.handle_task_utilities_event)
+        subscribe(Topics.LOG__TASK_UTILITIES, self.handle_task_utilities_event)
 
     def handle_task_utilities_event(self, task_utilities: dict):
         self.task_utilities.append(task_utilities)
