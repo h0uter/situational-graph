@@ -1,12 +1,12 @@
 import logging
 from typing import Mapping, Sequence, Type
 
+from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior
 from src.shared.plan_model import PlanModel
-from src.shared.situational_graph import SituationalGraph
-from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.prior_knowledge.behaviors import Behaviors
+from src.shared.situational_graph import SituationalGraph
 
 
 class PlanExecutor:

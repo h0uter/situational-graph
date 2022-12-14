@@ -7,6 +7,7 @@ from src.shared.task import Task
 from src.shared.types.node_and_edge import Node
 
 
+# TODO: I dont really need this interface
 class GraphPlannerInterface(ABC):
     def __init__(self):
         self._log = logging.getLogger(__name__)

@@ -16,6 +16,7 @@ from src.shared.sar_affordances import SAR_AFFORDANCES
 
 @dataclass
 class PlatformRunnerMessage:
+    # this is still coupled more than I would like because we send object references.
     agent: AbstractAgent
     tosg: SituationalGraph
 

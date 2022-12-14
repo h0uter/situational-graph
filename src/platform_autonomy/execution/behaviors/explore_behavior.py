@@ -1,20 +1,23 @@
 from typing import Optional, Sequence
 
 from src.config import cfg
-from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior, BehaviorResult
-from src.shared.situational_graph import SituationalGraph
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
+from src.platform_autonomy.execution.abstract_behavior import (
+    AbstractBehavior,
+    BehaviorResult,
+)
+from src.platform_autonomy.execution.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    add_shortcut_edges_between_wps_on_lg,
+)
 from src.platform_autonomy.state.frontier_sampling_strategies import (
     AngularLOSFrontierSamplingStrategy,
 )
 from src.platform_autonomy.state.local_grid import LocalGrid
 from src.shared.prior_knowledge.affordance import Affordance
-from src.shared.types.node_and_edge import Edge, Node
 from src.shared.prior_knowledge.situations import Situations
+from src.shared.situational_graph import SituationalGraph
+from src.shared.types.node_and_edge import Edge, Node
 from src.shared.world_object import WorldObject
-from src.platform_autonomy.execution.behaviors.actions.find_shortcuts_between_wps_on_lg import (
-    add_shortcut_edges_between_wps_on_lg,
-)
 
 
 class ExploreBehavior(AbstractBehavior):
@@ -182,7 +185,7 @@ class ExploreBehavior(AbstractBehavior):
                 f"{agent.name}: No waypoint at previous pos {agent.previous_pos}, no wp added.\n {agent.name}: {agent.pos=} and {agent.get_localization()=}."
             )
 
-            self._localize_to_waypoint(agent, tosg)
+            self._localize_to_closest_waypoint(agent, tosg)
 
             return False
 
@@ -192,14 +195,14 @@ class ExploreBehavior(AbstractBehavior):
             )
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
             tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
-            self._localize_to_waypoint(agent, tosg)
+            self._localize_to_closest_waypoint(agent, tosg)
 
             return True
 
         elif len(wp_at_previous_pos_candidates) == 1:
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
             tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
-            self._localize_to_waypoint(agent, tosg)
+            self._localize_to_closest_waypoint(agent, tosg)
 
             return True
 

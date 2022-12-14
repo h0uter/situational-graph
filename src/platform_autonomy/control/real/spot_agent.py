@@ -6,17 +6,23 @@ from bosdyn.api import basic_command_pb2, world_object_pb2
 from bosdyn.api.geometry_pb2 import Quaternion
 from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
 from bosdyn.client import ResponseError, RpcError
-from bosdyn.client.frame_helpers import (ODOM_FRAME_NAME, VISION_FRAME_NAME,
-                                         get_a_tform_b, get_vision_tform_body)
+from bosdyn.client.frame_helpers import (
+    ODOM_FRAME_NAME,
+    VISION_FRAME_NAME,
+    get_a_tform_b,
+    get_vision_tform_body,
+)
 from bosdyn.client.lease import Error as LeaseBaseError
 from bosdyn.client.robot_command import RobotCommandBuilder
 
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
-from src.platform_autonomy.control.real.utils.fiducial_2_world_object_labels import \
-    create_wo_from_fiducial
+from src.platform_autonomy.control.real.utils.fiducial_2_world_object_labels import (
+    create_wo_from_fiducial,
+)
 from src.platform_autonomy.control.real.utils.get_login_config import get_login_config
-from src.platform_autonomy.control.real.utils.local_grid_formatting import \
-    get_local_grid
+from src.platform_autonomy.control.real.utils.local_grid_formatting import (
+    get_local_grid,
+)
 from src.platform_autonomy.control.real.utils.spot_wrapper import SpotWrapper
 
 
@@ -314,4 +320,3 @@ class SpotAgent(AbstractAgent):
             ),
             end_time_secs=time.time() + 30,
         )
-

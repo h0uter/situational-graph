@@ -5,10 +5,10 @@ from typing import Sequence
 
 from src.config import cfg
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
-from src.shared.situational_graph import SituationalGraph
 from src.shared.prior_knowledge.affordance import Affordance
-from src.shared.types.node_and_edge import Edge
 from src.shared.prior_knowledge.situations import Situations
+from src.shared.situational_graph import SituationalGraph
+from src.shared.types.node_and_edge import Edge
 
 
 @dataclass
@@ -46,7 +46,7 @@ class AbstractBehavior(ABC):
 
     # perhaps something like this should go into robot services, to not murk the dependencies.
     @staticmethod
-    def _localize_to_waypoint(agent: AbstractAgent, tosg: SituationalGraph):
+    def _localize_to_closest_waypoint(agent: AbstractAgent, tosg: SituationalGraph):
         """Localize the agent to the waypoint it is currently at."""
         # agent.localize_to_waypoint(tosg)
         loc_candidates = tosg.get_nodes_of_type_in_margin(
@@ -77,7 +77,11 @@ class AbstractBehavior(ABC):
 
     @abstractmethod
     def _check_postconditions(
-        self, agent: AbstractAgent, tosgraph: SituationalGraph, result, behavior_edge: Edge
+        self,
+        agent: AbstractAgent,
+        tosgraph: SituationalGraph,
+        result,
+        behavior_edge: Edge,
     ) -> bool:
         """Check if the postconditions for the behavior are met."""
         pass

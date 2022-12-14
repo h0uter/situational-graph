@@ -1,12 +1,16 @@
 from typing import Sequence
 
-from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
-from src.shared.situational_graph import SituationalGraph
+from src.platform_autonomy.execution.abstract_behavior import (
+    AbstractBehavior,
+    BehaviorResult,
+)
+from src.platform_autonomy.execution.behaviors.actions.find_shortcuts_between_wps_on_lg import (
+    add_shortcut_edges_between_wps_on_lg,
+)
 from src.shared.prior_knowledge.affordance import Affordance
+from src.shared.situational_graph import SituationalGraph
 from src.shared.types.node_and_edge import Edge
-from src.platform_autonomy.execution.behaviors.actions.find_shortcuts_between_wps_on_lg import \
-    add_shortcut_edges_between_wps_on_lg
 
 
 class GotoBehavior(AbstractBehavior):
@@ -15,7 +19,7 @@ class GotoBehavior(AbstractBehavior):
     ) -> BehaviorResult:
         node_data = tosg.get_node_data_by_node(behavior_edge[1])
         success = agent.move_to_pos(node_data["pos"])
-        self._localize_to_waypoint(agent, tosg)
+        self._localize_to_closest_waypoint(agent, tosg)
 
         # return BehaviorResult(success)
         return BehaviorResult(True)

@@ -36,9 +36,8 @@ def common_initialization(
     """setup vizualisation of start poses"""
     for agent in agents:
         agent.get_local_grid()
-        # agent.localize_to_waypoint(tosg)
         # HACK: not ideal but this removes dependency of agent on tosg
-        AbstractBehavior._localize_to_waypoint(agent, tosg)
+        AbstractBehavior._localize_to_closest_waypoint(agent, tosg)
         event_system.post_event(
             Topics.VIEW__MISSION_START_POINT, agent.pos
         )  # viz start position
@@ -91,7 +90,7 @@ class MissionRunner:
         step_start = time.perf_counter()
 
         # task allocation
-        # my window event will put something in a queue here that will result in that task being done first.
+        # NAVIGATION: my window event will put something in a queue here that will result in that task being done first.
         # and also to lock the goto task in place
 
         for agent_idx in range(len(agents)):
@@ -99,7 +98,6 @@ class MissionRunner:
 
             if agent.init_explore_step_completed:
 
-                # TODO: conceptually figure out who should do the filtering of the graph
                 filtered_tosg = tosg._filter_graph(agent.capabilities)
 
                 # task allocation
@@ -114,8 +112,6 @@ class MissionRunner:
             event_system.post_event(Topics.RUN_PLATFORM, data)
 
             self.mission_completed = tosg.check_if_tasks_exhausted()
-
-        """---------------------------------------"""
 
         feedback_pipeline_single_step(
             self.step, step_start, agents, tosg, tosg_stats, planner, my_logger
