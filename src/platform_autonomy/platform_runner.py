@@ -36,6 +36,9 @@ class PlatformRunner:
         agent = data.agent
         tosg = data.tosg
 
+        # if not agent.task:
+        #     return
+
         if agent.init_explore_step_completed:
             filtered_tosg = tosg._filter_graph(agent.capabilities)
 
@@ -55,7 +58,8 @@ class PlatformRunner:
 
         """execution"""
         if agent.plan:
-            result = self.plan_executor._plan_execution(agent, tosg, agent.plan)
+        # if agent.plan and (agent.task in tosg.tasks):
+            result = self.plan_executor.execute_plan(agent, tosg, agent.plan)
 
             self.plan_executor.process_execution_result(result, agent, tosg)
 

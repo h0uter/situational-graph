@@ -65,6 +65,7 @@ class MissionView:
             node_pos, 2, Situations.WAYPOINT
         )[0]
         print("node: ", my_node, " | pos: ", node_pos)
+        # self.plt.render()
 
         MissionController().add_task_to_queue(my_node)
 

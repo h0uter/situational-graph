@@ -318,6 +318,7 @@ class SituationalGraph:
     def check_if_tasks_exhausted(self) -> bool:
         num_of_tasks = len(self.tasks)
         if num_of_tasks < 1:
+            print("No more tasks left")
             return True
         else:
             return False

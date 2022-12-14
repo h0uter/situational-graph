@@ -19,10 +19,9 @@ class PlanExecutor:
         self.DOMAIN_BEHAVIORS = domain_behaviors
         self.AFFORDANCES = affordances
 
-    def _plan_execution(
+    def execute_plan(
         self, agent: AbstractAgent, tosg: SituationalGraph, plan: PlanModel
     ):
-
         behavior_of_current_edge = tosg.get_behavior_of_edge(plan.upcoming_edge)
 
         current_edge = plan.upcoming_edge

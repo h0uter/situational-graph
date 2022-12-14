@@ -38,7 +38,8 @@ class MissionRunner:
     def mission_main_loop(self, agents: list[AbstractAgent], tosg: SituationalGraph):
 
         """Main Logic Loop"""
-        while (not self.mission_completed) and self.step < cfg.MAX_STEPS:
+        # while (not self.mission_completed) and self.step < cfg.MAX_STEPS:
+        while True:
 
             self.inner_loop(
                 agents,
@@ -66,6 +67,8 @@ class MissionRunner:
 
         # NAVIGATION: my window event will put something in a queue here that will result in that task being done first.
         # and also to lock the goto task in place
+        if len(self.operator_task_queue) > 0:
+            print(f"task queue: {self.operator_task_queue}")
 
         for agent_idx in range(len(agents)):
             agent = agents[agent_idx]
@@ -74,15 +77,18 @@ class MissionRunner:
                 filtered_tosg = tosg._filter_graph(agent.capabilities)
 
                 # HACK: this if statement does not have correct logic
-                if len(self.operator_task_queue) == 0 and agent.task is None:
+                if len(self.operator_task_queue) > 0:
+                    """Operator task allocation"""
+                    agent.task = self.operator_task_queue.pop(0)
+
+                elif len(self.operator_task_queue) == 0 and agent.task is None:
                     """Autonomous task allocation"""
                     agent.task = self.task_allocator.single_agent_task_selection(
                         agent.at_wp, filtered_tosg
                     )
-                elif len(self.operator_task_queue) > 0:
-                    """Operator task allocation"""
-                    agent.task = self.operator_task_queue.pop(0)
 
+            # if agent.task:
+                # print(f"Agent {agent_idx} is executing task {agent.task}")
             data = PlatformRunnerMessage(agent, tosg)
             event_system.post_event(Topics.RUN_PLATFORM, data)
 
@@ -98,6 +104,7 @@ class MissionRunner:
         )
         self.step += 1
 
-    def handle_operator_task_event(self, data):
+    def handle_operator_task_event(self, data: Task):
         print(f"Operator task event received: {data}")
         self.operator_task_queue.append(data)
+        # self.mission_completed = False
