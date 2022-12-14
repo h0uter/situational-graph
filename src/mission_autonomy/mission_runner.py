@@ -68,12 +68,11 @@ class MissionRunner:
             if agent.init_explore_step_completed:
                 filtered_tosg = tosg._filter_graph(agent.capabilities)
 
+        
                 """task allocation"""
                 agent.task = self.task_allocator.single_agent_task_selection(
                     agent.at_wp, filtered_tosg
                 )
-                # if not agent.task:
-                #     return tosg.check_if_tasks_exhausted()
 
             data = PlatformRunnerMessage(agent, tosg)
             event_system.post_event(Topics.RUN_PLATFORM, data)

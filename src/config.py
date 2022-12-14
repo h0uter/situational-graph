@@ -6,6 +6,8 @@ from enum import Enum, IntEnum, auto
 
 import coloredlogs
 
+from src.shared.prior_knowledge.situations import Situations
+
 """User Configuration can be selected at the bottom of this file"""
 
 
@@ -25,6 +27,11 @@ class PlotLvl(IntEnum):
     NONE = auto()
 
 
+class FiducialEnvironment(Enum):
+    TNO = auto()
+    TU_DELFT = auto()
+
+
 class Config:
     def __init__(
         self,
@@ -35,6 +42,7 @@ class Config:
         audio_feedback: bool = False,
         screenshot: bool = False,
         screenshot_folder_name: str = "test",
+        fiducial_environment: FiducialEnvironment = FiducialEnvironment.TU_DELFT,
     ):
         self.MAX_STEPS = max_steps
         self.PLOT_LVL = plot_lvl
@@ -43,6 +51,8 @@ class Config:
         self.AUDIO_FEEDBACK = audio_feedback
         self.SCREENSHOT = screenshot
         self.SCREENSHOT_FOLDER_NAME = screenshot_folder_name
+
+        self.FIDUCIAL_ENVIRONMENT = fiducial_environment
 
         # self.PRUNE_RADIUS_FACTOR = 0.20  # too low (<0.20) and we get dense graph, too high (>0.25) and corners are pruned from inside rooms
         self.PRUNE_RADIUS_FACTOR = 0.18  # too low and we get dense graph, too high and corners are pruned from inside rooms
@@ -76,7 +86,7 @@ class Config:
         self.AT_WP_MARGIN = 0.25
         # self.PREV_POS_MARGIN = 0.15
         self.PREV_POS_MARGIN = 0.35
-        self.ARRIVAL_MARGIN = 0.5
+        self.MOVE_TO_POS_ARRIVAL_MARGIN = 0.5
         self.WP_SHORTCUT_MARGIN = (self.LG_LEN_IN_M / 2) * self.WP_SHORTCUT_FACTOR
 
         # SIM PARAMS
@@ -94,6 +104,30 @@ class Config:
 
         # LOGIN
         self.LOGIN_PATH = os.path.join("src", "platform_autonomy", "control", "real")
+
+        if self.FIDUCIAL_ENVIRONMENT == FiducialEnvironment.TNO:
+            # WORLD_OBJECT_ID_TO_NAME_MAPPING = {
+            #     "201": "victim1",
+            #     "202": "victim2",
+            #     "208": "fire1",
+            #     "207": "fire1",
+            #     "211": "victim2",
+            #     "212": "victim2",
+            # }
+            self.WORLD_OBJECT_ID_TO_NAME_MAPPING = {
+                "204": Situations.UNKNOWN_VICTIM,
+                "205": Situations.UNKNOWN_VICTIM,
+                # "208": "fire1",
+                # "207": "fire1",
+                "206": Situations.UNKNOWN_VICTIM,
+                "207": Situations.UNKNOWN_VICTIM,
+            }
+        elif self.FIDUCIAL_ENVIRONMENT == FiducialEnvironment.TU_DELFT:
+            """TU Delft"""
+            self.WORLD_OBJECT_ID_TO_NAME_MAPPING = {
+                "1": Situations.UNKNOWN_VICTIM,
+                "3": Situations.UNKNOWN_VICTIM,
+            }
 
     def set_real_params(self):
         self.LG_NUM_CELLS = 128

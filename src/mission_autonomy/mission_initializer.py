@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.shared.situational_graph import SituationalGraph
-from src.shared.task import Task
 
 
 class MissionInitializer(ABC):

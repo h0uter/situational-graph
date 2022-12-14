@@ -12,7 +12,6 @@ from src.shared.situational_graph import SituationalGraph
 @dataclass
 class WaypointShortcutViewModel:
     """A view model for a shortcut between two waypoints on the local grid."""
-
     local_grid: LocalGrid
     collision_cells: list[tuple[int, int]]
     shortcut_candidate_cells: list[tuple[int, int]]

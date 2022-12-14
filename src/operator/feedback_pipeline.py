@@ -1,10 +1,9 @@
 import logging
 import time
 from dataclasses import dataclass
-from typing import Sequence
 
-import src.core.event_system as event_system
 from src.config import cfg
+from src.core import event_system
 from src.core.topics import Topics
 from src.logging.tosg_stats import TOSGStats
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
@@ -14,10 +13,10 @@ from src.shared.situational_graph import SituationalGraph
 
 @dataclass
 class MissionViewModel:
-    """A view model for the mission."""
-
+    """The key datastructures used to vizualise mission progress."""
     situational_graph: SituationalGraph
     agents: list[AbstractAgent]
+
 
 def feedback_pipeline_init():
     """Logging start."""

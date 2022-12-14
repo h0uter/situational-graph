@@ -15,6 +15,7 @@ from src.shared.world_object import WorldObject
 
 # TODO: split this into agent and platform concerns.
 
+
 class AbstractAgent(ABC):
     """This is the base agent class. The program does not know if it runs a simulated agent or a real one."""
 
@@ -102,8 +103,8 @@ class AbstractAgent(ABC):
 
         # this is to prevent the prev pos being messed up by a failed explore action
         if (
-            abs(target_pos[0] - actual_pos[0]) <= cfg.ARRIVAL_MARGIN
-            and abs(target_pos[1] - actual_pos[1]) <= cfg.ARRIVAL_MARGIN
+            abs(target_pos[0] - actual_pos[0]) <= cfg.MOVE_TO_POS_ARRIVAL_MARGIN
+            and abs(target_pos[1] - actual_pos[1]) <= cfg.MOVE_TO_POS_ARRIVAL_MARGIN
         ):
             # SUCCESS
             self.prev_wp = self.at_wp

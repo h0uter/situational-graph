@@ -160,7 +160,7 @@ class ExploreBehavior(AbstractBehavior):
 
         nodes_near_where_i_ended_up = tosg.get_nodes_of_type_in_margin(
             agent.get_localization(),
-            cfg.ARRIVAL_MARGIN,
+            cfg.MOVE_TO_POS_ARRIVAL_MARGIN,
             destination_node_type,
         )
 

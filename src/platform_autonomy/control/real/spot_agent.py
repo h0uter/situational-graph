@@ -17,7 +17,7 @@ from bosdyn.client.robot_command import RobotCommandBuilder
 
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.platform_autonomy.control.real.utils.fiducial_2_world_object_labels import (
-    create_wo_from_fiducial,
+    create_world_object_from_fiducial,
 )
 from src.platform_autonomy.control.real.utils.get_login_config import get_login_config
 from src.platform_autonomy.control.real.utils.local_grid_formatting import (
@@ -150,7 +150,7 @@ class SpotAgent(AbstractAgent):
                     # print(f"fiducial_rt_world = {fiducial_rt_world}")
 
                     # wo = WorldObject((fiducial_rt_world.x, fiducial_rt_world.y), "YO SOY PABLO")
-                    wo = create_wo_from_fiducial(
+                    wo = create_world_object_from_fiducial(
                         (fiducial_rt_world.x, fiducial_rt_world.y),
                         fiducial.apriltag_properties.tag_id,
                     )
