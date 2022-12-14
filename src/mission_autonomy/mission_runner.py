@@ -5,9 +5,12 @@ from typing import Sequence
 import src.core.event_system as event_system
 from src.config import Scenario, cfg
 from src.core.topics import Topics
-from src.mission_autonomy.autonomy_pipeline import AutonomyPipeline
 from src.mission_autonomy.graph_planner_interface import GraphPlannerInterface
-from src.mission_autonomy.graph_task_planner import GraphTaskPlanner
+from src.mission_autonomy.graph_task_planner import (
+    CouldNotFindPlan,
+    GraphTaskPlanner,
+    TargetNodeNotFound,
+)
 from src.mission_autonomy.sar.sar_affordances import SAR_AFFORDANCES
 from src.mission_autonomy.sar.sar_behaviors import SAR_BEHAVIORS
 from src.mission_autonomy.situational_graph import SituationalGraph
@@ -27,11 +30,7 @@ from src.shared.prior_knowledge.behaviors import Behaviors
 from src.shared.prior_knowledge.capabilities import Capabilities
 from src.shared.prior_knowledge.objectives import Objectives
 from src.shared.task import Task
-from src.mission_autonomy.graph_task_planner import (
-    CouldNotFindPlan,
-    GraphTaskPlanner,
-    TargetNodeNotFound,
-)
+
 # I want my mainloop to only contain 4 high level steps:
 # 1. mission_logic
 # 2. platform logic
@@ -73,7 +72,6 @@ class Usecase(ABC):
         GraphPlannerInterface,
         PlanExecutor,
         TaskAllocator,
-        AutonomyPipeline,
     ]:
         pass
 
@@ -85,7 +83,6 @@ class Usecase(ABC):
             planner,
             executor,
             task_allocator,
-            pipeline,
         ) = self.mission_initialization()
 
         start, tosg_stats, my_logger = feedback_pipeline_init()
@@ -101,7 +98,6 @@ class Usecase(ABC):
                 tosg_stats,
                 executor,
                 task_allocator,
-                pipeline,
             )
 
         feedback_pipeline_completion(
@@ -120,7 +116,6 @@ class Usecase(ABC):
         tosg_stats,
         plan_executor: PlanExecutor,
         task_allocator: TaskAllocator,
-        pipeline: AutonomyPipeline,
     ):
         step_start = time.perf_counter()
 
@@ -131,12 +126,25 @@ class Usecase(ABC):
         for agent_idx in range(len(agents)):
             agent = agents[agent_idx]
 
-            # TODO: this should be a post event that posts a task to a platform
-
-            # planning
-            filtered_tosg = pipeline.mission_pipeline(agent, tosg, task_allocator, planner)
-            
             if agent.init_explore_step_completed:
+
+                # TODO: conceptually figure out who should do the filtering of the graph
+                filtered_tosg = planner._filter_graph(tosg, agent)
+
+                # task allocation
+                """select a task"""
+                agent.task = task_allocator._single_agent_task_selection(
+                    agent, filtered_tosg
+                )
+                if not agent.task:
+                    return tosg.check_if_tasks_exhausted()
+
+                # TODO: this should be a post event that posts a task to a platform
+                # so I send a task and a sg to the platform. it changes the sg.
+                # so still shared state in the sg object
+                # but the plan_excutor, the planner can be moved to the platform.
+
+                # planning
                 try:
                     agent.plan = planner._find_plan_for_task(
                         agent.at_wp, tosg, agent.task, filtered_tosg
@@ -145,7 +153,9 @@ class Usecase(ABC):
                     planner._log.error(f"Could not find a plan for task {agent.task}")
                     agent.clear_task()
                 except TargetNodeNotFound:
-                    planner._log.error(f"Could not find a target node for task {agent.task}")
+                    planner._log.error(
+                        f"Could not find a target node for task {agent.task}"
+                    )
                     agent.clear_task()
 
             # execution
@@ -162,14 +172,13 @@ class Usecase(ABC):
                 my_logger.info(f"Agent {agent_idx} completed exploration")
                 break
 
-
         feedback_pipeline_single_step(
             self.step, step_start, agents, tosg, tosg_stats, planner, my_logger
         )
         self.step += 1
 
 
-class SearchAndRescueUsecase(Usecase):
+class MissionRunner(Usecase):
     def mission_initialization(self):
         """Manually set first task to exploring current position."""
 
@@ -179,7 +188,6 @@ class SearchAndRescueUsecase(Usecase):
             planner,
             executor,
             task_allocator,
-            pipeline,
         ) = self.init_search_and_rescue_entities()
 
         common_initialization(tosg, agents, start_poses=[agent.pos for agent in agents])
@@ -198,7 +206,7 @@ class SearchAndRescueUsecase(Usecase):
 
             agent.plan = PlanModel([init_explore_edge])
 
-        return agents, tosg, planner, executor, task_allocator, pipeline
+        return agents, tosg, planner, executor, task_allocator
 
     @staticmethod
     def init_search_and_rescue_entities() -> tuple[
@@ -207,7 +215,6 @@ class SearchAndRescueUsecase(Usecase):
         GraphPlannerInterface,
         PlanExecutor,
         TaskAllocator,
-        AutonomyPipeline,
     ]:
         agent1_capabilities = {Capabilities.CAN_ASSESS}
         if cfg.SCENARIO == Scenario.REAL:
@@ -226,6 +233,5 @@ class SearchAndRescueUsecase(Usecase):
         executor = PlanExecutor(domain_behaviors, affordances)
         task_allocator = TaskAllocator()
         planner = GraphTaskPlanner()
-        pipeline = AutonomyPipeline()
 
-        return agents, tosg, planner, executor, task_allocator, pipeline
+        return agents, tosg, planner, executor, task_allocator

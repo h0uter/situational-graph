@@ -1,4 +1,4 @@
-from src.mission_autonomy.sar.search_and_rescue_usecase import SearchAndRescueUsecase
+from src.mission_autonomy.mission_runner import MissionRunner
 from src.operator import runner
 
 if __name__ == "__main__":
@@ -8,6 +8,6 @@ if __name__ == "__main__":
 
     # ImageMapDebugView()
 
-    SearchAndRescueUsecase().mission_main_loop()
+    MissionRunner().mission_main_loop()
 
     # benchmark_func()

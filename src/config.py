@@ -100,7 +100,7 @@ class Config:
         coloredlogs.install(level=LOG_LVL, logger=mylogs)
 
         # LOGIN
-        self.LOGIN_PATH = os.path.join("src", "platform_autonomy", "real")
+        self.LOGIN_PATH = os.path.join("src", "platform_autonomy", "control", "real")
 
     def set_real_params(self):
         self.LG_NUM_CELLS = 128
