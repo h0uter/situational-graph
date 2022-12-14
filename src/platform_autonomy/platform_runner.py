@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.usecases.sar_behaviors import SAR_BEHAVIORS
+from src.usecases.search_and_rescue.sar_behaviors import SAR_BEHAVIORS
 from src.core.event_system import subscribe
 from src.core.topics import Topics
 from src.core.planning.graph_task_planner import (
@@ -34,7 +34,7 @@ class PlatformRunner:
         tosg = data.tosg
 
         if agent.init_explore_step_completed:
-            filtered_tosg = self.planner._filter_graph(tosg, agent.capabilities)
+            filtered_tosg = tosg._filter_graph(agent.capabilities)
 
             """---------------------------------------"""
             # TODO: this should be a post event that posts a task to a platform

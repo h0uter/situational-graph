@@ -6,14 +6,16 @@ import networkx as nx
 
 from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.prior_knowledge.behaviors import Behaviors
-from src.shared.types.node_and_edge import Edge, Node
 from src.shared.prior_knowledge.objectives import Objectives
 from src.shared.prior_knowledge.situations import Situations
 from src.shared.task import Task
+from src.shared.types.node_and_edge import Edge, Node
 
 
 class SituationalGraph:
     # TODO: separate behavior from data
+    # graphOperations
+    # graphData
     """Behavior-Oriented Situational Graph"""
 
     def __init__(self) -> None:
@@ -313,3 +315,22 @@ class SituationalGraph:
             return True
         else:
             return False
+
+    # TODO: add Self typing
+    def _filter_graph(self, capabilities: set):
+        def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
+            behavior_enum = self.G.edges[u, v, k]["type"]  # Behaviors
+            for req_cap in behavior_enum.required_capabilities:
+                if req_cap not in capabilities:
+                    return False
+            return True
+
+        filtered_G = nx.subgraph_view(
+            self.G, filter_edge=filter_edges_based_on_agent_capabilities
+        )
+
+        # here we insert the filtered graph into a new tosg object
+        filtered_tosg = SituationalGraph()
+        filtered_tosg.tasks = self.tasks
+        filtered_tosg.G = filtered_G
+        return filtered_tosg

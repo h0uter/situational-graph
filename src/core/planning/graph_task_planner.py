@@ -20,26 +20,7 @@ class TargetNodeNotFound(Exception):
 
 
 class GraphTaskPlanner(GraphPlannerInterface):
-    @staticmethod
-    def _filter_graph(tosg: SituationalGraph, capabilities: set) -> SituationalGraph:
-        def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
-            behavior_enum = tosg.G.edges[u, v, k]["type"]  # Behaviors
-            for req_cap in behavior_enum.required_capabilities:
-                if req_cap not in capabilities:
-                    return False
-            return True
-
-        filtered_G = nx.subgraph_view(
-            tosg.G, filter_edge=filter_edges_based_on_agent_capabilities
-        )
-
-        # here we insert the filtered graph into a new tosg object
-        filtered_tosg = SituationalGraph()
-        filtered_tosg.tasks = tosg.tasks
-        filtered_tosg.G = filtered_G
-        return filtered_tosg
-
-    # this is the api
+    #TODO: refactor this to use just 1 graph not both
     def find_plan_for_task(
         self,
         agent_localized_to: Node,

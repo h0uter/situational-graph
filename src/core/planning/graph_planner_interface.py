@@ -20,9 +20,3 @@ class GraphPlannerInterface(ABC):
         filtered_tosg: SituationalGraph,
     ) -> PlanModel:
         pass
-
-    #TODO: remove this abstract method, it should not be part of the interface.
-    @staticmethod
-    @abstractmethod
-    def _filter_graph(tosg: SituationalGraph, capabilities: set) -> SituationalGraph:
-        pass

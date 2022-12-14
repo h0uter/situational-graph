@@ -1,5 +1,4 @@
 import time
-from abc import ABC, abstractmethod
 from typing import Sequence
 
 import src.core.event_system as event_system
@@ -101,7 +100,7 @@ class MissionRunner:
             if agent.init_explore_step_completed:
 
                 # TODO: conceptually figure out who should do the filtering of the graph
-                filtered_tosg = planner._filter_graph(tosg, agent.capabilities)
+                filtered_tosg = tosg._filter_graph(agent.capabilities)
 
                 # task allocation
                 """select a task"""
