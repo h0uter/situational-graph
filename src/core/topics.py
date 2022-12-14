@@ -12,3 +12,5 @@ class Topics(Enum):
     IMAGE_MAPDEBUG_VIEW = "debug map view"
 
     RUN_PLATFORM = "run platform"
+
+    TASK_UTILITIES = "task utilities"

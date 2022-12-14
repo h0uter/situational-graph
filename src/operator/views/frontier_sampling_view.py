@@ -21,7 +21,7 @@ class FrontierSamplingDebugView:
         )
         self.plt.show(resetcam=True)
 
-        subscribe(str(Topics.FRONTIER_SAMPLING), self.viz_frontier_sampling)
+        subscribe(Topics.FRONTIER_SAMPLING, self.viz_frontier_sampling)
 
     def viz_frontier_sampling(self, data: FrontierSamplingViewModel):
         actors = []

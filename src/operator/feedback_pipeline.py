@@ -42,7 +42,7 @@ def feedback_pipeline_single_step(
     my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
 
     event_system.post_event(
-        str(Topics.MISSION_VIEW_UPDATE),
+        Topics.MISSION_VIEW_UPDATE,
         MissionViewModel(situational_graph=tosg, agents=agents, usecases=usecases),
     )
 
@@ -74,7 +74,7 @@ def feedback_pipeline_completion(
         play_file("exploration_complete.mp3")
 
     event_system.post_event(
-        str(Topics.MISSION_VIEW_UPDATE_FINAL),
+        Topics.MISSION_VIEW_UPDATE_FINAL,
         MissionViewModel(situational_graph=tosg, agents=agents, usecases=usecases),
     )
 

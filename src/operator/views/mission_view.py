@@ -10,12 +10,12 @@ from vedo import io
 
 from src.config import PlotLvl, Scenario, cfg
 from src.core.event_system import subscribe
-from src.core.topics import Topics
 from src.core.planning.graph_planner_interface import GraphPlannerInterface
-from src.shared.situational_graph import SituationalGraph
+from src.core.topics import Topics
 from src.operator.feedback_pipeline import MissionViewModel
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.shared.prior_knowledge.situations import Situations
+from src.shared.situational_graph import SituationalGraph
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allow_interaction = True
@@ -50,14 +50,14 @@ class MissionView:
             if cfg.SCENARIO is not Scenario.REAL:
                 self.set_map(cfg.MAP_PATH)
 
-        subscribe(str(Topics.MISSION_VIEW_START_POINT), self.viz_start_point)
+        subscribe(Topics.MISSION_VIEW_START_POINT, self.viz_start_point)
 
-        subscribe(str(Topics.MISSION_VIEW_UPDATE), self.figure_update)
-        subscribe(str(Topics.MISSION_VIEW_UPDATE_FINAL), self.figure_final_result)
+        subscribe(Topics.MISSION_VIEW_UPDATE, self.figure_update)
+        subscribe(Topics.MISSION_VIEW_UPDATE_FINAL, self.figure_final_result)
 
         self.plt.add_callback("LeftButtonPress", self.left_click_callback)
 
-        time.sleep(0.1)
+        # time.sleep(0.1)
 
     def left_click_callback(self, event):
         coords = [coord / self.factor for coord in event.picked3d]
@@ -97,6 +97,8 @@ class MissionView:
     def viz_mission_overview(
         self, tosg: SituationalGraph, agents: list[AbstractAgent], usecases=None
     ):
+        self.clear_annoying_captions()
+
         actors: list[vedo.BaseActor] = []
         self.tosg = tosg
 
@@ -140,17 +142,12 @@ class MissionView:
         if cfg.SCENARIO is Scenario.REAL:
             self.plt.show(actors, resetcam=True)
         else:
-            self.plt.show(
-                actors,
-                resetcam=False,
-            )
+            self.plt.show(actors, resetcam=False)
 
         self.plt.render()  # ???: this makes it work with REAL scenario somehow
 
         if cfg.SCREENSHOT:
             self.take_screenshot()  # this makes it take the screenshots
-
-        self.clear_annoying_captions()
 
     def clear_annoying_captions(self):
         """Captions apparently are persistent, so we need to clear them."""

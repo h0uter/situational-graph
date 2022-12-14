@@ -18,7 +18,7 @@ class ImageMapDebugView:
         )
         self.plt.show(resetcam=True)
 
-        subscribe(str(Topics.IMAGE_MAPDEBUG_VIEW), self.viz_image_map)
+        subscribe(Topics.IMAGE_MAPDEBUG_VIEW, self.viz_image_map)
 
     def viz_image_map(self, data: ImageMapViewModel):
 

@@ -1,6 +1,7 @@
 from typing import Optional
 
 from src.core import event_system as event_system
+from src.core.topics import Topics
 from src.shared.situational_graph import SituationalGraph
 from src.shared.task import Task
 from src.shared.types.node_and_edge import Node
@@ -32,7 +33,7 @@ class TaskAllocator:
             if task.edge[1] in path_costs
         }
 
-        event_system.post_event("task_utilities", task_to_utility)
+        event_system.post_event(Topics.TASK_UTILITIES, task_to_utility)
 
         if len(task_to_utility) == 0:
             return None

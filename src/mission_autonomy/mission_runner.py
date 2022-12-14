@@ -3,11 +3,11 @@ from abc import ABC, abstractmethod
 from typing import Sequence
 
 import src.core.event_system as event_system
-from src.config import Scenario, cfg
+from src.config import cfg
 from src.core import event_system
-from src.core.topics import Topics
 from src.core.planning.graph_planner_interface import GraphPlannerInterface
 from src.core.planning.graph_task_planner import GraphTaskPlanner
+from src.core.topics import Topics
 from src.mission_autonomy.task_allocator import TaskAllocator
 from src.operator.feedback_pipeline import (
     feedback_pipeline_completion,
@@ -15,21 +15,13 @@ from src.operator.feedback_pipeline import (
     feedback_pipeline_single_step,
 )
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
-from src.platform_autonomy.control.real.spot_agent import SpotAgent
-from src.platform_autonomy.control.sim.simulated_agent import SimulatedAgent
 from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior
 from src.platform_autonomy.platform_runner import PlatformRunnerMessage
 from src.shared.plan_model import PlanModel
 from src.shared.prior_knowledge.behaviors import Behaviors
-from src.shared.prior_knowledge.capabilities import Capabilities
 from src.shared.prior_knowledge.objectives import Objectives
 from src.shared.situational_graph import SituationalGraph
 from src.shared.task import Task
-
-# I want my mainloop to only contain 4 high level steps:
-# 1. mission_logic
-# 2. platform logic
-# 3. process events
 
 
 def common_initialization(
@@ -53,30 +45,19 @@ def common_initialization(
         )  # viz start position
 
 
-class Mission(ABC):
+class MissionRunner:
     def __init__(self):
         self.step = 0
         self.mission_completed = False
 
-    @abstractmethod
-    def mission_initialization(
-        self,
-    ) -> tuple[
-        list[AbstractAgent],
-        SituationalGraph,
-        GraphPlannerInterface,
-        TaskAllocator,
-    ]:
-        pass
-
-    def mission_main_loop(self):
+    def mission_main_loop(self, agents: list[AbstractAgent]):
 
         (
             agents,
             tosg,
             planner,
             task_allocator,
-        ) = self.mission_initialization()
+        ) = self.mission_initialization(agents)
 
         start, tosg_stats, my_logger = feedback_pipeline_init()
 
@@ -142,17 +123,12 @@ class Mission(ABC):
         )
         self.step += 1
 
-
-class MissionRunner(Mission):
-    def mission_initialization(self):
+    def mission_initialization(self, agents: list[AbstractAgent]):
         """Manually set first task to exploring current position."""
 
-        (
-            agents,
-            tosg,
-            planner,
-            task_allocator,
-        ) = self.init_search_and_rescue_entities()
+        tosg = SituationalGraph()
+        task_allocator = TaskAllocator()
+        planner = GraphTaskPlanner()
 
         common_initialization(tosg, agents, start_poses=[agent.pos for agent in agents])
 
@@ -169,28 +145,5 @@ class MissionRunner(Mission):
             init_explore_edge = agent.task.edge
 
             agent.plan = PlanModel([init_explore_edge])
-
-        return agents, tosg, planner, task_allocator
-
-    @staticmethod
-    # TODO: refactor out the dependency on a specific agent.
-    def init_search_and_rescue_entities() -> tuple[
-        list[AbstractAgent],
-        SituationalGraph,
-        GraphPlannerInterface,
-        TaskAllocator,
-    ]:
-        agent1_capabilities = {Capabilities.CAN_ASSESS}
-        if cfg.SCENARIO == Scenario.REAL:
-            agents = [SpotAgent(agent1_capabilities)]
-        else:
-            agents = [
-                SimulatedAgent(agent1_capabilities)
-            ]  # make the first agent only posses the capabilities
-            agents.extend([SimulatedAgent(set(), i) for i in range(1, cfg.NUM_AGENTS)])
-
-        tosg = SituationalGraph()
-        task_allocator = TaskAllocator()
-        planner = GraphTaskPlanner()
 
         return agents, tosg, planner, task_allocator

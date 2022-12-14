@@ -56,7 +56,7 @@ class AngularLOSFrontierSamplingStrategy(FrontierSamplingStrategy):
                 collision_cells.append(collision_cell)
 
         post_event(
-            str(Topics.FRONTIER_SAMPLING),
+            Topics.FRONTIER_SAMPLING,
             FrontierSamplingViewModel(
                 local_grid_img=local_grid.img_data,
                 new_frontier_cells=candidate_frontiers,

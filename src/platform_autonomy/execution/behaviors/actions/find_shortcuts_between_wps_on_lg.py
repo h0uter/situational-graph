@@ -62,4 +62,4 @@ def add_shortcut_edges_between_wps_on_lg(
         collision_cells=collision_cells,
         shortcut_candidate_cells=shortcut_candidate_cells,
     )
-    post_event(str(Topics.SHORTCUT_CHECKING), data)
+    post_event(Topics.SHORTCUT_CHECKING, data)
