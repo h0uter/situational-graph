@@ -11,10 +11,10 @@ from vedo import io
 from src.config import PlotLvl, Scenario, cfg
 from src.core.event_system import subscribe
 from src.core.topics import Topics
-from src.mission.graph_planner_interface import GraphPlannerInterface
-from src.mission.situational_graph import SituationalGraph
+from src.mission_autonomy.graph_planner_interface import GraphPlannerInterface
+from src.mission_autonomy.situational_graph import SituationalGraph
 from src.operator.feedback_pipeline import MissionViewModel
-from src.platform.control.abstract_agent import AbstractAgent
+from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.shared.prior_knowledge.situations import Situations
 
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html

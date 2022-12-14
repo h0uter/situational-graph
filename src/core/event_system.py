@@ -1,16 +1,18 @@
 # OBSERVER PATTERN
+from enum import Enum
 from typing import Callable
 
-subscriptions: dict[str, list[Callable]] = {}
+
+subscriptions: dict[Enum, list[Callable]] = {}
 
 
-def subscribe(topic: str, callback_fn: Callable):
+def subscribe(topic: Enum, callback_fn: Callable):
     if topic not in subscriptions:
         subscriptions[topic] = []
     subscriptions[topic].append(callback_fn)
 
 
-def post_event(topic: str, message: object):
+def post_event(topic: Enum, message: object):
     if not (topic in subscriptions):
         return
 

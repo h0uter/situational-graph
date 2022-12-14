@@ -4,7 +4,7 @@ import vedo
 from src.config import cfg
 from src.core.event_system import subscribe
 from src.core.topics import Topics
-from src.platform.state.frontier_sampling_strategies import FrontierSamplingViewModel
+from src.platform_autonomy.state.frontier_sampling_strategies import FrontierSamplingViewModel
 
 
 class FrontierSamplingDebugView:

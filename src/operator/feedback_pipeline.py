@@ -4,10 +4,10 @@ from dataclasses import dataclass
 
 import src.core.event_system as event_system
 from src.config import cfg
-from src.mission.situational_graph import SituationalGraph
-from src.platform.control.abstract_agent import AbstractAgent
+from src.mission_autonomy.situational_graph import SituationalGraph
+from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.core.topics import Topics
-from src.platform.control.audio_feedback import play_file
+from src.platform_autonomy.control.audio_feedback import play_file
 from src.logging.tosg_stats import TOSGStats
 
 

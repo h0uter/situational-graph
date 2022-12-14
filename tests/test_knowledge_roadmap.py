@@ -1,4 +1,4 @@
-from src.mission.situational_graph import SituationalGraph
+from src.mission_autonomy.situational_graph import SituationalGraph
 
 
 def test_get_node_by_pos():
