@@ -61,9 +61,10 @@ class MissionView:
         # print("left clicked on: ", coords)
         node_pos = tuple(coords[0:2])
         # my_node = self.tosg.get_node_by_pos(node_pos)
-        my_node = self.tosg.get_nodes_of_type_in_margin(
-            node_pos, 2, Situations.WAYPOINT
-        )[0]
+        # my_node = self.tosg.get_nodes_of_type_in_margin(
+        #     node_pos, 2, Situations.WAYPOINT
+        # )[0]
+        my_node = self.tosg._get_closest_waypoint(node_pos)
         print("node: ", my_node, " | pos: ", node_pos)
         # self.plt.render()
 
