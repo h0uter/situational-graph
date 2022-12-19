@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.platform_control.sim.simulated_agent import SimulatedAgent
+from src.platform_autonomy.control.sim.simulated_agent import SimulatedAgent
 
 
 def test_calc_heading_to_target_180():

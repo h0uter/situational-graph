@@ -6,6 +6,8 @@ from enum import Enum, IntEnum, auto
 
 import coloredlogs
 
+from src.shared.prior_knowledge.sar_situations import Situations
+
 """User Configuration can be selected at the bottom of this file"""
 
 
@@ -25,9 +27,9 @@ class PlotLvl(IntEnum):
     NONE = auto()
 
 
-class Vizualiser(Enum):
-    MATPLOTLIB = auto()
-    VEDO = auto()
+class FiducialEnvironment(Enum):
+    TNO = auto()
+    TU_DELFT = auto()
 
 
 class Config:
@@ -35,21 +37,22 @@ class Config:
         self,
         plot_lvl: PlotLvl = PlotLvl.ALL,
         scenario: Scenario = Scenario.SIM_VILLA,
-        vizualiser: Vizualiser = Vizualiser.VEDO,
         num_agents: int = 1,
         max_steps: float = math.inf,
         audio_feedback: bool = False,
         screenshot: bool = False,
         screenshot_folder_name: str = "test",
+        fiducial_environment: FiducialEnvironment = FiducialEnvironment.TU_DELFT,
     ):
         self.MAX_STEPS = max_steps
         self.PLOT_LVL = plot_lvl
         self.SCENARIO = scenario
-        self.VIZUALISER = vizualiser
 
         self.AUDIO_FEEDBACK = audio_feedback
         self.SCREENSHOT = screenshot
         self.SCREENSHOT_FOLDER_NAME = screenshot_folder_name
+
+        self.FIDUCIAL_ENVIRONMENT = fiducial_environment
 
         # self.PRUNE_RADIUS_FACTOR = 0.20  # too low (<0.20) and we get dense graph, too high (>0.25) and corners are pruned from inside rooms
         self.PRUNE_RADIUS_FACTOR = 0.18  # too low and we get dense graph, too high and corners are pruned from inside rooms
@@ -78,12 +81,12 @@ class Config:
         # exploration hyperparameters
         # self.PATH_FINDING_METHOD = "bellman-ford"
         self.PATH_FINDING_METHOD = "dijkstra"
-        self.N_SAMPLES = 30
+        self.N_SAMPLES = 50  # 30
         self.PRUNE_RADIUS = self.LG_LEN_IN_M * self.PRUNE_RADIUS_FACTOR
         self.AT_WP_MARGIN = 0.25
         # self.PREV_POS_MARGIN = 0.15
         self.PREV_POS_MARGIN = 0.35
-        self.ARRIVAL_MARGIN = 0.5
+        self.MOVE_TO_POS_ARRIVAL_MARGIN = 0.5
         self.WP_SHORTCUT_MARGIN = (self.LG_LEN_IN_M / 2) * self.WP_SHORTCUT_FACTOR
 
         # SIM PARAMS
@@ -100,7 +103,31 @@ class Config:
         coloredlogs.install(level=LOG_LVL, logger=mylogs)
 
         # LOGIN
-        self.LOGIN_PATH = os.path.join("src", "platform_control", "real")
+        self.LOGIN_PATH = os.path.join("src", "platform_autonomy", "control", "real")
+
+        if self.FIDUCIAL_ENVIRONMENT == FiducialEnvironment.TNO:
+            # WORLD_OBJECT_ID_TO_NAME_MAPPING = {
+            #     "201": "victim1",
+            #     "202": "victim2",
+            #     "208": "fire1",
+            #     "207": "fire1",
+            #     "211": "victim2",
+            #     "212": "victim2",
+            # }
+            self.WORLD_OBJECT_ID_TO_NAME_MAPPING = {
+                "204": Situations.UNKNOWN_VICTIM,
+                "205": Situations.UNKNOWN_VICTIM,
+                # "208": "fire1",
+                # "207": "fire1",
+                "206": Situations.UNKNOWN_VICTIM,
+                "207": Situations.UNKNOWN_VICTIM,
+            }
+        elif self.FIDUCIAL_ENVIRONMENT == FiducialEnvironment.TU_DELFT:
+            """TU Delft"""
+            self.WORLD_OBJECT_ID_TO_NAME_MAPPING = {
+                "1": Situations.UNKNOWN_VICTIM,
+                "3": Situations.UNKNOWN_VICTIM,
+            }
 
     def set_real_params(self):
         self.LG_NUM_CELLS = 128
@@ -205,7 +232,6 @@ cfg = Config()
 # cfg = Config(plot_lvl=PlotLvl.NONE)
 # cfg = Config(scenario=Scenario.SIM_VILLA_ROOM, plot_lvl=PlotLvl.RESULT_ONLY)
 # cfg = Config(scenario=Scenario.SIM_MAZE)
-# cfg = Config(scenario=Scenario.SIM_VILLA, vizualiser=Vizualiser.MATPLOTLIB)
 # cfg = Config(plot_lvl=PlotLvl.RESULT_ONLY, scenario=Scenario.SIM_MAZE_MEDIUM)
 
 # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
@@ -216,8 +242,6 @@ cfg = Config()
 # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
 # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)
 # cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM)
-# cfg = Config(scenario=Scenario.SIM_MAZE_MEDIUM, vizualiser=Vizualiser.MATPLOTLIB)
-# cfg = Config(vizualiser=Vizualiser.MATPLOTLIB)
 
 # '''benchmark'''
 # cfg = Config(

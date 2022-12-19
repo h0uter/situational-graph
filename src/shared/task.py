@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from uuid import UUID, uuid4
+from uuid import uuid4
 
-from src.shared.prior_knowledge.objectives import Objectives
-from src.shared.node_and_edge import Edge
+from src.shared.prior_knowledge.sar_objectives import Objectives
+from src.shared.types.node_and_edge import Edge
 
 
 @dataclass

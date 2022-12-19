@@ -2,12 +2,7 @@ import numpy as np
 import pytest
 
 from src.config import cfg
-from src.platform_state.local_grid import LocalGrid
-
-
-def test_local_grid_init():
-    lg = LocalGrid((0, 0), np.array([]))
-    assert lg.lg_length_in_m == lg.mtr_per_cell * lg.LG_LEN_IN_N_CELLS
+from src.platform_autonomy.state.local_grid import LocalGrid
 
 
 def test_calc_length_num_cells():
