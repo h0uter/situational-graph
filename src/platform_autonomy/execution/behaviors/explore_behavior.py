@@ -14,7 +14,7 @@ from src.platform_autonomy.state.frontier_sampling_strategies import (
 )
 from src.platform_autonomy.state.local_grid import LocalGrid
 from src.shared.prior_knowledge.affordance import Affordance
-from src.shared.prior_knowledge.situations import Situations
+from src.shared.prior_knowledge.sar_situations import Situations
 from src.shared.situational_graph import SituationalGraph
 from src.shared.types.node_and_edge import Edge, Node
 from src.shared.world_object import WorldObject

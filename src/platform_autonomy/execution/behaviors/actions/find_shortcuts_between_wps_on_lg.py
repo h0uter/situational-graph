@@ -5,7 +5,7 @@ from src.core.event_system import post_event
 from src.core.topics import Topics
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.platform_autonomy.state.local_grid import LocalGrid
-from src.shared.prior_knowledge.situations import Situations
+from src.shared.prior_knowledge.sar_situations import Situations
 from src.shared.situational_graph import SituationalGraph
 
 

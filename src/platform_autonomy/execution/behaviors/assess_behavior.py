@@ -10,7 +10,7 @@ from src.platform_autonomy.execution.abstract_behavior import (
     BehaviorResult,
 )
 from src.shared.prior_knowledge.affordance import Affordance
-from src.shared.prior_knowledge.situations import Situations
+from src.shared.prior_knowledge.sar_situations import Situations
 from src.shared.situational_graph import SituationalGraph
 from src.shared.types.node_and_edge import Edge
 

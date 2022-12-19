@@ -6,7 +6,7 @@ from enum import Enum, IntEnum, auto
 
 import coloredlogs
 
-from src.shared.prior_knowledge.situations import Situations
+from src.shared.prior_knowledge.sar_situations import Situations
 
 """User Configuration can be selected at the bottom of this file"""
 
@@ -81,7 +81,7 @@ class Config:
         # exploration hyperparameters
         # self.PATH_FINDING_METHOD = "bellman-ford"
         self.PATH_FINDING_METHOD = "dijkstra"
-        self.N_SAMPLES = 30
+        self.N_SAMPLES = 50  # 30
         self.PRUNE_RADIUS = self.LG_LEN_IN_M * self.PRUNE_RADIUS_FACTOR
         self.AT_WP_MARGIN = 0.25
         # self.PREV_POS_MARGIN = 0.15
@@ -237,7 +237,7 @@ cfg = Config()
 # cfg = Config(scenario=Scenario.REAL, vizualiser=Vizualiser.MATPLOTLIB)
 # cfg = Config(scenario=Scenario.REAL, screenshot=True, screenshot_folder_name="vonweiler2")
 # cfg = Config(screenshot=True, screenshot_folder_name="vonweiler2")
-cfg = Config(scenario=Scenario.REAL)
+# cfg = Config(scenario=Scenario.REAL)
 
 # cfg = Config(PlotLvl.NONE, World.SIM_MAZE, num_agents=10)
 # cfg = Config(scenario=Scenario.SIM_VILLA, num_agents=10)

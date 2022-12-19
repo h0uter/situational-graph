@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from src.config import cfg
 from src.core import event_system
 from src.core.topics import Topics
-from src.logging.tosg_stats import TOSGStats
+from src.core.logging.tosg_stats import TOSGStats
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.platform_autonomy.control.audio_feedback import play_file
 from src.shared.situational_graph import SituationalGraph

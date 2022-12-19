@@ -1,10 +1,9 @@
 from enum import Enum
 from typing import Optional
 
-from src.shared.prior_knowledge.capabilities import Capabilities
+from src.shared.prior_knowledge.sar_capabilities import Capabilities
 
 
-# TODO: make BaseBehaviors class to inherit from for specific domains
 class Behaviors(Enum):
     GOTO = (set(), 1, "Go to a waypoint.")
     EXPLORE = (set(), 1, "Go to a place and sample new frontiers.")

@@ -13,7 +13,7 @@ from src.core.event_system import subscribe
 from src.core.topics import Topics
 from src.operator.feedback_pipeline import MissionViewModel
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
-from src.shared.prior_knowledge.situations import Situations
+from src.shared.prior_knowledge.sar_situations import Situations
 from src.shared.situational_graph import SituationalGraph
 from src.operator.mission_controller import MissionController
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html

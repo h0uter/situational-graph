@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.shared.prior_knowledge.situations import Situations
+from src.shared.prior_knowledge.sar_situations import Situations
 
 
 @dataclass

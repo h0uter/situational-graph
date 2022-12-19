@@ -1,7 +1,7 @@
 
 from src.core import event_system
 from src.core.topics import Topics
-from src.shared.prior_knowledge.objectives import Objectives
+from src.shared.prior_knowledge.sar_objectives import Objectives
 from src.shared.task import Task
 from src.shared.types.node_and_edge import Node, Edge
 

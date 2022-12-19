@@ -5,9 +5,9 @@ from uuid import uuid4
 import networkx as nx
 
 from src.shared.prior_knowledge.affordance import Affordance
-from src.shared.prior_knowledge.behaviors import Behaviors
-from src.shared.prior_knowledge.objectives import Objectives
-from src.shared.prior_knowledge.situations import Situations
+from src.shared.prior_knowledge.sar_behaviors import Behaviors
+from src.shared.prior_knowledge.sar_objectives import Objectives
+from src.shared.prior_knowledge.sar_situations import Situations
 from src.shared.task import Task
 from src.shared.types.node_and_edge import Edge, Node
 

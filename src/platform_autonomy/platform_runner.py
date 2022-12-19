@@ -1,17 +1,18 @@
 from dataclasses import dataclass
+from typing import Mapping, Type
 
 from src.core.event_system import subscribe
-from src.core.planning.graph_task_planner import (
+from src.core.topics import Topics
+from src.platform_autonomy.control.abstract_agent import AbstractAgent
+from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior
+from src.platform_autonomy.execution.plan_executor import PlanExecutor
+from src.platform_autonomy.planning.graph_task_planner import (
     CouldNotFindPlan,
     GraphTaskPlanner,
     TargetNodeNotFound,
 )
-from src.core.topics import Topics
-from src.platform_autonomy.control.abstract_agent import AbstractAgent
-from src.platform_autonomy.execution.plan_executor import PlanExecutor
-from src.shared.sar_affordances import SAR_AFFORDANCES
+from src.shared.prior_knowledge.sar_behaviors import Behaviors
 from src.shared.situational_graph import SituationalGraph
-from src.usecases.search_and_rescue.sar_behaviors import SAR_BEHAVIORS
 
 
 @dataclass
@@ -22,22 +23,19 @@ class PlatformRunnerMessage:
 
 
 class PlatformRunner:
-    def __init__(self):
+    def __init__(
+        self, affordances: list, behaviors: Mapping[Behaviors, Type[AbstractBehavior]]
+    ):
         subscribe(Topics.RUN_PLATFORM, self.platform_runner)
 
         # TODO: this prior knowledge needs to be injected from the usecase
-        domain_behaviors = SAR_BEHAVIORS
-        affordances = SAR_AFFORDANCES
 
-        self.plan_executor = PlanExecutor(domain_behaviors, affordances)
+        self.plan_executor = PlanExecutor(behaviors, affordances)
         self.planner = GraphTaskPlanner()
 
     def platform_runner(self, data: PlatformRunnerMessage):
         agent = data.agent
         tosg = data.tosg
-
-        # if not agent.task:
-        #     return
 
         if agent.init_explore_step_completed:
             filtered_tosg = tosg._filter_graph(agent.capabilities)
@@ -58,7 +56,7 @@ class PlatformRunner:
 
         """execution"""
         if agent.plan:
-        # if agent.plan and (agent.task in tosg.tasks):
+            # if agent.plan and (agent.task in tosg.tasks):
             result = self.plan_executor.execute_plan(agent, tosg, agent.plan)
 
             self.plan_executor.process_execution_result(result, agent, tosg)

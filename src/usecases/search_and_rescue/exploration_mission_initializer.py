@@ -1,22 +1,20 @@
-
 from abc import ABC, abstractmethod
+
 from src.core import event_system
 from src.core.topics import Topics
 from src.mission_autonomy.mission_initializer import MissionInitializer
-
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.shared.plan_model import PlanModel
-from src.shared.prior_knowledge.behaviors import Behaviors
-from src.shared.prior_knowledge.objectives import Objectives
+from src.shared.prior_knowledge.sar_behaviors import Behaviors
+from src.shared.prior_knowledge.sar_objectives import Objectives
 from src.shared.situational_graph import SituationalGraph
 from src.shared.task import Task
 
 
 class ExplorationMissionInitializer(MissionInitializer):
     """This is the initializer for the search and rescue exploration usecase"""
-    def initialize_mission(
-        self, agents: list[AbstractAgent], tosg: SituationalGraph
-    ):
+
+    def initialize_mission(self, agents: list[AbstractAgent], tosg: SituationalGraph):
         """Manually set first task to exploring current position."""
 
         self.init_place_initial_waypoint_for_each_start_pose(
