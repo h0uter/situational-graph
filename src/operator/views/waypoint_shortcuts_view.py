@@ -54,3 +54,5 @@ class WaypointShortcutDebugView:
                 actors.append(cp_point_actor)
 
         self.plt.show(actors, resetcam=True)
+        if self.plt.escaped:
+            exit()
