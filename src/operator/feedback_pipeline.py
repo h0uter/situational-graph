@@ -68,8 +68,8 @@ def feedback_pipeline_completion(
         """
     )
 
-    if cfg.AUDIO_FEEDBACK:
-        play_file("exploration_complete.mp3")
+    # if cfg.AUDIO_FEEDBACK:
+    #     play_file("exploration_complete.mp3")
 
     event_system.post_event(
         Topics.VIEW__MISSION_UPDATE_FINAL,
