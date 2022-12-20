@@ -30,29 +30,16 @@ class SituationalGraph:
         self.G = nx.MultiDiGraph()
         self.tasks: list[Task] = []
 
-    @property
-    def waypoint_idxs(self) -> list[Node]:
-        """returns all waypoints idxs in the graph"""
-        return self.get_nodes_by_type(Situations.WAYPOINT)
-
-    @property
-    def frontier_idxs(self) -> list[Node]:
-        """returns all frontier idxs in the graph"""
-        return self.get_nodes_by_type(Situations.FRONTIER)
-
     def get_nodes_by_type(self, node_type: Situations) -> list[Node]:
-        """returns all frontier idxs in the graph"""
         return [
             node for node in self.G.nodes() if self.G.nodes[node]["type"] == node_type
         ]
 
     """Calc stuff"""
 
-    def calc_edge_len(self, a: Node, b: Node) -> float:
+    def calc_edge_len_between_nodes(self, a: Node, b: Node) -> float:
         """calculates the distance between two nodes"""
-        (x1, y1) = self.G.nodes[a]["pos"]
-        (x2, y2) = self.G.nodes[b]["pos"]
-        return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+        return self.calc_edge_len_pos(self.G.nodes[a]["pos"], self.G.nodes[b]["pos"])
 
     def calc_edge_len_pos(
         self, a: tuple[float, float], b: tuple[float, float]
@@ -66,38 +53,24 @@ class SituationalGraph:
 
     def add_edge_of_type(
         self,
-        node_a: Node,
-        node_b: Node,
+        a: Node,
+        b: Node,
         edge_type: Behaviors,
         cost: Optional[float] = None,
     ) -> Edge:
-        my_id = uuid4()
+        e_id = uuid4()
+        
         if not cost:
-            cost = self.calc_edge_len(node_a, node_b)
+            cost = self.calc_edge_len_between_nodes(a, b)
 
         self.G.add_edge(
-            node_a,
-            node_b,
-            key=my_id,
+            a,
+            b,
+            key=e_id,
             type=edge_type,
             cost=cost,
         )
-        return (node_a, node_b, my_id)
-
-    def add_node_with_task_and_edges_from_affordances(
-        self,
-        from_node: Node,
-        object_type: Situations,
-        pos: tuple,
-        affordances: list[Affordance],
-    ) -> Node:
-        new_node = self.add_node_of_type(pos, object_type)
-        for affordance in affordances:
-            if affordance[0] == object_type:
-                edge = self.add_edge_of_type(from_node, new_node, affordance[1])
-                self.tasks.append(Task(edge, affordance[2]))
-
-        return new_node
+        return (a, b, e_id)
 
     def add_node_of_type(
         self, pos: tuple[float, float], object_type: Situations
@@ -132,13 +105,12 @@ class SituationalGraph:
         self.add_edge_of_type(node_b, node_a, Behaviors.GOTO)
 
     def add_frontier(self, pos: tuple[float, float], from_node: Node) -> None:
-        """adds a frontier to the graph"""
 
         ft_node = self.add_node_of_type(pos, Situations.FRONTIER)
 
-        edge_len = self.calc_edge_len(from_node, ft_node)
+        edge_len = self.calc_edge_len_between_nodes(from_node, ft_node)
         if edge_len:  # edge len can be zero in the final step.
-            cost = 1 / edge_len  # Prefer the longest waypoints
+            cost = 1 / edge_len  # Prefer the frontiers with the longest edges.
         else:
             cost = edge_len
 
@@ -164,12 +136,6 @@ class SituationalGraph:
             self._log.warning(f"remove_frontier(): {ft_node} is not a frontier")
             return
 
-    def remove_tasks_associated_with_node(self, node: Node):
-        """removes all tasks associated with a node"""
-        for task in self.tasks:
-            if node in task.edge:
-                self.tasks.remove(task)
-
     """Get stuff"""
 
     def get_task_by_edge(self, edge: Edge) -> Optional[Task]:
@@ -178,7 +144,7 @@ class SituationalGraph:
             if task.edge == edge:
                 return task
 
-    def get_node_by_pos(self, pos: tuple[float, float]) -> Node:
+    def get_node_by_exact_pos(self, pos: tuple[float, float]) -> Node:
         """returns the node idx at the given exact position"""
         for node in self.G.nodes():
             if self.G.nodes[node]["pos"] == pos:
@@ -234,16 +200,12 @@ class SituationalGraph:
         if edge not in self.G.edges:
             self._log.warning(f"get_behavior_of_edge(): {edge} not in graph")
             return None
-
-        if len(edge) == 2:
-            edge_type = self.G.edges[edge]["type"]
-            return edge_type
-        elif len(edge) == 3:
-            node_a, node_b, edge_id = edge
-            return self.G.edges[node_a, node_b, edge_id]["type"]
-        else:
-            self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
+        if len(edge) != 3:
+            self._log.error(f"get_behavior_of_edge(): wrong length of edge tuple: {edge}")
             return None
+
+        node_a, node_b, edge_id = edge
+        return self.G.edges[node_a, node_b, edge_id]["type"]
 
     def get_closest_waypoint_to_pos(self, pos: tuple[float, float]) -> Node:
         """returns the closest waypoint to the given position"""
@@ -280,13 +242,6 @@ class SituationalGraph:
 
     """Task manager stuff"""
 
-    def remove_invalid_tasks(self):
-        """removes all tasks that are not valid anymore"""
-        for task in self.tasks:
-            if not self.G.has_edge(*task.edge):
-                self._log.error(f"remove_invalid_tasks(): removing task {task}")
-                self.tasks.remove(task)
-
     def check_if_tasks_exhausted(self) -> bool:
         num_of_tasks = len(self.tasks)
         if num_of_tasks < 1:
@@ -294,6 +249,27 @@ class SituationalGraph:
             return True
         else:
             return False
+
+    def remove_tasks_associated_with_node(self, node: Node):
+        """removes all tasks associated with a node"""
+        for task in self.tasks:
+            if node in task.edge:
+                self.tasks.remove(task)
+
+    def add_node_with_task_and_edges_from_affordances(
+        self,
+        from_node: Node,
+        object_type: Situations,
+        pos: tuple[float, float],
+        affordances: list[Affordance],
+    ) -> Node:
+        new_node = self.add_node_of_type(pos, object_type)
+        for affordance in affordances:
+            if affordance[0] == object_type:
+                edge = self.add_edge_of_type(from_node, new_node, affordance[1])
+                self.tasks.append(Task(edge, affordance[2]))
+
+        return new_node
 
     """Convert stuff"""
 

@@ -40,7 +40,7 @@ class AbstractBehavior(ABC):
         else:
             # TODO: make it actually mutate tasks
             self._log.debug(f"postconditions not satisfied")
-            self._mutate_graph_and_tasks_failure(agent, tosg, behavior_edge)
+            self.mutate_graph_and_tasks_failure(agent, tosg, behavior_edge)
 
         return result
 
@@ -73,7 +73,7 @@ class AbstractBehavior(ABC):
         pass
 
     @abstractmethod
-    def _mutate_graph_and_tasks_failure(
+    def mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosgraph: SituationalGraph, behavior_edge: Edge
     ):
         pass

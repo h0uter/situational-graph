@@ -78,7 +78,7 @@ class AssessBehavior(AbstractBehavior):
             from_edge, my_object_type, old_pos, affordances
         )
 
-    def _mutate_graph_and_tasks_failure(
+    def mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
     ):
         """Mutate the graph according to the behavior."""

@@ -42,7 +42,9 @@ class GraphTaskPlanner:
         if target_node is None or not full_tosg.G.has_node(target_node):
             raise TargetNodeNotFound("Target node is not valid")
 
-        edge_path = self.shortest_edge_path(filtered_tosg, agent_localized_to, target_node)
+        edge_path = self.shortest_edge_path(
+            filtered_tosg, agent_localized_to, target_node
+        )
 
         # if the agent can find a plan for that task we remove the task
         # this is necc for the initial task of exploration.
@@ -69,7 +71,7 @@ class GraphTaskPlanner:
         """returns the shortest path between two nodes"""
 
         def dist_heur_wrapper(a: Node, b: Node):
-            return sg.calc_edge_len(a, b)
+            return sg.calc_edge_len_between_nodes(a, b)
 
         try:
             path_of_nodes = nx.astar_path(

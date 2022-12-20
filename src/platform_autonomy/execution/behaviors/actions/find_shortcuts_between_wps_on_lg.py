@@ -12,6 +12,7 @@ from src.shared.situational_graph import SituationalGraph
 @dataclass
 class WaypointShortcutViewModel:
     """A view model for a shortcut between two waypoints on the local grid."""
+
     local_grid: LocalGrid
     collision_cells: list[tuple[int, int]]
     shortcut_candidate_cells: list[tuple[int, int]]
@@ -54,7 +55,7 @@ def add_shortcut_edges_between_wps_on_lg(
 
             if is_collision_free:
                 from_wp = agent.at_wp
-                to_wp = tosg.get_node_by_pos(wp_pos)
+                to_wp = tosg.get_node_by_exact_pos(wp_pos)
 
                 if not tosg.G.has_edge(from_wp, to_wp):
                     tosg.add_waypoint_diedge(from_wp, to_wp)

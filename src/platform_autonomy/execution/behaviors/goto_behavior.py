@@ -46,7 +46,7 @@ class GotoBehavior(AbstractBehavior):
         lg = agent.get_local_grid()
         add_shortcut_edges_between_wps_on_lg(lg, tosg, agent)
 
-    def _mutate_graph_and_tasks_failure(
+    def mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
     ):
         """Mutate the graph according to the behavior."""

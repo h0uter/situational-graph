@@ -103,7 +103,7 @@ class ExploreBehavior(AbstractBehavior):
         if worldobjects:
             # 2. check if they not already in the graph
             for wo in worldobjects:
-                if tosg.get_node_by_pos(wo.pos):
+                if tosg.get_node_by_exact_pos(wo.pos):
                     self._log.debug(
                         f"{wo.object_type} at {wo.pos} already in the graph"
                     )
@@ -119,7 +119,7 @@ class ExploreBehavior(AbstractBehavior):
                     agent.at_wp, wo.object_type, wo.pos, affordances
                 )
 
-    def _mutate_graph_and_tasks_failure(
+    def mutate_graph_and_tasks_failure(
         self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
     ):
         # Recovery behaviour
@@ -216,14 +216,18 @@ class ExploreBehavior(AbstractBehavior):
     # 50% of compute time goes to this function for multiple agents
     def __prune_frontiers(self, tosg: SituationalGraph) -> None:
 
-        ft_and_pos = [(ft, tosg.G.nodes[ft]["pos"]) for ft in tosg.frontier_idxs]
+        ft_and_pos = [
+            (ft, tosg.G.nodes[ft]["pos"])
+            for ft in tosg.get_nodes_by_type(Situations.FRONTIER)
+        ]
 
         # FIXME: this function is most expensive
         # One solution would be using neightbors property in the graph
         # so instead of doing it for the entire graph, only do it locally next to where the graph was modified
         close_frontiers = set()  # avoid duplicates
 
-        for wp in tosg.waypoint_idxs:
+        # for wp in tosg.waypoint_idxs:
+        for wp in tosg.get_nodes_by_type(Situations.WAYPOINT):
             wp_pos = tosg.get_node_data_by_node(wp)["pos"]
             for ft, ft_pos in ft_and_pos:
                 if (
