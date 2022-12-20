@@ -65,7 +65,7 @@ class MissionView:
         # my_node = self.tosg.get_nodes_of_type_in_margin(
         #     node_pos, 2, Situations.WAYPOINT
         # )[0]
-        my_node = self.tosg.get_closest_waypoint(node_pos)
+        my_node = self.tosg.get_closest_waypoint_to_pos(node_pos)
         print("node: ", my_node, " | pos: ", node_pos)
         # self.plt.render()
 

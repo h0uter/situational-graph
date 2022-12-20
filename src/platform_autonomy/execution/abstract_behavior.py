@@ -44,31 +44,6 @@ class AbstractBehavior(ABC):
 
         return result
 
-    # perhaps something like this should go into robot services, to not murk the dependencies.
-    @staticmethod
-    def _localize_to_closest_waypoint(agent: AbstractAgent, tosg: SituationalGraph):
-        """Localize the agent to the waypoint it is currently at."""
-        # agent.localize_to_waypoint(tosg)
-        loc_candidates = tosg.get_nodes_of_type_in_margin(
-            agent.get_localization(), cfg.AT_WP_MARGIN, Situations.WAYPOINT
-        )
-
-        if len(loc_candidates) == 0:
-            agent._log.error(
-                f"{agent.name}: could not find a waypoint in the margin to localize to"
-            )
-            # agent.at_wp = None
-        elif len(loc_candidates) == 1:
-            agent.at_wp = loc_candidates[0]
-
-        elif len(loc_candidates) > 1:
-            agent._log.warning(
-                f"{agent.name}: found multiple waypoints in the margin {loc_candidates}, picking the first one ({loc_candidates[0]}) for localization"
-            )
-            agent.at_wp = loc_candidates[0]
-
-        assert agent.at_wp is not None, "agent.at_wp is None"
-
     @abstractmethod
     def _run_behavior_implementation(
         self, agent, tosgraph: SituationalGraph, behavior_edge: Edge

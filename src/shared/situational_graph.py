@@ -11,6 +11,8 @@ from src.shared.prior_knowledge.sar_situations import Situations
 from src.shared.task import Task
 from src.shared.types.node_and_edge import Edge, Node
 
+# **Tuesday, Dec 20@16:22::** 350 lines
+
 
 class SituationalGraph:
     # TODO: separate behavior from data
@@ -44,77 +46,7 @@ class SituationalGraph:
             node for node in self.G.nodes() if self.G.nodes[node]["type"] == node_type
         ]
 
-    # this is a graph operation, that does depend on self....
-    def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
-        """returns the shortest path between two nodes"""
-
-        def dist_heur_wrapper(a: Node, b: Node):
-            return self.calc_edge_len(a, b)
-
-        try:
-            path_of_nodes = nx.astar_path(
-                self.G,
-                source=source,
-                target=target,
-                weight="cost",
-                heuristic=dist_heur_wrapper,
-            )
-        except nx.NetworkXNoPath:
-            self._log.debug(f"shortest_path: No path found from {source} to {target}.")
-            return None
-
-        if len(path_of_nodes) > 1:
-            return self.node_list_to_edge_list(path_of_nodes)
-        else:
-            self._log.error(f"shortest_path: No path found from {source} to {target}.")
-            return None
-
-    # this is a graph operation, that does depend on self.... easy to refactor
-    def distance_astar(self, source: Node, target: Node) -> float:
-        """returns the length of the shortest path between two nodes"""
-
-        def dist_heur_wrapper(a: Node, b: Node):
-            return self.calc_edge_len(a, b)
-
-        try:
-            distance = nx.astar_path_length(
-                self.G,
-                source=source,
-                target=target,
-                weight="cost",
-                heuristic=dist_heur_wrapper,
-            )
-        except nx.NetworkXNoPath:
-            self._log.debug(
-                f"shortest_path_len: No path found from {source} to {target}."
-            )
-            distance = float("inf")
-
-        return distance
-
-    def distance_and_path_dijkstra(
-        self, source: Node, targets: list[Node]
-    ) -> tuple[dict, dict]:
-        """returns the length of the shortest path between a single source and multiple targets"""
-
-        def dist_heur_wrapper(a: Node, b: Node):
-            return self.calc_edge_len(a, b)
-
-        try:
-            distance, path = nx.single_source_dijkstra(
-                self.G,
-                source=source,
-                # target=targets,
-                weight="cost",
-                # heuristic=dist_heur_wrapper,
-            )
-        except nx.NetworkXNoPath:
-            self._log.debug(
-                f"shortest_path_len: No path found from {source} to {targets}."
-            )
-            distance = {target: float("inf") for target in targets}
-
-        return distance, path
+    """Calc stuff"""
 
     def calc_edge_len(self, a: Node, b: Node) -> float:
         """calculates the distance between two nodes"""
@@ -130,16 +62,7 @@ class SituationalGraph:
         (x2, y2) = b
         return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
 
-    def node_list_to_edge_list(self, node_list: Sequence[Node]) -> Sequence[Edge]:
-        action_path: list[Edge] = []
-        for i in range(len(node_list) - 1):
-            min_cost_edge = self.get_edge_with_lowest_weight(
-                node_list[i], node_list[i + 1]
-            )
-            action_path.append(min_cost_edge)
-        self._log.debug(f"node_list_to_edge_list(): action_path: {action_path}")
-
-        return action_path
+    """Add stuff"""
 
     def add_edge_of_type(
         self,
@@ -168,9 +91,6 @@ class SituationalGraph:
         pos: tuple,
         affordances: list[Affordance],
     ) -> Node:
-        """
-        Adds a node with edges from the affordances of the given object type.
-        """
         new_node = self.add_node_of_type(pos, object_type)
         for affordance in affordances:
             if affordance[0] == object_type:
@@ -187,7 +107,7 @@ class SituationalGraph:
         return node_uuid
 
     def add_waypoint_node(self, pos: tuple[float, float]) -> Node:
-        """adds start points to the graph"""
+        """used to add start points to the graph"""
 
         return self.add_node_of_type(pos, Situations.WAYPOINT)
 
@@ -232,6 +152,8 @@ class SituationalGraph:
 
         self.tasks.append(Task(edge, Objectives.EXPLORE_ALL_FTS))
 
+    """Remove stuff"""
+
     def remove_frontier(self, ft_node: Node) -> None:
         """removes a frontier from the graph"""
         target_frontier = self.get_node_data_by_node(ft_node)
@@ -248,6 +170,8 @@ class SituationalGraph:
             if node in task.edge:
                 self.tasks.remove(task)
 
+    """Get stuff"""
+
     def get_task_by_edge(self, edge: Edge) -> Optional[Task]:
         """returns the task associated with the edge"""
         for task in self.tasks:
@@ -255,7 +179,7 @@ class SituationalGraph:
                 return task
 
     def get_node_by_pos(self, pos: tuple[float, float]) -> Node:
-        """returns the node idx at the given position"""
+        """returns the node idx at the given exact position"""
         for node in self.G.nodes():
             if self.G.nodes[node]["pos"] == pos:
                 return node
@@ -306,9 +230,14 @@ class SituationalGraph:
 
     def get_behavior_of_edge(self, edge: Edge) -> Optional[Behaviors]:
         """returns the type of the edge between two nodes"""
+
+        if edge not in self.G.edges:
+            self._log.warning(f"get_behavior_of_edge(): {edge} not in graph")
+            return None
+
         if len(edge) == 2:
-            yolo = self.G.edges[edge]["type"]
-            return yolo
+            edge_type = self.G.edges[edge]["type"]
+            return edge_type
         elif len(edge) == 3:
             node_a, node_b, edge_id = edge
             return self.G.edges[node_a, node_b, edge_id]["type"]
@@ -316,21 +245,20 @@ class SituationalGraph:
             self._log.error(f"get_type_of_edge(): wrong length of edge tuple: {edge}")
             return None
 
-    def remove_invalid_tasks(self):
-        """removes all tasks that are not valid anymore"""
-        for task in self.tasks:
-            if not self.G.has_edge(*task.edge):
-                self._log.error(f"remove_invalid_tasks(): removing task {task}")
-                self.tasks.remove(task)
+    def get_closest_waypoint_to_pos(self, pos: tuple[float, float]) -> Node:
+        """returns the closest waypoint to the given position"""
+        closest_node = None
+        min_dist = float("inf")
+        for node in self.G.nodes:
+            if self.G.nodes[node]["type"] == Situations.WAYPOINT:
+                dist = self.calc_edge_len_pos(pos, self.G.nodes[node]["pos"])
+                if dist < min_dist:
+                    min_dist = dist
+                    closest_node = node
 
-    def check_if_tasks_exhausted(self) -> bool:
-        num_of_tasks = len(self.tasks)
-        if num_of_tasks < 1:
-            print("No more tasks left")
-            return True
-        else:
-            return False
+        return closest_node
 
+    """Extract value from graph stuff"""
     # TODO: add Self typing
     def filter_graph(self, capabilities: set):
         def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
@@ -350,15 +278,32 @@ class SituationalGraph:
         filtered_tosg.G = filtered_G
         return filtered_tosg
 
-    def get_closest_waypoint(self, pos: tuple[float, float]) -> Node:
-        """returns the closest waypoint to the given position"""
-        closest_node = None
-        min_dist = float("inf")
-        for node in self.G.nodes:
-            if self.G.nodes[node]["type"] == Situations.WAYPOINT:
-                dist = self.calc_edge_len_pos(pos, self.G.nodes[node]["pos"])
-                if dist < min_dist:
-                    min_dist = dist
-                    closest_node = node
+    """Task manager stuff"""
 
-        return closest_node
+    def remove_invalid_tasks(self):
+        """removes all tasks that are not valid anymore"""
+        for task in self.tasks:
+            if not self.G.has_edge(*task.edge):
+                self._log.error(f"remove_invalid_tasks(): removing task {task}")
+                self.tasks.remove(task)
+
+    def check_if_tasks_exhausted(self) -> bool:
+        num_of_tasks = len(self.tasks)
+        if num_of_tasks < 1:
+            print("No more tasks left")
+            return True
+        else:
+            return False
+
+    """Convert stuff"""
+
+    def node_list_to_edge_list(self, node_list: Sequence[Node]) -> list[Edge]:
+        action_path: list[Edge] = []
+        for i in range(len(node_list) - 1):
+            min_cost_edge = self.get_edge_with_lowest_weight(
+                node_list[i], node_list[i + 1]
+            )
+            action_path.append(min_cost_edge)
+        self._log.debug(f"node_list_to_edge_list(): action_path: {action_path}")
+
+        return action_path

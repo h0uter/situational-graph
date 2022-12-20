@@ -2,7 +2,7 @@ import logging
 from typing import Mapping, Sequence, Type
 
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
-from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior
+from src.platform_autonomy.execution.abstract_behavior import AbstractBehavior, BehaviorResult
 from src.shared.plan_model import PlanModel
 from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.prior_knowledge.sar_behaviors import Behaviors
@@ -23,6 +23,12 @@ class PlanExecutor:
         self, agent: AbstractAgent, tosg: SituationalGraph, plan: PlanModel
     ):
         behavior_of_current_edge = tosg.get_behavior_of_edge(plan.upcoming_edge)
+
+        if not behavior_of_current_edge:
+            self._log.error(
+                f"Behavior of edge {plan.upcoming_edge} is not defined in the domain."
+            )
+            return BehaviorResult(success=False)
 
         current_edge = plan.upcoming_edge
 
