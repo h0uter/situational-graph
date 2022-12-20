@@ -99,8 +99,6 @@ class Config:
         logging.basicConfig(
             stream=sys.stdout,
             level=LOG_LVL,
-            # format="%(asctime)s | %(levelname)s | %(funcName)s |%(message)s",
-            # force=True,
         )
         logging.getLogger("matplotlib").setLevel(logging.WARNING)
         logging.getLogger("PIL").setLevel(logging.WARNING)

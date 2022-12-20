@@ -176,35 +176,20 @@ class ExploreBehavior(AbstractBehavior):
         """
         Sample a new waypoint at current agent pos, and add an edge connecting it to prev wp.
         """
-        wp_at_previous_pos_candidates = tosg.get_nodes_of_type_in_margin(
-            agent.previous_pos, cfg.PREV_POS_MARGIN, Situations.WAYPOINT
-        )
 
-        if len(wp_at_previous_pos_candidates) == 0:
+        wp_at_previous_pos = tosg.get_closest_waypoint_to_pos(agent.previous_pos)
+        if not wp_at_previous_pos:
             self._log.error(
                 f"{agent.name}: No waypoint at previous pos {agent.previous_pos}, no wp added.\n {agent.name}: {agent.pos=} and {agent.get_localization()=}."
             )
-
-            agent.at_wp = tosg.get_closest_waypoint_to_pos(agent.get_localization())
-
             return False
 
-        elif len(wp_at_previous_pos_candidates) > 1:
-            self._log.warning(
-                f"{agent.name}: Multiple waypoints at previous pos, taking first one: {wp_at_previous_pos_candidates[0]}."
-            )
-            wp_at_previous_pos = wp_at_previous_pos_candidates[0]
-            tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
-            agent.at_wp = tosg.get_closest_waypoint_to_pos(agent.get_localization())
-
-            return True
-
-        elif len(wp_at_previous_pos_candidates) == 1:
-            wp_at_previous_pos = wp_at_previous_pos_candidates[0]
-            tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
-            agent.at_wp = tosg.get_closest_waypoint_to_pos(agent.get_localization())
-
-            return True
+        # tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
+        new_wp = tosg.add_node_of_type(agent.get_localization(), Situations.WAYPOINT)
+        tosg.add_waypoint_diedge(new_wp, wp_at_previous_pos)
+        
+        agent.at_wp = tosg.get_closest_waypoint_to_pos(agent.get_localization())
+        return True
 
     def __add_new_frontiers_to_tosg(
         self, new_frontier_cells, lg: LocalGrid, tosg: SituationalGraph, agent

@@ -7,6 +7,7 @@ from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.shared.plan_model import PlanModel
 from src.shared.prior_knowledge.sar_behaviors import Behaviors
 from src.shared.prior_knowledge.sar_objectives import Objectives
+from src.shared.prior_knowledge.sar_situations import Situations
 from src.shared.situational_graph import SituationalGraph
 from src.shared.task import Task
 
@@ -34,7 +35,7 @@ class ExplorationMissionInitializer(MissionInitializer):
             if start_pos in duplicate_start_poses:
                 continue
 
-            tosg.add_waypoint_node(start_pos)
+            tosg.add_node_of_type(start_pos, Situations.WAYPOINT)
             duplicate_start_poses.append(start_pos)
 
     @staticmethod

@@ -38,7 +38,7 @@ class PlatformRunner:
         tosg = data.tosg
 
         if agent.init_explore_step_completed:
-            filtered_tosg = tosg.filter_graph(agent.capabilities)
+            filtered_tosg = tosg.get_filtered_graph(agent.capabilities)
 
             """planning"""
             try:

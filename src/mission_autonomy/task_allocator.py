@@ -20,8 +20,8 @@ class TaskAllocator:
     ) -> Optional[Task]:
         target_node_to_task = {task.edge[1]: task for task in sg.tasks}
 
-        path_costs = self.distance_and_path_dijkstra(sg,
-            agent_at_wp, set(target_node_to_task.keys())
+        path_costs = self.distance_and_path_dijkstra(
+            sg, agent_at_wp, set(target_node_to_task.keys())
         )
 
         def calc_utility(reward: float, path_cost: float) -> float:
@@ -48,8 +48,6 @@ class TaskAllocator:
         self, sg: SituationalGraph, source: Node, targets: set[Node]
     ) -> dict[Node, float]:
         """returns the length of the shortest path between a single source and multiple targets"""
-
-
         try:
             distance, _ = nx.single_source_dijkstra(
                 sg.G,
