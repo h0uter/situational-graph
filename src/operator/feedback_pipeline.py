@@ -31,18 +31,18 @@ def feedback_pipeline_init():
 
 
 def feedback_pipeline_single_step(
-    step, step_start, agents, tosg, tosg_stats, my_logger
+    step, step_start, agents, situational_graph, tosg_stats, my_logger
 ):
     """Data collection"""
     step_duration = time.perf_counter() - step_start
-    tosg_stats.update(tosg, step_duration)
+    tosg_stats.update(situational_graph, step_duration)
 
     """ Visualisation """
     my_logger.debug(f"{step} ------------------------ {step_duration:.4f}s")
 
     event_system.post_event(
         Topics.VIEW__MISSION_UPDATE,
-        MissionViewModel(situational_graph=tosg, agents=agents),
+        MissionViewModel(situational_graph=situational_graph, agents=agents),
     )
 
     if step % 50 == 0:
@@ -53,7 +53,7 @@ def feedback_pipeline_single_step(
 def feedback_pipeline_completion(
     step: int,
     agents: list[AbstractAgent],
-    tosg: SituationalGraph,
+    situational_graph: SituationalGraph,
     tosg_stats,
     my_logger,
     start,
@@ -73,7 +73,7 @@ def feedback_pipeline_completion(
 
     event_system.post_event(
         Topics.VIEW__MISSION_UPDATE_FINAL,
-        MissionViewModel(situational_graph=tosg, agents=agents),
+        MissionViewModel(situational_graph=situational_graph, agents=agents),
     )
 
     # if cfg.PLOT_LVL <= PlotLvl.STATS_ONLY:

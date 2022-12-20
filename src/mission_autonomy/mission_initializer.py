@@ -6,5 +6,5 @@ from src.shared.situational_graph import SituationalGraph
 
 class MissionInitializer(ABC):
     @abstractmethod
-    def initialize_mission(self, agents: list[AbstractAgent], tosg: SituationalGraph):
+    def initialize_mission(self, agents: list[AbstractAgent], situational_graph: SituationalGraph):
         pass

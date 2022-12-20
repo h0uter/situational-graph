@@ -22,31 +22,31 @@ class AbstractBehavior(ABC):
         self.AFFORDANCES = affordances
 
     def pipeline(
-        self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
+        self, agent: AbstractAgent, situational_graph: SituationalGraph, behavior_edge: Edge
     ) -> BehaviorResult:
         """Execute the behavior pipeline."""
 
-        result = self._run_behavior_implementation(agent, tosg, behavior_edge)
+        result = self._run_behavior_implementation(agent, situational_graph, behavior_edge)
 
         if not result.success:
             return result
 
-        if self._check_postconditions(agent, tosg, result, behavior_edge):
+        if self._check_postconditions(agent, situational_graph, result, behavior_edge):
             self._log.debug(f"postconditions satisfied")
             # TODO: make it actually mutate tasks
             self._mutate_graph_and_tasks_success(
-                agent, tosg, result, behavior_edge, self.AFFORDANCES
+                agent, situational_graph, result, behavior_edge, self.AFFORDANCES
             )
         else:
             # TODO: make it actually mutate tasks
             self._log.debug(f"postconditions not satisfied")
-            self.mutate_graph_and_tasks_failure(agent, tosg, behavior_edge)
+            self.mutate_graph_and_tasks_failure(agent, situational_graph, behavior_edge)
 
         return result
 
     @abstractmethod
     def _run_behavior_implementation(
-        self, agent, tosgraph: SituationalGraph, behavior_edge: Edge
+        self, agent, situational_graph: SituationalGraph, behavior_edge: Edge
     ) -> BehaviorResult:
         pass
 
@@ -54,7 +54,7 @@ class AbstractBehavior(ABC):
     def _check_postconditions(
         self,
         agent: AbstractAgent,
-        tosgraph: SituationalGraph,
+        situational_graph: SituationalGraph,
         result,
         behavior_edge: Edge,
     ) -> bool:
@@ -65,7 +65,7 @@ class AbstractBehavior(ABC):
     def _mutate_graph_and_tasks_success(
         self,
         agent: AbstractAgent,
-        tosg: SituationalGraph,
+        situational_graph: SituationalGraph,
         result: BehaviorResult,
         behavior_edge: Edge,
         affordances: Sequence[Affordance],
@@ -74,7 +74,7 @@ class AbstractBehavior(ABC):
 
     @abstractmethod
     def mutate_graph_and_tasks_failure(
-        self, agent: AbstractAgent, tosgraph: SituationalGraph, behavior_edge: Edge
+        self, agent: AbstractAgent, situational_graph: SituationalGraph, behavior_edge: Edge
     ):
         pass
 

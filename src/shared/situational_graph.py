@@ -134,11 +134,11 @@ class SituationalGraph:
             self.G, filter_edge=filter_edges_based_on_agent_capabilities
         )
 
-        # insert the filtered graph into a new tosg object
-        filtered_tosg = SituationalGraph()
-        filtered_tosg.tasks = self.tasks
-        filtered_tosg.G = filtered_G
-        return filtered_tosg
+        # insert the filtered graph into a new situational_graph object
+        filtered_situational_graph = SituationalGraph()
+        filtered_situational_graph.tasks = self.tasks
+        filtered_situational_graph.G = filtered_G
+        return filtered_situational_graph
 
     """Convert stuff"""
 

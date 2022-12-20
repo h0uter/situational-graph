@@ -16,12 +16,12 @@ class TaskAllocator:
     """
 
     def single_agent_task_selection(
-        self, agent_at_wp: Node, sg: SituationalGraph
+        self, agent_at_wp: Node, situational_graph: SituationalGraph
     ) -> Optional[Task]:
-        target_node_to_task = {task.edge[1]: task for task in sg.tasks}
+        target_node_to_task = {task.edge[1]: task for task in situational_graph.tasks}
 
         path_costs = self.distance_and_path_dijkstra(
-            sg, agent_at_wp, set(target_node_to_task.keys())
+            situational_graph, agent_at_wp, set(target_node_to_task.keys())
         )
 
         def calc_utility(reward: float, path_cost: float) -> float:
@@ -32,7 +32,7 @@ class TaskAllocator:
 
         task_to_utility = {
             task: calc_utility(task.reward, path_costs[task.edge[1]])
-            for task in sg.tasks
+            for task in situational_graph.tasks
             if task.edge[1] in path_costs
         }
 
@@ -45,17 +45,17 @@ class TaskAllocator:
 
     # TODO: move to task allocator
     def distance_and_path_dijkstra(
-        self, sg: SituationalGraph, source: Node, targets: set[Node]
+        self, situational_graph: SituationalGraph, source: Node, targets: set[Node]
     ) -> dict[Node, float]:
         """returns the length of the shortest path between a single source and multiple targets"""
         try:
             distance, _ = nx.single_source_dijkstra(
-                sg.G,
+                situational_graph.G,
                 source=source,
                 weight="cost",
             )
         except nx.NetworkXNoPath:
-            sg._log.debug(
+            situational_graph._log.debug(
                 f"shortest_path_len: No path found from {source} to {targets}."
             )
             distance = {target: float("inf") for target in targets}

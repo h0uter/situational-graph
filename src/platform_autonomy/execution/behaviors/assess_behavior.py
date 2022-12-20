@@ -28,9 +28,9 @@ class AssessResult(BehaviorResult):
 
 class AssessBehavior(AbstractBehavior):
     def _run_behavior_implementation(
-        self, agent, tosgraph, behavior_edge
+        self, agent, situational_graphraph, behavior_edge
     ) -> AssessResult:
-        target_node_pos = tosgraph.get_node_data_by_node(behavior_edge[1])["pos"]
+        target_node_pos = situational_graphraph.get_node_data_by_node(behavior_edge[1])["pos"]
         victim_state = self.__scan_victim(target_node_pos)
 
         return AssessResult(True, victim_state)
@@ -38,7 +38,7 @@ class AssessBehavior(AbstractBehavior):
     def _check_postconditions(
         self,
         agent: AbstractAgent,
-        tosg: SituationalGraph,
+        situational_graph: SituationalGraph,
         result: AssessResult,
         behavior_edge: Edge,
     ) -> bool:
@@ -51,13 +51,12 @@ class AssessBehavior(AbstractBehavior):
     def _mutate_graph_and_tasks_success(
         self,
         agent: AbstractAgent,
-        tosg: SituationalGraph,
+        situational_graph: SituationalGraph,
         result: AssessResult,
         behavior_edge: Edge,
         affordances: list[Affordance],
     ):
         """Mutate the graph according to the behavior."""
-        # return tosgraph
         # transform the target node object into the state of the victim
         # the goal here is to get this graph transformation rolling.
 
@@ -68,24 +67,24 @@ class AssessBehavior(AbstractBehavior):
         }
 
         # remove the target node
-        old_pos = tosg.get_node_data_by_node(behavior_edge[1])["pos"]
+        old_pos = situational_graph.get_node_data_by_node(behavior_edge[1])["pos"]
 
-        tosg.remove_node_and_tasks(behavior_edge[1])
+        situational_graph.remove_node_and_tasks(behavior_edge[1])
 
         my_object_type = VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]
 
         from_edge = behavior_edge[0]
-        tosg.add_node_with_task_and_edges_from_affordances(
+        situational_graph.add_node_with_task_and_edges_from_affordances(
             from_edge, my_object_type, old_pos, affordances
         )
 
     def mutate_graph_and_tasks_failure(
-        self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
+        self, agent: AbstractAgent, situational_graph: SituationalGraph, behavior_edge: Edge
     ):
         """Mutate the graph according to the behavior."""
-        # return tosgraph
+        # return situational_graph
         # deactivate the target node,
-        tosg.remove_node_and_tasks(behavior_edge[1])
+        situational_graph.remove_node_and_tasks(behavior_edge[1])
 
 
     def __scan_victim(self, target_node_pos: tuple[float, float]):
