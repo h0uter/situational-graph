@@ -21,9 +21,8 @@ from src.shared.world_object import WorldObject
 
 
 class ExploreBehavior(AbstractBehavior):
-    def __init__(self, agent: AbstractAgent):
-        super().__init__(agent)
-        # self._sampling_strategy = LOSFrontierSamplingStrategy()
+    def __init__(self, affordances: list[Affordance]):
+        super().__init__(affordances)
         self._sampling_strategy = AngularLOSFrontierSamplingStrategy()
 
     def _run_behavior_implementation(
@@ -77,7 +76,7 @@ class ExploreBehavior(AbstractBehavior):
             f"{agent.name}: Now the frontier is visited it can be removed to sample a waypoint in its place."
         )
         # start mutate graph
-        tosg.remove_frontier(next_node)
+        tosg.remove_node_and_tasks(next_node)
         lg = agent.get_local_grid()
 
         """part 1: use local grid to process new virtual objects"""
@@ -127,7 +126,7 @@ class ExploreBehavior(AbstractBehavior):
             f"{agent.name}: did not reach destination during explore action."
         )
         # this is the actual mutation of the grpah on failure
-        tosg.remove_frontier(behavior_edge[1])
+        tosg.remove_node_and_tasks(behavior_edge[1])
         # maintain the previous heading to stop tedious turning
         # TODO: this move to pos is the recovery of the behavior, it should be in the run method.
         agent.move_to_pos(
@@ -187,7 +186,7 @@ class ExploreBehavior(AbstractBehavior):
         # tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
         new_wp = tosg.add_node_of_type(agent.get_localization(), Situations.WAYPOINT)
         tosg.add_waypoint_diedge(new_wp, wp_at_previous_pos)
-        
+
         agent.at_wp = tosg.get_closest_waypoint_to_pos(agent.get_localization())
         return True
 
@@ -196,7 +195,7 @@ class ExploreBehavior(AbstractBehavior):
     ):
         for frontier_cell in new_frontier_cells:
             frontier_pos_global = lg.rc2xy(frontier_cell)
-            tosg.add_frontier(frontier_pos_global, agent.at_wp)
+            tosg.add_node_with_task_and_edges_from_affordances(agent.at_wp, Situations.FRONTIER, frontier_pos_global, self.AFFORDANCES)
 
     # 50% of compute time goes to this function for multiple agents
     def __prune_frontiers(self, tosg: SituationalGraph) -> None:
@@ -222,4 +221,4 @@ class ExploreBehavior(AbstractBehavior):
                     close_frontiers.add(ft)
 
         for frontier in close_frontiers:
-            tosg.remove_frontier(frontier)
+            tosg.remove_node_and_tasks(frontier)

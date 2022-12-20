@@ -17,7 +17,7 @@ class BehaviorResult:
 
 
 class AbstractBehavior(ABC):
-    def __init__(self, affordances: Sequence[Affordance]) -> None:
+    def __init__(self, affordances: list[Affordance]) -> None:
         self._log = logging.getLogger(__name__)
         self.AFFORDANCES = affordances
 

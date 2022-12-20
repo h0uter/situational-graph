@@ -69,7 +69,9 @@ class AssessBehavior(AbstractBehavior):
 
         # remove the target node
         old_pos = tosg.get_node_data_by_node(behavior_edge[1])["pos"]
+
         tosg.G.remove_node(behavior_edge[1])
+        # tosg.remove_node_and_tasks(behavior_edge[1])
 
         my_object_type = VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]
 

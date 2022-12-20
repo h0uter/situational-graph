@@ -13,7 +13,7 @@ class PlanExecutor:
     def __init__(
         self,
         domain_behaviors: Mapping[Behaviors, Type[AbstractBehavior]],
-        affordances: Sequence[Affordance],
+        affordances: list[Affordance],
     ) -> None:
         self._log = logging.getLogger(__name__)
         self.DOMAIN_BEHAVIORS = domain_behaviors

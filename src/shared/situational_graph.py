@@ -20,7 +20,10 @@ class SituationalGraph:
     # missionState = graph + tasks
 
     # what operations work on graph + tasks? -> missionOperations
-    """Behavior-Oriented Situational Graph tailored to missions centered around data collection and obtaining information"""
+    """
+    Behavior-Oriented Situational Graph
+    tailored to missions centered around data collection and obtaining information
+    """
 
     def __init__(self) -> None:
         self._log = logging.getLogger(__name__)
@@ -34,10 +37,9 @@ class SituationalGraph:
         """calculates the distance between two nodes"""
         return self._calc_edge_len_pos(self.G.nodes[a]["pos"], self.G.nodes[b]["pos"])
 
-    def _calc_edge_len_pos(
-        self, a: tuple[float, float], b: tuple[float, float]
-    ) -> float:
-        """calculates the distance between two nodes"""
+    @staticmethod
+    def _calc_edge_len_pos(a: tuple[float, float], b: tuple[float, float]) -> float:
+        """calculates the distance between two positions"""
         (x1, y1) = a
         (x2, y2) = b
         return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
@@ -64,7 +66,8 @@ class SituationalGraph:
         self, pos: tuple[float, float], margin: float, node_type: Situations
     ) -> list:
         """
-        Given a position, a margin and a node type, return a list of nodes of that type that are within the margin of the position.
+        Given a position, a margin and a node type,
+        return a list of nodes of that type that are within the margin of the position.
         """
 
         close_nodes = []
@@ -160,56 +163,6 @@ class SituationalGraph:
     """GRAPH CONTROLLER"""
     """Add stuff"""
 
-    def add_edge_of_type(
-        self,
-        a: Node,
-        b: Node,
-        edge_type: Behaviors,
-        cost: Optional[float] = None,
-    ) -> Edge:
-        e_id = uuid4()
-
-        if not cost:
-            cost = self.calc_edge_len_between_nodes(a, b)
-
-        self.G.add_edge(
-            a,
-            b,
-            key=e_id,
-            type=edge_type,
-            cost=cost,
-        )
-        return (a, b, e_id)
-
-    def add_node_of_type(
-        self, pos: tuple[float, float], object_type: Situations
-    ) -> Node:
-        node_uuid = uuid4()
-        self.G.add_node(node_uuid, pos=pos, type=object_type)
-        return node_uuid
-
-    def add_waypoint_diedge(self, a: Node, b: Node) -> None:
-        self.add_edge_of_type(a, b, Behaviors.GOTO)
-        self.add_edge_of_type(b, a, Behaviors.GOTO)
-
-    def add_frontier(self, pos: tuple[float, float], from_node: Node) -> None:
-        """
-        The reason this is still a separate function from add_node_with_task_and_edges_from_affordances
-        is that the cost is inversely proportional with the reward of the frontier
-        """
-
-        ft_node = self.add_node_of_type(pos, Situations.FRONTIER)
-
-        edge_len = self.calc_edge_len_between_nodes(from_node, ft_node)
-        if edge_len:  # edge len can be zero in the final step.
-            cost = 1 / edge_len  # Prefer the frontiers with the longest edges.
-        else:
-            cost = edge_len
-
-        edge = self.add_edge_of_type(from_node, ft_node, Behaviors.EXPLORE, cost=cost)
-
-        self.tasks.append(Task(edge, Objectives.EXPLORE_ALL_FTS))
-
     def add_node_with_task_and_edges_from_affordances(
         self,
         from_node: Node,
@@ -226,16 +179,40 @@ class SituationalGraph:
 
         return new_node
 
+    def add_node_of_type(self, pos: tuple[float, float], node_type: Situations) -> Node:
+        node_uuid = uuid4()
+        self.G.add_node(node_uuid, pos=pos, type=node_type)
+        return node_uuid
+
+    def add_edge_of_type(
+        self,
+        a: Node,
+        b: Node,
+        edge_type: Behaviors,
+    ) -> Edge:
+
+        edge_id = uuid4()
+
+        cost = self.calc_edge_len_between_nodes(a, b)
+
+        self.G.add_edge(
+            a,
+            b,
+            key=edge_id,
+            type=edge_type,
+            cost=cost,
+        )
+        return (a, b, edge_id)
+
+    def add_waypoint_diedge(self, a: Node, b: Node) -> None:
+        self.add_edge_of_type(a, b, Behaviors.GOTO)
+        self.add_edge_of_type(b, a, Behaviors.GOTO)
+
     """Remove stuff"""
 
-    def remove_frontier(self, frontier: Node):
-        """removes a frontier from the graph"""
-        if not self.get_node_data_by_node(frontier)["type"] == Situations.FRONTIER:
-            self._log.warning(f"remove_frontier(): {frontier} is not a frontier")
-            return
-
-        self.G.remove_node(frontier)  # also removes the edge
-        self.remove_tasks_associated_with_node(frontier)
+    def remove_node_and_tasks(self, a: Node):
+        self.G.remove_node(a)  # also removes the edge
+        self.remove_tasks_associated_with_node(a)
 
     """Task manager stuff"""
 
