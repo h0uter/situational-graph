@@ -1,5 +1,3 @@
-from abc import ABC, abstractmethod
-
 from src.core import event_system
 from src.core.topics import Topics
 from src.mission_autonomy.mission_initializer import MissionInitializer

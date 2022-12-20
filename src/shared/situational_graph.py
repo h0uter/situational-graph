@@ -6,20 +6,12 @@ import networkx as nx
 
 from src.shared.prior_knowledge.affordance import Affordance
 from src.shared.prior_knowledge.sar_behaviors import Behaviors
-from src.shared.prior_knowledge.sar_objectives import Objectives
 from src.shared.prior_knowledge.sar_situations import Situations
 from src.shared.task import Task
 from src.shared.types.node_and_edge import Edge, Node
 
 
 class SituationalGraph:
-    # TODO: separate behavior from data
-    # graphController(graph) <-> behavior post effects
-    # graphData -> nodes, edges, node_data, edge_data -> dataclass
-    # graphInterface -> networkx shit
-    # missionState = graph + tasks
-
-    # what operations work on graph + tasks? -> missionOperations
     """
     Behavior-Oriented Situational Graph
     tailored to missions centered around data collection and obtaining information
@@ -114,6 +106,7 @@ class SituationalGraph:
             return None
 
         node_a, node_b, edge_id = edge
+
         return self.G.edges[node_a, node_b, edge_id]["type"]
 
     def get_closest_waypoint_to_pos(self, pos: tuple[float, float]) -> Node:
@@ -141,7 +134,7 @@ class SituationalGraph:
             self.G, filter_edge=filter_edges_based_on_agent_capabilities
         )
 
-        # here we insert the filtered graph into a new tosg object
+        # insert the filtered graph into a new tosg object
         filtered_tosg = SituationalGraph()
         filtered_tosg.tasks = self.tasks
         filtered_tosg.G = filtered_G

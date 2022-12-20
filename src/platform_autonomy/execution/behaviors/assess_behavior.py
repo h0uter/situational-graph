@@ -70,8 +70,7 @@ class AssessBehavior(AbstractBehavior):
         # remove the target node
         old_pos = tosg.get_node_data_by_node(behavior_edge[1])["pos"]
 
-        tosg.G.remove_node(behavior_edge[1])
-        # tosg.remove_node_and_tasks(behavior_edge[1])
+        tosg.remove_node_and_tasks(behavior_edge[1])
 
         my_object_type = VICTIM_STATE_TO_OBJECT_TYPE[result.victim_state]
 
@@ -86,7 +85,8 @@ class AssessBehavior(AbstractBehavior):
         """Mutate the graph according to the behavior."""
         # return tosgraph
         # deactivate the target node,
-        tosg.G.remove_node(behavior_edge[1])
+        tosg.remove_node_and_tasks(behavior_edge[1])
+
 
     def __scan_victim(self, target_node_pos: tuple[float, float]):
         # todo make this actually orient the robot towards the target and perform some scan or assessment.
