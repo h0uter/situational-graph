@@ -14,9 +14,13 @@ from src.shared.types.node_and_edge import Edge, Node
 
 class SituationalGraph:
     # TODO: separate behavior from data
-    # graphOperations
-    # graphData
-    """Behavior-Oriented Situational Graph"""
+    # graphOperations(graph) <-> behavior post effects
+    # graphData -> nodes, edges, node_data, edge_data -> dataclass
+    # graphInterface -> networkx shit
+    # missionState = graph + tasks
+
+    # what operations work on graph + tasks? -> missionOperations
+    """Behavior-Oriented Situational Graph tailored to missions centered around data collection and obtaining information"""
 
     def __init__(self) -> None:
         self._log = logging.getLogger(__name__)
@@ -40,6 +44,7 @@ class SituationalGraph:
             node for node in self.G.nodes() if self.G.nodes[node]["type"] == node_type
         ]
 
+    # this is a graph operation, that does depend on self....
     def shortest_path(self, source: Node, target: Node) -> Optional[Sequence[Edge]]:
         """returns the shortest path between two nodes"""
 
@@ -64,6 +69,7 @@ class SituationalGraph:
             self._log.error(f"shortest_path: No path found from {source} to {target}.")
             return None
 
+    # this is a graph operation, that does depend on self.... easy to refactor
     def distance_astar(self, source: Node, target: Node) -> float:
         """returns the length of the shortest path between two nodes"""
 
@@ -116,7 +122,9 @@ class SituationalGraph:
         (x2, y2) = self.G.nodes[b]["pos"]
         return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
 
-    def calc_edge_len_pos(self, a: tuple[float, float], b: tuple[float, float]) -> float:
+    def calc_edge_len_pos(
+        self, a: tuple[float, float], b: tuple[float, float]
+    ) -> float:
         """calculates the distance between two nodes"""
         (x1, y1) = a
         (x2, y2) = b
@@ -324,7 +332,7 @@ class SituationalGraph:
             return False
 
     # TODO: add Self typing
-    def _filter_graph(self, capabilities: set):
+    def filter_graph(self, capabilities: set):
         def filter_edges_based_on_agent_capabilities(u: Node, v: Node, k: Node) -> bool:
             behavior_enum = self.G.edges[u, v, k]["type"]  # Behaviors
             for req_cap in behavior_enum.required_capabilities:
@@ -342,7 +350,7 @@ class SituationalGraph:
         filtered_tosg.G = filtered_G
         return filtered_tosg
 
-    def _get_closest_waypoint(self, pos: tuple[float, float]) -> Node:
+    def get_closest_waypoint(self, pos: tuple[float, float]) -> Node:
         """returns the closest waypoint to the given position"""
         closest_node = None
         min_dist = float("inf")
@@ -352,5 +360,5 @@ class SituationalGraph:
                 if dist < min_dist:
                     min_dist = dist
                     closest_node = node
-        
+
         return closest_node

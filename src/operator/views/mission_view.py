@@ -12,10 +12,11 @@ from src.config import PlotLvl, Scenario, cfg
 from src.core.event_system import subscribe
 from src.core.topics import Topics
 from src.operator.feedback_pipeline import MissionViewModel
+from src.operator.mission_controller import MissionController
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.shared.prior_knowledge.sar_situations import Situations
 from src.shared.situational_graph import SituationalGraph
-from src.operator.mission_controller import MissionController
+
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allow_interaction = True
 
@@ -64,7 +65,7 @@ class MissionView:
         # my_node = self.tosg.get_nodes_of_type_in_margin(
         #     node_pos, 2, Situations.WAYPOINT
         # )[0]
-        my_node = self.tosg._get_closest_waypoint(node_pos)
+        my_node = self.tosg.get_closest_waypoint(node_pos)
         print("node: ", my_node, " | pos: ", node_pos)
         # self.plt.render()
 
@@ -84,9 +85,7 @@ class MissionView:
     def figure_update(self, data: MissionViewModel):
 
         if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
-            self.viz_mission_overview(
-                data.situational_graph, data.agents
-            )
+            self.viz_mission_overview(data.situational_graph, data.agents)
 
         if self.plt.escaped:
             exit()
@@ -95,9 +94,7 @@ class MissionView:
         self.viz_mission_overview(data.situational_graph, data.agents)
         self.plt.show(interactive=True)
 
-    def viz_mission_overview(
-        self, tosg: SituationalGraph, agents: list[AbstractAgent]
-    ):
+    def viz_mission_overview(self, tosg: SituationalGraph, agents: list[AbstractAgent]):
         self.clear_annoying_captions()
 
         actors: list[vedo.BaseActor] = []

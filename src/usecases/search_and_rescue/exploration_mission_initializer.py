@@ -44,7 +44,7 @@ class ExplorationMissionInitializer(MissionInitializer):
         """setup vizualisation of start poses"""
         for agent in agents:
             agent.get_local_grid()
-            agent.at_wp = tosg._get_closest_waypoint(agent.pos)
+            agent.at_wp = tosg.get_closest_waypoint(agent.pos)
 
             event_system.post_event(Topics.VIEW__MISSION_START_POINT, agent.pos)
 

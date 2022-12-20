@@ -186,7 +186,7 @@ class ExploreBehavior(AbstractBehavior):
             )
 
             # self._localize_to_closest_waypoint(agent, tosg)
-            agent.at_wp = tosg._get_closest_waypoint(agent.get_localization())
+            agent.at_wp = tosg.get_closest_waypoint(agent.get_localization())
 
             return False
 
@@ -197,7 +197,7 @@ class ExploreBehavior(AbstractBehavior):
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
             tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
             # self._localize_to_closest_waypoint(agent, tosg)
-            agent.at_wp = tosg._get_closest_waypoint(agent.get_localization())
+            agent.at_wp = tosg.get_closest_waypoint(agent.get_localization())
 
             return True
 
@@ -205,7 +205,7 @@ class ExploreBehavior(AbstractBehavior):
             wp_at_previous_pos = wp_at_previous_pos_candidates[0]
             tosg.add_waypoint_and_diedge(agent.get_localization(), wp_at_previous_pos)
             # self._localize_to_closest_waypoint(agent, tosg)
-            agent.at_wp = tosg._get_closest_waypoint(agent.get_localization())
+            agent.at_wp = tosg.get_closest_waypoint(agent.get_localization())
 
             return True
 

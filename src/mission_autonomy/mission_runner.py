@@ -32,7 +32,7 @@ class MissionRunner:
 
         self.start, self.tosg_stats, self.my_logger = feedback_pipeline_init()
 
-        #TODO: subscribe to operator task events.
+        # TODO: subscribe to operator task events.
         event_system.subscribe(Topics.OPERATOR_TASK, self.handle_operator_task_event)
 
     def mission_main_loop(self, agents: list[AbstractAgent], tosg: SituationalGraph):
@@ -74,12 +74,12 @@ class MissionRunner:
             agent = agents[agent_idx]
 
             if agent.init_explore_step_completed:
-                filtered_tosg = tosg._filter_graph(agent.capabilities)
+                filtered_tosg = tosg.filter_graph(agent.capabilities)
 
                 for task in self.operator_task_queue:
                     if task not in tosg.tasks:
                         tosg.tasks.append(task)
-                        
+
                 # HACK: this if statement does not have correct logic
                 if len(self.operator_task_queue) > 0 and agent.task is None:
                     """Operator task allocation"""
@@ -92,7 +92,7 @@ class MissionRunner:
                     )
 
             # if agent.task:
-                # print(f"Agent {agent_idx} is executing task {agent.task}")
+            # print(f"Agent {agent_idx} is executing task {agent.task}")
             data = PlatformRunnerMessage(agent, tosg)
             event_system.post_event(Topics.RUN_PLATFORM, data)
 
