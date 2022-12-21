@@ -12,6 +12,7 @@ from src.shared.situational_graph import SituationalGraph
 @dataclass
 class WaypointShortcutViewModel:
     """A view model for a shortcut between two waypoints on the local grid."""
+
     local_grid: LocalGrid
     collision_cells: list[tuple[int, int]]
     shortcut_candidate_cells: list[tuple[int, int]]
@@ -19,11 +20,11 @@ class WaypointShortcutViewModel:
 
 # BUG: on the real robot sometimes impossible shortcuts are added.
 def add_shortcut_edges_between_wps_on_lg(
-    lg: LocalGrid, tosg: SituationalGraph, agent: AbstractAgent
+    lg: LocalGrid, situational_graph: SituationalGraph, agent: AbstractAgent
 ):
 
     collision_cells = []
-    close_nodes = tosg.get_nodes_of_type_in_margin(
+    close_nodes = situational_graph.get_nodes_of_type_in_margin(
         lg.lg_xy, cfg.WP_SHORTCUT_MARGIN, Situations.WAYPOINT
     )
     wp_positions_to_shortcut_to_candidates = []
@@ -31,7 +32,7 @@ def add_shortcut_edges_between_wps_on_lg(
     for node in close_nodes:
         if node != agent.at_wp:
             wp_positions_to_shortcut_to_candidates.append(
-                tosg.get_node_data_by_node(node)["pos"]
+                situational_graph.get_node_data_by_node(node)["pos"]
             )
 
     agent_at_rc = lg.LG_LEN_IN_N_CELLS // 2, lg.LG_LEN_IN_N_CELLS // 2
@@ -54,10 +55,10 @@ def add_shortcut_edges_between_wps_on_lg(
 
             if is_collision_free:
                 from_wp = agent.at_wp
-                to_wp = tosg.get_node_by_pos(wp_pos)
+                to_wp = situational_graph.get_node_by_exact_pos(wp_pos)
 
-                if not tosg.G.has_edge(from_wp, to_wp):
-                    tosg.add_waypoint_diedge(from_wp, to_wp)
+                if not situational_graph.G.has_edge(from_wp, to_wp):
+                    situational_graph.add_waypoint_diedge(from_wp, to_wp)
 
     data = WaypointShortcutViewModel(
         local_grid=lg,

@@ -12,10 +12,11 @@ from src.config import PlotLvl, Scenario, cfg
 from src.core.event_system import subscribe
 from src.core.topics import Topics
 from src.operator.feedback_pipeline import MissionViewModel
+from src.operator.mission_controller import MissionController
 from src.platform_autonomy.control.abstract_agent import AbstractAgent
 from src.shared.prior_knowledge.sar_situations import Situations
 from src.shared.situational_graph import SituationalGraph
-from src.operator.mission_controller import MissionController
+
 # vedo colors: https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
 vedo.settings.allow_interaction = True
 
@@ -60,11 +61,7 @@ class MissionView:
         coords = [coord / self.factor for coord in event.picked3d]
         # print("left clicked on: ", coords)
         node_pos = tuple(coords[0:2])
-        # my_node = self.tosg.get_node_by_pos(node_pos)
-        # my_node = self.tosg.get_nodes_of_type_in_margin(
-        #     node_pos, 2, Situations.WAYPOINT
-        # )[0]
-        my_node = self.tosg._get_closest_waypoint(node_pos)
+        my_node = self.situational_graph.get_closest_waypoint_to_pos(node_pos)
         print("node: ", my_node, " | pos: ", node_pos)
         # self.plt.render()
 
@@ -84,9 +81,7 @@ class MissionView:
     def figure_update(self, data: MissionViewModel):
 
         if cfg.PLOT_LVL == PlotLvl.ALL or cfg.PLOT_LVL == PlotLvl.INTERMEDIATE_ONLY:
-            self.viz_mission_overview(
-                data.situational_graph, data.agents
-            )
+            self.viz_mission_overview(data.situational_graph, data.agents)
 
         if self.plt.escaped:
             exit()
@@ -96,18 +91,18 @@ class MissionView:
         self.plt.show(interactive=True)
 
     def viz_mission_overview(
-        self, tosg: SituationalGraph, agents: list[AbstractAgent]
+        self, situational_graph: SituationalGraph, agents: list[AbstractAgent]
     ):
         self.clear_annoying_captions()
 
         actors: list[vedo.BaseActor] = []
-        self.tosg = tosg
+        self.situational_graph = situational_graph
 
         self.plt.clear()
         actors.append(self.map_actor)
 
-        pos_dict = self.get_scaled_pos_dict(tosg)
-        ed_ls = list(tosg.G.edges)
+        pos_dict = self.get_scaled_pos_dict(situational_graph)
+        ed_ls = list(situational_graph.G.edges)
 
         # TODO: implement coloration for the different line types
         if len(ed_ls) > 1:
@@ -117,26 +112,32 @@ class MissionView:
             raw_edg = vedo.Lines(raw_lines, c="red").lw(5)
             actors.append(raw_edg)
 
-        waypoint_nodes = tosg.get_nodes_by_type(Situations.WAYPOINT)
+        waypoint_nodes = situational_graph.get_nodes_by_type(Situations.WAYPOINT)
         wps = [pos_dict[wp] for wp in waypoint_nodes]
         waypoints = vedo.Points(wps, r=35, c="FireBrick")
         actors.append(waypoints)
 
-        frontier_nodes = tosg.get_nodes_by_type(Situations.FRONTIER)
+        frontier_nodes = situational_graph.get_nodes_by_type(Situations.FRONTIER)
         fts = [pos_dict[f] for f in frontier_nodes]
         frontiers = vedo.Points(fts, r=40, c="g", alpha=0.2)
         actors.append(frontiers)
 
         # HACK: we need this to extend to new world objects.
-        world_object_nodes = tosg.get_nodes_by_type(Situations.UNKNOWN_VICTIM)
-        world_object_nodes.extend(tosg.get_nodes_by_type(Situations.IMMOBILE_VICTIM))
-        world_object_nodes.extend(tosg.get_nodes_by_type(Situations.MOBILE_VICTIM))
-        actors = self.add_world_object_nodes(world_object_nodes, actors, pos_dict, tosg)
+        world_object_nodes = situational_graph.get_nodes_by_type(
+            Situations.UNKNOWN_VICTIM
+        )
+        world_object_nodes.extend(
+            situational_graph.get_nodes_by_type(Situations.IMMOBILE_VICTIM)
+        )
+        world_object_nodes.extend(
+            situational_graph.get_nodes_by_type(Situations.MOBILE_VICTIM)
+        )
+        actors = self.add_world_object_nodes(
+            world_object_nodes, actors, pos_dict, situational_graph
+        )
         actors = self.add_agents(agents, actors)
 
-        # if usecases is not None:
-        #     self.viz_action_graph(actors, tosg, pos_dict, agents)
-        self.viz_action_graph(actors, tosg, pos_dict, agents)
+        self.viz_action_graph(actors, situational_graph, pos_dict, agents)
 
         if self.debug_actors:
             actors.extend(self.debug_actors)
@@ -242,9 +243,13 @@ class MissionView:
         return actors
 
     def add_world_object_nodes(
-        self, world_object_nodes: Sequence, actors, pos_dict, tosg
+        self,
+        world_object_nodes: Sequence,
+        actors,
+        pos_dict,
+        situational_graph: SituationalGraph,
     ):
-        node_type_dict = nx.get_node_attributes(tosg.G, "type")
+        node_type_dict = nx.get_node_attributes(situational_graph.G, "type")
         for wo in world_object_nodes:
             wo_pos = pos_dict[wo]
             wo_point = vedo.Point(wo_pos, r=20, c="magenta")
@@ -294,8 +299,8 @@ class MissionView:
             )
         self.debug_actors.append(start_vig)
 
-    def get_scaled_pos_dict(self, tosg: SituationalGraph) -> dict:
-        positions_of_all_nodes = nx.get_node_attributes(tosg.G, "pos")
+    def get_scaled_pos_dict(self, situational_graph: SituationalGraph) -> dict:
+        positions_of_all_nodes = nx.get_node_attributes(situational_graph.G, "pos")
         pos_dict = positions_of_all_nodes
 
         # scale the sizes to the scale of the simulated map image

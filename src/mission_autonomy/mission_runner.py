@@ -20,7 +20,7 @@ class MissionRunner:
     def __init__(
         self,
         agents: list[AbstractAgent],
-        tosg: SituationalGraph,
+        situational_graph: SituationalGraph,
         initializer: MissionInitializer,
     ):
         self.step = 0
@@ -28,40 +28,41 @@ class MissionRunner:
         self.operator_task_queue: list[Task] = []
 
         self.task_allocator = TaskAllocator()
-        initializer.initialize_mission(agents, tosg)
+        initializer.initialize_mission(agents, situational_graph)
 
         self.start, self.tosg_stats, self.my_logger = feedback_pipeline_init()
 
-        #TODO: subscribe to operator task events.
+        # TODO: subscribe to operator task events.
         event_system.subscribe(Topics.OPERATOR_TASK, self.handle_operator_task_event)
 
-    def mission_main_loop(self, agents: list[AbstractAgent], tosg: SituationalGraph):
+    def mission_main_loop(
+        self, agents: list[AbstractAgent], situational_graph: SituationalGraph
+    ):
 
         """Main Logic Loop"""
         while True:
-
-            while (not self.mission_completed) and self.step < cfg.MAX_STEPS:
+            while not self.mission_completed:
                 self.inner_loop(
                     agents,
-                    tosg,
+                    situational_graph,
                 )
 
             feedback_pipeline_completion(
                 self.step,
                 agents,
-                tosg,
+                situational_graph,
                 self.tosg_stats,
                 self.my_logger,
                 self.start,
             )
 
-        # krm_stats.save()
-        return self.mission_completed
+
+
 
     def inner_loop(
         self,
         agents: list[AbstractAgent],
-        tosg: SituationalGraph,
+        situational_graph: SituationalGraph,
     ):
         step_start_time = time.perf_counter()
 
@@ -74,12 +75,12 @@ class MissionRunner:
             agent = agents[agent_idx]
 
             if agent.init_explore_step_completed:
-                filtered_tosg = tosg._filter_graph(agent.capabilities)
+                filtered_situational_graph = situational_graph.get_filtered_graph(agent.capabilities)
 
                 for task in self.operator_task_queue:
-                    if task not in tosg.tasks:
-                        tosg.tasks.append(task)
-                        
+                    if task not in situational_graph.tasks:
+                        situational_graph.tasks.append(task)
+
                 # HACK: this if statement does not have correct logic
                 if len(self.operator_task_queue) > 0 and agent.task is None:
                     """Operator task allocation"""
@@ -88,21 +89,21 @@ class MissionRunner:
                 elif len(self.operator_task_queue) == 0 and agent.task is None:
                     """Autonomous task allocation"""
                     agent.task = self.task_allocator.single_agent_task_selection(
-                        agent.at_wp, filtered_tosg
+                        agent.at_wp, filtered_situational_graph
                     )
 
             # if agent.task:
-                # print(f"Agent {agent_idx} is executing task {agent.task}")
-            data = PlatformRunnerMessage(agent, tosg)
+            # print(f"Agent {agent_idx} is executing task {agent.task}")
+            data = PlatformRunnerMessage(agent, situational_graph)
             event_system.post_event(Topics.RUN_PLATFORM, data)
 
-            self.mission_completed = tosg.check_if_tasks_exhausted()
+            self.mission_completed = situational_graph.check_if_tasks_exhausted()
 
         feedback_pipeline_single_step(
             self.step,
             step_start_time,
             agents,
-            tosg,
+            situational_graph,
             self.tosg_stats,
             self.my_logger,
         )

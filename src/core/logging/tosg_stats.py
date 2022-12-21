@@ -28,18 +28,18 @@ class TOSGStats:
     def handle_task_utilities_event(self, task_utilities: dict):
         self.task_utilities.append(task_utilities)
 
-    def update(self, tosg: SituationalGraph, step_duration):
+    def update(self, sgraph: SituationalGraph, step_duration):
 
-        self.num_nodes.append(tosg.G.number_of_nodes())
-        self.num_edges.append(tosg.G.number_of_edges())
+        self.num_nodes.append(sgraph.G.number_of_nodes())
+        self.num_edges.append(sgraph.G.number_of_edges())
         self.step_duration.append(step_duration)
 
         self.num_waypoint_nodes.append(
             len(
                 [
                     n
-                    for n in tosg.G.nodes()
-                    if tosg.G.nodes[n]["type"] == Situations.WAYPOINT
+                    for n in sgraph.G.nodes()
+                    if sgraph.G.nodes[n]["type"] == Situations.WAYPOINT
                 ]
             )
         )
@@ -48,8 +48,8 @@ class TOSGStats:
                 [
                     e
                     # for e in krm.graph.edges()
-                    for e in tosg.G.edges
-                    if tosg.G.edges[e]["type"] == Behaviors.GOTO
+                    for e in sgraph.G.edges
+                    if sgraph.G.edges[e]["type"] == Behaviors.GOTO
                 ]
             )
         )
@@ -57,8 +57,8 @@ class TOSGStats:
             len(
                 [
                     n
-                    for n in tosg.G.nodes()
-                    if tosg.G.nodes[n]["type"] == Situations.FRONTIER
+                    for n in sgraph.G.nodes()
+                    if sgraph.G.nodes[n]["type"] == Situations.FRONTIER
                 ]
             )
         )
@@ -66,8 +66,8 @@ class TOSGStats:
             len(
                 [
                     n
-                    for n in tosg.G.nodes()
-                    if tosg.G.nodes[n]["type"] == Situations.WORLD_OBJECT
+                    for n in sgraph.G.nodes()
+                    if sgraph.G.nodes[n]["type"] == Situations.WORLD_OBJECT
                 ]
             )
         )

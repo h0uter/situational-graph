@@ -8,7 +8,7 @@ import numpy.typing as npt
 
 from src.config import cfg
 from src.platform_autonomy.state.local_grid import LocalGrid
-from src.shared.plan_model import PlanModel
+from src.shared.plan import Plan
 from src.shared.task import Task
 from src.shared.types.node_and_edge import Node
 from src.shared.world_object import WorldObject
@@ -33,7 +33,7 @@ class AbstractAgent(ABC):
         )
 
         self.task: Optional[Task] = None
-        self.plan: Optional[PlanModel] = None
+        self.plan: Optional[Plan] = None
 
         self.steps_taken = 0
         self.algo_iterations = 0

@@ -17,61 +17,36 @@ class BehaviorResult:
 
 
 class AbstractBehavior(ABC):
-    def __init__(self, affordances: Sequence[Affordance]) -> None:
+    def __init__(self, affordances: list[Affordance]) -> None:
         self._log = logging.getLogger(__name__)
         self.AFFORDANCES = affordances
 
     def pipeline(
-        self, agent: AbstractAgent, tosg: SituationalGraph, behavior_edge: Edge
+        self, agent: AbstractAgent, situational_graph: SituationalGraph, behavior_edge: Edge
     ) -> BehaviorResult:
         """Execute the behavior pipeline."""
 
-        result = self._run_behavior_implementation(agent, tosg, behavior_edge)
+        result = self._run_behavior_implementation(agent, situational_graph, behavior_edge)
 
         if not result.success:
             return result
 
-        if self._check_postconditions(agent, tosg, result, behavior_edge):
+        if self._check_postconditions(agent, situational_graph, result, behavior_edge):
             self._log.debug(f"postconditions satisfied")
             # TODO: make it actually mutate tasks
             self._mutate_graph_and_tasks_success(
-                agent, tosg, result, behavior_edge, self.AFFORDANCES
+                agent, situational_graph, result, behavior_edge, self.AFFORDANCES
             )
         else:
             # TODO: make it actually mutate tasks
             self._log.debug(f"postconditions not satisfied")
-            self._mutate_graph_and_tasks_failure(agent, tosg, behavior_edge)
+            self.mutate_graph_and_tasks_failure(agent, situational_graph, behavior_edge)
 
         return result
 
-    # perhaps something like this should go into robot services, to not murk the dependencies.
-    @staticmethod
-    def _localize_to_closest_waypoint(agent: AbstractAgent, tosg: SituationalGraph):
-        """Localize the agent to the waypoint it is currently at."""
-        # agent.localize_to_waypoint(tosg)
-        loc_candidates = tosg.get_nodes_of_type_in_margin(
-            agent.get_localization(), cfg.AT_WP_MARGIN, Situations.WAYPOINT
-        )
-
-        if len(loc_candidates) == 0:
-            agent._log.error(
-                f"{agent.name}: could not find a waypoint in the margin to localize to"
-            )
-            # agent.at_wp = None
-        elif len(loc_candidates) == 1:
-            agent.at_wp = loc_candidates[0]
-
-        elif len(loc_candidates) > 1:
-            agent._log.warning(
-                f"{agent.name}: found multiple waypoints in the margin {loc_candidates}, picking the first one ({loc_candidates[0]}) for localization"
-            )
-            agent.at_wp = loc_candidates[0]
-
-        assert agent.at_wp is not None, "agent.at_wp is None"
-
     @abstractmethod
     def _run_behavior_implementation(
-        self, agent, tosgraph: SituationalGraph, behavior_edge: Edge
+        self, agent, situational_graph: SituationalGraph, behavior_edge: Edge
     ) -> BehaviorResult:
         pass
 
@@ -79,7 +54,7 @@ class AbstractBehavior(ABC):
     def _check_postconditions(
         self,
         agent: AbstractAgent,
-        tosgraph: SituationalGraph,
+        situational_graph: SituationalGraph,
         result,
         behavior_edge: Edge,
     ) -> bool:
@@ -90,7 +65,7 @@ class AbstractBehavior(ABC):
     def _mutate_graph_and_tasks_success(
         self,
         agent: AbstractAgent,
-        tosg: SituationalGraph,
+        situational_graph: SituationalGraph,
         result: BehaviorResult,
         behavior_edge: Edge,
         affordances: Sequence[Affordance],
@@ -98,8 +73,8 @@ class AbstractBehavior(ABC):
         pass
 
     @abstractmethod
-    def _mutate_graph_and_tasks_failure(
-        self, agent: AbstractAgent, tosgraph: SituationalGraph, behavior_edge: Edge
+    def mutate_graph_and_tasks_failure(
+        self, agent: AbstractAgent, situational_graph: SituationalGraph, behavior_edge: Edge
     ):
         pass
 

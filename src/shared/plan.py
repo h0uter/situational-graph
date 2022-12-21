@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from src.shared.types.node_and_edge import Edge
 
 
-class PlanModel:
+class Plan:
     _edge_sequence: list[Optional[Edge]]
     valid: bool
 

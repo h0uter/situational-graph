@@ -95,11 +95,17 @@ class Config:
         # logging
         # LOG_LVL = logging.DEBUG
         LOG_LVL = logging.INFO
-        logging.basicConfig(stream=sys.stdout, level=LOG_LVL)
+        mylogs = logging.getLogger(__name__)
+        logging.basicConfig(
+            stream=sys.stdout,
+            level=LOG_LVL,
+        )
         logging.getLogger("matplotlib").setLevel(logging.WARNING)
         logging.getLogger("PIL").setLevel(logging.WARNING)
         logging.getLogger("bosdyn").setLevel(logging.WARNING)
-        mylogs = logging.getLogger(__name__)
+            
+        # coloredlogs.DEFAULT_LOG_FORMAT = "%(asctime)s | %(levelname)s | %(funcName)s | %(message)s"
+        coloredlogs.DEFAULT_LOG_FORMAT = "%(levelname)s | %(filename)s | %(funcName)s | %(message)s"
         coloredlogs.install(level=LOG_LVL, logger=mylogs)
 
         # LOGIN

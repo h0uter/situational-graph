@@ -29,10 +29,11 @@ def run_usecase():
         ]  # make the first agent only posses the capabilities
         agents.extend([SimulatedAgent(set(), i) for i in range(1, cfg.NUM_AGENTS)])
 
-    # TODO: make it so that here we can also load an existing tosg.
-    tosg = SituationalGraph()
+    # TODO: make it so that here we can also load an existing situational_graph.
+    situational_graph = SituationalGraph()
 
     mission_initializer = ExplorationMissionInitializer()
 
-    mission_runner = MissionRunner(agents, tosg, mission_initializer)
-    mission_runner.mission_main_loop(agents, tosg)
+    mission_runner = MissionRunner(agents, situational_graph, mission_initializer)
+    
+    mission_runner.mission_main_loop(agents, situational_graph)
