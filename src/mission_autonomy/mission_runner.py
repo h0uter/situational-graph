@@ -41,8 +41,7 @@ class MissionRunner:
 
         """Main Logic Loop"""
         while True:
-
-            while (not self.mission_completed) and self.step < cfg.MAX_STEPS:
+            while not self.mission_completed:
                 self.inner_loop(
                     agents,
                     situational_graph,
@@ -57,8 +56,8 @@ class MissionRunner:
                 self.start,
             )
 
-        # krm_stats.save()
-        return self.mission_completed
+
+
 
     def inner_loop(
         self,

@@ -35,4 +35,5 @@ def run_usecase():
     mission_initializer = ExplorationMissionInitializer()
 
     mission_runner = MissionRunner(agents, situational_graph, mission_initializer)
+    
     mission_runner.mission_main_loop(agents, situational_graph)
